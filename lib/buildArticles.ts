@@ -10,6 +10,10 @@ export function getBuildArticles(): BuildArticle[] {
   return [...articles].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 }
 
+export function getBuildArticleById(id: string): BuildArticle | null {
+  return articles.find((article) => article.id === id) ?? null;
+}
+
 export function getPokemonLabelMap(): PokemonLabelMap {
   return Object.fromEntries(pokemon.map((entry) => [entry.slug, entry.nameJa]));
 }

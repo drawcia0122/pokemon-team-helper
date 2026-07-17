@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
+import { buildArticleImportHref } from "@/lib/articleImport";
 import type {
   BattleFormat,
   BuildArticle,
@@ -199,6 +201,9 @@ export function BuildArticleExplorer({
               >
                 元記事を読む <span aria-hidden="true">↗</span>
               </a>
+              <Link className={styles.importLink} href={buildArticleImportHref(article.id)}>
+                この構築を分析する
+              </Link>
             </article>
           ))}
         </div>

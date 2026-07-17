@@ -1,0 +1,99 @@
+import buildArticleData from "@/data/buildArticles.json";
+import pokemonData from "@/data/pokemon.json";
+import type { BuildArticle } from "@/types/buildArticle";
+import type { PokemonEntry, TeamSlot } from "@/types/pokemon";
+
+export type ArticleImportResult =
+  | { status: "idle" }
+  | { status: "error"; message: string }
+  | { status: "ready"; article: BuildArticle; team: TeamSlot[] };
+
+const articles = buildArticleData as BuildArticle[];
+const pokemon = pokemonData as PokemonEntry[];
+
+export function buildArticleImportHref(articleId: string): string {
+  const params = new URLSearchParams({ importArticle: articleId });
+  return `/?${params.toString()}`;
+}
+
+export function resolveArticleImport(
+  articleId: string | null,
+  articleList: BuildArticle[] = articles,
+  pokemonList: PokemonEntry[] = pokemon
+): ArticleImportResult {
+  if (articleId === null) {
+    return { status: "idle" };
+  }
+
+  const article = articleList.find((entry) => entry.id === articleId);
+  if (!article) {
+    return {
+      status: "error",
+      message: "指定された構築記事が見つかりません。記事一覧からもう一度選択してください。"
+    };
+  }
+
+  if (!Array.isArray(article.pokemonSlugs) || article.pokemonSlugs.length !== 6) {
+    return {
+      status: "error",
+      message: "この記事には採用ポケモン6体の正しいデータがありません。現在のパーティは変更されていません。"
+    };
+  }
+
+  const knownSlugs = new Set(pokemonList.map((entry) => entry.slug));
+  const uniqueSlugs = new Set(article.pokemonSlugs);
+  if (
+    uniqueSlugs.size !== 6 ||
+    article.pokemonSlugs.some((slug) => typeof slug !== "string" || !knownSlugs.has(slug))
+  ) {
+    return {
+      status: "error",
+      message: "この記事の採用ポケモンデータに不正な項目があります。安全のため取り込みを中止しました。"
+    };
+  }
+
+  return {
+    status: "ready",
+    article,
+    team: article.pokemonSlugs.map((pokemonSlug, index) => ({
+      id: `article-import-${index + 1}`,
+      mode: "pokemon",
+      pokemonSlug
+    }))
+  };
+}
+
+export function selectTeamForImportAction(
+  currentTeam: TeamSlot[],
+  importedTeam: TeamSlot[],
+  action: "confirm" | "cancel"
+): TeamSlot[] {
+  return action === "confirm" ? importedTeam : currentTeam;
+}
+
+export function selectTeamForRestoreAction(
+  currentTeam: TeamSlot[],
+  backupTeam: TeamSlot[],
+  action: "restore" | "cancel"
+): TeamSlot[] {
+  return action === "restore" ? backupTeam : currentTeam;
+}
+
+export function mergeImportedPokemonOptions(
+  availablePokemon: PokemonEntry[],
+  team: TeamSlot[]
+): PokemonEntry[] {
+  const options = new Map(availablePokemon.map((entry) => [entry.slug, entry]));
+  const allPokemon = new Map(pokemon.map((entry) => [entry.slug, entry]));
+
+  for (const slot of team) {
+    if (slot.mode === "pokemon" && !options.has(slot.pokemonSlug)) {
+      const selectedPokemon = allPokemon.get(slot.pokemonSlug);
+      if (selectedPokemon) {
+        options.set(selectedPokemon.slug, selectedPokemon);
+      }
+    }
+  }
+
+  return [...options.values()];
+}

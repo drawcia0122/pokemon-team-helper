@@ -1,0 +1,69 @@
+.content,
+.content :global(.layout),
+.content :global(.analysis-column),
+.content :global(.panel) {
+  min-width: 0;
+}
+
+.importNotice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border: 1px solid rgba(37, 98, 69, 0.2);
+  border-radius: 14px;
+  background: rgba(232, 246, 238, 0.96);
+  color: #256245;
+  flex-wrap: wrap;
+}
+
+.restoreConfirmation {
+  display: grid;
+  flex: 1 0 100%;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding-top: 13px;
+  border-top: 1px solid rgba(37, 98, 69, 0.18);
+}
+
+.restoreConfirmation p {
+  margin: 0;
+  color: #76413d;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.importNotice div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.importNotice button {
+  padding: 8px 11px;
+  border: 1px solid rgba(37, 98, 69, 0.22);
+  border-radius: 8px;
+  background: #fff;
+  color: #256245;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+@media (max-width: 620px) {
+  .importNotice {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .importNotice div,
+  .importNotice button {
+    width: 100%;
+  }
+
+  .restoreConfirmation {
+    grid-template-columns: 1fr;
+  }
+}
