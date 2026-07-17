@@ -1,0 +1,12 @@
+{
+  "id": "season2",
+  "label": "シーズン2",
+  "startDate": null,
+  "endDate": null,
+  "allowedPokemonSlugs": [],
+  "bannedPokemonSlugs": [],
+  "notes": [
+    "season2 の雛形です",
+    "appMeta.json に登録済みなので、このファイルを編集すれば切替対象に追加できます"
+  ]
+}

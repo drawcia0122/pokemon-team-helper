@@ -1,0 +1,4 @@
+{
+  "defaultSeasonId": "season1",
+  "seasonIds": ["season1", "season2", "all"]
+}

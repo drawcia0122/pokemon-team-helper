@@ -1,0 +1,327 @@
+[
+  {
+    "nameEn": "normal",
+    "nameJa": "ノーマル",
+    "attack": {
+      "doubleTo": [],
+      "halfTo": [
+        "rock",
+        "steel"
+      ],
+      "zeroTo": [
+        "ghost"
+      ]
+    }
+  },
+  {
+    "nameEn": "fire",
+    "nameJa": "ほのお",
+    "attack": {
+      "doubleTo": [
+        "bug",
+        "steel",
+        "grass",
+        "ice"
+      ],
+      "halfTo": [
+        "rock",
+        "fire",
+        "water",
+        "dragon"
+      ],
+      "zeroTo": []
+    }
+  },
+  {
+    "nameEn": "water",
+    "nameJa": "みず",
+    "attack": {
+      "doubleTo": [
+        "ground",
+        "rock",
+        "fire"
+      ],
+      "halfTo": [
+        "water",
+        "grass",
+        "dragon"
+      ],
+      "zeroTo": []
+    }
+  },
+  {
+    "nameEn": "electric",
+    "nameJa": "でんき",
+    "attack": {
+      "doubleTo": [
+        "flying",
+        "water"
+      ],
+      "halfTo": [
+        "grass",
+        "electric",
+        "dragon"
+      ],
+      "zeroTo": [
+        "ground"
+      ]
+    }
+  },
+  {
+    "nameEn": "grass",
+    "nameJa": "くさ",
+    "attack": {
+      "doubleTo": [
+        "ground",
+        "rock",
+        "water"
+      ],
+      "halfTo": [
+        "flying",
+        "poison",
+        "bug",
+        "steel",
+        "fire",
+        "grass",
+        "dragon"
+      ],
+      "zeroTo": []
+    }
+  },
+  {
+    "nameEn": "ice",
+    "nameJa": "こおり",
+    "attack": {
+      "doubleTo": [
+        "flying",
+        "ground",
+        "grass",
+        "dragon"
+      ],
+      "halfTo": [
+        "steel",
+        "fire",
+        "water",
+        "ice"
+      ],
+      "zeroTo": []
+    }
+  },
+  {
+    "nameEn": "fighting",
+    "nameJa": "かくとう",
+    "attack": {
+      "doubleTo": [
+        "normal",
+        "rock",
+        "steel",
+        "ice",
+        "dark"
+      ],
+      "halfTo": [
+        "flying",
+        "poison",
+        "bug",
+        "psychic",
+        "fairy"
+      ],
+      "zeroTo": [
+        "ghost"
+      ]
+    }
+  },
+  {
+    "nameEn": "poison",
+    "nameJa": "どく",
+    "attack": {
+      "doubleTo": [
+        "grass",
+        "fairy"
+      ],
+      "halfTo": [
+        "poison",
+        "ground",
+        "rock",
+        "ghost"
+      ],
+      "zeroTo": [
+        "steel"
+      ]
+    }
+  },
+  {
+    "nameEn": "ground",
+    "nameJa": "じめん",
+    "attack": {
+      "doubleTo": [
+        "poison",
+        "rock",
+        "steel",
+        "fire",
+        "electric"
+      ],
+      "halfTo": [
+        "bug",
+        "grass"
+      ],
+      "zeroTo": [
+        "flying"
+      ]
+    }
+  },
+  {
+    "nameEn": "flying",
+    "nameJa": "ひこう",
+    "attack": {
+      "doubleTo": [
+        "fighting",
+        "bug",
+        "grass"
+      ],
+      "halfTo": [
+        "rock",
+        "steel",
+        "electric"
+      ],
+      "zeroTo": []
+    }
+  },
+  {
+    "nameEn": "psychic",
+    "nameJa": "エスパー",
+    "attack": {
+      "doubleTo": [
+        "fighting",
+        "poison"
+      ],
+      "halfTo": [
+        "steel",
+        "psychic"
+      ],
+      "zeroTo": [
+        "dark"
+      ]
+    }
+  },
+  {
+    "nameEn": "bug",
+    "nameJa": "むし",
+    "attack": {
+      "doubleTo": [
+        "grass",
+        "psychic",
+        "dark"
+      ],
+      "halfTo": [
+        "fighting",
+        "flying",
+        "poison",
+        "ghost",
+        "steel",
+        "fire",
+        "fairy"
+      ],
+      "zeroTo": []
+    }
+  },
+  {
+    "nameEn": "rock",
+    "nameJa": "いわ",
+    "attack": {
+      "doubleTo": [
+        "flying",
+        "bug",
+        "fire",
+        "ice"
+      ],
+      "halfTo": [
+        "fighting",
+        "ground",
+        "steel"
+      ],
+      "zeroTo": []
+    }
+  },
+  {
+    "nameEn": "ghost",
+    "nameJa": "ゴースト",
+    "attack": {
+      "doubleTo": [
+        "ghost",
+        "psychic"
+      ],
+      "halfTo": [
+        "dark"
+      ],
+      "zeroTo": [
+        "normal"
+      ]
+    }
+  },
+  {
+    "nameEn": "dragon",
+    "nameJa": "ドラゴン",
+    "attack": {
+      "doubleTo": [
+        "dragon"
+      ],
+      "halfTo": [
+        "steel"
+      ],
+      "zeroTo": [
+        "fairy"
+      ]
+    }
+  },
+  {
+    "nameEn": "dark",
+    "nameJa": "あく",
+    "attack": {
+      "doubleTo": [
+        "ghost",
+        "psychic"
+      ],
+      "halfTo": [
+        "fighting",
+        "dark",
+        "fairy"
+      ],
+      "zeroTo": []
+    }
+  },
+  {
+    "nameEn": "steel",
+    "nameJa": "はがね",
+    "attack": {
+      "doubleTo": [
+        "rock",
+        "ice",
+        "fairy"
+      ],
+      "halfTo": [
+        "steel",
+        "fire",
+        "water",
+        "electric"
+      ],
+      "zeroTo": []
+    }
+  },
+  {
+    "nameEn": "fairy",
+    "nameJa": "フェアリー",
+    "attack": {
+      "doubleTo": [
+        "fighting",
+        "dragon",
+        "dark"
+      ],
+      "halfTo": [
+        "poison",
+        "steel",
+        "fire"
+      ],
+      "zeroTo": []
+    }
+  }
+]

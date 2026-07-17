@@ -1,0 +1,26 @@
+{
+  "name": "pokemon-type-team-helper",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "app": "node scripts/start-app.mjs",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "data:fetch": "tsx scripts/fetchPokemonData.ts",
+    "data:seed-season1": "tsx scripts/seedSeason1.ts"
+  },
+  "dependencies": {
+    "next": "15.2.4",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.13.10",
+    "@types/react": "19.0.10",
+    "@types/react-dom": "19.0.4",
+    "tsx": "4.19.3",
+    "typescript": "5.8.2"
+  }
+}
