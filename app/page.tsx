@@ -11,6 +11,7 @@ import { TeamSummaryTable } from "@/components/TeamSummaryTable";
 import { TypeCandidateList } from "@/components/TypeCandidateList";
 import { getPokemonCandidateScores, getTypeCandidateScores } from "@/lib/scoring";
 import { getAvailablePokemonBySeason, getSeasonMeta, getSeasonOptions } from "@/lib/regulations";
+import { parseStoredTeam, serializeTeam } from "@/lib/teamStorage";
 import { getAllTypes, summarizeTeam } from "@/lib/typeChart";
 import type { PokemonCandidateScore, TeamSlot, TypeCandidateScore } from "@/types/pokemon";
 
@@ -58,7 +59,7 @@ export default function HomePage() {
 
     if (savedTeam) {
       try {
-        setTeam(JSON.parse(savedTeam) as TeamSlot[]);
+        setTeam(parseStoredTeam(savedTeam));
       } catch {
         window.localStorage.removeItem("pokemon-helper:team");
       }
@@ -67,7 +68,7 @@ export default function HomePage() {
 
   useEffect(() => {
     window.localStorage.setItem("pokemon-helper:seasonId", seasonId);
-    window.localStorage.setItem("pokemon-helper:team", JSON.stringify(team));
+    window.localStorage.setItem("pokemon-helper:team", serializeTeam(team));
   }, [seasonId, team]);
 
   useEffect(() => {

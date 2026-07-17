@@ -8,6 +8,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "data:validate": "tsx scripts/validateBuildArticles.ts",
+    "test:storage": "tsx scripts/testTeamStorage.ts",
+    "check": "npm run data:validate && npm run test:storage && npm run typecheck && npm run build",
     "data:fetch": "tsx scripts/fetchPokemonData.ts",
     "data:seed-season1": "tsx scripts/seedSeason1.ts"
   },
