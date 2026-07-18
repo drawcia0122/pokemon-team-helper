@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { ArticleImportPanel } from "@/components/ArticleImportPanel";
+import { SiteNavigation } from "@/components/navigation/SiteNavigation";
 import { CandidateComparison } from "@/components/CandidateComparison";
 import { MemberTypeProfile } from "@/components/MemberTypeProfile";
 import { PokemonCandidateList } from "@/components/PokemonCandidateList";
@@ -249,6 +250,7 @@ export default function HomePage() {
 
   return (
     <main className="page">
+      <SiteNavigation active="team" />
       <section className="hero">
         <p className="eyebrow">Pokémon Champions / シーズン対応</p>
         <h1>タイプ相性補完ツール</h1>

@@ -1,52 +1,14 @@
-.page {
-  width: min(1180px, calc(100vw - 32px));
-  margin: 0 auto;
-  padding: 40px 0 72px;
-  color: #1e2430;
-}
-
-.hero {
-  margin-bottom: 24px;
-  padding: clamp(24px, 5vw, 48px);
-  border: 1px solid rgba(53, 66, 91, 0.14);
-  border-radius: 28px;
-  background: radial-gradient(circle at 90% 0, rgba(61, 103, 177, 0.16), transparent 38%), rgba(255, 251, 246, 0.94);
-  box-shadow: 0 24px 80px rgba(59, 44, 32, 0.1);
-}
-
-.eyebrow {
-  margin: 0 0 10px;
-  color: #3d67b1;
-  font-size: 0.8rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-}
-
-.hero h1 {
-  margin: 0 0 14px;
-  font-size: clamp(2rem, 6vw, 3.7rem);
-  line-height: 1.1;
-  letter-spacing: -0.04em;
-}
-
-.hero > p:not(.eyebrow) {
-  margin: 0;
-  color: #5d6778;
-  line-height: 1.8;
-}
-
-.hero aside {
-  margin-top: 20px;
-  padding: 13px 15px;
-  border-left: 4px solid #3d67b1;
-  border-radius: 0 11px 11px 0;
-  background: rgba(61, 103, 177, 0.08);
-  color: #49566d;
-  font-size: 0.84rem;
-  line-height: 1.7;
-}
-
-@media (max-width: 640px) {
-  .page { width: calc(100vw - 20px); padding-top: 20px; }
-  .hero { padding: 24px 18px; border-radius: 20px; }
+.page { width: min(1120px,calc(100vw - 32px)); margin: 0 auto; padding: 28px 0 72px; color: #183126; }
+.hero { margin-bottom: 20px; padding: clamp(22px,4vw,36px); border: 1px solid #c8ded0; border-radius: 22px; background: radial-gradient(circle at 92% 5%,rgba(65,143,199,.16),transparent 32%),linear-gradient(145deg,#f3fbf5,#fff); box-shadow: 0 16px 50px rgba(24,82,51,.07); }
+.heroHeading { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.heroHeading > strong { flex: 0 0 auto; padding: 9px 13px; border-radius: 999px; background: #2771a9; color: #fff; font-size: .82rem; }
+.eyebrow { margin: 0 0 7px; color: #2771a9; font-size: .75rem; font-weight: 900; letter-spacing: .12em; }
+.hero h1 { margin: 0 0 12px; color: #174f32; font-size: clamp(1.85rem,5vw,3rem); line-height: 1.1; letter-spacing: -.035em; }
+.hero > p { margin: 0; color: #52665a; line-height: 1.75; }
+.hero aside { margin-top: 17px; padding: 11px 14px; border-left: 4px solid #2771a9; border-radius: 0 10px 10px 0; background: #edf6fc; color: #3e5d70; font-size: .8rem; line-height: 1.65; }
+@media (max-width:640px) {
+  .page { width: calc(100vw - 20px); padding-top: 16px; }
+  .hero { padding: 21px 17px; border-radius: 17px; }
+  .heroHeading { align-items: flex-start; }
+  .heroHeading > strong { font-size: .72rem; }
 }

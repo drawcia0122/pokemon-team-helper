@@ -1,62 +1,14 @@
-.page {
-  width: min(1180px, calc(100vw - 32px));
-  margin: 0 auto;
-  padding: 40px 0 72px;
-  color: #1e2430;
-}
-
-.hero {
-  margin-bottom: 24px;
-  padding: clamp(24px, 5vw, 48px);
-  border: 1px solid rgba(53, 66, 91, 0.14);
-  border-radius: 28px;
-  background:
-    radial-gradient(circle at top right, rgba(94, 173, 188, 0.18), transparent 36%),
-    rgba(255, 251, 246, 0.92);
-  box-shadow: 0 24px 80px rgba(59, 44, 32, 0.1);
-}
-
-.eyebrow {
-  margin: 0 0 10px;
-  color: #b95c39;
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-}
-
-.hero h1 {
-  margin: 0 0 14px;
-  font-size: clamp(2.1rem, 6vw, 3.8rem);
-  line-height: 1.1;
-  letter-spacing: -0.04em;
-}
-
-.hero > p:not(.eyebrow) {
-  max-width: 820px;
-  margin: 0;
-  color: #5d6778;
-  line-height: 1.8;
-}
-
-.unofficial {
-  margin-top: 22px;
-  padding: 14px 16px;
-  border-left: 4px solid #b95c39;
-  border-radius: 0 12px 12px 0;
-  background: rgba(185, 92, 57, 0.08);
-  color: #5d4b44;
-  font-size: 0.85rem;
-  line-height: 1.7;
-}
-
-@media (max-width: 640px) {
-  .page {
-    width: min(100% - 20px, 1180px);
-    padding-top: 20px;
-  }
-
-  .hero {
-    padding: 24px 18px;
-    border-radius: 20px;
-  }
+.page { width: min(1120px,calc(100vw - 32px)); margin: 0 auto; padding: 28px 0 72px; color: #183126; }
+.hero { margin-bottom: 20px; padding: clamp(22px,4vw,36px); border: 1px solid #c8ded0; border-radius: 22px; background: radial-gradient(circle at 92% 5%,rgba(255,218,87,.2),transparent 30%),linear-gradient(145deg,#f3fbf5,#fff); box-shadow: 0 16px 50px rgba(24,82,51,.07); }
+.heroHeading { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.heroHeading > strong { flex: 0 0 auto; padding: 9px 13px; border-radius: 999px; background: #176f42; color: #fff; font-size: .82rem; }
+.eyebrow { margin: 0 0 7px; color: #238153; font-size: .75rem; font-weight: 900; letter-spacing: .12em; }
+.hero h1 { margin: 0 0 12px; color: #174f32; font-size: clamp(1.9rem,5vw,3rem); line-height: 1.1; letter-spacing: -.035em; }
+.hero > p { max-width: 820px; margin: 0; color: #52665a; line-height: 1.75; }
+.unofficial { margin-top: 17px; padding: 11px 14px; border-left: 4px solid #e0a817; border-radius: 0 10px 10px 0; background: #fff8dd; color: #655522; font-size: .8rem; line-height: 1.65; }
+@media (max-width:640px) {
+  .page { width: min(100% - 20px,1120px); padding-top: 16px; }
+  .hero { padding: 21px 17px; border-radius: 17px; }
+  .heroHeading { align-items: flex-start; }
+  .heroHeading > strong { font-size: .72rem; }
 }

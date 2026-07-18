@@ -1,34 +1,76 @@
-.explorer { display: grid; gap: 20px; min-width: 0; }
-.toolbar, .card, .empty { border: 1px solid rgba(53,66,91,.14); background: rgba(255,251,246,.94); box-shadow: 0 18px 54px rgba(59,44,32,.08); }
-.toolbar { padding: 22px; border-radius: 22px; }
-.heading { display: flex; justify-content: space-between; align-items: baseline; gap: 15px; margin-bottom: 18px; }
-.heading h2, .heading p { margin: 0; }
-.heading p { color: #5d6778; font-size: .88rem; }
-.filters { display: grid; grid-template-columns: minmax(260px,2fr) minmax(150px,1fr) minmax(150px,1fr); gap: 12px; }
-.filters label { display: grid; gap: 7px; min-width: 0; color: #5d6778; font-size: .78rem; font-weight: 700; }
-.filters input, .filters select { width: 100%; min-width: 0; min-height: 44px; padding: 10px 12px; border: 1px solid rgba(53,66,91,.18); border-radius: 10px; background: #fff; }
-.grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; min-width: 0; }
-.card { display: flex; flex-direction: column; min-width: 0; padding: 21px; border-radius: 21px; }
-.meta, .statuses, .pokemon, .tags { display: flex; flex-wrap: wrap; gap: 7px; }
-.meta { color: #657083; font-size: .75rem; }
-.meta span, .meta time, .kind { padding: 5px 8px; border-radius: 999px; background: #f0e8dc; }
-.meta .kind { color: #315997; background: rgba(61,103,177,.12); font-weight: 800; }
-.statuses { margin: 12px 0; }
-.status, .urgent { padding: 6px 9px; border-radius: 8px; font-size: .77rem; }
-.status { color: #256245; background: rgba(37,98,69,.1); }
-.urgent { color: #a23933; background: rgba(176,61,54,.12); }
-.card h3 { margin: 0; font-size: 1.14rem; line-height: 1.55; }
-.summary { color: #515c6d; line-height: 1.7; font-size: .9rem; }
-.schedule { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin: 0 0 14px; }
-.schedule div { min-width: 0; padding: 9px 10px; border-radius: 9px; background: #f4ede3; }
-.schedule dt { color: #6c7482; font-size: .68rem; }
-.schedule dd { margin: 3px 0 0; overflow-wrap: anywhere; font-size: .78rem; font-weight: 700; }
-.pokemon button, .tags button { padding: 7px 9px; border: 1px solid rgba(53,66,91,.13); border-radius: 999px; background: #fff; cursor: pointer; font-size: .76rem; }
-.tags { margin: 10px 0 16px; }
-.tags button { border: 0; background: transparent; color: #6b6374; }
-.card > a { align-self: flex-start; margin-top: auto; padding: 10px 13px; border-radius: 9px; background: #3d67b1; color: #fff; font-size: .84rem; font-weight: 800; text-decoration: none; }
-.empty { padding: 50px 20px; border-radius: 20px; text-align: center; }
-.empty p { color: #5d6778; }
-.empty button { padding: 10px 13px; border: 0; border-radius: 9px; background: #3d67b1; color: #fff; cursor: pointer; font-weight: 700; }
-@media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
-@media (max-width: 620px) { .toolbar,.card { padding: 16px; border-radius: 17px; } .heading { align-items: flex-start; flex-direction: column; gap: 4px; } .filters,.schedule { grid-template-columns: 1fr; } }
+.explorer { display: grid; gap: 24px; min-width: 0; }
+.toolbar,.card,.empty { border: 1px solid #cddfd2; background: #fff; box-shadow: 0 10px 30px rgba(24,82,51,.06); }
+.toolbar { padding: 18px; border-radius: 18px; }
+.heading,.sectionHeading { display: flex; justify-content: space-between; align-items: baseline; gap: 15px; }
+.heading { margin-bottom: 13px; }
+.heading h2,.heading p,.sectionHeading h2,.sectionHeading p { margin: 0; }
+.heading h2,.sectionHeading h2 { color: #174f32; font-size: 1.15rem; }
+.heading p,.sectionHeading p { color: #687970; font-size: .82rem; }
+.kindFilters { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+.kindFilters button { min-height: 36px; padding: 7px 12px; border: 1px solid #bfd5c6; border-radius: 999px; background: #f7fbf8; color: #355b45; cursor: pointer; font-size: .78rem; font-weight: 800; }
+.kindFilters button[aria-pressed="true"] { border-color: #176f42; background: #176f42; color: #fff; box-shadow: 0 4px 11px rgba(23,111,66,.18); }
+.kindFilters button:focus-visible,.reset:focus-visible,.pokemon button:focus-visible,.tags button:focus-visible,.cardBody > a:focus-visible { outline: 3px solid rgba(22,129,77,.3); outline-offset: 2px; }
+.filters { display: grid; grid-template-columns: minmax(260px,2fr) minmax(150px,1fr) auto; align-items: end; gap: 10px; }
+.filters label { display: grid; gap: 6px; min-width: 0; color: #53665a; font-size: .75rem; font-weight: 800; }
+.filters input,.filters select { width: 100%; min-width: 0; min-height: 42px; padding: 9px 11px; border: 1px solid #bed2c4; border-radius: 10px; outline: none; background: #fbfefc; color: #183126; }
+.filters input:focus,.filters select:focus { border-color: #16814d; box-shadow: 0 0 0 3px rgba(22,129,77,.16); }
+.reset { min-height: 42px; padding: 9px 12px; border: 1px solid #b7cdbf; border-radius: 10px; background: #fff; color: #286044; cursor: pointer; font-weight: 800; }
+.priority { display: grid; gap: 12px; padding: 18px; border: 1px solid #eed58a; border-radius: 20px; background: #fff9e6; }
+.sectionHeading > div > span { color: #a86400; font-size: .68rem; font-weight: 900; letter-spacing: .12em; }
+.priorityGrid,.grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; min-width: 0; }
+.card { display: grid; grid-template-columns: 110px minmax(0,1fr); min-width: 0; overflow: hidden; border-radius: 18px; }
+.featuredCard { border-color: #e6c96f; box-shadow: 0 10px 28px rgba(134,92,0,.09); }
+.endedCard { border-color: #d7dcda; background: #f7f8f7; box-shadow: none; }
+.endedCard .cardVisual { filter: grayscale(.6); opacity: .72; }
+.cardVisual { display: grid; align-content: center; justify-items: center; gap: 9px; min-height: 100%; padding: 15px 8px; background: #e9f5ed; color: #17623b; }
+.cardVisual[data-kind="news"],.cardVisual[data-kind="game-update"] { background: #e8f3fb; color: #22658e; }
+.cardVisual[data-kind="goods"] { background: #fff3cf; color: #8a5a00; }
+.cardVisual[data-kind="campaign"] { background: #fff0df; color: #9a5410; }
+.cardVisual > span:not([class]) { display: grid; width: 68px; height: 68px; place-items: center; border-radius: 50%; background: rgba(255,255,255,.65); font-size: 1rem; font-weight: 900; }
+.cardVisual > strong { font-size: .7rem; text-align: center; }
+.cardBody { display: flex; flex-direction: column; min-width: 0; padding: 17px; }
+.meta,.statuses,.pokemon,.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.meta { color: #67766d; font-size: .7rem; }
+.meta span,.meta time { padding: 4px 7px; border-radius: 999px; background: #edf3ef; }
+.meta .kind { color: #22658e; background: #e7f2fa; font-weight: 850; }
+.statuses { margin: 9px 0; }
+.status,.deadline,.ended { padding: 5px 8px; border-radius: 8px; font-size: .72rem; }
+.status { color: #17623b; background: #e8f5ec; }
+.deadline { color: #875400; background: #fff0b5; box-shadow: inset 0 0 0 1px #efd277; }
+.ended { color: #69716d; background: #e6e9e7; }
+.card h3 { margin: 0; color: #183c2a; font-size: 1.02rem; line-height: 1.5; }
+.endedCard h3 { color: #525c56; }
+.summary { margin: 8px 0 12px; color: #4d5f54; font-size: .84rem; line-height: 1.65; }
+.schedule { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; margin: 0 0 11px; }
+.schedule div { min-width: 0; padding: 7px 8px; border-radius: 8px; background: #f1f7f3; }
+.endedCard .schedule div { background: #ecefed; }
+.schedule dt { color: #6b796f; font-size: .64rem; }
+.schedule dd { margin: 2px 0 0; overflow-wrap: anywhere; font-size: .73rem; font-weight: 800; }
+.pokemon button,.tags button { padding: 5px 8px; border-radius: 999px; cursor: pointer; font-size: .7rem; }
+.pokemon button { border: 1px solid #c4dbc9; background: #f2faf4; color: #255f3e; }
+.tags { margin: 7px 0 12px; }
+.tags button { border: 0; background: transparent; color: #337252; }
+.cardBody > a { align-self: flex-start; margin-top: auto; padding: 8px 11px; border-radius: 8px; background: #2771a9; color: #fff; font-size: .76rem; font-weight: 850; text-decoration: none; }
+.cardBody > a:hover { background: #1d5c8b; }
+.empty { padding: 50px 20px; border-radius: 18px; text-align: center; }
+.empty p { color: #63736a; }
+.empty button { padding: 10px 13px; border: 0; border-radius: 9px; background: #176f42; color: #fff; cursor: pointer; font-weight: 800; }
+@media (max-width: 880px) {
+  .priorityGrid,.grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 620px) {
+  .toolbar { padding: 15px; border-radius: 15px; }
+  .heading,.sectionHeading { align-items: flex-start; flex-direction: column; gap: 3px; }
+  .filters { grid-template-columns: 1fr; }
+  .priority { padding: 12px; border-radius: 16px; }
+  .card { grid-template-columns: 80px minmax(0,1fr); border-radius: 15px; }
+  .cardVisual { padding: 12px 5px; }
+  .cardVisual > strong { font-size: .62rem; }
+  .cardBody { padding: 14px 12px; }
+  .schedule { grid-template-columns: 1fr; }
+}
+@media (max-width: 390px) {
+  .card { grid-template-columns: 68px minmax(0,1fr); }
+  .cardVisual { justify-items: center; }
+  .kindFilters button { flex: 1 1 calc(50% - 7px); }
+}

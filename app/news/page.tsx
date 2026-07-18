@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PokemonContentExplorer } from "@/components/news/PokemonContentExplorer";
+import { SiteNavigation } from "@/components/navigation/SiteNavigation";
 import { getContentPokemonLabels, getPokemonContent } from "@/lib/pokemonContent";
 import styles from "./page.module.css";
 
@@ -18,11 +19,19 @@ function todayInJapan(): string {
 }
 
 export default function NewsPage() {
+  const items = getPokemonContent();
+
   return (
     <main className={styles.page}>
+      <SiteNavigation active="news" />
       <section className={styles.hero}>
-        <p className={styles.eyebrow}>POKÉMON INFORMATION INDEX</p>
-        <h1>ニュース・グッズ・イベント</h1>
+        <div className={styles.heroHeading}>
+          <div>
+            <p className={styles.eyebrow}>POKÉMON INFORMATION INDEX</p>
+            <h1>ニュース・グッズ・イベント</h1>
+          </div>
+          <strong>{items.length}件の情報</strong>
+        </div>
         <p>公式サイトなど出典が明確な情報を、日程と関連ポケモンから探せる形で整理しています。</p>
         <aside>
           このページは非公式です。情報の正確性や在庫を保証しません。
@@ -30,7 +39,7 @@ export default function NewsPage() {
         </aside>
       </section>
       <PokemonContentExplorer
-        items={getPokemonContent()}
+        items={items}
         pokemonLabels={getContentPokemonLabels()}
         today={todayInJapan()}
       />

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BuildArticleExplorer } from "@/components/builds/BuildArticleExplorer";
+import { SiteNavigation } from "@/components/navigation/SiteNavigation";
 import { getBuildArticles, getPokemonLabelMap } from "@/lib/buildArticles";
 import styles from "./page.module.css";
 
@@ -9,11 +10,19 @@ export const metadata: Metadata = {
 };
 
 export default function BuildsPage() {
+  const articles = getBuildArticles();
+
   return (
     <main className={styles.page}>
+      <SiteNavigation active="builds" />
       <section className={styles.hero}>
-        <p className={styles.eyebrow}>BUILD ARTICLE LIBRARY</p>
-        <h1>構築記事を探す</h1>
+        <div className={styles.heroHeading}>
+          <div>
+            <p className={styles.eyebrow}>BUILD ARTICLE LIBRARY</p>
+            <h1>構築記事を探す</h1>
+          </div>
+          <strong>{articles.length}件の構築</strong>
+        </div>
         <p>
           対戦形式やレギュレーション、採用ポケモンから構築記事を検索できます。
           記事本文や画像は掲載せず、検索に必要な情報と独自の短い紹介、元記事へのリンクのみを扱います。
@@ -25,7 +34,7 @@ export default function BuildsPage() {
       </section>
 
       <BuildArticleExplorer
-        articles={getBuildArticles()}
+        articles={articles}
         pokemonLabels={getPokemonLabelMap()}
       />
     </main>

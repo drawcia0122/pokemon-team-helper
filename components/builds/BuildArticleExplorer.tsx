@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { PokemonVisual } from "@/components/pokemon/PokemonVisual";
 import { buildArticleImportHref } from "@/lib/articleImport";
 import type {
   BattleFormat,
@@ -154,24 +155,10 @@ export function BuildArticleExplorer({
         <div className={styles.grid}>
           {filteredArticles.map((article) => (
             <article className={styles.card} key={article.id}>
-              <div className={styles.meta}>
-                <span className={article.battleFormat === "single" ? styles.single : styles.double}>
-                  {formatLabels[article.battleFormat]}
-                </span>
-                <span>{article.regulation}</span>
-                <span>{article.season}</span>
-                <time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time>
-              </div>
-
               <h3>{article.title}</h3>
-              <p className={styles.byline}>
-                {article.sourceName} / {article.author}
-              </p>
-              <strong className={styles.result}>{article.result}</strong>
-              <p className={styles.summary}>{article.summary}</p>
 
               <div className={styles.team} aria-label="採用ポケモン">
-                {article.pokemonSlugs.map((slug, index) => {
+                {article.pokemonSlugs.map((slug) => {
                   const label = pokemonLabels[slug] ?? slug;
                   return (
                     <button
@@ -180,12 +167,25 @@ export function BuildArticleExplorer({
                       onClick={() => setQuery(label)}
                       title={`${label}で検索`}
                     >
-                      <span>{index + 1}</span>
-                      {label}
+                      <PokemonVisual name={label} slug={slug} />
+                      <span>{label}</span>
                     </button>
                   );
                 })}
               </div>
+
+              <div className={styles.details}>
+                <strong className={styles.result}>{article.result}</strong>
+                <div className={styles.meta}>
+                  <span className={article.battleFormat === "single" ? styles.single : styles.double}>
+                    {formatLabels[article.battleFormat]}
+                  </span>
+                  <span>{article.regulation}</span>
+                  <span>{article.season}</span>
+                </div>
+              </div>
+
+              <p className={styles.summary}>{article.summary}</p>
 
               <div className={styles.tags}>
                 {article.tags.map((tag) => (
@@ -193,17 +193,25 @@ export function BuildArticleExplorer({
                 ))}
               </div>
 
-              <a
-                className={styles.sourceLink}
-                href={article.url}
-                target="_blank"
-                rel="noreferrer"
-              >
-                元記事を読む <span aria-hidden="true">↗</span>
-              </a>
-              <Link className={styles.importLink} href={buildArticleImportHref(article.id)}>
-                この構築を分析する
-              </Link>
+              <div className={styles.footer}>
+                <p className={styles.byline}>
+                  {article.sourceName} / {article.author}
+                  <time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time>
+                </p>
+                <div className={styles.actions}>
+                  <Link className={styles.importLink} href={buildArticleImportHref(article.id)}>
+                    この構築を分析する
+                  </Link>
+                  <a
+                    className={styles.sourceLink}
+                    href={article.url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    元記事を読む <span aria-hidden="true">↗</span>
+                  </a>
+                </div>
+              </div>
             </article>
           ))}
         </div>
