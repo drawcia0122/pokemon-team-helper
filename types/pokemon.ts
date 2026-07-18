@@ -39,16 +39,33 @@ export type PokemonEntry = {
 export type Regulation = {
   id: string;
   label: string;
-  startDate: string | null;
-  endDate: string | null;
+  startAt: string | null;
+  endAt: string | null;
   allowedPokemonSlugs: string[];
   bannedPokemonSlugs: string[];
   notes: string[];
+  isAvailable: boolean;
+  displayOrder: number;
+  sourceUrl: string;
+};
+
+export type RegulationDefinition = Regulation;
+
+export type SeasonDefinition = {
+  id: string;
+  label: string;
+  articleLabel: string;
+  regulationId: string;
+  startAt: string | null;
+  endAt: string | null;
+  displayOrder: number;
 };
 
 export type AppMeta = {
-  defaultSeasonId: string;
   seasonIds: string[];
+  regulationIds: string[];
+  legacySeasonIdMap: Record<string, string>;
+  seasons: SeasonDefinition[];
 };
 
 export type TeamSlot =

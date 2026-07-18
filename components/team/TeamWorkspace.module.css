@@ -1,12 +1,12 @@
 .seasonBar,.inputPanel,.analysisSection,.offenseSection,.recommendationSection,.detailsSection { min-width: 0; border: 1px solid #c9d8ce; background: #fff; }
-.seasonBar { display: grid; grid-template-columns: minmax(190px,.8fr) minmax(260px,1fr) auto; align-items: center; gap: 18px; padding: 14px 18px; border-radius: 14px; }
+.seasonBar { display: grid; grid-template-columns: minmax(210px,.8fr) minmax(260px,1fr) auto; align-items: center; gap: 18px; padding: 14px 18px; border-radius: 14px; }
 .seasonHeading { display: grid; gap: 2px; }
 .seasonHeading > span,.seasonControl > span { color: #637269; font-size: .72rem; font-weight: 800; }
 .seasonHeading strong { color: #194b31; font-size: 1rem; }
 .seasonHeading small { color: #617168; }
 .seasonControl { display: grid; gap: 5px; }
 .seasonControl select,.control input,.control select { width: 100%; min-width: 0; min-height: 42px; padding: 9px 11px; border: 1px solid #b9ccc0; border-radius: 9px; background: #fbfdfb; color: #1c3225; outline: none; }
-.seasonControl select:focus,.control input:focus,.control select:focus { border-color: #167348; box-shadow: 0 0 0 3px rgba(22,115,72,.15); }
+.seasonControl select:focus,.control input:focus,.control select:focus { border-color: #167348; outline: 3px solid rgba(22,115,72,.2); outline-offset: 2px; }
 .inlineDetails { position: relative; color: #466052; font-size: .8rem; }
 .inlineDetails summary { min-height: 40px; padding: 10px 12px; border: 1px solid #c5d6cb; border-radius: 9px; cursor: pointer; font-weight: 800; list-style-position: inside; white-space: nowrap; }
 .inlineDetails > div { position: absolute; z-index: 5; top: calc(100% + 7px); right: 0; width: min(350px,80vw); padding: 12px; border: 1px solid #c5d6cb; border-radius: 10px; background: #fff; box-shadow: 0 12px 30px rgba(24,82,51,.12); }
@@ -155,12 +155,12 @@
 .modeTabs button:focus-visible,.emptySlot:focus-visible,.removeButton:focus-visible,.primaryButton:focus-visible,.secondaryButton:focus-visible,.textButton:focus-visible,.typeRecommendations button:focus-visible,.candidateSelect:focus-visible,.addCandidate:focus-visible,.compactRanking button:focus-visible,.inlineDetails summary:focus-visible,.rankingDetails summary:focus-visible,.detailPanel summary:focus-visible { outline: 3px solid rgba(22,115,72,.28); outline-offset: 2px; }
 
 @media (max-width:1100px) {
-  .recommendationLayout { grid-template-columns: 1fr; }
-}
-@media (max-width:900px) {
   .seasonBar { grid-template-columns: 1fr 1fr; }
   .inlineDetails { grid-column: 1/-1; }
   .inlineDetails > div { left: 0; right: auto; }
+  .recommendationLayout { grid-template-columns: 1fr; }
+}
+@media (max-width:900px) {
   .teamGrid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .topCandidates { grid-template-columns: 1fr; }
 }

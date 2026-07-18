@@ -3,7 +3,7 @@ import path from "node:path";
 
 const root = process.cwd();
 const pokemonPath = path.join(root, "data/pokemon.json");
-const season1Path = path.join(root, "data/regulations/season1.json");
+const regulationAPath = path.join(root, "data/regulations/regulation-m-a.json");
 const sourcePath = path.join(root, "data/regulations/season1-ja.txt");
 
 const aliasToSlug = {
@@ -67,12 +67,12 @@ function collapseRepeatedName(token) {
 async function main() {
   const [pokemonText, season1Text, sourceText] = await Promise.all([
     readFile(pokemonPath, "utf8"),
-    readFile(season1Path, "utf8"),
+    readFile(regulationAPath, "utf8"),
     readFile(sourcePath, "utf8")
   ]);
 
   const pokemon = JSON.parse(pokemonText);
-  const season1 = JSON.parse(season1Text);
+  const regulationA = JSON.parse(season1Text);
 
   const nameToSlug = new Map();
   const slugSet = new Set(pokemon.map((entry) => entry.slug));
@@ -114,17 +114,17 @@ async function main() {
     return;
   }
 
-  const nextSeason1 = {
-    ...season1,
+  const nextRegulationA = {
+    ...regulationA,
     allowedPokemonSlugs: [...new Set(allowedPokemonSlugs)].sort((a, b) => a.localeCompare(b, "en")),
     notes: [
-      "使用可能ポケモンはこのファイルで管理",
-      "season1-ja.txt の日本語リストから重複を除いて生成"
+      "Pokémon Champions レギュレーションM-Aの使用可能ポケモン",
+      "season1-ja.txt の確認済み日本語リストから重複を除いて生成"
     ]
   };
 
-  await writeFile(season1Path, JSON.stringify(nextSeason1, null, 2) + "\n", "utf8");
-  console.log(`[done] season1 updated: ${nextSeason1.allowedPokemonSlugs.length} slugs`);
+  await writeFile(regulationAPath, JSON.stringify(nextRegulationA, null, 2) + "\n", "utf8");
+  console.log(`[done] regulation M-A updated: ${nextRegulationA.allowedPokemonSlugs.length} slugs`);
 }
 
 main().catch((error) => {

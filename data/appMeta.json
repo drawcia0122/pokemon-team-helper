@@ -1,4 +1,47 @@
 {
-  "defaultSeasonId": "season1",
-  "seasonIds": ["season1", "season2", "all"]
+  "seasonIds": ["season-m4", "season-m3", "season-m2", "season-m1"],
+  "regulationIds": ["M-A", "M-B"],
+  "legacySeasonIdMap": {
+    "season1": "season-m1",
+    "season2": "season-m2",
+    "all": "season-m3"
+  },
+  "seasons": [
+    {
+      "id": "season-m4",
+      "label": "シーズンM-4",
+      "articleLabel": "M-4",
+      "regulationId": "M-B",
+      "startAt": "2026-07-08T11:00:00+09:00",
+      "endAt": "2026-08-05T10:59:00+09:00",
+      "displayOrder": 4
+    },
+    {
+      "id": "season-m3",
+      "label": "シーズンM-3",
+      "articleLabel": "M-3",
+      "regulationId": "M-B",
+      "startAt": "2026-06-17T11:00:00+09:00",
+      "endAt": "2026-07-08T10:59:00+09:00",
+      "displayOrder": 3
+    },
+    {
+      "id": "season-m2",
+      "label": "シーズンM-2",
+      "articleLabel": "M-2",
+      "regulationId": "M-A",
+      "startAt": "2026-05-13T11:00:00+09:00",
+      "endAt": "2026-06-17T10:59:00+09:00",
+      "displayOrder": 2
+    },
+    {
+      "id": "season-m1",
+      "label": "シーズンM-1",
+      "articleLabel": "M-1",
+      "regulationId": "M-A",
+      "startAt": "2026-04-08T11:00:00+09:00",
+      "endAt": "2026-05-13T10:59:00+09:00",
+      "displayOrder": 1
+    }
+  ]
 }

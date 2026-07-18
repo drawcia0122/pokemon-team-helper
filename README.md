@@ -35,31 +35,44 @@ PokeAPI を使うのは `scripts/fetchPokemonData.ts` のみです。
 npm run data:fetch
 ```
 
-`scripts/seedSeason1.ts` を使うと、`pokemon.json` にある slug を `season1.json` に流し込めます。
+レギュレーションM-Aの使用可能ポケモンは、確認済みの日本語リストから再生成できます。
 
 ```bash
 npm run data:seed-season1
 ```
 
-## season1 の使用可能ポケモン編集方法
+コマンド名は既存環境との互換用です。全ポケモンを無条件に使用可能にはしません。
 
-使用可能ポケモンは [data/regulations/season1.json](/Users/drawcia0122/Codex/Pokémon/data/regulations/season1.json) の `allowedPokemonSlugs` で管理します。
+## 使用可能ポケモンの管理方法
 
-- `pokemon.json` に存在する slug を追記するだけで候補対象を増やせます
-- ポケモン候補ランキングは、選択中シーズンで allowed なポケモンだけを対象にします
-- 「全ポケモン表示（開発用）」ではシーズン制限を無視して一覧化します
+使用可能ポケモンはシーズンごとに複製せず、ルール定義で管理します。
 
-## season2 追加方法
+- M-A: [data/regulations/regulation-m-a.json](/Users/drawcia0122/Codex/Pokémon/data/regulations/regulation-m-a.json)
+- M-B: [data/regulations/regulation-m-b.json](/Users/drawcia0122/Codex/Pokémon/data/regulations/regulation-m-b.json)
+- シーズンとルールの対応: [data/appMeta.json](/Users/drawcia0122/Codex/Pokémon/data/appMeta.json)
 
-新シーズン追加時は [data/regulations/season2.json](/Users/drawcia0122/Codex/Pokémon/data/regulations/season2.json) のようなファイルを追加し、[data/appMeta.json](/Users/drawcia0122/Codex/Pokémon/data/appMeta.json) の `seasonIds` に登録するだけでよい構成です。
+M-1とM-2はM-A、M-3とM-4はM-Bを参照します。ポケモン候補ランキングと使用不可警告は、選択中シーズンに対応するルールの `allowedPokemonSlugs` を基準にします。
 
-- 新しい `data/regulations/seasonX.json` を追加する
-- `appMeta.json` の `seasonIds` に `seasonX` を追加する
-- 必要なら `lib/regulations.ts` に import を足す
+### 使用可能ポケモンデータの確認元と件数
+
+使用可能ポケモンは、Pokémon Champions公式の Eligible Pokémon 一覧を確認元としています。
+
+- M-A: [シーズンM-1公式案内](https://champions-news.pokemon-home.com/en/page/746.html) / [公式Eligible Pokémon一覧](https://web-view.app.pokemonchampions.jp/battle/pages/events/rs177501629259kmzbny/en/pokemon.html)
+- M-B: [シーズンM-4公式案内](https://champions-news.pokemon-home.com/en/page/795.html) / [公式Eligible Pokémon一覧](https://web-view.app.pokemonchampions.jp/battle/pages/events/rs178289804983hadfbv/en/pokemon.html)
+
+公式一覧の名称を [data/pokemon.json](/Users/drawcia0122/Codex/Pokémon/data/pokemon.json) の slug へ対応付け、重複を除いた結果がM-Aの213件、M-Bの235件です。M-Bの公式対象にはM-Aより22件多いフォルム別エントリーが含まれます。これらはリージョンフォームや性別・姿違いなどを個別slugとして数えたアプリ内の使用可能エントリー数であり、全国図鑑上のポケモンの種類数ではありません。
+
+データ検証では、slugが `pokemon.json` に存在すること、重複がないこと、M-Aが213件、M-Bが235件の共有プールとして参照されることを確認します。
+
+## 新シーズン追加方法
+
+同じルールを使うシーズンは、[data/appMeta.json](/Users/drawcia0122/Codex/Pokémon/data/appMeta.json) の `seasons` へ定義を追加します。新しいルールを使う場合だけ `data/regulations` へルール定義を追加し、[lib/regulations.ts](/Users/drawcia0122/Codex/Pokémon/lib/regulations.ts) へ登録します。
+
+初期シーズンは、開催中、開始日が新しい、`displayOrder` が大きい、定義配列の先頭、の順で決定します。保存済みの有効なシーズンは初期値より優先して復元します。
 
 ## アプリの使い方
 
-1. 上部のシーズン切替で `シーズン1` か `全件対応版（全ポケモン）` を選びます
+1. 上部のシーズン選択から対象シーズンを選びます。ルールはシーズンから自動決定されます
 2. チーム入力で 2〜6 体のメンバーを入力します
 3. ポケモン指定か、単タイプ / 複合タイプ指定を切り替えます
 4. チーム全体の相性表で一貫弱点や厚い耐性を確認します

@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import { BuildArticleExplorer } from "@/components/builds/BuildArticleExplorer";
 import { SiteNavigation } from "@/components/navigation/SiteNavigation";
 import { getBuildArticles, getPokemonLabelMap } from "@/lib/buildArticles";
+import {
+  getRegulationLabelMap,
+  getSeasonLabelMap,
+  getSeasonOptions
+} from "@/lib/regulations";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -36,6 +41,9 @@ export default function BuildsPage() {
       <BuildArticleExplorer
         articles={articles}
         pokemonLabels={getPokemonLabelMap()}
+        regulationLabels={getRegulationLabelMap()}
+        seasonLabels={getSeasonLabelMap()}
+        seasonOptions={getSeasonOptions()}
       />
     </main>
   );

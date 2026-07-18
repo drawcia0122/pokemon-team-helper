@@ -1,8 +1,8 @@
 {
-  "id": "season1",
-  "label": "シーズン1",
-  "startDate": "2026-04-08",
-  "endDate": null,
+  "id": "M-A",
+  "label": "M-A",
+  "startAt": "2026-04-08T11:00:00+09:00",
+  "endAt": "2026-06-17T10:59:00+09:00",
   "allowedPokemonSlugs": [
     "abomasnow",
     "absol",
@@ -47,7 +47,7 @@
     "conkeldurr",
     "corviknight",
     "crabominable",
-    "cranidos",
+    "rampardos",
     "decidueye",
     "decidueye-hisui",
     "dedenne",
@@ -167,7 +167,7 @@
     "scovillain",
     "serperior",
     "sharpedo",
-    "shieldon",
+    "bastiodon",
     "simipour",
     "simisage",
     "simisear",
@@ -220,7 +220,10 @@
   ],
   "bannedPokemonSlugs": [],
   "notes": [
-    "使用可能ポケモンはこのファイルで管理",
-    "season1-ja.txt の日本語リストから重複を除いて生成"
-  ]
+    "シーズンM-1・M-2で共通利用",
+    "公式Eligible Pokémon一覧と照合済み"
+  ],
+  "isAvailable": false,
+  "displayOrder": 1,
+  "sourceUrl": "https://web-view.app.pokemonchampions.jp/battle/pages/events/rs177501629259kmzbny/en/pokemon.html"
 }

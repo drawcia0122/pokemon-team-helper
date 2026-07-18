@@ -42,7 +42,7 @@ assert(sixSummary.emptySlots === 0, "6体入力時に空き枠が残っていま
 const typeSummary = getTeamUiSummary(summarizeTeam(typeTeam), typeTeam.length);
 assert(typeSummary.canAnalyze, "タイプ直接指定時に分析を表示できません");
 
-const seasonPokemon = getAvailablePokemonBySeason("season1");
+const seasonPokemon = getAvailablePokemonBySeason("season-m1");
 assert(
   isTeamSlotAllowed(twoPokemonTeam[0], seasonPokemon),
   "使用可能ポケモンを使用不可と判定しました"

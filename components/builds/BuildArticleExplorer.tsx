@@ -30,10 +30,16 @@ function formatDate(value: string): string {
 
 export function BuildArticleExplorer({
   articles,
-  pokemonLabels
+  pokemonLabels,
+  regulationLabels,
+  seasonLabels,
+  seasonOptions
 }: {
   articles: BuildArticle[];
   pokemonLabels: PokemonLabelMap;
+  regulationLabels: Record<string, string>;
+  seasonLabels: Record<string, string>;
+  seasonOptions: Array<{ id: string; label: string }>;
 }) {
   const [query, setQuery] = useState("");
   const [battleFormat, setBattleFormat] = useState<"all" | BattleFormat>("all");
@@ -44,11 +50,6 @@ export function BuildArticleExplorer({
     () => [...new Set(articles.map((article) => article.regulation))].sort(),
     [articles]
   );
-  const seasonOptions = useMemo(
-    () => [...new Set(articles.map((article) => article.season))].sort(),
-    [articles]
-  );
-
   const filteredArticles = useMemo(() => {
     const normalizedQuery = normalize(query);
 
@@ -59,7 +60,7 @@ export function BuildArticleExplorer({
       if (regulation !== "all" && article.regulation !== regulation) {
         return false;
       }
-      if (season !== "all" && article.season !== season) {
+      if (season !== "all" && article.builderSeasonId !== season) {
         return false;
       }
       if (!normalizedQuery) {
@@ -71,8 +72,9 @@ export function BuildArticleExplorer({
         article.author,
         article.sourceName,
         article.result,
-        article.regulation,
+        regulationLabels[article.regulation] ?? article.regulation,
         article.season,
+        seasonLabels[article.builderSeasonId] ?? article.season,
         article.summary,
         ...article.tags,
         ...article.pokemonSlugs.flatMap((slug) => [slug, pokemonLabels[slug] ?? ""])
@@ -83,7 +85,16 @@ export function BuildArticleExplorer({
 
       return searchableText.includes(normalizedQuery);
     });
-  }, [articles, battleFormat, pokemonLabels, query, regulation, season]);
+  }, [
+    articles,
+    battleFormat,
+    pokemonLabels,
+    query,
+    regulation,
+    regulationLabels,
+    season,
+    seasonLabels
+  ]);
 
   function resetFilters() {
     setQuery("");
@@ -131,7 +142,7 @@ export function BuildArticleExplorer({
               <option value="all">すべて</option>
               {regulationOptions.map((value) => (
                 <option key={value} value={value}>
-                  {value}
+                  {regulationLabels[value] ?? value}
                 </option>
               ))}
             </select>
@@ -141,9 +152,9 @@ export function BuildArticleExplorer({
             <span>シーズン</span>
             <select value={season} onChange={(event) => setSeason(event.target.value)}>
               <option value="all">すべて</option>
-              {seasonOptions.map((value) => (
-                <option key={value} value={value}>
-                  {value}
+              {seasonOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
                 </option>
               ))}
             </select>
@@ -180,8 +191,8 @@ export function BuildArticleExplorer({
                   <span className={article.battleFormat === "single" ? styles.single : styles.double}>
                     {formatLabels[article.battleFormat]}
                   </span>
-                  <span>{article.regulation}</span>
-                  <span>{article.season}</span>
+                  <span>{regulationLabels[article.regulation] ?? article.regulation}</span>
+                  <span>{seasonLabels[article.builderSeasonId] ?? article.season}</span>
                 </div>
               </div>
 

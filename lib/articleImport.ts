@@ -1,7 +1,18 @@
 import buildArticleData from "@/data/buildArticles.json";
 import pokemonData from "@/data/pokemon.json";
+import {
+  getRegulationDefinition,
+  getRegulationForSeason,
+  getSeasonDefinition,
+  resolveArticleSeasonId
+} from "@/lib/regulations";
 import type { BuildArticle } from "@/types/buildArticle";
-import type { PokemonEntry, TeamSlot } from "@/types/pokemon";
+import type {
+  PokemonEntry,
+  RegulationDefinition,
+  SeasonDefinition,
+  TeamSlot
+} from "@/types/pokemon";
 
 export type ArticleImportResult =
   | { status: "idle" }
@@ -10,6 +21,16 @@ export type ArticleImportResult =
 
 const articles = buildArticleData as BuildArticle[];
 const pokemon = pokemonData as PokemonEntry[];
+
+export type ArticleRegulationComparison = {
+  articleRegulation: RegulationDefinition | null;
+  currentRegulation: RegulationDefinition | null;
+  articleSeason: SeasonDefinition | null;
+  currentSeason: SeasonDefinition | null;
+  articleSeasonId: string | null;
+  differs: boolean;
+  canSwitchToArticle: boolean;
+};
 
 export function buildArticleImportHref(articleId: string): string {
   const params = new URLSearchParams({ importArticle: articleId });
@@ -77,6 +98,50 @@ export function selectTeamForRestoreAction(
   action: "restore" | "cancel"
 ): TeamSlot[] {
   return action === "restore" ? backupTeam : currentTeam;
+}
+
+export function compareArticleRegulation(
+  article: BuildArticle,
+  currentSeasonId: string
+): ArticleRegulationComparison {
+  const articleRegulation = getRegulationDefinition(article.regulation);
+  const currentRegulation = getRegulationForSeason(currentSeasonId);
+  const currentSeason = getSeasonDefinition(currentSeasonId);
+  const articleSeasonId = resolveArticleSeasonId(
+    article.regulation,
+    article.season,
+    article.builderSeasonId
+  );
+  const articleSeason = articleSeasonId
+    ? getSeasonDefinition(articleSeasonId)
+    : null;
+
+  return {
+    articleRegulation,
+    currentRegulation,
+    articleSeason,
+    currentSeason,
+    articleSeasonId,
+    differs:
+      articleRegulation?.id !== currentRegulation?.id ||
+      articleSeasonId !== currentSeasonId,
+    canSwitchToArticle: articleRegulation !== null && articleSeasonId !== null
+  };
+}
+
+export function selectSeasonForArticleImport(
+  article: BuildArticle,
+  currentSeasonId: string,
+  mode: "article" | "current"
+): string {
+  if (mode === "current") {
+    return currentSeasonId;
+  }
+
+  const comparison = compareArticleRegulation(article, currentSeasonId);
+  return comparison.canSwitchToArticle && comparison.articleSeasonId
+    ? comparison.articleSeasonId
+    : currentSeasonId;
 }
 
 export function mergeImportedPokemonOptions(

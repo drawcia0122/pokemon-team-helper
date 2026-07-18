@@ -18,11 +18,13 @@ export function SeasonBar({
     <section className={styles.seasonBar} aria-labelledby="season-heading">
       <div className={styles.seasonHeading}>
         <span>現在のルール</span>
-        <strong id="season-heading">{meta.label}</strong>
-        <small>{meta.allowedCount}体が使用可能</small>
+        <strong id="season-heading">{meta.regulationLabel}</strong>
+        <small>
+          使用可能ポケモン: {meta.allowedCount}体
+        </small>
       </div>
       <label className={styles.seasonControl}>
-        <span>シーズンを変更</span>
+        <span>シーズン</span>
         <select value={seasonId} onChange={(event) => onSeasonChange(event.target.value)}>
           {options.map((option) => (
             <option key={option.id} value={option.id}>
@@ -34,7 +36,7 @@ export function SeasonBar({
       <details className={styles.inlineDetails}>
         <summary>ルールの補足</summary>
         <div>
-          <p>開始日: {meta.startDate ?? "未設定"}</p>
+          <p>シーズン期間: {meta.startDate ?? "未設定"} 〜 {meta.endDate ?? "終了日未設定"}</p>
           {meta.notes.map((note) => <p key={note}>{note}</p>)}
         </div>
       </details>

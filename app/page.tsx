@@ -11,12 +11,19 @@ import { TeamInputPanel } from "@/components/team/TeamInputPanel";
 import {
   mergeImportedPokemonOptions,
   resolveArticleImport,
+  selectSeasonForArticleImport,
   selectTeamForImportAction,
   selectTeamForRestoreAction,
   type ArticleImportResult
 } from "@/lib/articleImport";
 import { getPokemonCandidateScores, getTypeCandidateScores } from "@/lib/scoring";
-import { getAvailablePokemonBySeason, getSeasonMeta, getSeasonOptions } from "@/lib/regulations";
+import {
+  getAvailablePokemonBySeason,
+  getLatestSeasonId,
+  getSeasonMeta,
+  getSeasonOptions,
+  resolveStoredSeasonId
+} from "@/lib/regulations";
 import type { CandidateSelection } from "@/lib/teamUi";
 import {
   ARTICLE_IMPORT_BACKUP_KEY,
@@ -44,7 +51,7 @@ const sampleTeam: TeamSlot[] = [
 ];
 
 export default function HomePage() {
-  const [seasonId, setSeasonId] = useState("season1");
+  const [seasonId, setSeasonId] = useState(() => getLatestSeasonId());
   const [team, setTeam] = useState<TeamSlot[]>(sampleTeam);
   const [selection, setSelection] = useState<CandidateSelection>(null);
   const [articleImport, setArticleImport] = useState<ArticleImportResult>({ status: "idle" });
@@ -76,9 +83,7 @@ export default function HomePage() {
     const savedSeasonId = window.localStorage.getItem(SEASON_STORAGE_KEY);
     const savedTeam = window.localStorage.getItem(TEAM_STORAGE_KEY);
 
-    if (savedSeasonId) {
-      setSeasonId(savedSeasonId);
-    }
+    setSeasonId(resolveStoredSeasonId(savedSeasonId));
 
     if (savedTeam) {
       try {
@@ -109,34 +114,12 @@ export default function HomePage() {
       return;
     }
 
-    window.localStorage.setItem(SEASON_STORAGE_KEY, seasonId);
+    window.localStorage.setItem(
+      SEASON_STORAGE_KEY,
+      resolveStoredSeasonId(seasonId)
+    );
     window.localStorage.setItem(TEAM_STORAGE_KEY, serializeTeam(team));
   }, [isRestored, seasonId, team]);
-
-  useEffect(() => {
-    if (!isRestored || preserveImportedTeam) {
-      return;
-    }
-
-    setTeam((current) =>
-      current.map((slot, index) => {
-        if (slot.mode !== "pokemon") {
-          return slot;
-        }
-
-        const isStillAllowed = availablePokemon.some((pokemon) => pokemon.slug === slot.pokemonSlug);
-        if (isStillAllowed || availablePokemon.length === 0) {
-          return slot;
-        }
-
-        return {
-          id: slot.id || `slot-${index + 1}`,
-          mode: "pokemon" as const,
-          pokemonSlug: availablePokemon[0].slug
-        };
-      })
-    );
-  }, [seasonId, availablePokemon, isRestored, preserveImportedTeam]);
 
   useEffect(() => {
     const topType = typeCandidates[0];
@@ -199,12 +182,18 @@ export default function HomePage() {
     }
 
     const importedTeam = selectTeamForImportAction(team, articleImport.team, "confirm");
-    const targetSeasonId =
-      mode === "article" ? articleImport.article.builderSeasonId : seasonId;
+    const targetSeasonId = selectSeasonForArticleImport(
+      articleImport.article,
+      seasonId,
+      mode
+    );
 
     window.localStorage.setItem(ARTICLE_IMPORT_BACKUP_KEY, serializeTeam(team));
     window.localStorage.setItem(TEAM_STORAGE_KEY, serializeTeam(importedTeam));
-    window.localStorage.setItem(SEASON_STORAGE_KEY, targetSeasonId);
+    window.localStorage.setItem(
+      SEASON_STORAGE_KEY,
+      resolveStoredSeasonId(targetSeasonId)
+    );
 
     setPreserveImportedTeam(true);
     setCanRestorePreviousTeam(true);
@@ -267,11 +256,6 @@ export default function HomePage() {
           request={articleImport}
           currentSeasonId={seasonId}
           currentSeasonLabel={seasonMeta.label}
-          articleSeasonLabel={
-            articleImport.status === "ready"
-              ? getSeasonMeta(articleImport.article.builderSeasonId).label
-              : ""
-          }
           availablePokemon={availablePokemon}
           onConfirm={confirmArticleImport}
           onCancel={cancelArticleImport}

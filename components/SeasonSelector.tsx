@@ -6,6 +6,7 @@ type SeasonSelectorProps = {
   options: Array<{ id: string; label: string }>;
   meta: {
     label: string;
+    regulationLabel: string;
     startDate: string | null;
     allowedCount: number;
     notes: string[];
@@ -30,7 +31,7 @@ export const SeasonSelector: FC<SeasonSelectorProps> = ({
 
         <div className="control-grid season-grid">
           <div className="control">
-            <label>現在のルール</label>
+            <label>シーズン</label>
             <select value={seasonId} onChange={(event) => onSeasonChange(event.target.value)}>
               {options.map((option) => (
                 <option key={option.id} value={option.id}>
@@ -43,6 +44,10 @@ export const SeasonSelector: FC<SeasonSelectorProps> = ({
           <div className="season-meta">
             <div className="mini-card">
               <span>現在のルール</span>
+              <strong>{meta.regulationLabel}</strong>
+            </div>
+            <div className="mini-card">
+              <span>現在のシーズン</span>
               <strong>{meta.label}</strong>
             </div>
             <div className="mini-card">

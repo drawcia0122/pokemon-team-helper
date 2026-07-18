@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { getPokemonBySlug } from "@/lib/typeChart";
-import type { ArticleImportResult } from "@/lib/articleImport";
+import {
+  compareArticleRegulation,
+  type ArticleImportResult
+} from "@/lib/articleImport";
 import type { PokemonEntry } from "@/types/pokemon";
 import styles from "./ArticleImportPanel.module.css";
 
@@ -17,7 +20,6 @@ export function ArticleImportPanel({
   request,
   currentSeasonId,
   currentSeasonLabel,
-  articleSeasonLabel,
   availablePokemon,
   onConfirm,
   onCancel
@@ -25,7 +27,6 @@ export function ArticleImportPanel({
   request: Exclude<ArticleImportResult, { status: "idle" }>;
   currentSeasonId: string;
   currentSeasonLabel: string;
-  articleSeasonLabel: string;
   availablePokemon: PokemonEntry[];
   onConfirm: (mode: ImportSeasonMode) => void;
   onCancel: () => void;
@@ -51,7 +52,14 @@ export function ArticleImportPanel({
   }
 
   const article = request.article;
-  const seasonDiffers = article.builderSeasonId !== currentSeasonId;
+  const comparison = compareArticleRegulation(article, currentSeasonId);
+  const seasonDiffers = comparison.differs;
+  const currentRegulationLabel =
+    comparison.currentRegulation?.label ?? "未定義のルール";
+  const articleRegulationLabel =
+    comparison.articleRegulation?.label ?? article.regulation;
+  const articleSeasonLabel =
+    comparison.articleSeason?.label ?? article.season;
   const availableSlugs = new Set(availablePokemon.map((pokemon) => pokemon.slug));
   const unavailablePokemon = request.team
     .filter((slot) => slot.mode === "pokemon" && !availableSlugs.has(slot.pokemonSlug))
@@ -75,12 +83,23 @@ export function ArticleImportPanel({
             <dd>{formatLabels[article.battleFormat]}</dd>
           </div>
           <div>
-            <dt>レギュレーション</dt>
-            <dd>{article.regulation}</dd>
+            <dt>記事のルール</dt>
+            <dd>
+              {articleRegulationLabel}
+              {!comparison.articleRegulation ? "（未対応）" : ""}
+            </dd>
           </div>
           <div>
-            <dt>シーズン</dt>
-            <dd>{article.season}</dd>
+            <dt>記事のシーズン</dt>
+            <dd>{articleSeasonLabel}</dd>
+          </div>
+          <div>
+            <dt>現在のルール</dt>
+            <dd>{currentRegulationLabel}</dd>
+          </div>
+          <div>
+            <dt>現在のシーズン</dt>
+            <dd>{currentSeasonLabel}</dd>
           </div>
         </dl>
       </div>
@@ -97,30 +116,46 @@ export function ArticleImportPanel({
         現在のパーティは一時退避され、読み込み後に元へ戻せます。
       </p>
 
-      {seasonDiffers ? (
+      {!comparison.articleRegulation ? (
+        <p className={styles.unavailable} role="status">
+          記事のルール「{article.regulation}」は構築補助で未対応です。
+          6体のタイプ相性分析はできますが、使用可能判定は保証できません。
+        </p>
+      ) : null}
+
+      {seasonDiffers || !comparison.canSwitchToArticle ? (
         <fieldset className={styles.seasonChoices}>
-          <legend>記事と現在のシーズンが異なります</legend>
-          <label>
-            <input
-              type="radio"
-              name="import-season-mode"
-              value="article"
-              checked={seasonMode === "article"}
-              onChange={() => setSeasonMode("article")}
-            />
-            記事のシーズン「{articleSeasonLabel}」へ切り替えて読み込む
-          </label>
+          <legend>
+            {comparison.canSwitchToArticle
+              ? "記事と現在のルール・シーズンが異なります"
+              : "記事のルール・シーズンへは切り替えられません"}
+          </legend>
+          {comparison.canSwitchToArticle ? (
+            <label>
+              <input
+                type="radio"
+                name="import-season-mode"
+                value="article"
+                checked={seasonMode === "article"}
+                onChange={() => setSeasonMode("article")}
+              />
+              記事のシーズン「{articleSeasonLabel}」（ルール{articleRegulationLabel}）へ
+              切り替えて読み込む
+            </label>
+          ) : null}
           <label>
             <input
               type="radio"
               name="import-season-mode"
               value="current"
-              checked={seasonMode === "current"}
+              checked={seasonMode === "current" || !comparison.canSwitchToArticle}
               onChange={() => setSeasonMode("current")}
             />
-            現在のシーズン「{currentSeasonLabel}」のまま読み込む
+            現在のルール「{currentRegulationLabel}」・シーズン「{currentSeasonLabel}」のまま
+            読み込む
           </label>
-          {seasonMode === "current" && unavailablePokemon.length > 0 ? (
+          {(seasonMode === "current" || !comparison.canSwitchToArticle) &&
+          unavailablePokemon.length > 0 ? (
             <p className={styles.unavailable}>
               現在のシーズンでは使用不可: {unavailablePokemon.join("、")}
               。タイプ相性分析はそのまま実行できます。
@@ -130,7 +165,13 @@ export function ArticleImportPanel({
       ) : null}
 
       <div className={styles.actions}>
-        <button type="button" className={styles.confirm} onClick={() => onConfirm(seasonMode)}>
+        <button
+          type="button"
+          className={styles.confirm}
+          onClick={() =>
+            onConfirm(comparison.canSwitchToArticle ? seasonMode : "current")
+          }
+        >
           この6体を読み込む
         </button>
         <button type="button" className={styles.cancel} onClick={onCancel}>

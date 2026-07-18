@@ -1,6 +1,8 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { validateRegulationDefinitions } from "@/lib/regulationValidation";
+import type { AppMeta, RegulationDefinition } from "@/types/pokemon";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -39,16 +41,27 @@ function requireText(article: JsonRecord, key: string, context: string, errors: 
 }
 
 async function main() {
-  const [articles, pokemon, appMeta] = await Promise.all([
+  const [articles, pokemon, appMeta, regulationA, regulationB] = await Promise.all([
     readJson<JsonRecord[]>("data/buildArticles.json"),
     readJson<Array<{ slug: string }>>("data/pokemon.json"),
-    readJson<{ seasonIds: string[] }>("data/appMeta.json")
+    readJson<AppMeta>("data/appMeta.json"),
+    readJson<RegulationDefinition>("data/regulations/regulation-m-a.json"),
+    readJson<RegulationDefinition>("data/regulations/regulation-m-b.json")
   ]);
 
   const errors: string[] = [];
   const ids = new Set<string>();
   const pokemonSlugs = new Set(pokemon.map((entry) => entry.slug));
   const seasonIds = new Set(appMeta.seasonIds);
+  const regulations = [regulationA, regulationB];
+  errors.push(...validateRegulationDefinitions(appMeta, regulations, articles));
+  for (const regulation of regulations) {
+    for (const slug of regulation.allowedPokemonSlugs) {
+      if (!pokemonSlugs.has(slug)) {
+        errors.push(`regulation:${regulation.id}: pokemon.json に存在しないslugです: ${slug}`);
+      }
+    }
+  }
 
   for (const article of articles) {
     const context = `buildArticles:${String(article.id ?? "unknown")}`;

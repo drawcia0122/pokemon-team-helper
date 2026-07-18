@@ -1,8 +1,10 @@
 import buildArticleData from "@/data/buildArticles.json";
 import pokemonData from "@/data/pokemon.json";
 import {
+  compareArticleRegulation,
   mergeImportedPokemonOptions,
   resolveArticleImport,
+  selectSeasonForArticleImport,
   selectTeamForImportAction,
   selectTeamForRestoreAction
 } from "@/lib/articleImport";
@@ -24,6 +26,11 @@ assert(validArticle, "テスト用の記事がありません");
 const validResult = resolveArticleImport(validArticle.id);
 assert(validResult.status === "ready", "正常な記事IDから構築を取得できません");
 assert(validResult.team.length === 6, "正常な記事から6体を構築できません");
+assert(
+  compareArticleRegulation(validResult.article, validResult.article.builderSeasonId)
+    .articleRegulation?.id === validResult.article.regulation,
+  "記事のルール情報を取得できません"
+);
 
 assert(resolveArticleImport("missing-article").status === "error", "存在しない記事IDを拒否できません");
 assert(resolveArticleImport(null).status === "idle", "importArticleがない通常アクセスを判定できません");
@@ -70,6 +77,15 @@ assert(
 assert(
   selectTeamForImportAction(currentTeam, validResult.team, "confirm") === validResult.team,
   "確定時に記事のパーティを選択できません"
+);
+assert(
+  selectSeasonForArticleImport(validResult.article, "season-m4", "article") ===
+    validResult.article.builderSeasonId,
+  "記事のルール・シーズンへ切り替えられません"
+);
+assert(
+  selectSeasonForArticleImport(validResult.article, "season-m4", "current") === "season-m4",
+  "現在のルール・シーズンを維持できません"
 );
 assert(
   selectTeamForRestoreAction(validResult.team, currentTeam, "cancel") === validResult.team,
