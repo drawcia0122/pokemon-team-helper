@@ -3,14 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArticleImportPanel } from "@/components/ArticleImportPanel";
 import { SiteNavigation } from "@/components/navigation/SiteNavigation";
-import { CandidateComparison } from "@/components/CandidateComparison";
-import { MemberTypeProfile } from "@/components/MemberTypeProfile";
-import { PokemonCandidateList } from "@/components/PokemonCandidateList";
-import { SeasonSelector } from "@/components/SeasonSelector";
-import { TeamInput } from "@/components/TeamInput";
-import { TeamInsights } from "@/components/TeamInsights";
-import { TeamSummaryTable } from "@/components/TeamSummaryTable";
-import { TypeCandidateList } from "@/components/TypeCandidateList";
+import { AnalysisSummary, OffensiveCoveragePanel } from "@/components/team/AnalysisPanels";
+import { RecommendationPanel } from "@/components/team/RecommendationPanel";
+import { SeasonBar } from "@/components/team/SeasonBar";
+import { TeamDetails } from "@/components/team/TeamDetails";
+import { TeamInputPanel } from "@/components/team/TeamInputPanel";
 import {
   mergeImportedPokemonOptions,
   resolveArticleImport,
@@ -20,6 +17,7 @@ import {
 } from "@/lib/articleImport";
 import { getPokemonCandidateScores, getTypeCandidateScores } from "@/lib/scoring";
 import { getAvailablePokemonBySeason, getSeasonMeta, getSeasonOptions } from "@/lib/regulations";
+import type { CandidateSelection } from "@/lib/teamUi";
 import {
   ARTICLE_IMPORT_BACKUP_KEY,
   parseStoredTeam,
@@ -44,11 +42,6 @@ const sampleTeam: TeamSlot[] = [
     pokemonSlug: "landorus-therian"
   }
 ];
-
-type CandidateSelection =
-  | { kind: "type"; value: TypeCandidateScore }
-  | { kind: "pokemon"; value: PokemonCandidateScore }
-  | null;
 
 export default function HomePage() {
   const [seasonId, setSeasonId] = useState("season1");
@@ -249,17 +242,25 @@ export default function HomePage() {
   }
 
   return (
-    <main className="page">
+    <main className={styles.page}>
       <SiteNavigation active="team" />
-      <section className="hero">
-        <p className="eyebrow">Pokémon Champions / シーズン対応</p>
-        <h1>タイプ相性補完ツール</h1>
+      <section className={styles.hero}>
+        <div>
+          <p className={styles.eyebrow}>POKÉMON TEAM ANALYZER</p>
+          <h1>パーティ構築補助</h1>
+        </div>
         <p>
-          2〜6体の並びから、チーム全体の弱点と耐性を可視化し、次に入れると補完になりやすい
-          タイプやポケモン候補を提案します。初期版はタイプ相性を最優先に扱い、将来のシーズン追加に
-          そのまま対応できる構成にしています。
+          パーティを入力して、弱点・攻撃範囲・次に入れたい補完候補を順番に確認できます。
         </p>
       </section>
+
+      <div className={styles.workspace}>
+        <SeasonBar
+          seasonId={seasonId}
+          onSeasonChange={setSeasonId}
+          options={seasonOptions}
+          meta={seasonMeta}
+        />
 
       {articleImport.status !== "idle" ? (
         <ArticleImportPanel
@@ -310,52 +311,31 @@ export default function HomePage() {
         </aside>
       ) : null}
 
-      <div className={`stack ${styles.content}`}>
-        <SeasonSelector
-          seasonId={seasonId}
-          onSeasonChange={setSeasonId}
-          options={seasonOptions}
-          meta={seasonMeta}
+        <TeamInputPanel
+          team={team}
+          onChange={setTeam}
+          availablePokemon={availablePokemon}
+          pokemonInputOptions={pokemonInputOptions}
+          allTypes={allTypes}
+          sampleTeam={sampleTeam}
         />
 
-        <div className="layout">
-          <TeamInput
-            team={team}
-            onChange={setTeam}
-            availablePokemon={pokemonInputOptions}
-            allTypes={allTypes}
-            sampleTeam={sampleTeam}
-          />
-
-          <div className="analysis-column">
-            <TeamInsights summary={summary} />
-            <TeamSummaryTable summary={summary} />
-            <MemberTypeProfile summary={summary} />
-          </div>
-        </div>
-
-        <div className="layout lower-layout">
-          <div className="analysis-column">
-            <TypeCandidateList
-              candidates={typeCandidates}
-              selectedKey={selection?.kind === "type" ? `type:${selection.value.type}` : null}
-              onSelect={(candidate) => setSelection({ kind: "type", value: candidate })}
-              onAddToTeam={addTypeCandidateToTeam}
-              canAddToTeam={team.length < 6}
+        <AnalysisSummary summary={summary} slotCount={team.length} />
+        {summary.members.length >= 2 ? (
+          <>
+            <OffensiveCoveragePanel summary={summary} />
+            <RecommendationPanel
+              typeCandidates={typeCandidates}
+              pokemonCandidates={pokemonCandidates}
+              selection={selection}
+              onSelect={setSelection}
+              onAddType={addTypeCandidateToTeam}
+              onAddPokemon={addPokemonCandidateToTeam}
+              canAdd={team.length < 6}
             />
-            <PokemonCandidateList
-              candidates={pokemonCandidates}
-              selectedKey={
-                selection?.kind === "pokemon" ? `pokemon:${selection.value.pokemon.slug}` : null
-              }
-              onSelect={(candidate) => setSelection({ kind: "pokemon", value: candidate })}
-              onAddToTeam={addPokemonCandidateToTeam}
-              canAddToTeam={team.length < 6}
-            />
-          </div>
-
-          <CandidateComparison selection={selection} />
-        </div>
+            <TeamDetails summary={summary} />
+          </>
+        ) : null}
       </div>
     </main>
   );

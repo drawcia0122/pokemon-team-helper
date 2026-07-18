@@ -50,7 +50,6 @@ export function parseTeamBackup(value: string | null): TeamSlot[] | null {
 
     if (
       !Array.isArray(parsed) ||
-      parsed.length < 2 ||
       parsed.length > 6 ||
       !parsed.every((slot) => isValidTeamSlot(slot, typeNames))
     ) {

@@ -60,6 +60,7 @@ assert(
 );
 assert(parseTeamBackup("{broken") === null, "壊れた退避データを安全に破棄できません");
 assert(parseTeamBackup('[{"mode":"pokemon"}]') === null, "不正な退避データを拒否できません");
+assert(parseTeamBackup("[]")?.length === 0, "空の編集中パーティを退避できません");
 
 assert(validResult.status === "ready", "正常な取り込み結果がありません");
 assert(
