@@ -9,10 +9,11 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "data:validate": "tsx scripts/validateBuildArticles.ts",
+    "data:validate": "tsx scripts/validateBuildArticles.ts && tsx scripts/validatePokemonContent.ts",
     "test:storage": "tsx scripts/testTeamStorage.ts",
     "test:import": "tsx scripts/testArticleImport.ts",
-    "check": "npm run data:validate && npm run test:storage && npm run test:import && npm run typecheck && npm run build",
+    "test:content": "tsx scripts/testPokemonContent.ts",
+    "check": "npm run data:validate && npm run test:storage && npm run test:import && npm run test:content && npm run typecheck && npm run build",
     "data:fetch": "tsx scripts/fetchPokemonData.ts",
     "data:seed-season1": "tsx scripts/seedSeason1.ts"
   },
