@@ -1,0 +1,68 @@
+name: Refresh build articles
+
+on:
+  schedule:
+    - cron: "17,47 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-build-articles
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.14.0"
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Snapshot persistent collection cursor
+        run: cp data/buildArticleCollectionStatus.json "$RUNNER_TEMP/build-collection-status-before.json"
+
+      - name: Collect allowed public build articles
+        run: npm run collect:builds
+
+      - name: Validate application
+        run: npm run check
+
+      - name: Commit generated metadata when changed
+        shell: bash
+        run: |
+          generated_changed=false
+          cursor_changed=false
+          if ! git diff --quiet -- data/buildArticles.generated.json; then
+            generated_changed=true
+          fi
+          if npm exec -- tsx scripts/hasBuildCollectionCursorChanged.ts \
+            "$RUNNER_TEMP/build-collection-status-before.json" \
+            data/buildArticleCollectionStatus.json; then
+            cursor_changed=true
+          else
+            cursor_compare_status=$?
+            if [[ "$cursor_compare_status" -ne 1 ]]; then
+              exit "$cursor_compare_status"
+            fi
+          fi
+          if [[ "$generated_changed" == "false" && "$cursor_changed" == "false" ]]; then
+            echo "No generated article or cursor changes."
+            git restore -- data/buildArticleCollectionStatus.json
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/buildArticles.generated.json data/buildArticleCollectionStatus.json
+          git commit -m "chore: refresh build articles"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

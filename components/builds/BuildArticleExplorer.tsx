@@ -3,7 +3,11 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { PokemonVisual } from "@/components/pokemon/PokemonVisual";
-import { buildArticleImportHref } from "@/lib/articleImport";
+import {
+  buildArticleImportHref,
+  canAnalyzeBuildArticle
+} from "@/lib/articleImport";
+import { matchesBuildArticleQuery } from "@/lib/buildArticleSearch";
 import type {
   BattleFormat,
   BuildArticle,
@@ -15,10 +19,6 @@ const formatLabels: Record<BattleFormat, string> = {
   single: "シングル",
   double: "ダブル"
 };
-
-function normalize(value: string): string {
-  return value.normalize("NFKC").trim().toLocaleLowerCase("ja");
-}
 
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat("ja-JP", {
@@ -45,14 +45,15 @@ export function BuildArticleExplorer({
   const [battleFormat, setBattleFormat] = useState<"all" | BattleFormat>("all");
   const [regulation, setRegulation] = useState("all");
   const [season, setSeason] = useState("all");
+  const [completeness, setCompleteness] = useState<
+    "all" | "complete" | "metadata-only"
+  >("all");
 
   const regulationOptions = useMemo(
     () => [...new Set(articles.map((article) => article.regulation))].sort(),
     [articles]
   );
   const filteredArticles = useMemo(() => {
-    const normalizedQuery = normalize(query);
-
     return articles.filter((article) => {
       if (battleFormat !== "all" && article.battleFormat !== battleFormat) {
         return false;
@@ -63,31 +64,26 @@ export function BuildArticleExplorer({
       if (season !== "all" && article.builderSeasonId !== season) {
         return false;
       }
-      if (!normalizedQuery) {
-        return true;
+      const articleCompleteness =
+        article.collectionCompleteness ?? "complete";
+      if (
+        completeness !== "all" &&
+        articleCompleteness !== completeness
+      ) {
+        return false;
       }
-
-      const searchableText = [
-        article.title,
-        article.author,
-        article.sourceName,
-        article.result,
-        regulationLabels[article.regulation] ?? article.regulation,
-        article.season,
-        seasonLabels[article.builderSeasonId] ?? article.season,
-        article.summary,
-        ...article.tags,
-        ...article.pokemonSlugs.flatMap((slug) => [slug, pokemonLabels[slug] ?? ""])
-      ]
-        .join(" ")
-        .normalize("NFKC")
-        .toLocaleLowerCase("ja");
-
-      return searchableText.includes(normalizedQuery);
+      return matchesBuildArticleQuery(
+        article,
+        query,
+        pokemonLabels,
+        regulationLabels,
+        seasonLabels
+      );
     });
   }, [
     articles,
     battleFormat,
+    completeness,
     pokemonLabels,
     query,
     regulation,
@@ -101,6 +97,7 @@ export function BuildArticleExplorer({
     setBattleFormat("all");
     setRegulation("all");
     setSeason("all");
+    setCompleteness("all");
   }
 
   return (
@@ -159,6 +156,25 @@ export function BuildArticleExplorer({
               ))}
             </select>
           </label>
+
+          <label>
+            <span>記事データ</span>
+            <select
+              value={completeness}
+              onChange={(event) =>
+                setCompleteness(
+                  event.target.value as
+                    | "all"
+                    | "complete"
+                    | "metadata-only"
+                )
+              }
+            >
+              <option value="all">すべて</option>
+              <option value="complete">6体を分析できる記事</option>
+              <option value="metadata-only">記事リンクのみ</option>
+            </select>
+          </label>
         </div>
       </div>
 
@@ -166,24 +182,39 @@ export function BuildArticleExplorer({
         <div className={styles.grid}>
           {filteredArticles.map((article) => (
             <article className={styles.card} key={article.id}>
+              {article.collection ? (
+                <p className={styles.collectionLabel}>
+                  {article.collectionCompleteness === "metadata-only"
+                    ? "記事情報のみ自動取得"
+                    : "自動収集"}{" "}
+                  <span>出典：{article.sourceName}</span>
+                </p>
+              ) : null}
               <h3>{article.title}</h3>
 
-              <div className={styles.team} aria-label="採用ポケモン">
-                {article.pokemonSlugs.map((slug) => {
-                  const label = pokemonLabels[slug] ?? slug;
-                  return (
-                    <button
-                      type="button"
-                      key={`${article.id}-${slug}`}
-                      onClick={() => setQuery(label)}
-                      title={`${label}で検索`}
-                    >
-                      <PokemonVisual name={label} slug={slug} />
-                      <span>{label}</span>
-                    </button>
-                  );
-                })}
-              </div>
+              {article.collectionCompleteness === "metadata-only" ? (
+                <div className={styles.metadataOnlyTeam}>
+                  <strong>採用ポケモンは元記事で確認</strong>
+                  <span>6体を正確に特定できなかったため、推測では掲載していません。</span>
+                </div>
+              ) : (
+                <div className={styles.team} aria-label="採用ポケモン">
+                  {article.pokemonSlugs.map((slug) => {
+                    const label = pokemonLabels[slug] ?? slug;
+                    return (
+                      <button
+                        type="button"
+                        key={`${article.id}-${slug}`}
+                        onClick={() => setQuery(label)}
+                        title={`${label}で検索`}
+                      >
+                        <PokemonVisual name={label} slug={slug} />
+                        <span>{label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
 
               <div className={styles.details}>
                 <strong className={styles.result}>{article.result}</strong>
@@ -210,11 +241,17 @@ export function BuildArticleExplorer({
                   <time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time>
                 </p>
                 <div className={styles.actions}>
-                  <Link className={styles.importLink} href={buildArticleImportHref(article.id)}>
-                    この構築を分析する
-                  </Link>
+                  {canAnalyzeBuildArticle(article) ? (
+                    <Link className={styles.importLink} href={buildArticleImportHref(article.id)}>
+                      この構築を分析する
+                    </Link>
+                  ) : null}
                   <a
-                    className={styles.sourceLink}
+                    className={`${styles.sourceLink} ${
+                      article.collectionCompleteness === "metadata-only"
+                        ? styles.metadataSourceLink
+                        : ""
+                    }`}
                     href={article.url}
                     target="_blank"
                     rel="noreferrer"

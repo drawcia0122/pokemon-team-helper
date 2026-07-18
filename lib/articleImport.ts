@@ -1,5 +1,5 @@
-import buildArticleData from "@/data/buildArticles.json";
 import pokemonData from "@/data/pokemon.json";
+import { getBuildArticles } from "@/lib/buildArticles";
 import {
   getRegulationDefinition,
   getRegulationForSeason,
@@ -19,7 +19,7 @@ export type ArticleImportResult =
   | { status: "error"; message: string }
   | { status: "ready"; article: BuildArticle; team: TeamSlot[] };
 
-const articles = buildArticleData as BuildArticle[];
+const articles = getBuildArticles();
 const pokemon = pokemonData as PokemonEntry[];
 
 export type ArticleRegulationComparison = {
@@ -37,6 +37,14 @@ export function buildArticleImportHref(articleId: string): string {
   return `/?${params.toString()}`;
 }
 
+export function canAnalyzeBuildArticle(article: BuildArticle): boolean {
+  return (
+    article.collectionCompleteness !== "metadata-only" &&
+    Array.isArray(article.pokemonSlugs) &&
+    article.pokemonSlugs.length === 6
+  );
+}
+
 export function resolveArticleImport(
   articleId: string | null,
   articleList: BuildArticle[] = articles,
@@ -51,6 +59,14 @@ export function resolveArticleImport(
     return {
       status: "error",
       message: "指定された構築記事が見つかりません。記事一覧からもう一度選択してください。"
+    };
+  }
+
+  if (article.collectionCompleteness === "metadata-only") {
+    return {
+      status: "error",
+      message:
+        "この記事は記事情報のみ自動取得されており、採用ポケモン6体を安全に確認できないため取り込めません。"
     };
   }
 

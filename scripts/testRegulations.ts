@@ -1,5 +1,4 @@
 import appMetaData from "@/data/appMeta.json";
-import buildArticleData from "@/data/buildArticles.json";
 import pokemonData from "@/data/pokemon.json";
 import regulationAData from "@/data/regulations/regulation-m-a.json";
 import regulationBData from "@/data/regulations/regulation-m-b.json";
@@ -7,6 +6,7 @@ import {
   compareArticleRegulation,
   selectSeasonForArticleImport
 } from "@/lib/articleImport";
+import { getBuildArticles } from "@/lib/buildArticles";
 import {
   getAvailablePokemonBySeason,
   getLatestSeasonId,
@@ -34,7 +34,7 @@ function assert(condition: unknown, message: string): asserts condition {
 }
 
 const appMeta = appMetaData as AppMeta;
-const articles = buildArticleData as BuildArticle[];
+const articles = getBuildArticles();
 const pokemon = pokemonData as PokemonEntry[];
 const regulations = [
   regulationAData as RegulationDefinition,

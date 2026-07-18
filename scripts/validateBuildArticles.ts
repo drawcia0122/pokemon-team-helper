@@ -2,7 +2,21 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateRegulationDefinitions } from "@/lib/regulationValidation";
-import type { AppMeta, RegulationDefinition } from "@/types/pokemon";
+import {
+  validateCollectionStatus,
+  validateGeneratedCollection
+} from "./build-article-collectors/validate";
+import { getSourceConfigs } from "./build-article-collectors/sourceRegistry";
+import type { CollectionStatus } from "./build-article-collectors/types";
+import type {
+  BuildArticle,
+  GeneratedBuildArticle
+} from "@/types/buildArticle";
+import type {
+  AppMeta,
+  PokemonEntry,
+  RegulationDefinition
+} from "@/types/pokemon";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -41,9 +55,19 @@ function requireText(article: JsonRecord, key: string, context: string, errors: 
 }
 
 async function main() {
-  const [articles, pokemon, appMeta, regulationA, regulationB] = await Promise.all([
-    readJson<JsonRecord[]>("data/buildArticles.json"),
-    readJson<Array<{ slug: string }>>("data/pokemon.json"),
+  const [
+    manualArticles,
+    generatedArticles,
+    collectionStatus,
+    pokemon,
+    appMeta,
+    regulationA,
+    regulationB
+  ] = await Promise.all([
+    readJson<JsonRecord[]>("data/buildArticles.manual.json"),
+    readJson<GeneratedBuildArticle[]>("data/buildArticles.generated.json"),
+    readJson<CollectionStatus>("data/buildArticleCollectionStatus.json"),
+    readJson<PokemonEntry[]>("data/pokemon.json"),
     readJson<AppMeta>("data/appMeta.json"),
     readJson<RegulationDefinition>("data/regulations/regulation-m-a.json"),
     readJson<RegulationDefinition>("data/regulations/regulation-m-b.json")
@@ -54,7 +78,30 @@ async function main() {
   const pokemonSlugs = new Set(pokemon.map((entry) => entry.slug));
   const seasonIds = new Set(appMeta.seasonIds);
   const regulations = [regulationA, regulationB];
-  errors.push(...validateRegulationDefinitions(appMeta, regulations, articles));
+  const regulationReferences = [
+    ...manualArticles,
+    ...generatedArticles.map((article) => {
+      const season = appMeta.seasons.find(
+        (entry) => entry.id === article.builderSeasonId
+      );
+      return {
+        id: article.id,
+        regulation: article.regulationId,
+        season: season?.articleLabel,
+        builderSeasonId: article.builderSeasonId
+      };
+    })
+  ];
+  errors.push(
+    ...validateRegulationDefinitions(
+      appMeta,
+      regulations,
+      regulationReferences
+    )
+  );
+  errors.push(
+    ...validateCollectionStatus(collectionStatus, getSourceConfigs())
+  );
   for (const regulation of regulations) {
     for (const slug of regulation.allowedPokemonSlugs) {
       if (!pokemonSlugs.has(slug)) {
@@ -63,8 +110,8 @@ async function main() {
     }
   }
 
-  for (const article of articles) {
-    const context = `buildArticles:${String(article.id ?? "unknown")}`;
+  for (const article of manualArticles) {
+    const context = `buildArticles.manual:${String(article.id ?? "unknown")}`;
     [
       "id",
       "title",
@@ -118,13 +165,23 @@ async function main() {
     }
   }
 
+  errors.push(
+    ...validateGeneratedCollection(
+      generatedArticles,
+      manualArticles as BuildArticle[],
+      { appMeta, pokemon }
+    )
+  );
+
   if (errors.length > 0) {
     errors.forEach((error) => console.error(`[error] ${error}`));
     process.exitCode = 1;
     return;
   }
 
-  console.log(`[ok] 構築記事 ${articles.length}件 / ポケモン ${pokemon.length}件を検証しました`);
+  console.log(
+    `[ok] 構築記事 手動${manualArticles.length}件 + 自動${generatedArticles.length}件 / ポケモン ${pokemon.length}件を検証しました`
+  );
 }
 
 main().catch((error) => {

@@ -1,6 +1,6 @@
-import buildArticleData from "@/data/buildArticles.json";
 import pokemonData from "@/data/pokemon.json";
 import {
+  canAnalyzeBuildArticle,
   compareArticleRegulation,
   mergeImportedPokemonOptions,
   resolveArticleImport,
@@ -8,6 +8,7 @@ import {
   selectTeamForImportAction,
   selectTeamForRestoreAction
 } from "@/lib/articleImport";
+import { getBuildArticles } from "@/lib/buildArticles";
 import { parseTeamBackup, serializeTeam } from "@/lib/teamStorage";
 import type { BuildArticle } from "@/types/buildArticle";
 import type { PokemonEntry, TeamSlot } from "@/types/pokemon";
@@ -18,7 +19,7 @@ function assert(condition: unknown, message: string): asserts condition {
   }
 }
 
-const articles = buildArticleData as BuildArticle[];
+const articles = getBuildArticles();
 const pokemon = pokemonData as PokemonEntry[];
 const validArticle = articles[0];
 assert(validArticle, "テスト用の記事がありません");
@@ -53,6 +54,22 @@ const invalidSlugArticle: BuildArticle = {
 assert(
   resolveArticleImport(invalidSlugArticle.id, [invalidSlugArticle], pokemon).status === "error",
   "不正なslugを拒否できません"
+);
+
+const metadataOnlyArticle: BuildArticle = {
+  ...validArticle,
+  id: "metadata-only",
+  pokemonSlugs: [],
+  collectionCompleteness: "metadata-only"
+};
+assert(
+  !canAnalyzeBuildArticle(metadataOnlyArticle) &&
+  resolveArticleImport(
+    metadataOnlyArticle.id,
+    [metadataOnlyArticle],
+    pokemon
+  ).status === "error",
+  "採用6体を確認できないmetadata-only記事に分析リンクまたは取り込みを許可しました"
 );
 
 const currentTeam: TeamSlot[] = [
