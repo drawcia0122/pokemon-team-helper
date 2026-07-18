@@ -13,6 +13,7 @@ import {
   stripHtml
 } from "./normalize";
 import { createPokemonAliasMap } from "./pokemonAliases";
+import { extractBuildArticleThumbnail } from "./thumbnail";
 import type { ExtractionOutcome } from "./types";
 
 type JsonLdRecord = Record<string, unknown>;
@@ -27,6 +28,7 @@ type Heading = {
 type TeamCandidate = {
   method: TeamExtractionMethod;
   priority: number;
+  score: number;
   sectionLabel: string;
   pokemonSlugs: string[] | null;
   rawCount: number;
@@ -50,6 +52,7 @@ const TEAM_SECTION_PATTERN =
   /(?:最終日?構築|大会使用構築|序盤構築|中盤構築|個体紹介|ポケモン紹介|採用個体|採用ポケモン|構築メンバー|パーティメンバー|パーティ紹介|構築紹介|メンバー紹介|使用ポケモン|個別解説|調整・役割|調整と役割|使用構築|構築と配分)/i;
 
 function sectionPriority(label: string): number {
+  if (/相手|対戦相手|選出候補|候補|没案|過去|旧構築/i.test(label)) return 20;
   if (/最終構築/i.test(label)) return 500;
   if (/最終日構築/i.test(label)) return 480;
   if (/大会使用構築/i.test(label)) return 450;
@@ -58,6 +61,25 @@ function sectionPriority(label: string): number {
   if (/中盤構築/i.test(label)) return 180;
   if (/序盤構築/i.test(label)) return 150;
   return 300;
+}
+
+function methodScore(method: TeamExtractionMethod): number {
+  switch (method) {
+    case "structured-data":
+      return 45;
+    case "numbered-items":
+      return 40;
+    case "table":
+      return 35;
+    case "section-headings":
+      return 30;
+    case "section-paragraphs":
+      return 25;
+    case "image-metadata":
+      return 20;
+    case "embedded-image-metadata":
+      return 15;
+  }
 }
 
 function findJsonLdObjects(html: string): JsonLdRecord[] {
@@ -193,6 +215,13 @@ export function createPokemonResolver(pokemon: PokemonEntry[]) {
     if (mega) register(`メガ${mega[1]}`, entry.slug);
     const megaForm = entry.nameJa.match(/^(.+)\(メガ・([xy])\)$/i);
     if (megaForm) register(`メガ${megaForm[1]}${megaForm[2]}`, entry.slug);
+    const regionalForm = entry.nameJa.match(
+      /^(.+)\((アローラ|ガラル|ヒスイ|パルデア)\)$/i
+    );
+    if (regionalForm) {
+      register(`${regionalForm[2]}${regionalForm[1]}`, entry.slug);
+      register(`${regionalForm[1]}${regionalForm[2]}`, entry.slug);
+    }
   }
 
   for (const [alias, slug] of explicitAliases) {
@@ -231,6 +260,11 @@ function resolveTeamCandidate(input: {
   return {
     method: input.method,
     priority: input.priority,
+    score:
+      input.priority +
+      methodScore(input.method) +
+      (input.names.length === 6 ? 80 : 0) +
+      (input.method === "numbered-items" ? 20 : 0),
     sectionLabel: input.sectionLabel,
     pokemonSlugs:
       issue === null && slugs.length === 6 && new Set(slugs).size === 6
@@ -239,6 +273,17 @@ function resolveTeamCandidate(input: {
     rawCount: input.names.length,
     issue
   };
+}
+
+function extractEmbeddedImageNames(section: string): string[] {
+  const values: string[] = [];
+  for (const match of section.matchAll(
+    /"(?:alt|altText|caption|figcaption)"\s*:\s*"([^"]+)"/gi
+  )) {
+    const label = cleanPokemonLabel(decodeHtml(match[1]));
+    if (label) values.push(label);
+  }
+  return values;
 }
 
 function extractStructuredTeamCandidates(
@@ -399,6 +444,29 @@ function extractSectionTeamCandidates(
         /<(?:p|li)\b[^>]*>([\s\S]*?)<\/(?:p|li)>/gi
       )
     ].map((match) => stripHtml(match[1]));
+    let paragraphRun: string[] = [];
+    const paragraphRuns: string[][] = [];
+    for (const block of blocks) {
+      if (resolvePokemon(block)) {
+        paragraphRun.push(block);
+      } else if (paragraphRun.length > 0) {
+        paragraphRuns.push(paragraphRun);
+        paragraphRun = [];
+      }
+    }
+    if (paragraphRun.length > 0) paragraphRuns.push(paragraphRun);
+    for (const names of paragraphRuns) {
+      if (names.length < 6) continue;
+      candidates.push(
+        resolveTeamCandidate({
+          names,
+          method: "section-paragraphs",
+          priority,
+          sectionLabel: heading.label,
+          resolvePokemon
+        })
+      );
+    }
     const numbered = blocks.filter((block) => numberedValue(block) !== null);
     if (
       numbered.length > 0 &&
@@ -453,6 +521,18 @@ function extractSectionTeamCandidates(
         })
       );
     }
+    const embeddedImageNames = extractEmbeddedImageNames(section);
+    if (embeddedImageNames.length > 0) {
+      candidates.push(
+        resolveTeamCandidate({
+          names: embeddedImageNames,
+          method: "embedded-image-metadata",
+          priority,
+          sectionLabel: heading.label,
+          resolvePokemon
+        })
+      );
+    }
   }
 
   for (const tableNames of extractTableNames(html)) {
@@ -480,10 +560,23 @@ function chooseTeamCandidate(candidates: TeamCandidate[]): TeamExtractionResult 
     };
   }
 
-  const highestPriority = Math.max(...candidates.map((entry) => entry.priority));
-  const highest = candidates.filter(
+  const highestPriority = Math.max(
+    ...candidates.map((entry) => entry.priority)
+  );
+  const highestPriorityCandidates = candidates.filter(
     (entry) => entry.priority === highestPriority
   );
+  const valid = highestPriorityCandidates.filter(
+    (entry) => entry.pokemonSlugs !== null
+  );
+  const highestScore = Math.max(
+    ...(valid.length > 0 ? valid : highestPriorityCandidates).map(
+      (entry) => entry.score
+    )
+  );
+  const highest = (
+    valid.length > 0 ? valid : highestPriorityCandidates
+  ).filter((entry) => entry.score === highestScore);
   const validByTeam = new Map<string, TeamCandidate>();
   for (const candidate of highest) {
     if (candidate.pokemonSlugs) {
@@ -843,6 +936,11 @@ export function extractArticleFromHtml(input: {
   const result = extractResult(title, text);
   const complete = team.status === "complete";
   const pokemonSlugs = complete ? team.pokemonSlugs : [];
+  const thumbnailExtraction = extractBuildArticleThumbnail({
+    html: input.html,
+    origin: input.source,
+    title
+  });
   return {
     status: "accepted",
     article: {
@@ -870,11 +968,16 @@ export function extractArticleFromHtml(input: {
           ? (pokemonMap.get(pokemonSlugs[0])?.nameJa ?? pokemonSlugs[0])
           : null
       }),
+      thumbnail: thumbnailExtraction.thumbnail,
       collectionCompleteness: complete ? "complete" : "metadata-only",
       extractionConfidence: complete ? 1 : 0.9,
       missingFields: complete ? [] : ["pokemonSlugs"],
       teamExtractionMethod: complete ? team.method : null,
-      teamExtractionIssue: complete ? null : team.reason
+      teamExtractionIssue: complete ? null : team.reason,
+      thumbnailExtraction: {
+        rejectedCount: thumbnailExtraction.rejectedCount,
+        rejectionReasons: thumbnailExtraction.rejectionReasons
+      }
     }
   };
 }

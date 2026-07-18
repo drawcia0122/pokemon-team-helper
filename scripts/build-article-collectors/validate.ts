@@ -3,6 +3,7 @@ import type {
   GeneratedBuildArticle,
   TeamExtractionMethod
 } from "../../types/buildArticle";
+import { validateBuildArticleThumbnail } from "../../lib/buildArticleThumbnail";
 import type { AppMeta, PokemonEntry } from "../../types/pokemon";
 import { createContentFingerprint } from "./deduplicate";
 import { normalizeUrl } from "./normalize";
@@ -18,7 +19,9 @@ const TEAM_EXTRACTION_METHODS = new Set<TeamExtractionMethod>([
   "section-headings",
   "numbered-items",
   "table",
-  "image-metadata"
+  "image-metadata",
+  "section-paragraphs",
+  "embedded-image-metadata"
 ]);
 
 function isIsoDateTime(value: string): boolean {
@@ -85,6 +88,15 @@ export function validateGeneratedBuildArticle(
 
   if (article.source !== "note" && article.source !== "pokesol") {
     errors.push(`${prefix}: source が不正です`);
+  }
+  if (!Object.prototype.hasOwnProperty.call(article, "thumbnail")) {
+    errors.push(`${prefix}: thumbnailが未定義です`);
+  } else {
+    errors.push(
+      ...validateBuildArticleThumbnail(article.thumbnail, article.source).map(
+        (error) => `${prefix}: ${error}`
+      )
+    );
   }
   if (!isAllowedSourceUrl(article)) {
     errors.push(`${prefix}: URLまたは許可ドメインが不正です`);
@@ -193,6 +205,7 @@ export function validateGeneratedBuildArticle(
       pokemonSlugs: article.pokemonSlugs,
       tags: article.tags,
       summary: article.summary,
+      thumbnail: article.thumbnail,
       collectionCompleteness: article.collectionCompleteness,
       extractionConfidence: article.extractionConfidence,
       missingFields: article.missingFields,
@@ -263,7 +276,13 @@ export function validateCollectionStatus(
         "fetchFailureCount",
         "extractionSuccessCount",
         "completeCount",
-        "metadataOnlyCount"
+        "metadataOnlyCount",
+        "thumbnailFoundCount",
+        "thumbnailMissingCount",
+        "thumbnailUpdatedCount",
+        "thumbnailRejectedCount",
+        "fallbackCount",
+        "completePromotedCount"
       ] as const;
       for (const key of countKeys) {
         const value = stats[key];
@@ -285,6 +304,7 @@ export function validateCollectionStatus(
       for (const counts of [
         stats.teamExtractionMethods,
         stats.metadataOnlyReasons,
+        stats.thumbnailDomains,
         stats.exclusionReasons
       ]) {
         if (

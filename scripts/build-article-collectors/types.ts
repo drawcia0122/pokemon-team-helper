@@ -1,13 +1,14 @@
 import type {
   BuildArticle,
   BuildArticleSource,
+  BuildArticleThumbnail,
   CollectionCompleteness,
   GeneratedBuildArticle,
   TeamExtractionMethod
 } from "../../types/buildArticle";
 import type { AppMeta, PokemonEntry } from "../../types/pokemon";
 
-export const EXTRACTOR_VERSION = "1.1.0";
+export const EXTRACTOR_VERSION = "1.2.0";
 
 export type ArticleCandidate = {
   source: BuildArticleSource;
@@ -45,11 +46,16 @@ export type ExtractedArticle = {
   pokemonSlugs: string[];
   tags: string[];
   summary: string;
+  thumbnail: BuildArticleThumbnail | null;
   collectionCompleteness: CollectionCompleteness;
   extractionConfidence: number;
   missingFields: string[];
   teamExtractionMethod: TeamExtractionMethod | null;
   teamExtractionIssue: string | null;
+  thumbnailExtraction: {
+    rejectedCount: number;
+    rejectionReasons: Record<string, number>;
+  };
 };
 
 export type ExtractionOutcome =
@@ -80,6 +86,13 @@ export type SourceCollectionStats = {
   extractionSuccessCount?: number;
   completeCount: number;
   metadataOnlyCount: number;
+  thumbnailFoundCount: number;
+  thumbnailMissingCount: number;
+  thumbnailUpdatedCount: number;
+  thumbnailRejectedCount: number;
+  fallbackCount: number;
+  completePromotedCount: number;
+  thumbnailDomains: Record<string, number>;
   teamExtractionMethods: Partial<Record<TeamExtractionMethod, number>>;
   metadataOnlyReasons: Record<string, number>;
   exclusionReasons: Record<string, number>;

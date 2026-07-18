@@ -1,12 +1,27 @@
 export type BattleFormat = "single" | "double";
 export type BuildArticleSource = "pokesol" | "note";
 export type CollectionCompleteness = "complete" | "metadata-only";
+export type BuildArticleThumbnailSource =
+  | "structured-data"
+  | "og-image"
+  | "twitter-image"
+  | "cover-image"
+  | "manual";
+export type BuildArticleThumbnail = {
+  url: string;
+  source: BuildArticleThumbnailSource;
+  alt: string | null;
+  width: number | null;
+  height: number | null;
+};
 export type TeamExtractionMethod =
   | "structured-data"
   | "section-headings"
   | "numbered-items"
   | "table"
-  | "image-metadata";
+  | "image-metadata"
+  | "section-paragraphs"
+  | "embedded-image-metadata";
 export type GeneratedArticleStatus =
   | "active"
   | "temporarily-unavailable"
@@ -27,6 +42,7 @@ export type BuildArticle = {
   pokemonSlugs: string[];
   tags: string[];
   summary: string;
+  thumbnail: BuildArticleThumbnail | null;
   collectionCompleteness?: CollectionCompleteness;
   collection?: {
     source: BuildArticleSource;
@@ -51,6 +67,7 @@ export type GeneratedBuildArticle = {
   pokemonSlugs: string[];
   tags: string[];
   summary: string;
+  thumbnail: BuildArticleThumbnail | null;
   collectionCompleteness: CollectionCompleteness;
   extractionConfidence: number;
   missingFields: string[];

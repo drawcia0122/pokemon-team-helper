@@ -12,6 +12,11 @@ import {
   isPokemonBuildArticleQuery,
   matchesBuildArticleQuery
 } from "@/lib/buildArticleSearch";
+import {
+  isBuildArticleThumbnailSafe,
+  resolveBuildArticleThumbnailState,
+  validateBuildArticleThumbnail
+} from "@/lib/buildArticleThumbnail";
 import type {
   BuildArticle,
   GeneratedBuildArticle
@@ -54,6 +59,8 @@ import {
   parsePokesolArticle,
   parsePokesolCandidateList
 } from "./build-article-collectors/pokesol";
+import { extractBuildArticleThumbnail } from "./build-article-collectors/thumbnail";
+import { EXTRACTOR_VERSION } from "./build-article-collectors/types";
 import { SOURCE_REGISTRY } from "./build-article-collectors/sourceRegistry";
 import type {
   FetchResult,
@@ -152,6 +159,12 @@ async function main(): Promise<void> {
     "note記事の6体・シーズン・ルール・形式が不正です"
   );
   assert(
+    noteOutcome.article.thumbnail?.source === "structured-data" &&
+      noteOutcome.article.thumbnail.width === 1200 &&
+      noteOutcome.article.thumbnail.height === 630,
+    "記事専用の構造化データ画像を抽出できません"
+  );
+  assert(
     pokesolOutcome.article.builderSeasonId === "season-m3" &&
       pokesolOutcome.article.regulationId === "M-B" &&
       pokesolOutcome.article.battleFormat === "double",
@@ -241,6 +254,85 @@ async function main(): Promise<void> {
     "ポケモン列のある表から6体を抽出できません"
   );
 
+  const paragraphTeam = parseNoteArticle({
+    html: noteArticle.replace(
+      /<h2>個体紹介<\/h2>[\s\S]*?<h2>まとめ<\/h2>/,
+      `<h2>個体紹介</h2>${[
+        "フシギダネ",
+        "リザードン",
+        "カメックス",
+        "ピカチュウ",
+        "ゲンガー",
+        "カイリュー"
+      ]
+        .map((name) => `<p>${name}</p>`)
+        .join("")}<h2>まとめ</h2>`
+    ),
+    url: noteCandidates[0].url,
+    appMeta,
+    pokemon
+  });
+  assert(
+    paragraphTeam.status === "accepted" &&
+      paragraphTeam.article.collectionCompleteness === "complete" &&
+      paragraphTeam.article.teamExtractionMethod === "section-paragraphs",
+    "個体紹介直後の短い6段落から6体を抽出できません"
+  );
+
+  const figcaptionTeam = parseNoteArticle({
+    html: noteArticle.replace(
+      /<h2>個体紹介<\/h2>[\s\S]*?<h2>まとめ<\/h2>/,
+      `<h2>最終構築</h2>${[
+        "フシギダネ",
+        "リザードン",
+        "カメックス",
+        "ピカチュウ",
+        "ゲンガー",
+        "カイリュー"
+      ]
+        .map(
+          (name, index) =>
+            `<figure><img src="/fixture-${index}.png" alt=""><figcaption>${name}</figcaption></figure>`
+        )
+        .join("")}<h2>まとめ</h2>`
+    ),
+    url: noteCandidates[0].url,
+    appMeta,
+    pokemon
+  });
+  assert(
+    figcaptionTeam.status === "accepted" &&
+      figcaptionTeam.article.collectionCompleteness === "complete" &&
+      figcaptionTeam.article.teamExtractionMethod === "image-metadata",
+    "公開figcaptionから6体を抽出できません"
+  );
+
+  const embeddedAltTeam = parseNoteArticle({
+    html: noteArticle.replace(
+      /<h2>個体紹介<\/h2>[\s\S]*?<h2>まとめ<\/h2>/,
+      `<h2>最終構築</h2><script type="application/json">${JSON.stringify({
+        images: [
+          { altText: "フシギダネ" },
+          { altText: "リザードン" },
+          { altText: "カメックス" },
+          { altText: "ピカチュウ" },
+          { altText: "ゲンガー" },
+          { altText: "カイリュー" }
+        ]
+      })}</script><h2>まとめ</h2>`
+    ),
+    url: noteCandidates[0].url,
+    appMeta,
+    pokemon
+  });
+  assert(
+    embeddedAltTeam.status === "accepted" &&
+      embeddedAltTeam.article.collectionCompleteness === "complete" &&
+      embeddedAltTeam.article.teamExtractionMethod ===
+        "embedded-image-metadata",
+    "note埋め込みJSONの公開代替テキストから6体を抽出できません"
+  );
+
   const earlyNames = [
     "ミュウ",
     "ルカリオ",
@@ -276,6 +368,31 @@ async function main(): Promise<void> {
       finalPriority.article.collectionCompleteness === "complete" &&
       finalPriority.article.pokemonSlugs[0] === "bulbasaur",
     "序盤構築より最終構築を優先できません"
+  );
+  const unresolvedFinal = parseNoteArticle({
+    html: noteArticle.replace(
+      /<h2>個体紹介<\/h2>[\s\S]*?<h2>まとめ<\/h2>/,
+      `${sectionHeadings("序盤構築", earlyNames)}
+       ${sectionHeadings("最終構築", [
+         "ウーラオス",
+         "リザードン",
+         "カメックス",
+         "ピカチュウ",
+         "ゲンガー",
+         "カイリュー"
+       ])}
+       <h2>まとめ</h2>`
+    ),
+    url: noteCandidates[0].url,
+    appMeta,
+    pokemon
+  });
+  assert(
+    unresolvedFinal.status === "accepted" &&
+      unresolvedFinal.article.collectionCompleteness === "metadata-only" &&
+      unresolvedFinal.article.teamExtractionIssue ===
+        "team-unresolved-pokemon",
+    "最終構築が曖昧な記事を序盤構築でcompleteへ誤昇格しました"
   );
 
   const equallyRanked = parseNoteArticle({
@@ -339,7 +456,8 @@ async function main(): Promise<void> {
   assert(
     resolvePokemon("リザY") === "charizard-mega-y" &&
       resolvePokemon("水ウーラ") === "urshifu-rapid-strike" &&
-      resolvePokemon("暁ガチグマ") === "ursaluna-bloodmoon",
+      resolvePokemon("暁ガチグマ") === "ursaluna-bloodmoon" &&
+      resolvePokemon("アローラキュウコン") === "ninetales-alola",
     "明示的で一意な別名を正確なslugへ解決できません"
   );
   assert(
@@ -447,6 +565,80 @@ async function main(): Promise<void> {
       "https://note.com/fixture_author/n/nfixture001/?utm_source=x#team"
     ) === "https://note.com/fixture_author/n/nfixture001",
     "URLの追跡情報・末尾スラッシュを除去できません"
+  );
+
+  const validThumbnail = {
+    url: "https://assets.st-note.com/production/uploads/images/123456789/cover.webp",
+    source: "og-image" as const,
+    alt: "fixture記事のサムネイル",
+    width: 1200,
+    height: 630
+  };
+  assert(
+    isBuildArticleThumbnailSafe(validThumbnail, "note") &&
+      validateBuildArticleThumbnail(null, "note").length === 0,
+    "正常なサムネイルまたはthumbnailなしを検証できません"
+  );
+  for (const invalid of [
+    { ...validThumbnail, url: "http://assets.st-note.com/production/uploads/images/1/a.png" },
+    { ...validThumbnail, url: "data:image/png;base64,AAAA" },
+    { ...validThumbnail, url: "https://example.com/production/uploads/images/1/a.png" },
+    { ...validThumbnail, url: "https://assets.st-note.com/favicon.png" },
+    { ...validThumbnail, url: "https://assets.st-note.com/production/uploads/images/1/common-logo.png" },
+    { ...validThumbnail, url: "https://assets.st-note.com/production/uploads/images/1/avatar.png" },
+    { ...validThumbnail, width: 1, height: 1 }
+  ]) {
+    assert(
+      validateBuildArticleThumbnail(invalid, "note").length > 0,
+      `不正なサムネイルを拒否できません: ${invalid.url}`
+    );
+  }
+  const ogOnly = extractBuildArticleThumbnail({
+    html: `<meta property="og:image" content="${validThumbnail.url}">`,
+    origin: "note",
+    title: "OGP fixture"
+  });
+  assert(
+    ogOnly.thumbnail?.source === "og-image",
+    "og:imageを抽出できません"
+  );
+  const twitterOnly = extractBuildArticleThumbnail({
+    html: `<meta name="twitter:image" content="${validThumbnail.url}">`,
+    origin: "note",
+    title: "Twitter fixture"
+  });
+  assert(
+    twitterOnly.thumbnail?.source === "twitter-image",
+    "twitter:imageへフォールバックできません"
+  );
+  const priorityThumbnail = extractBuildArticleThumbnail({
+    html: `<script type="application/ld+json">${JSON.stringify({
+      "@type": "BlogPosting",
+      image: {
+        url: "https://assets.st-note.com/production/uploads/images/123456789/structured.png"
+      }
+    })}</script><meta property="og:image" content="${validThumbnail.url}">`,
+    origin: "note",
+    title: "priority fixture"
+  });
+  assert(
+    priorityThumbnail.thumbnail?.source === "structured-data" &&
+      priorityThumbnail.thumbnail.url.endsWith("/structured.png"),
+    "構造化データをOGPより優先できません"
+  );
+  const rejectedThumbnail = extractBuildArticleThumbnail({
+    html: `<meta property="og:image" content="https://assets.st-note.com/favicon.png">`,
+    origin: "note",
+    title: "reject fixture"
+  });
+  assert(
+    rejectedThumbnail.thumbnail === null &&
+      rejectedThumbnail.rejectedCount === 1 &&
+      resolveBuildArticleThumbnailState({
+        thumbnail: null,
+        origin: "note"
+      }) === "fallback-missing",
+    "不正画像の拒否またはフォールバック判定が不正です"
   );
 
   const previousCursor: SourceCollectionCursor = {
@@ -635,6 +827,37 @@ async function main(): Promise<void> {
       updated.article.title === "更新タイトル",
     "同じURLの記事タイトル更新を安定IDのまま反映できません"
   );
+  const retainedThumbnail = createOrUpdateGeneratedArticle({
+    source: "note",
+    sourceUrl: noteCandidates[0].url,
+    article: { ...noteOutcome.article, thumbnail: null },
+    existing: created,
+    nowIso: "2026-07-18T04:10:00.000Z"
+  });
+  assert(
+    retainedThumbnail.article.thumbnail?.url === created.thumbnail?.url,
+    "一時的な画像抽出失敗で既存thumbnailを削除しました"
+  );
+  const changedThumbnail = createOrUpdateGeneratedArticle({
+    source: "note",
+    sourceUrl: noteCandidates[0].url,
+    article: {
+      ...noteOutcome.article,
+      thumbnail: {
+        ...noteOutcome.article.thumbnail!,
+        url: "https://assets.st-note.com/production/uploads/images/123456789/changed.png"
+      }
+    },
+    existing: created,
+    nowIso: "2026-07-18T04:20:00.000Z"
+  });
+  assert(
+    changedThumbnail.change === "updated" &&
+      changedThumbnail.article.id === created.id &&
+      changedThumbnail.article.contentFingerprint !==
+        created.contentFingerprint,
+    "画像だけの変更を同じIDの内容差分として検出できません"
+  );
   const unchanged = createOrUpdateGeneratedArticle({
     source: "note",
     sourceUrl: noteCandidates[0].url,
@@ -656,7 +879,7 @@ async function main(): Promise<void> {
   });
   assert(
     extractorMigrated.change === "updated" &&
-      extractorMigrated.article.extractorVersion === "1.1.0",
+      extractorMigrated.article.extractorVersion === EXTRACTOR_VERSION,
     "抽出器の更新を内容変更なしの記事へ記録できません"
   );
 
@@ -685,6 +908,21 @@ async function main(): Promise<void> {
   assert(
     validateGeneratedBuildArticle(created, { appMeta, pokemon }).length === 0,
     "正常な生成記事が検証を通りません"
+  );
+  const metadataGenerated = createOrUpdateGeneratedArticle({
+    source: "note",
+    sourceUrl: noteCandidates[0].url,
+    article: unresolvedForm.article,
+    existing: null,
+    nowIso: "2026-07-18T05:00:00.000Z"
+  }).article;
+  assert(
+    metadataGenerated.thumbnail !== null &&
+      validateGeneratedBuildArticle(metadataGenerated, {
+        appMeta,
+        pokemon
+      }).length === 0,
+    "metadata-only記事の安全なthumbnailを許可できません"
   );
   assert(
     validateGeneratedCollection([created], manualArticles, {
@@ -919,6 +1157,7 @@ async function main(): Promise<void> {
     assert(
       dryRun.generatedArticles.length === 1 &&
         dryRun.status.sources.note.publishedCount === 1 &&
+        dryRun.status.sources.note.thumbnailFoundCount === 1 &&
         dryRun.status.cursors.note.candidates.length === 1 &&
         !dryRun.wroteFiles,
       "fixture dry-runで正常記事を収集できません"

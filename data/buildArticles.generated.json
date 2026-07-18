@@ -30,18 +30,25 @@
       "single"
     ],
     "summary": "M-3のシングルで使用された、ドラミドロ(メガ)入りの構築記事です。採用ポケモン6体と構築経緯を確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/295378186/rectangle_large_type_2_0a7e454c723a3bacbef6b09d32d2132b.png",
+      "source": "structured-data",
+      "alt": "【メガドラミドロ】ポケモンチャンピオンズ シーズンM-3【シングルバトル】のサムネイル",
+      "width": 5079,
+      "height": 2657
+    },
     "collectionCompleteness": "complete",
     "extractionConfidence": 1,
     "missingFields": [],
     "teamExtractionMethod": "numbered-items",
     "teamExtractionIssue": null,
     "firstCollectedAt": "2026-07-18T11:48:22.779Z",
-    "lastCollectedAt": "2026-07-18T12:41:09.636Z",
-    "contentFingerprint": "c76e583872c2df1d0f0beb1a35a3af26660383689c4e764173c94e2993495b63",
-    "extractorVersion": "1.1.0",
+    "lastCollectedAt": "2026-07-18T17:31:23.163Z",
+    "contentFingerprint": "0fb78debf7ff03ce9b7274bf8e76405e34f9c12e1010d0f43fc2b0e605efbc26",
+    "extractorVersion": "1.2.0",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-18T12:41:09.636Z"
+    "lastSuccessfulFetchAt": "2026-07-18T17:31:23.163Z"
   },
   {
     "id": "note-n4896a399e5b8",
@@ -68,6 +75,13 @@
       "ソウブレイズ"
     ],
     "summary": "M-3のダブル構築記事です。マスターボール級。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/294215936/rectangle_large_type_2_eb1300babf8dfae8c3b5446a348a13de.png",
+      "source": "structured-data",
+      "alt": "【ポケモンチャンピオンズ】ダブル 構築メモ スコヴィランを使ってみたい【シーズンM-3】のサムネイル",
+      "width": 848,
+      "height": 444
+    },
     "collectionCompleteness": "metadata-only",
     "extractionConfidence": 0.9,
     "missingFields": [
@@ -76,12 +90,12 @@
     "teamExtractionMethod": null,
     "teamExtractionIssue": "team-unresolved-pokemon",
     "firstCollectedAt": "2026-07-18T12:41:09.636Z",
-    "lastCollectedAt": "2026-07-18T12:41:09.636Z",
-    "contentFingerprint": "85ceb62e66ffada53d9a34836f7fe85721f68cc15dafaac8c4eb54c9e3b4e625",
-    "extractorVersion": "1.1.0",
+    "lastCollectedAt": "2026-07-18T17:31:23.163Z",
+    "contentFingerprint": "fa4f23a6ddb2e028ff812b59d5067a1cb202537fcc6ba2aecb92c6a7a75c78a9",
+    "extractorVersion": "1.2.0",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-18T12:41:09.636Z"
+    "lastSuccessfulFetchAt": "2026-07-18T17:31:23.163Z"
   },
   {
     "id": "note-n5f7f21454fa6",
@@ -105,6 +119,13 @@
       "single"
     ],
     "summary": "M-3のシングル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/291678162/rectangle_large_type_2_227b77318cbb7d843c2211780fd788a4.jpeg",
+      "source": "structured-data",
+      "alt": "【ポケモンチャンピオンズ】レート2212 運と実力 超対面ゲンミミサル【M-3シングルのサムネイル",
+      "width": 1011,
+      "height": 529
+    },
     "collectionCompleteness": "metadata-only",
     "extractionConfidence": 0.9,
     "missingFields": [
@@ -113,12 +134,12 @@
     "teamExtractionMethod": null,
     "teamExtractionIssue": "team-section-not-found",
     "firstCollectedAt": "2026-07-18T12:41:09.636Z",
-    "lastCollectedAt": "2026-07-18T12:41:09.636Z",
-    "contentFingerprint": "56594eecbae89a4b5f784fb557126baf600291a79f515d2349fd77c8306fa2d9",
-    "extractorVersion": "1.1.0",
+    "lastCollectedAt": "2026-07-18T17:31:23.163Z",
+    "contentFingerprint": "7949a29ba8cf1a216d96c82d33460ccf9928ace97f4f9878a6cb6bd96d2780a6",
+    "extractorVersion": "1.2.0",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-18T12:41:09.636Z"
+    "lastSuccessfulFetchAt": "2026-07-18T17:31:23.163Z"
   },
   {
     "id": "note-n3ee2e3321d5e",
@@ -145,6 +166,13 @@
       "ポケモン構築記事"
     ],
     "summary": "M-3のダブル構築記事です。最高レート2071。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/291504199/rectangle_large_type_2_e2a7cbf335d54569a38b9319385c2f13.png",
+      "source": "structured-data",
+      "alt": "【シーズンM-3】クチート博士獲得まで使ってみた【ポケモンチャンピオンズ】【レギュレーションM-B】のサムネイル",
+      "width": 710,
+      "height": 372
+    },
     "collectionCompleteness": "metadata-only",
     "extractionConfidence": 0.9,
     "missingFields": [
@@ -153,12 +181,12 @@
     "teamExtractionMethod": null,
     "teamExtractionIssue": "team-section-not-found",
     "firstCollectedAt": "2026-07-18T12:41:09.636Z",
-    "lastCollectedAt": "2026-07-18T12:41:09.636Z",
-    "contentFingerprint": "4c701d933d8feca9242a1822926410dc15dba79659df3aa53c3a18acfc2093c5",
-    "extractorVersion": "1.1.0",
+    "lastCollectedAt": "2026-07-18T17:31:23.163Z",
+    "contentFingerprint": "84fda05d30e1e34ca62cb6afdaa1f3c2cd1d8a809a531e77395a08f6cb81ec17",
+    "extractorVersion": "1.2.0",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-18T12:41:09.636Z"
+    "lastSuccessfulFetchAt": "2026-07-18T17:31:23.163Z"
   },
   {
     "id": "note-n944523fd7bc4",
@@ -185,6 +213,13 @@
       "M-3"
     ],
     "summary": "M-3のダブル構築記事です。瞬間1位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/293772998/rectangle_large_type_2_b7870cb39d5a5655076350282214afee.png",
+      "source": "structured-data",
+      "alt": "【M-3ダブル瞬間1位】さしす様のカメマフォ構築を考察してみたのサムネイル",
+      "width": 1000,
+      "height": 523
+    },
     "collectionCompleteness": "metadata-only",
     "extractionConfidence": 0.9,
     "missingFields": [
@@ -193,12 +228,12 @@
     "teamExtractionMethod": null,
     "teamExtractionIssue": "team-unresolved-pokemon",
     "firstCollectedAt": "2026-07-18T12:42:21.273Z",
-    "lastCollectedAt": "2026-07-18T12:42:21.273Z",
-    "contentFingerprint": "dbd17b6539a1d9d7f8c3443f92ac51a968a55e81d2c8a2da81201efe4f85a2be",
-    "extractorVersion": "1.1.0",
+    "lastCollectedAt": "2026-07-18T17:31:23.163Z",
+    "contentFingerprint": "05fb144a174122bdd377022a0fb6ebd9a7379e00f59efa32ab5a3630808cbd23",
+    "extractorVersion": "1.2.0",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-18T12:42:21.273Z"
+    "lastSuccessfulFetchAt": "2026-07-18T17:31:23.163Z"
   },
   {
     "id": "note-n148b96f7ec99",
@@ -225,6 +260,7 @@
       "single"
     ],
     "summary": "M-3のシングル構築記事です。最終470位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": null,
     "collectionCompleteness": "metadata-only",
     "extractionConfidence": 0.9,
     "missingFields": [
@@ -234,8 +270,8 @@
     "teamExtractionIssue": "team-section-not-found",
     "firstCollectedAt": "2026-07-18T12:42:21.273Z",
     "lastCollectedAt": "2026-07-18T12:42:21.273Z",
-    "contentFingerprint": "e36e699196091d931cde05b48fdb70632d2ffdc24f7c39738232d2892ae59554",
-    "extractorVersion": "1.1.0",
+    "contentFingerprint": "a6fe041a3c856987d0b7a6e61446ebc064b8996e6b2ffaf367b734bfcfeb1027",
+    "extractorVersion": "1.2.0",
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-07-18T12:42:21.273Z"
@@ -264,6 +300,13 @@
       "single"
     ],
     "summary": "M-3のシングル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/292574415/rectangle_large_type_2_eb74b6dbff634722200ca0565bcfd38b.png",
+      "source": "structured-data",
+      "alt": "メガガメノデス使用記録　～チャンピオンズシングルマスター到達～のサムネイル",
+      "width": 282,
+      "height": 147
+    },
     "collectionCompleteness": "metadata-only",
     "extractionConfidence": 0.9,
     "missingFields": [
@@ -272,12 +315,12 @@
     "teamExtractionMethod": null,
     "teamExtractionIssue": "team-section-not-found",
     "firstCollectedAt": "2026-07-18T12:42:21.273Z",
-    "lastCollectedAt": "2026-07-18T12:42:21.273Z",
-    "contentFingerprint": "19dc1418982d60f616c661e02285472d38269d116935e58190f0cf520a1dcb5d",
-    "extractorVersion": "1.1.0",
+    "lastCollectedAt": "2026-07-18T17:31:23.163Z",
+    "contentFingerprint": "06b3d76b2304844e8491aed1daede51f64c560595322e2e89dd8681a7ff635be",
+    "extractorVersion": "1.2.0",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-18T12:42:21.273Z"
+    "lastSuccessfulFetchAt": "2026-07-18T17:31:23.163Z"
   },
   {
     "id": "note-n84b579def5ab",
@@ -304,6 +347,13 @@
       "シングルバトル"
     ],
     "summary": "M-3のシングル構築記事です。最終85位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/292590296/rectangle_large_type_2_041ec06872ca1ce2d0bfd57689efc2d2.jpeg",
+      "source": "structured-data",
+      "alt": "【ポケモンチャンピオンズ シーズンM-3 543位 最終レート2331】【マンスリーチャレンジシリーズ06 85位】オダマキ博士によろしく【シングルバトル】のサムネイル",
+      "width": 1670,
+      "height": 874
+    },
     "collectionCompleteness": "metadata-only",
     "extractionConfidence": 0.9,
     "missingFields": [
@@ -312,12 +362,12 @@
     "teamExtractionMethod": null,
     "teamExtractionIssue": "team-section-not-found",
     "firstCollectedAt": "2026-07-18T12:42:21.273Z",
-    "lastCollectedAt": "2026-07-18T12:42:21.273Z",
-    "contentFingerprint": "ae4710532f366d748c74ebd1e2a665c160a68c0986ecc2bdf7e64714f49d8f21",
-    "extractorVersion": "1.1.0",
+    "lastCollectedAt": "2026-07-18T17:31:23.163Z",
+    "contentFingerprint": "17c88f097a934c62691ae5bac92df1d11b922c7567a483baa09c7b919c1cb929",
+    "extractorVersion": "1.2.0",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-18T12:42:21.273Z"
+    "lastSuccessfulFetchAt": "2026-07-18T17:31:23.163Z"
   },
   {
     "id": "note-n11983cc70c25",
@@ -341,6 +391,13 @@
       "single"
     ],
     "summary": "M-3のシングル構築記事です。最終レート2216。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/292364218/rectangle_large_type_2_dd376dae9bc525fa912636c47d462860.jpeg",
+      "source": "structured-data",
+      "alt": "【ポケチャン　シーズンM-3 最終レート2216】　暑い夏には雪を降らせよう☃️のサムネイル",
+      "width": 1845,
+      "height": 966
+    },
     "collectionCompleteness": "metadata-only",
     "extractionConfidence": 0.9,
     "missingFields": [
@@ -349,11 +406,11 @@
     "teamExtractionMethod": null,
     "teamExtractionIssue": "team-unresolved-pokemon",
     "firstCollectedAt": "2026-07-18T12:42:21.273Z",
-    "lastCollectedAt": "2026-07-18T12:42:21.273Z",
-    "contentFingerprint": "2f50ee204517c21740185e095b2921cd8335d2252eed9cc345a7995191e63bfa",
-    "extractorVersion": "1.1.0",
+    "lastCollectedAt": "2026-07-18T17:31:23.163Z",
+    "contentFingerprint": "9ec3fc12de6c0eee7d70ac3810f5b6318ea37b57f3004063c15d04a0aa1f7626",
+    "extractorVersion": "1.2.0",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-18T12:42:21.273Z"
+    "lastSuccessfulFetchAt": "2026-07-18T17:31:23.163Z"
   }
 ]

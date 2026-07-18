@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { PokemonVisual } from "@/components/pokemon/PokemonVisual";
+import { BuildArticleThumbnail } from "./BuildArticleThumbnail";
 import {
   buildArticleImportHref,
   canAnalyzeBuildArticle
@@ -182,82 +183,103 @@ export function BuildArticleExplorer({
         <div className={styles.grid}>
           {filteredArticles.map((article) => (
             <article className={styles.card} key={article.id}>
-              {article.collection ? (
-                <p className={styles.collectionLabel}>
+              <BuildArticleThumbnail
+                title={article.title}
+                thumbnail={article.thumbnail}
+                origin={article.collection?.source ?? "manual"}
+                regulation={
+                  regulationLabels[article.regulation] ?? article.regulation
+                }
+                season={
+                  seasonLabels[article.builderSeasonId] ?? article.season
+                }
+                battleFormat={article.battleFormat}
+              />
+              <div className={styles.cardBody}>
+                <h3>{article.title}</h3>
+                <p
+                  className={`${styles.statusLabel} ${
+                    article.collectionCompleteness === "metadata-only"
+                      ? styles.metadataStatus
+                      : styles.completeStatus
+                  }`}
+                >
                   {article.collectionCompleteness === "metadata-only"
                     ? "記事情報のみ自動取得"
-                    : "自動収集"}{" "}
-                  <span>出典：{article.sourceName}</span>
-                </p>
-              ) : null}
-              <h3>{article.title}</h3>
-
-              {article.collectionCompleteness === "metadata-only" ? (
-                <div className={styles.metadataOnlyTeam}>
-                  <strong>採用ポケモンは元記事で確認</strong>
-                  <span>6体を正確に特定できなかったため、推測では掲載していません。</span>
-                </div>
-              ) : (
-                <div className={styles.team} aria-label="採用ポケモン">
-                  {article.pokemonSlugs.map((slug) => {
-                    const label = pokemonLabels[slug] ?? slug;
-                    return (
-                      <button
-                        type="button"
-                        key={`${article.id}-${slug}`}
-                        onClick={() => setQuery(label)}
-                        title={`${label}で検索`}
-                      >
-                        <PokemonVisual name={label} slug={slug} />
-                        <span>{label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-
-              <div className={styles.details}>
-                <strong className={styles.result}>{article.result}</strong>
-                <div className={styles.meta}>
-                  <span className={article.battleFormat === "single" ? styles.single : styles.double}>
-                    {formatLabels[article.battleFormat]}
+                    : "6体を分析できる記事"}
+                  <span>
+                    {article.collection ? "自動収集" : "手動掲載"}・出典：
+                    {article.sourceName}
                   </span>
-                  <span>{regulationLabels[article.regulation] ?? article.regulation}</span>
-                  <span>{seasonLabels[article.builderSeasonId] ?? article.season}</span>
-                </div>
-              </div>
-
-              <p className={styles.summary}>{article.summary}</p>
-
-              <div className={styles.tags}>
-                {article.tags.map((tag) => (
-                  <span key={tag}>#{tag}</span>
-                ))}
-              </div>
-
-              <div className={styles.footer}>
-                <p className={styles.byline}>
-                  {article.sourceName} / {article.author}
-                  <time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time>
                 </p>
-                <div className={styles.actions}>
-                  {canAnalyzeBuildArticle(article) ? (
-                    <Link className={styles.importLink} href={buildArticleImportHref(article.id)}>
-                      この構築を分析する
-                    </Link>
-                  ) : null}
-                  <a
-                    className={`${styles.sourceLink} ${
-                      article.collectionCompleteness === "metadata-only"
-                        ? styles.metadataSourceLink
-                        : ""
-                    }`}
-                    href={article.url}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    元記事を読む <span aria-hidden="true">↗</span>
-                  </a>
+
+                <div className={styles.details}>
+                  <div className={styles.meta}>
+                    <span className={article.battleFormat === "single" ? styles.single : styles.double}>
+                      {formatLabels[article.battleFormat]}
+                    </span>
+                    <span>{regulationLabels[article.regulation] ?? article.regulation}</span>
+                    <span>{seasonLabels[article.builderSeasonId] ?? article.season}</span>
+                  </div>
+                  <strong className={styles.result}>{article.result}</strong>
+                </div>
+
+                {article.collectionCompleteness === "metadata-only" ? (
+                  <div className={styles.metadataOnlyTeam}>
+                    <strong>採用ポケモンは元記事で確認</strong>
+                    <span>6体を正確に特定できなかったため、推測では掲載していません。</span>
+                  </div>
+                ) : (
+                  <div className={styles.team} aria-label="採用ポケモン">
+                    {article.pokemonSlugs.map((slug) => {
+                      const label = pokemonLabels[slug] ?? slug;
+                      return (
+                        <button
+                          type="button"
+                          key={`${article.id}-${slug}`}
+                          onClick={() => setQuery(label)}
+                          title={`${label}で検索`}
+                        >
+                          <PokemonVisual name={label} slug={slug} />
+                          <span>{label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <p className={styles.summary}>{article.summary}</p>
+
+                <div className={styles.tags}>
+                  {article.tags.map((tag) => (
+                    <span key={tag}>#{tag}</span>
+                  ))}
+                </div>
+
+                <div className={styles.footer}>
+                  <p className={styles.byline}>
+                    {article.sourceName} / {article.author}
+                    <time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time>
+                  </p>
+                  <div className={styles.actions}>
+                    {canAnalyzeBuildArticle(article) ? (
+                      <Link className={styles.importLink} href={buildArticleImportHref(article.id)}>
+                        この構築を分析する
+                      </Link>
+                    ) : null}
+                    <a
+                      className={`${styles.sourceLink} ${
+                        article.collectionCompleteness === "metadata-only"
+                          ? styles.metadataSourceLink
+                          : ""
+                      }`}
+                      href={article.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      元記事を読む <span aria-hidden="true">↗</span>
+                    </a>
+                  </div>
                 </div>
               </div>
             </article>

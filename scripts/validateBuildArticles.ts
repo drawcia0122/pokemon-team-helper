@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateRegulationDefinitions } from "@/lib/regulationValidation";
+import { validateBuildArticleThumbnail } from "@/lib/buildArticleThumbnail";
 import {
   validateCollectionStatus,
   validateGeneratedCollection
@@ -135,6 +136,15 @@ async function main() {
 
     if (!isHttpsUrl(article.url)) {
       errors.push(`${context}: url はHTTPS URLにしてください`);
+    }
+    if (!Object.prototype.hasOwnProperty.call(article, "thumbnail")) {
+      errors.push(`${context}: thumbnailが未定義です`);
+    } else {
+      errors.push(
+        ...validateBuildArticleThumbnail(article.thumbnail, "manual").map(
+          (error) => `${context}: ${error}`
+        )
+      );
     }
     if (!isValidDate(article.publishedAt)) {
       errors.push(`${context}: publishedAt は実在するYYYY-MM-DD形式にしてください`);

@@ -27,6 +27,7 @@ import type {
   SourceCollectionStats,
   SourceConfig
 } from "./types";
+import { EXTRACTOR_VERSION } from "./types";
 import { validateGeneratedCollection } from "./validate";
 
 const currentFile = fileURLToPath(import.meta.url);
@@ -93,6 +94,13 @@ function createStats(
     extractionSuccessCount: 0,
     completeCount: 0,
     metadataOnlyCount: 0,
+    thumbnailFoundCount: 0,
+    thumbnailMissingCount: 0,
+    thumbnailUpdatedCount: 0,
+    thumbnailRejectedCount: 0,
+    fallbackCount: 0,
+    completePromotedCount: 0,
+    thumbnailDomains: {},
     teamExtractionMethods: {},
     metadataOnlyReasons: {},
     exclusionReasons: {}
@@ -259,6 +267,7 @@ export function mergeCandidateCursor(input: {
 export function selectCandidatesForRun(input: {
   cursor: SourceCollectionCursor;
   newUrls: Set<string>;
+  priorityUrls?: Set<string>;
   maxFetches: number;
   source: BuildArticleSource;
   rotationIndex?: number;
@@ -277,6 +286,17 @@ export function selectCandidatesForRun(input: {
     selected.push(state);
     selectedUrls.add(state.url);
     if (selected.length >= input.maxFetches) break;
+  }
+  for (const state of input.cursor.candidates) {
+    if (
+      !input.priorityUrls?.has(state.url) ||
+      selectedUrls.has(state.url) ||
+      selected.length >= input.maxFetches
+    ) {
+      continue;
+    }
+    selected.push(state);
+    selectedUrls.add(state.url);
   }
   for (const state of input.cursor.candidates) {
     if (
@@ -441,6 +461,17 @@ async function collectSource(input: {
   const selection = selectCandidatesForRun({
     cursor,
     newUrls: merged.newUrls,
+    priorityUrls: new Set(
+      generatedArticles
+        .filter(
+          (article) =>
+            article.source === config.id &&
+            (article.extractorVersion !== EXTRACTOR_VERSION ||
+              !Object.prototype.hasOwnProperty.call(article, "thumbnail") ||
+              article.thumbnail === null)
+        )
+        .map((article) => article.sourceUrl)
+    ),
     maxFetches: config.maxArticleFetches,
     source: config.id,
     rotationIndex:
@@ -504,6 +535,22 @@ async function collectSource(input: {
 
     stats.extractionSuccessCount =
       (stats.extractionSuccessCount ?? 0) + 1;
+    stats.thumbnailRejectedCount +=
+      outcome.article.thumbnailExtraction.rejectedCount;
+    for (const [reason, count] of Object.entries(
+      outcome.article.thumbnailExtraction.rejectionReasons
+    )) {
+      stats.exclusionReasons[`thumbnail:${reason}`] =
+        (stats.exclusionReasons[`thumbnail:${reason}`] ?? 0) + count;
+    }
+    if (outcome.article.thumbnail) {
+      stats.thumbnailFoundCount += 1;
+      const domain = new URL(outcome.article.thumbnail.url).hostname;
+      stats.thumbnailDomains[domain] =
+        (stats.thumbnailDomains[domain] ?? 0) + 1;
+    } else {
+      stats.thumbnailMissingCount += 1;
+    }
     if (outcome.article.collectionCompleteness === "complete") {
       stats.completeCount += 1;
       if (outcome.article.teamExtractionMethod) {
@@ -534,6 +581,20 @@ async function collectSource(input: {
       nowIso
     });
     generatedArticles = replaceGenerated(generatedArticles, updated.article);
+    if (updated.article.thumbnail === null) stats.fallbackCount += 1;
+    if (
+      existing &&
+      JSON.stringify(existing.thumbnail ?? null) !==
+        JSON.stringify(updated.article.thumbnail)
+    ) {
+      stats.thumbnailUpdatedCount += 1;
+    }
+    if (
+      existing?.collectionCompleteness === "metadata-only" &&
+      updated.article.collectionCompleteness === "complete"
+    ) {
+      stats.completePromotedCount += 1;
+    }
 
     if (updated.change === "new") {
       stats.publishedCount += 1;

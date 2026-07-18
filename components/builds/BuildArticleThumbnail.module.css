@@ -1,0 +1,82 @@
+.frame {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid #c8ddd0;
+  border-radius: 15px;
+  background: #eaf4ed;
+  isolation: isolate;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  object-fit: cover;
+  transition: opacity 180ms ease;
+}
+
+.loaded {
+  opacity: 1;
+}
+
+.loading {
+  position: absolute;
+  inset: auto 10px 10px auto;
+  z-index: -1;
+  color: #5f7467;
+  font-size: .68rem;
+  font-weight: 800;
+}
+
+.fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  padding: 20px;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.14) 25%, transparent 25%) 0 0 / 24px 24px,
+    linear-gradient(315deg, rgba(255,255,255,.1) 25%, transparent 25%) 0 0 / 24px 24px,
+    linear-gradient(135deg, #185f3b, #0f3f29);
+  color: #fff;
+}
+
+.fallback::after {
+  position: absolute;
+  right: -32px;
+  bottom: -48px;
+  width: 150px;
+  height: 150px;
+  border: 24px solid rgba(255,255,255,.08);
+  border-radius: 38%;
+  content: "";
+  transform: rotate(20deg);
+}
+
+.fallbackEyebrow {
+  color: #c7f2d6;
+  font-size: .65rem;
+  font-weight: 900;
+  letter-spacing: .16em;
+}
+
+.fallback strong {
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  line-height: 1;
+}
+
+.fallback > span:last-child {
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .05em;
+}
+
+@media (max-width: 760px) {
+  .frame {
+    border-radius: 13px;
+  }
+}

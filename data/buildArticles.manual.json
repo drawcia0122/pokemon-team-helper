@@ -20,7 +20,8 @@
       "talonflame"
     ],
     "tags": ["メガサーナイト", "追い風", "フレンドガード", "対面寄り"],
-    "summary": "メガサーナイトの範囲火力を、イッカネズミ・ファイアロー・オオニューラで支えるダブル構築。"
+    "summary": "メガサーナイトの範囲火力を、イッカネズミ・ファイアロー・オオニューラで支えるダブル構築。",
+    "thumbnail": null
   },
   {
     "id": "pokenote-charizard-x-m1-single",
@@ -36,7 +37,8 @@
     "result": "最終レート1815",
     "pokemonSlugs": ["charizard", "primarina", "mamoswine", "meowscarada", "floette", "archaludon"],
     "tags": ["メガリザードンX", "対面構築", "スカーフ", "シングル"],
-    "summary": "メガリザードンXを主軸に、アシレーヌとの相性補完と高速スカーフ枠を組み合わせたシングル構築。"
+    "summary": "メガリザードンXを主軸に、アシレーヌとの相性補完と高速スカーフ枠を組み合わせたシングル構築。",
+    "thumbnail": null
   },
   {
     "id": "nonbirimaru-m1-single-955",
@@ -52,7 +54,14 @@
     "result": "最終955位 / レート2449.642",
     "pokemonSlugs": ["floette", "dragonite", "meowscarada", "aegislash-shield", "garchomp", "corviknight"],
     "tags": ["メガフラエッテ", "メガカイリュー", "バランス", "シングル"],
-    "summary": "メガフラエッテとメガカイリューを軸に、環境上位への受け先と終盤の抜き筋を揃えたシングル構築。"
+    "summary": "メガフラエッテとメガカイリューを軸に、環境上位への受け先と終盤の抜き筋を揃えたシングル構築。",
+    "thumbnail": {
+      "url": "https://nonbirimaru.net/wp-content/uploads/2026/05/a276bfa941737b2e2df31f4a300010db.jpg",
+      "source": "manual",
+      "alt": "最終順位",
+      "width": 1920,
+      "height": 1080
+    }
   },
   {
     "id": "liberty-note-pjcs2026-104",
@@ -68,7 +77,14 @@
     "result": "最終104位",
     "pokemonSlugs": ["scovillain", "sylveon", "basculegion-male", "kingambit", "sneasler", "aerodactyl"],
     "tags": ["PJCS2026", "ニンフィア", "2メガ", "ダブル"],
-    "summary": "ニンフィアと一般枠の高性能ポケモンを固定し、2つのメガ枠で対応範囲を広げた大会向けダブル構築。"
+    "summary": "ニンフィアと一般枠の高性能ポケモンを固定し、2つのメガ枠で対応範囲を広げた大会向けダブル構築。",
+    "thumbnail": {
+      "url": "https://liberty-note.com/wp-content/uploads/2026/06/purgatory_poke_thumbnail-768x432.png",
+      "source": "manual",
+      "alt": "【PJCS2026予選 最終104位】2メガニンフィアのサムネイル",
+      "width": 768,
+      "height": 432
+    }
   },
   {
     "id": "pokenote-rain-archaludon-m3-double",
@@ -84,6 +100,7 @@
     "result": "マスターボール級到達",
     "pokemonSlugs": ["sableye", "archaludon", "pelipper", "swampert", "basculegion-male", "gardevoir"],
     "tags": ["雨", "両壁", "ブリジュラス", "ダブル"],
-    "summary": "両壁と雨を同時に整え、ブリジュラスのエレクトロビームとすいすいアタッカーを通すダブル構築。"
+    "summary": "両壁と雨を同時に整え、ブリジュラスのエレクトロビームとすいすいアタッカーを通すダブル構築。",
+    "thumbnail": null
   }
 ]

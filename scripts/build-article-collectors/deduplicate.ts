@@ -36,7 +36,9 @@ function manualTeamFingerprint(article: BuildArticle): string {
   });
 }
 
-export function createContentFingerprint(article: ExtractedArticle): string {
+export function createContentFingerprint(
+  article: Omit<ExtractedArticle, "thumbnailExtraction">
+): string {
   return hashText(
     JSON.stringify({
       canonicalUrl: article.canonicalUrl,
@@ -50,6 +52,7 @@ export function createContentFingerprint(article: ExtractedArticle): string {
       pokemonSlugs: article.pokemonSlugs,
       tags: article.tags,
       summary: article.summary,
+      thumbnail: article.thumbnail,
       collectionCompleteness: article.collectionCompleteness,
       extractionConfidence: article.extractionConfidence,
       missingFields: article.missingFields,
@@ -115,9 +118,15 @@ export function createOrUpdateGeneratedArticle(input: {
   article: GeneratedBuildArticle;
   change: "new" | "updated" | "unchanged";
 } {
+  const effectiveArticle: ExtractedArticle =
+    input.article.thumbnail === null &&
+    input.existing?.thumbnail &&
+    typeof input.existing.thumbnail === "object"
+      ? { ...input.article, thumbnail: input.existing.thumbnail }
+      : input.article;
   const canonicalUrl = normalizeUrl(input.article.canonicalUrl);
   const sourceUrl = normalizeUrl(input.sourceUrl);
-  const contentFingerprint = createContentFingerprint(input.article);
+  const contentFingerprint = createContentFingerprint(effectiveArticle);
   if (input.existing?.contentFingerprint === contentFingerprint) {
     const recovered =
       input.existing.status !== "active" ||
@@ -151,21 +160,22 @@ export function createOrUpdateGeneratedArticle(input: {
     sourceArticleId: input.article.sourceArticleId,
     sourceUrl,
     canonicalUrl,
-    title: input.article.title,
-    authorName: input.article.authorName,
-    publishedAt: input.article.publishedAt,
-    battleFormat: input.article.battleFormat,
-    regulationId: input.article.regulationId,
-    builderSeasonId: input.article.builderSeasonId,
-    result: input.article.result,
-    pokemonSlugs: input.article.pokemonSlugs,
-    tags: input.article.tags,
-    summary: input.article.summary,
-    collectionCompleteness: input.article.collectionCompleteness,
-    extractionConfidence: input.article.extractionConfidence,
-    missingFields: input.article.missingFields,
-    teamExtractionMethod: input.article.teamExtractionMethod,
-    teamExtractionIssue: input.article.teamExtractionIssue,
+    title: effectiveArticle.title,
+    authorName: effectiveArticle.authorName,
+    publishedAt: effectiveArticle.publishedAt,
+    battleFormat: effectiveArticle.battleFormat,
+    regulationId: effectiveArticle.regulationId,
+    builderSeasonId: effectiveArticle.builderSeasonId,
+    result: effectiveArticle.result,
+    pokemonSlugs: effectiveArticle.pokemonSlugs,
+    tags: effectiveArticle.tags,
+    summary: effectiveArticle.summary,
+    thumbnail: effectiveArticle.thumbnail,
+    collectionCompleteness: effectiveArticle.collectionCompleteness,
+    extractionConfidence: effectiveArticle.extractionConfidence,
+    missingFields: effectiveArticle.missingFields,
+    teamExtractionMethod: effectiveArticle.teamExtractionMethod,
+    teamExtractionIssue: effectiveArticle.teamExtractionIssue,
     firstCollectedAt: input.existing?.firstCollectedAt ?? input.nowIso,
     lastCollectedAt: input.nowIso,
     contentFingerprint,

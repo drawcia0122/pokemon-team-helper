@@ -11,7 +11,8 @@ import type { AppMeta, PokemonEntry } from "@/types/pokemon";
 
 const appMeta = appMetaData as AppMeta;
 const manualArticles = manualArticleData as BuildArticle[];
-const generatedArticles = generatedArticleData as GeneratedBuildArticle[];
+const generatedArticles =
+  generatedArticleData as unknown as GeneratedBuildArticle[];
 const pokemon = pokemonData as PokemonEntry[];
 const seasonMap = new Map(appMeta.seasons.map((season) => [season.id, season]));
 
@@ -36,6 +37,7 @@ function toBuildArticle(article: GeneratedBuildArticle): BuildArticle | null {
     pokemonSlugs: article.pokemonSlugs,
     tags: article.tags,
     summary: article.summary,
+    thumbnail: article.thumbnail,
     collectionCompleteness: article.collectionCompleteness,
     collection: {
       source: article.source,
