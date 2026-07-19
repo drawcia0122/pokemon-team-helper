@@ -538,5 +538,52 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-07-19T15:12:27.051Z"
+  },
+  {
+    "id": "note-n85dfae525727",
+    "source": "note",
+    "sourceArticleId": "n85dfae525727",
+    "sourceUrl": "https://note.com/shigeru_887/n/n85dfae525727",
+    "canonicalUrl": "https://note.com/shigeru_887/n/n85dfae525727",
+    "title": "【M-3シングル最終331位】まだ完成していない構築です。一緒に完成させませんか？",
+    "authorName": "シゲル｜Shigeru Lab",
+    "publishedAt": "2026-07-14T06:43:29.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": "最終331位",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "構築",
+      "ランクマッチ",
+      "構築記事",
+      "ポケモン対戦",
+      "対戦考察",
+      "ポケモン好きと繋がりたい",
+      "ポケモンチャンピオンズ"
+    ],
+    "summary": "M-3のシングル構築記事です。最終331位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/294278643/rectangle_large_type_2_357b9cc17f103d2ffd791ca397f57386.png",
+      "source": "structured-data",
+      "alt": "【M-3シングル最終331位】まだ完成していない構築です。一緒に完成させませんか？のサムネイル",
+      "width": 1536,
+      "height": 804
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "firstCollectedAt": "2026-07-19T15:16:44.475Z",
+    "lastCollectedAt": "2026-07-19T15:16:44.475Z",
+    "contentFingerprint": "ad5e0f0ec110d9d4c0682ad0db08942e332e5e4a38cb4c933d1085cc3418d3d1",
+    "extractorVersion": "1.2.0",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T15:16:44.475Z"
   }
 ]
