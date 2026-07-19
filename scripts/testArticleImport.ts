@@ -21,7 +21,7 @@ function assert(condition: unknown, message: string): asserts condition {
 
 const articles = getBuildArticles();
 const pokemon = pokemonData as PokemonEntry[];
-const validArticle = articles[0];
+const validArticle = articles.find(canAnalyzeBuildArticle);
 assert(validArticle, "テスト用の記事がありません");
 
 const validResult = resolveArticleImport(validArticle.id);
