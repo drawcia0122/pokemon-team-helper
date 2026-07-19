@@ -1,6 +1,6 @@
 {
-  "lastRunAt": "2026-07-19T10:44:54.519Z",
-  "durationMs": 54573,
+  "lastRunAt": "2026-07-19T11:45:08.721Z",
+  "durationMs": 62037,
   "dryRun": false,
   "sources": {
     "pokesol": {
@@ -37,7 +37,7 @@
       "status": "completed",
       "candidateUrlCount": 54,
       "candidateCount": 50,
-      "knownCandidateCount": 60,
+      "knownCandidateCount": 61,
       "fetchedCount": 30,
       "remainingCount": 0,
       "publishedCount": 0,
@@ -48,8 +48,8 @@
       "excludedCount": 25,
       "fetchFailureCount": 0,
       "extractionSuccessCount": 5,
-      "completeCount": 1,
-      "metadataOnlyCount": 4,
+      "completeCount": 0,
+      "metadataOnlyCount": 5,
       "thumbnailFoundCount": 4,
       "thumbnailMissingCount": 1,
       "thumbnailUpdatedCount": 0,
@@ -59,23 +59,23 @@
       "thumbnailDomains": {
         "assets.st-note.com": 4
       },
-      "teamExtractionMethods": {
-        "numbered-items": 1
-      },
+      "teamExtractionMethods": {},
       "metadataOnlyReasons": {
         "team-section-not-found": 3,
-        "team-unresolved-pokemon": 1
+        "team-unresolved-pokemon": 2
       },
       "exclusionReasons": {
-        "missing-season": 14,
+        "missing-season": 13,
         "thumbnail:thumbnail.urlがHTTPSまたは許可ドメインではありません": 2,
         "thumbnail:thumbnail.urlが許可された画像パスではありません": 2,
         "thumbnail:favicon・共通ロゴ・アイコン等はthumbnailに使用できません": 1,
-        "not-a-build-article": 6,
-        "not-pokemon-champions": 2,
-        "illustration": 1,
-        "other-game-sv": 1,
-        "season-regulation-conflict": 1
+        "season-regulation-conflict": 1,
+        "not-concrete-build-article": 1,
+        "missing-battle-format": 3,
+        "pokemon-go": 1,
+        "not-a-build-article": 2,
+        "pokemon-card": 1,
+        "not-pokemon-champions": 3
       }
     }
   },
@@ -85,355 +85,362 @@
       "candidates": []
     },
     "note": {
-      "nextIndex": 16,
+      "nextIndex": 45,
       "candidates": [
+        {
+          "url": "https://note.com/trainer_lens26/n/ned934f880c4e",
+          "sourceArticleId": "ned934f880c4e",
+          "firstSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
+        },
         {
           "url": "https://note.com/hoechan/n/ndd2c054acfa2",
           "sourceArticleId": "ndd2c054acfa2",
           "firstSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
           "lastCheckedAt": "2026-07-19T10:44:54.519Z"
         },
         {
           "url": "https://note.com/trainer_lens26/n/nfb2d57a27cb4",
           "sourceArticleId": "nfb2d57a27cb4",
           "firstSeenAt": "2026-07-19T06:44:05.989Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
           "lastCheckedAt": "2026-07-19T10:44:54.519Z"
         },
         {
           "url": "https://note.com/arima_zyutarou/n/n7b8da8b2c58a",
           "sourceArticleId": "n7b8da8b2c58a",
           "firstSeenAt": "2026-07-19T03:58:10.648Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
           "lastCheckedAt": "2026-07-19T10:44:54.519Z"
         },
         {
           "url": "https://note.com/riot7msygj/n/nc7f61cd70c21",
           "sourceArticleId": "nc7f61cd70c21",
           "firstSeenAt": "2026-07-19T03:58:10.648Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
           "lastCheckedAt": "2026-07-19T10:44:54.519Z"
         },
         {
           "url": "https://note.com/chic_nerine2361/n/nbc2a98bc6c0f",
           "sourceArticleId": "nbc2a98bc6c0f",
           "firstSeenAt": "2026-07-18T21:07:57.092Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
           "lastCheckedAt": "2026-07-19T10:44:54.519Z"
         },
         {
           "url": "https://note.com/tefuvgc/n/neea8e3d89f48",
           "sourceArticleId": "neea8e3d89f48",
           "firstSeenAt": "2026-07-18T17:42:38.278Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
           "lastCheckedAt": "2026-07-19T10:44:54.519Z"
         },
         {
           "url": "https://note.com/dear_tsuta495/n/n0e9254d9aec5",
           "sourceArticleId": "n0e9254d9aec5",
           "firstSeenAt": "2026-07-18T14:57:57.995Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
           "lastCheckedAt": "2026-07-19T10:44:54.519Z"
         },
         {
           "url": "https://note.com/iri_wasa8199/n/n1413bbb5932a",
           "sourceArticleId": "n1413bbb5932a",
           "firstSeenAt": "2026-07-18T14:39:09.431Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T10:44:54.519Z"
-        },
-        {
-          "url": "https://note.com/brainy_emu3295/n/nea21c7af916f",
-          "sourceArticleId": "nea21c7af916f",
-          "firstSeenAt": "2026-07-18T14:39:09.431Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
           "lastCheckedAt": "2026-07-19T10:44:54.519Z"
         },
         {
           "url": "https://note.com/makura_games/n/n4896a399e5b8",
           "sourceArticleId": "n4896a399e5b8",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
           "lastCheckedAt": "2026-07-19T10:44:54.519Z"
         },
         {
           "url": "https://note.com/pokemon27sakuya/n/n4ca55e006058",
           "sourceArticleId": "n4ca55e006058",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
           "lastCheckedAt": "2026-07-19T10:44:54.519Z"
         },
         {
           "url": "https://note.com/nanakusa_poke/n/n0f211bbb62e9",
           "sourceArticleId": "n0f211bbb62e9",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
           "lastCheckedAt": "2026-07-19T10:44:54.519Z"
         },
         {
           "url": "https://note.com/oyooyoririri/n/n5f7f21454fa6",
           "sourceArticleId": "n5f7f21454fa6",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
           "lastCheckedAt": "2026-07-19T10:44:54.519Z"
         },
         {
           "url": "https://note.com/r_saltpudding/n/n3ee2e3321d5e",
           "sourceArticleId": "n3ee2e3321d5e",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
           "lastCheckedAt": "2026-07-19T10:44:54.519Z"
         },
         {
           "url": "https://note.com/dear_tsuta495/n/n53e23991c986",
           "sourceArticleId": "n53e23991c986",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
           "lastCheckedAt": "2026-07-19T10:44:54.519Z"
         },
         {
           "url": "https://note.com/mco_poke/n/n4f4eccee131c",
           "sourceArticleId": "n4f4eccee131c",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
           "lastCheckedAt": "2026-07-19T10:44:54.519Z"
         },
         {
           "url": "https://note.com/yoto_410/n/ne91e4cc15ec1",
           "sourceArticleId": "ne91e4cc15ec1",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T06:44:05.989Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/katorasu102/n/ne2a031cb02c2",
           "sourceArticleId": "ne2a031cb02c2",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/shigeru_887/n/n6af62ca02861",
           "sourceArticleId": "n6af62ca02861",
           "firstSeenAt": "2026-07-19T08:59:06.523Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/hematoka/n/ned0f9c6b2fbb",
           "sourceArticleId": "ned0f9c6b2fbb",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/firm_finch9653/n/n95e97cc50a40",
           "sourceArticleId": "n95e97cc50a40",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/lovely_borage481/n/n0997e7b79adc",
           "sourceArticleId": "n0997e7b79adc",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/lucid_violet7520/n/n7a869d529a6c",
           "sourceArticleId": "n7a869d529a6c",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/sleepiroha_poke/n/nb3d38bc20960",
           "sourceArticleId": "nb3d38bc20960",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/shigeru_887/n/n85dfae525727",
           "sourceArticleId": "n85dfae525727",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/tamo_txt/n/n8446df77efee",
           "sourceArticleId": "n8446df77efee",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/oohashi_001/n/n46c7c37206c9",
           "sourceArticleId": "n46c7c37206c9",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/tasty_dahlia3402/n/n32e451116c9c",
           "sourceArticleId": "n32e451116c9c",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/lucky_ibis6063/n/n2a262ddeffcf",
           "sourceArticleId": "n2a262ddeffcf",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/noted_koala3328/n/nf288b3adb283",
           "sourceArticleId": "nf288b3adb283",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/oichan987/n/n73502045c485",
           "sourceArticleId": "n73502045c485",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/zazizuzezo22334/n/na3c4948cb636",
           "sourceArticleId": "na3c4948cb636",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/forever_shrimp/n/n32de7815dae6",
           "sourceArticleId": "n32de7815dae6",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/hon_money/n/n1fa1ec310d06",
           "sourceArticleId": "n1fa1ec310d06",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/tama_unite0825/n/n944523fd7bc4",
           "sourceArticleId": "n944523fd7bc4",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/astray_tamatama/n/ncd58e3a8e68e",
           "sourceArticleId": "ncd58e3a8e68e",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/brainy_emu3295/n/n15cef1832482",
           "sourceArticleId": "n15cef1832482",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/sakasamades/n/nea9f8ad0ff2f",
           "sourceArticleId": "nea9f8ad0ff2f",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/chesnaught/n/n3d71eb781d78",
           "sourceArticleId": "n3d71eb781d78",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/ashiki_games/n/n148b96f7ec99",
           "sourceArticleId": "n148b96f7ec99",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T10:44:54.519Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/astray_tamatama/n/n1a4740891bd6",
           "sourceArticleId": "n1a4740891bd6",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/sery_nu/n/n909f682d32b8",
           "sourceArticleId": "n909f682d32b8",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/muro_nanjaku/n/n84b579def5ab",
           "sourceArticleId": "n84b579def5ab",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/loyal_coyote714/n/n11983cc70c25",
           "sourceArticleId": "n11983cc70c25",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/carrefourpokemon/n/n58f42d561368",
           "sourceArticleId": "n58f42d561368",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
-          "lastCheckedAt": "2026-07-19T08:59:06.523Z"
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T11:45:08.721Z"
         },
         {
           "url": "https://note.com/tatsunari0611/n/n9e26b806c165",
           "sourceArticleId": "n9e26b806c165",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
           "lastCheckedAt": "2026-07-19T08:59:06.523Z"
         },
         {
           "url": "https://note.com/pokemonzuki/n/n8f3a4b4069a3",
           "sourceArticleId": "n8f3a4b4069a3",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
           "lastCheckedAt": "2026-07-19T08:59:06.523Z"
         },
         {
           "url": "https://note.com/yuruyaka_/n/nf90dc994d509",
           "sourceArticleId": "nf90dc994d509",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
           "lastCheckedAt": "2026-07-19T10:44:54.519Z"
         },
         {
           "url": "https://note.com/brainy_emu3295/n/n9af211fe049a",
           "sourceArticleId": "n9af211fe049a",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
-          "lastSeenAt": "2026-07-19T10:44:54.519Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
           "lastCheckedAt": "2026-07-19T10:44:54.519Z"
         },
         {
           "url": "https://note.com/astray_tamatama/n/n9d7ddaff990e",
           "sourceArticleId": "n9d7ddaff990e",
           "firstSeenAt": "2026-07-18T12:41:09.636Z",
+          "lastSeenAt": "2026-07-19T11:45:08.721Z",
+          "lastCheckedAt": "2026-07-19T10:44:54.519Z"
+        },
+        {
+          "url": "https://note.com/brainy_emu3295/n/nea21c7af916f",
+          "sourceArticleId": "nea21c7af916f",
+          "firstSeenAt": "2026-07-18T14:39:09.431Z",
           "lastSeenAt": "2026-07-19T10:44:54.519Z",
           "lastCheckedAt": "2026-07-19T10:44:54.519Z"
         },
