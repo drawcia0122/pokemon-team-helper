@@ -494,5 +494,49 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-07-18T19:57:04.135Z"
+  },
+  {
+    "id": "note-n182caf1b8a56",
+    "source": "note",
+    "sourceArticleId": "n182caf1b8a56",
+    "sourceUrl": "https://note.com/daru_kirinpoke/n/n182caf1b8a56",
+    "canonicalUrl": "https://note.com/daru_kirinpoke/n/n182caf1b8a56",
+    "title": "ダブルバトルを始めた話",
+    "authorName": "きりんりき",
+    "publishedAt": "2026-07-19T11:50:59.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": "準優勝",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "ダブルバトル",
+      "ポケモンチャンピオンズ",
+      "M-3",
+      "double"
+    ],
+    "summary": "M-3のダブル構築記事です。準優勝。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/295762520/rectangle_large_type_2_3fe9c7b2a6053cb0c11dfd3bf27c96f5.jpeg",
+      "source": "structured-data",
+      "alt": "ダブルバトルを始めた話のサムネイル",
+      "width": 1920,
+      "height": 1005
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "firstCollectedAt": "2026-07-19T15:12:27.051Z",
+    "lastCollectedAt": "2026-07-19T15:12:27.051Z",
+    "contentFingerprint": "c96adc5fe60d398010a7f0feedb6f7a23007bf142e33901a3106c4794e6a5abd",
+    "extractorVersion": "1.2.0",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T15:12:27.051Z"
   }
 ]
