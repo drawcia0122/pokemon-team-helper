@@ -1,5 +1,5 @@
 export type BattleFormat = "single" | "double";
-export type BuildArticleSource = "pokesol" | "note";
+export type BuildArticleSource = "pokesol" | "note" | "hatena-blog";
 export type CollectionCompleteness = "complete" | "metadata-only";
 export type BuildArticleThumbnailSource =
   | "structured-data"
@@ -21,7 +21,8 @@ export type TeamExtractionMethod =
   | "table"
   | "image-metadata"
   | "section-paragraphs"
-  | "embedded-image-metadata";
+  | "embedded-image-metadata"
+  | "table-of-contents";
 export type GeneratedArticleStatus =
   | "active"
   | "temporarily-unavailable"

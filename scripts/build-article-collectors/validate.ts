@@ -9,6 +9,7 @@ import { createContentFingerprint } from "./deduplicate";
 import { normalizeUrl } from "./normalize";
 import { validatePokemonAliasDefinitions } from "./pokemonAliases";
 import { EXTRACTOR_VERSION } from "./types";
+import { isHatenaPlatformDomain } from "./hatenaBlog";
 import type {
   CollectionStatus,
   SourceConfig
@@ -21,7 +22,8 @@ const TEAM_EXTRACTION_METHODS = new Set<TeamExtractionMethod>([
   "table",
   "image-metadata",
   "section-paragraphs",
-  "embedded-image-metadata"
+  "embedded-image-metadata",
+  "table-of-contents"
 ]);
 
 function isIsoDateTime(value: string): boolean {
@@ -32,17 +34,27 @@ function isIsoDateTime(value: string): boolean {
   );
 }
 
-function isAllowedSourceUrl(article: GeneratedBuildArticle): boolean {
+function isAllowedSourceUrl(
+  article: GeneratedBuildArticle,
+  allowedHatenaDomains: ReadonlySet<string>
+): boolean {
   try {
     const canonicalUrl = new URL(article.canonicalUrl);
     const sourceUrl = new URL(article.sourceUrl);
-    const expectedHost =
-      article.source === "note" ? "note.com" : "pokesol.app";
+    const hostAllowed =
+      article.source === "note"
+        ? canonicalUrl.hostname === "note.com" &&
+          sourceUrl.hostname === "note.com"
+        : article.source === "pokesol"
+          ? canonicalUrl.hostname === "pokesol.app" &&
+            sourceUrl.hostname === "pokesol.app"
+          : canonicalUrl.hostname === sourceUrl.hostname &&
+            (isHatenaPlatformDomain(canonicalUrl.hostname) ||
+              allowedHatenaDomains.has(canonicalUrl.hostname));
     return (
       canonicalUrl.protocol === "https:" &&
       sourceUrl.protocol === "https:" &&
-      canonicalUrl.hostname === expectedHost &&
-      sourceUrl.hostname === expectedHost &&
+      hostAllowed &&
       normalizeUrl(article.sourceUrl) === article.sourceUrl &&
       normalizeUrl(article.canonicalUrl) === article.canonicalUrl
     );
@@ -56,6 +68,7 @@ export function validateGeneratedBuildArticle(
   context: {
     appMeta: AppMeta;
     pokemon: PokemonEntry[];
+    allowedHatenaDomains?: Iterable<string>;
   }
 ): string[] {
   const errors: string[] = [];
@@ -86,7 +99,11 @@ export function validateGeneratedBuildArticle(
     }
   }
 
-  if (article.source !== "note" && article.source !== "pokesol") {
+  if (
+    article.source !== "note" &&
+    article.source !== "pokesol" &&
+    article.source !== "hatena-blog"
+  ) {
     errors.push(`${prefix}: source が不正です`);
   }
   if (!Object.prototype.hasOwnProperty.call(article, "thumbnail")) {
@@ -98,7 +115,12 @@ export function validateGeneratedBuildArticle(
       )
     );
   }
-  if (!isAllowedSourceUrl(article)) {
+  if (
+    !isAllowedSourceUrl(
+      article,
+      new Set(context.allowedHatenaDomains ?? [])
+    )
+  ) {
     errors.push(`${prefix}: URLまたは許可ドメインが不正です`);
   }
   if (
@@ -371,6 +393,75 @@ export function validateCollectionStatus(
     }
   }
 
+  const verifiedHatenaDomains = new Set(
+    (status.hatenaBlogs ?? [])
+      .filter((blog) => blog.platformVerified)
+      .map((blog) => blog.domain)
+  );
+  for (const [domain, feed] of Object.entries(status.hatenaFeeds ?? {})) {
+    const prefix = `collection-status:hatena-feed:${domain}`;
+    if (
+      feed.domain !== domain ||
+      (!isHatenaPlatformDomain(domain) &&
+        !verifiedHatenaDomains.has(domain)) ||
+      !/^https:\/\/[^/]+\/(?:feed|rss)\?(?=[^#]*\bexclude_body=1\b)/.test(
+        feed.feedUrl
+      )
+    ) {
+      errors.push(`${prefix}: ドメインまたはフィードURLが不正です`);
+    }
+    for (const value of [
+      feed.lastCheckedAt,
+      feed.lastSuccessfulFetchAt
+    ]) {
+      if (value !== null && !isIsoDateTime(value)) {
+        errors.push(`${prefix}: 確認日時が不正です`);
+      }
+    }
+    if (
+      !Number.isInteger(feed.consecutiveFetchFailures) ||
+      feed.consecutiveFetchFailures < 0
+    ) {
+      errors.push(`${prefix}: 連続失敗回数が不正です`);
+    }
+    for (const [url, entry] of Object.entries(feed.entries ?? {})) {
+      try {
+        const parsed = new URL(url);
+        if (
+          parsed.protocol !== "https:" ||
+          parsed.hostname !== domain ||
+          normalizeUrl(url) !== url
+        ) {
+          errors.push(`${prefix}: 記事URLが不正です`);
+        }
+      } catch {
+        errors.push(`${prefix}: 記事URLが不正です`);
+      }
+      if (
+        !/^[a-f0-9]{64}$/.test(entry.contentFingerprint) ||
+        (entry.updatedAt !== null &&
+          Number.isNaN(Date.parse(entry.updatedAt)))
+      ) {
+        errors.push(`${prefix}: 記事指紋または更新日時が不正です`);
+      }
+    }
+  }
+
+  const blogDomains = new Set<string>();
+  for (const blog of status.hatenaBlogs ?? []) {
+    if (
+      blogDomains.has(blog.domain) ||
+      (!isHatenaPlatformDomain(blog.domain) && !blog.platformVerified) ||
+      !isIsoDateTime(blog.discoveredAt) ||
+      typeof blog.automationAllowed !== "boolean" ||
+      typeof blog.feedUrl !== "string" ||
+      !blog.feedUrl.startsWith(`https://${blog.domain}/`)
+    ) {
+      errors.push("collection-status:hatena-blogs: 台帳が不正です");
+    }
+    blogDomains.add(blog.domain);
+  }
+
   return errors;
 }
 
@@ -380,6 +471,7 @@ export function validateGeneratedCollection(
   context: {
     appMeta: AppMeta;
     pokemon: PokemonEntry[];
+    allowedHatenaDomains?: Iterable<string>;
   }
 ): string[] {
   const errors = articles.flatMap((article) =>

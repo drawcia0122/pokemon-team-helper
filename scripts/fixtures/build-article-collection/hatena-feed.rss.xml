@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/">
+  <channel>
+    <title>fixture rss</title>
+    <generator>Hatena Blog</generator>
+    <item>
+      <title><![CDATA[ポケチャン シーズンM-3 ダブル使用構築]]></title>
+      <link>https://nanchaaaaan.hatenablog.com/entry/2026/06/20/210000</link>
+      <dc:creator>rss_author</dc:creator>
+      <pubDate>Sat, 20 Jun 2026 12:00:00 GMT</pubDate>
+      <dc:date>2026-06-20T21:00:00+09:00</dc:date>
+      <category>ポケモンチャンピオンズ</category>
+      <media:thumbnail url="https://cdn-ak2.f.st-hatena.com/images/fotolife/r/rssfixture/20260620/20260620210000.jpg" />
+    </item>
+  </channel>
+</rss>

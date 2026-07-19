@@ -11,6 +11,10 @@ export const BUILD_ARTICLE_THUMBNAIL_HOSTS: Record<
   readonly string[]
 > = {
   note: ["assets.st-note.com"],
+  "hatena-blog": [
+    "cdn-ak.f.st-hatena.com",
+    "cdn-ak2.f.st-hatena.com"
+  ],
   pokesol: [],
   manual: ["nonbirimaru.net", "liberty-note.com"]
 };
@@ -31,6 +35,9 @@ const IMAGE_EXTENSION_PATTERN = /\.(?:avif|gif|jpe?g|png|webp)$/i;
 function hasAllowedPath(url: URL, origin: BuildArticleThumbnailOrigin): boolean {
   if (origin === "note") {
     return /^\/production\/uploads\/images\/\d+\//.test(url.pathname);
+  }
+  if (origin === "hatena-blog") {
+    return /^\/images\/fotolife\/[^/]+\/[^/]+\/\d{8}\//.test(url.pathname);
   }
   if (origin === "manual") {
     return /^\/wp-content\/uploads\/\d{4}\/\d{2}\//.test(url.pathname);

@@ -1,6 +1,11 @@
 import { lookup } from "node:dns/promises";
 import { isIP } from "node:net";
-import type { FetchResult, SourceConfig } from "./types";
+import type {
+  FetchExpectedContent,
+  FetchRequestOptions,
+  FetchResult,
+  SourceConfig
+} from "./types";
 
 const USER_AGENT =
   "PokemonTeamNotesBuildCollector/1.0 (non-commercial metadata collector)";
@@ -146,7 +151,8 @@ export class SafeHttpClient {
 
   private async fetchOnce(
     value: string,
-    expected: "html" | "text"
+    expected: FetchExpectedContent,
+    options: FetchRequestOptions = {}
   ): Promise<FetchResult> {
     let url: URL;
     try {
@@ -180,8 +186,11 @@ export class SafeHttpClient {
             accept:
               expected === "html"
                 ? "text/html,application/xhtml+xml"
-                : "text/plain,*/*;q=0.1",
-            "user-agent": USER_AGENT
+                : expected === "xml"
+                  ? "application/atom+xml,application/rss+xml,application/xml,text/xml;q=0.9,*/*;q=0.1"
+                  : "text/plain,*/*;q=0.1",
+            "user-agent": USER_AGENT,
+            ...options.headers
           },
           redirect: "manual",
           signal: controller.signal
@@ -200,6 +209,23 @@ export class SafeHttpClient {
         };
       }
       clearTimeout(timeout);
+
+      if (response.status === 304 && options.allowNotModified) {
+        return {
+          ok: true,
+          url: url.toString(),
+          status: response.status,
+          contentType:
+            response.headers.get("content-type")?.toLocaleLowerCase("en") ??
+            "",
+          text: "",
+          headers: {
+            etag: response.headers.get("etag"),
+            lastModified: response.headers.get("last-modified")
+          },
+          notModified: true
+        };
+      }
 
       if (
         response.status >= 300 &&
@@ -243,7 +269,12 @@ export class SafeHttpClient {
         expected === "html"
           ? contentType.includes("text/html") ||
             contentType.includes("application/xhtml+xml")
-          : contentType.includes("text/plain");
+          : expected === "xml"
+            ? contentType.includes("application/atom+xml") ||
+              contentType.includes("application/rss+xml") ||
+              contentType.includes("application/xml") ||
+              contentType.includes("text/xml")
+            : contentType.includes("text/plain");
       if (!contentTypeAllowed) {
         return {
           ok: false,
@@ -263,7 +294,12 @@ export class SafeHttpClient {
           text: await readLimitedBody(
             response,
             this.config.maxResponseBytes
-          )
+          ),
+          headers: {
+            etag: response.headers.get("etag"),
+            lastModified: response.headers.get("last-modified")
+          },
+          notModified: false
         };
       } catch (error) {
         return {
@@ -288,11 +324,12 @@ export class SafeHttpClient {
 
   async fetchText(
     value: string,
-    expected: "html" | "text"
+    expected: FetchExpectedContent,
+    options: FetchRequestOptions = {}
   ): Promise<FetchResult> {
     let lastResult: FetchResult | null = null;
     for (let attempt = 0; attempt <= this.config.retries; attempt += 1) {
-      const result = await this.fetchOnce(value, expected);
+      const result = await this.fetchOnce(value, expected, options);
       if (result.ok || !shouldRetry(result.status) || result.permanent) {
         return result;
       }

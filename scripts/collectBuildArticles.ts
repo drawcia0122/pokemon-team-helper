@@ -4,9 +4,11 @@ import { collectBuildArticles } from "./build-article-collectors/collector";
 function parseArgs(argv: string[]): {
   source?: BuildArticleSource;
   dryRun: boolean;
+  backfill: boolean;
 } {
   let source: BuildArticleSource | undefined;
   let dryRun = false;
+  let backfill = false;
 
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
@@ -14,10 +16,20 @@ function parseArgs(argv: string[]): {
       dryRun = true;
       continue;
     }
+    if (argument === "--backfill") {
+      backfill = true;
+      continue;
+    }
     if (argument === "--source") {
       const value = argv[index + 1];
-      if (value !== "note" && value !== "pokesol") {
-        throw new Error("--source には note または pokesol を指定してください");
+      if (
+        value !== "note" &&
+        value !== "pokesol" &&
+        value !== "hatena-blog"
+      ) {
+        throw new Error(
+          "--source には note、hatena-blog、pokesol のいずれかを指定してください"
+        );
       }
       source = value;
       index += 1;
@@ -26,7 +38,7 @@ function parseArgs(argv: string[]): {
     throw new Error(`不明な引数です: ${argument}`);
   }
 
-  return { source, dryRun };
+  return { source, dryRun, backfill };
 }
 
 async function main(): Promise<void> {

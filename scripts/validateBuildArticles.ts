@@ -179,7 +179,13 @@ async function main() {
     ...validateGeneratedCollection(
       generatedArticles,
       manualArticles as BuildArticle[],
-      { appMeta, pokemon }
+      {
+        appMeta,
+        pokemon,
+        allowedHatenaDomains: collectionStatus.hatenaBlogs
+          ?.filter((blog) => blog.platformVerified)
+          .map((blog) => blog.domain)
+      }
     )
   );
 

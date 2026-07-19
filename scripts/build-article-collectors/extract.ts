@@ -49,7 +49,7 @@ export type TeamExtractionResult =
     };
 
 const TEAM_SECTION_PATTERN =
-  /(?:最終日?構築|大会使用構築|序盤構築|中盤構築|個体紹介|ポケモン紹介|採用個体|採用ポケモン|構築メンバー|パーティメンバー|パーティ紹介|構築紹介|メンバー紹介|使用ポケモン|個別解説|調整・役割|調整と役割|使用構築|構築と配分)/i;
+  /(?:最終日?構築|大会使用構築|序盤構築|中盤構築|個体紹介|個体詳細|ポケモン紹介|採用個体|採用ポケモン|構築メンバー|パーティメンバー|パーティ紹介|構築紹介|メンバー紹介|使用ポケモン|個別解説|調整・役割|調整と役割|使用構築|構築と配分)/i;
 
 function sectionPriority(label: string): number {
   if (/相手|対戦相手|選出候補|候補|没案|過去|旧構築/i.test(label)) return 20;
@@ -79,6 +79,8 @@ function methodScore(method: TeamExtractionMethod): number {
       return 20;
     case "embedded-image-metadata":
       return 15;
+    case "table-of-contents":
+      return 28;
   }
 }
 
@@ -154,12 +156,16 @@ function extractMetaContent(html: string, key: string): string | null {
 }
 
 function getArticleBodyHtml(html: string): string {
-  const bodyMarker = html.search(/data-name=["']body["']/i);
+  const bodyMarker = html.search(
+    /data-name=["']body["']|class=["'][^"']*\bentry-content\b[^"']*["']/i
+  );
   if (bodyMarker < 0) return html;
 
   const endMarkers = [
     html.indexOf("o-supportAppealBox", bodyMarker),
     html.indexOf("__NUXT__", bodyMarker),
+    html.indexOf("entry-footer", bodyMarker),
+    html.indexOf("comment-box", bodyMarker),
     html.indexOf("</article>", bodyMarker)
   ].filter((index) => index > bodyMarker);
   const end = endMarkers.length > 0 ? Math.min(...endMarkers) : html.length;
@@ -399,6 +405,38 @@ function extractSectionTeamCandidates(
   const headings = extractHeadings(html);
   const candidates: TeamCandidate[] = [];
   const sections: Array<{ label: string; priority: number; html: string }> = [];
+
+  for (const tocMatch of html.matchAll(
+    /<(?:nav|div|ul)\b[^>]*class=["'][^"']*(?:table-of-contents|entry-toc)[^"']*["'][^>]*>([\s\S]*?)<\/(?:nav|div|ul)>/gi
+  )) {
+    const tocHtml = tocMatch[1];
+    if (!TEAM_SECTION_PATTERN.test(stripHtml(tocHtml))) continue;
+    const labels = [
+      ...tocHtml.matchAll(/<a\b[^>]*>([\s\S]*?)<\/a>/gi)
+    ].map((match) => stripHtml(match[1]));
+    let run: string[] = [];
+    const runs: string[][] = [];
+    for (const label of labels) {
+      if (resolvePokemon(label)) {
+        run.push(label);
+      } else if (run.length > 0) {
+        runs.push(run);
+        run = [];
+      }
+    }
+    if (run.length > 0) runs.push(run);
+    for (const names of runs.filter((entries) => entries.length >= 6)) {
+      candidates.push(
+        resolveTeamCandidate({
+          names,
+          method: "table-of-contents",
+          priority: 280,
+          sectionLabel: "目次内の個体紹介",
+          resolvePokemon
+        })
+      );
+    }
+  }
 
   for (let index = 0; index < headings.length; index += 1) {
     const heading = headings[index];
@@ -839,6 +877,7 @@ export function extractArticleFromHtml(input: {
   html: string;
   appMeta: AppMeta;
   pokemon: PokemonEntry[];
+  allowedCanonicalDomains?: string[];
 }): ExtractionOutcome {
   const posting = extractBlogPosting(input.html);
   const bodyHtml = getArticleBodyHtml(input.html);
@@ -849,7 +888,11 @@ export function extractArticleFromHtml(input: {
     createPokemonResolver(input.pokemon)
   ).sections.sort((a, b) => b.priority - a.priority);
   const teamContext = stripHtml(sections[0]?.html ?? "").slice(0, 2500);
-  const title = extractTitle(input.html, posting);
+  const extractedTitle = extractTitle(input.html, posting);
+  const title =
+    input.source === "hatena-blog"
+      ? extractedTitle.replace(/\s+-\s+[^-]{1,80}$/, "").trim()
+      : extractedTitle;
   const authorName = extractAuthor(input.html, posting);
   const publishedAt = extractPublishedAt(input.html, posting);
   const tags = extractTags(posting);
@@ -871,11 +914,12 @@ export function extractArticleFromHtml(input: {
   try {
     canonicalUrl = normalizeUrl(canonicalCandidate);
     const canonical = new URL(canonicalUrl);
-    const expectedHostname =
-      input.source === "note" ? "note.com" : "pokesol.app";
+    const expectedHostnames =
+      input.allowedCanonicalDomains ??
+      (input.source === "note" ? ["note.com"] : ["pokesol.app"]);
     if (
       canonical.protocol !== "https:" ||
-      canonical.hostname !== expectedHostname
+      !expectedHostnames.includes(canonical.hostname)
     ) {
       return { status: "excluded", reason: "invalid-canonical-url" };
     }

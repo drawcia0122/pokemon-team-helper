@@ -116,11 +116,21 @@ npm run collect:builds
 # noteだけを収集
 npm run collect:builds:note
 
+# はてなブログだけを通常フィード（最新30件）から収集
+npm run collect:builds:hatena
+
+# はてなブログをJSONへ書き込まず確認
+npm run collect:builds:hatena:dry-run
+
+# 初回・明示実行時だけ過去100件フィードを確認
+npm run collect:builds:hatena:backfill
+
 # Pokesolは現行利用規約により通信せず disabled-by-policy になる
 npm run collect:builds:pokesol
 
 # fixtureによる収集・除外・安全制御テスト
 npm run test:build-collection
+npm run test:build-hatena
 
 # サムネイル表示とフォールバックのテスト
 npm run test:build-ui
@@ -131,7 +141,10 @@ npm run test:build-ui
 を参照してください。GitHub Actionsでは毎時17分と47分に実行し、全検証を通過した場合
 のみ `data/buildArticles.generated.json` と実行状態を更新します。候補URLと巡回位置は
 `data/buildArticleCollectionStatus.json` に保存し、新規・未確認候補を優先しながら
-1回30記事の上限をまたいで巡回します。確認済み候補の再確認は30分単位で開始位置を
+1回30記事の上限をまたいで巡回します。はてなブログは本文を含まないAtom/RSSを先に確認し、
+候補になった記事だけを取得します。手動実行の `backfill: true` だけがブログごとの
+過去100件フィードを使い、1ブログ30記事・全体150記事を上限にします。定期実行は
+軽量な最新30件フィードのままです。確認済み候補の再確認は30分単位で開始位置を
 分散し、単なる実行日時や確認日時の変化だけでは自動コミットしません。
 
 ## 追加した改善点

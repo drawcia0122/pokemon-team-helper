@@ -151,5 +151,9 @@ export function sourceArticleIdFromUrl(
   if (source === "note") {
     return pathname.match(/\/n\/(n[a-z0-9]+)$/i)?.[1] ?? null;
   }
+  if (source === "hatena-blog") {
+    const url = new URL(value);
+    return hashText(`${url.hostname}${pathname}`).slice(0, 20);
+  }
   return pathname.match(/\/articles\/([a-z0-9]+)$/i)?.[1] ?? null;
 }

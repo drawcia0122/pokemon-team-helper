@@ -16,6 +16,12 @@ const generatedArticles =
 const pokemon = pokemonData as PokemonEntry[];
 const seasonMap = new Map(appMeta.seasons.map((season) => [season.id, season]));
 
+const sourceLabels: Record<GeneratedBuildArticle["source"], string> = {
+  note: "note",
+  "hatena-blog": "はてなブログ",
+  pokesol: "ポケソル"
+};
+
 function toBuildArticle(article: GeneratedBuildArticle): BuildArticle | null {
   const season = seasonMap.get(article.builderSeasonId);
   if (!season || article.status !== "active") {
@@ -26,7 +32,7 @@ function toBuildArticle(article: GeneratedBuildArticle): BuildArticle | null {
     id: article.id,
     title: article.title,
     author: article.authorName,
-    sourceName: article.source === "note" ? "note" : "ポケソル",
+    sourceName: sourceLabels[article.source],
     url: article.canonicalUrl,
     publishedAt: article.publishedAt.slice(0, 10),
     battleFormat: article.battleFormat,

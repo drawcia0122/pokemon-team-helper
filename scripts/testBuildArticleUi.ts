@@ -57,12 +57,15 @@ assert(
 assert(
   explorerSource.includes("article.collectionCompleteness === \"metadata-only\"") &&
     explorerSource.includes("採用ポケモンは元記事で確認") &&
-    explorerSource.includes("canAnalyzeBuildArticle(article)"),
+    explorerSource.includes("canAnalyzeBuildArticle(article)") &&
+    explorerSource.includes('<option value="hatena-blog">はてなブログ</option>'),
   "metadata-onlyとcompleteの操作・案内を区別できません"
 );
 assert(
   nextConfigSource.includes("\"Content-Security-Policy\"") &&
     nextConfigSource.includes("https://assets.st-note.com") &&
+    nextConfigSource.includes("https://cdn-ak.f.st-hatena.com") &&
+    nextConfigSource.includes("https://cdn-ak2.f.st-hatena.com") &&
     nextConfigSource.includes("https://nonbirimaru.net") &&
     nextConfigSource.includes("https://liberty-note.com") &&
     !nextConfigSource.includes("https://*"),

@@ -1,10 +1,10 @@
 {
-  "lastRunAt": "2026-07-19T11:45:08.721Z",
-  "durationMs": 62037,
+  "lastRunAt": "2026-07-19T15:00:14.503Z",
+  "durationMs": 15103,
   "dryRun": false,
   "sources": {
     "pokesol": {
-      "status": "disabled-by-policy",
+      "status": "not-run",
       "candidateUrlCount": 0,
       "candidateCount": 0,
       "knownCandidateCount": 0,
@@ -15,7 +15,7 @@
       "metadataOnlyPublishedCount": 0,
       "updatedCount": 0,
       "duplicateCount": 0,
-      "excludedCount": 1,
+      "excludedCount": 0,
       "fetchFailureCount": 0,
       "extractionSuccessCount": 0,
       "completeCount": 0,
@@ -29,9 +29,7 @@
       "thumbnailDomains": {},
       "teamExtractionMethods": {},
       "metadataOnlyReasons": {},
-      "exclusionReasons": {
-        "source-policy-disallows-automation": 1
-      }
+      "exclusionReasons": {}
     },
     "note": {
       "status": "completed",
@@ -44,10 +42,10 @@
       "completePublishedCount": 0,
       "metadataOnlyPublishedCount": 0,
       "updatedCount": 0,
-      "duplicateCount": 5,
-      "excludedCount": 25,
+      "duplicateCount": 0,
+      "excludedCount": 0,
       "fetchFailureCount": 0,
-      "extractionSuccessCount": 5,
+      "extractionSuccessCount": 0,
       "completeCount": 0,
       "metadataOnlyCount": 5,
       "thumbnailFoundCount": 4,
@@ -77,6 +75,34 @@
         "pokemon-card": 1,
         "not-pokemon-champions": 3
       }
+    },
+    "hatena-blog": {
+      "status": "completed",
+      "candidateUrlCount": 18,
+      "candidateCount": 18,
+      "knownCandidateCount": 18,
+      "fetchedCount": 0,
+      "remainingCount": 0,
+      "publishedCount": 0,
+      "completePublishedCount": 0,
+      "metadataOnlyPublishedCount": 0,
+      "updatedCount": 0,
+      "duplicateCount": 0,
+      "excludedCount": 0,
+      "fetchFailureCount": 0,
+      "extractionSuccessCount": 0,
+      "completeCount": 0,
+      "metadataOnlyCount": 0,
+      "thumbnailFoundCount": 0,
+      "thumbnailMissingCount": 0,
+      "thumbnailUpdatedCount": 0,
+      "thumbnailRejectedCount": 0,
+      "fallbackCount": 0,
+      "completePromotedCount": 0,
+      "thumbnailDomains": {},
+      "teamExtractionMethods": {},
+      "metadataOnlyReasons": {},
+      "exclusionReasons": {}
     }
   },
   "cursors": {
@@ -515,6 +541,427 @@
           "lastCheckedAt": "2026-07-19T10:44:54.519Z"
         }
       ]
+    },
+    "hatena-blog": {
+      "nextIndex": 0,
+      "candidates": [
+        {
+          "url": "https://an-channel.hatenablog.com/entry/2026/05/23/175055",
+          "sourceArticleId": "7eb1780c17d81a607fb1",
+          "firstSeenAt": "2026-07-18T19:47:03.489Z",
+          "lastSeenAt": "2026-07-19T15:00:14.503Z",
+          "lastCheckedAt": "2026-07-18T19:57:04.135Z",
+          "updatedAt": "2026-05-23T20:28:46+09:00",
+          "contentFingerprint": "e9342ff19e9ef295592ac0d24db7e936ac4852a1b7d6cc7db002833f25ad6728",
+          "consecutiveFetchFailures": 0
+        },
+        {
+          "url": "https://an-channel.hatenablog.com/entry/2024/07/17/074038",
+          "sourceArticleId": "df123a4175cb59ec1e4a",
+          "firstSeenAt": "2026-07-18T19:56:31.442Z",
+          "lastSeenAt": "2026-07-19T15:00:14.503Z",
+          "lastCheckedAt": "2026-07-18T19:57:04.135Z",
+          "updatedAt": "2024-07-19T03:01:08+09:00",
+          "contentFingerprint": "5e767ca9168de62b9c08d19fe5afb34b07aecbf8fe9cc5627902cdd86b97cb7f",
+          "consecutiveFetchFailures": 0
+        },
+        {
+          "url": "https://ev-pkmn.hatenablog.com/entry/2026/07/08/220000",
+          "sourceArticleId": "0692133192ace1477b15",
+          "firstSeenAt": "2026-07-18T19:47:03.489Z",
+          "lastSeenAt": "2026-07-19T15:00:14.503Z",
+          "lastCheckedAt": "2026-07-18T19:57:04.135Z",
+          "updatedAt": "2026-07-08T22:00:00+09:00",
+          "contentFingerprint": "18578bca7a46adce931dadc9ef41aeeb434afff74a7e713119d70023c1b46dc5",
+          "consecutiveFetchFailures": 0
+        },
+        {
+          "url": "https://ev-pkmn.hatenablog.com/entry/2026/05/13/210000",
+          "sourceArticleId": "5ae2b223236137029ac4",
+          "firstSeenAt": "2026-07-18T19:47:03.489Z",
+          "lastSeenAt": "2026-07-19T15:00:14.503Z",
+          "lastCheckedAt": "2026-07-18T19:57:04.135Z",
+          "updatedAt": "2026-06-17T00:29:09+09:00",
+          "contentFingerprint": "5445adbb1787226aa6ea421a1afc57ebb5c33db514c2b43e2d7ddbd91b06b9de",
+          "consecutiveFetchFailures": 0
+        },
+        {
+          "url": "https://ev-pkmn.hatenablog.com/entry/2026/05/03/140000",
+          "sourceArticleId": "100982cd010271f195de",
+          "firstSeenAt": "2026-07-18T19:47:03.489Z",
+          "lastSeenAt": "2026-07-19T15:00:14.503Z",
+          "lastCheckedAt": "2026-07-18T19:57:04.135Z",
+          "updatedAt": "2026-06-17T00:28:59+09:00",
+          "contentFingerprint": "1ea1dab5d766a4fedbe9ee4023dc1489bd93980e7e1b777e8d324064dc987ab2",
+          "consecutiveFetchFailures": 0
+        },
+        {
+          "url": "https://guyapoke-9.hatenablog.com/entry/2026/05/13/184530",
+          "sourceArticleId": "710e4f6210d145a9fc80",
+          "firstSeenAt": "2026-07-18T19:47:03.489Z",
+          "lastSeenAt": "2026-07-19T15:00:14.503Z",
+          "lastCheckedAt": "2026-07-18T19:57:04.135Z",
+          "updatedAt": "2026-05-16T22:22:21+09:00",
+          "contentFingerprint": "31ca75086cd5bffea89d63ffdeda1430968063605f2d145f156e83b9ae3ac5bc",
+          "consecutiveFetchFailures": 0
+        },
+        {
+          "url": "https://guyapoke-9.hatenablog.com/entry/2020/12/06/040850",
+          "sourceArticleId": "c461d470d659ce923d0b",
+          "firstSeenAt": "2026-07-18T19:56:31.442Z",
+          "lastSeenAt": "2026-07-19T15:00:14.503Z",
+          "lastCheckedAt": "2026-07-18T19:57:04.135Z",
+          "updatedAt": "2020-12-06T02:00:07+09:00",
+          "contentFingerprint": "7971dcdd21eeac5b9c5927a06928883142dedecae659547cd5b8f35382da6550",
+          "consecutiveFetchFailures": 0
+        },
+        {
+          "url": "https://mountain0531.hatenablog.com/entry/2026/06/23/225020",
+          "sourceArticleId": "f5d7b3d495bf704ad894",
+          "firstSeenAt": "2026-07-18T19:47:03.489Z",
+          "lastSeenAt": "2026-07-19T15:00:14.503Z",
+          "lastCheckedAt": "2026-07-18T19:57:04.135Z",
+          "updatedAt": "2026-06-23T23:22:55+09:00",
+          "contentFingerprint": "d54a96b1e7e0bbd645bb845a38fe7b78ed73f3d8912a180cfa6967ae79e19007",
+          "consecutiveFetchFailures": 0
+        },
+        {
+          "url": "https://nanchaaaaan.hatenablog.com/entry/2026/07/08/162905",
+          "sourceArticleId": "29910487754586613cc3",
+          "firstSeenAt": "2026-07-18T19:47:03.489Z",
+          "lastSeenAt": "2026-07-19T15:00:14.503Z",
+          "lastCheckedAt": "2026-07-18T19:57:04.135Z",
+          "updatedAt": "2026-07-08T16:43:09+09:00",
+          "contentFingerprint": "27354cc5a487bf93d1b187ddff818449dfb4787e14058c37e6fc066fa5acc2a8",
+          "consecutiveFetchFailures": 0
+        },
+        {
+          "url": "https://pocketyell292.hatenablog.com/entry/2026/05/16/231012",
+          "sourceArticleId": "fac083d1a7dfff8d588b",
+          "firstSeenAt": "2026-07-18T19:47:03.489Z",
+          "lastSeenAt": "2026-07-19T15:00:14.503Z",
+          "lastCheckedAt": "2026-07-18T19:57:04.135Z",
+          "updatedAt": "2026-05-26T21:01:00+09:00",
+          "contentFingerprint": "7b937075585e03bc346128e3d886014d6b8c1216bf65a4332743ad235b861d9f",
+          "consecutiveFetchFailures": 0
+        },
+        {
+          "url": "https://pocketyell292.hatenablog.com/entry/2025/07/02/011137",
+          "sourceArticleId": "d0b3624f510fe0f40881",
+          "firstSeenAt": "2026-07-18T19:47:03.489Z",
+          "lastSeenAt": "2026-07-19T15:00:14.503Z",
+          "lastCheckedAt": "2026-07-18T19:57:04.135Z",
+          "updatedAt": "2025-07-02T01:12:26+09:00",
+          "contentFingerprint": "df7fcea0f7d512af87d94e5ae5293b639154b48101cfc2817f5072751c2d914f",
+          "consecutiveFetchFailures": 0
+        },
+        {
+          "url": "https://pocketyell292.hatenablog.com/entry/2022/05/02/010210",
+          "sourceArticleId": "8f48e56f84fc643c4b98",
+          "firstSeenAt": "2026-07-18T19:56:31.442Z",
+          "lastSeenAt": "2026-07-19T15:00:14.503Z",
+          "lastCheckedAt": "2026-07-18T19:57:04.135Z",
+          "updatedAt": "2022-05-01T16:02:10+09:00",
+          "contentFingerprint": "eef583ec4c159354ec8425b8e18932535952117ade36376790ff353efc0b208c",
+          "consecutiveFetchFailures": 0
+        },
+        {
+          "url": "https://pocketyell292.hatenablog.com/entry/2021/11/05/000000",
+          "sourceArticleId": "7344ab0525d597f5481e",
+          "firstSeenAt": "2026-07-18T19:56:31.442Z",
+          "lastSeenAt": "2026-07-19T15:00:14.503Z",
+          "lastCheckedAt": "2026-07-18T19:57:04.135Z",
+          "updatedAt": "2021-11-04T15:00:36+09:00",
+          "contentFingerprint": "c0c871c8394c6d12709419bb659f9b3dba01677021a27b7fbee7dc4e8b104965",
+          "consecutiveFetchFailures": 0
+        },
+        {
+          "url": "https://pocketyell292.hatenablog.com/entry/2021/02/06/063738",
+          "sourceArticleId": "0a312725dbe2c55b8e3f",
+          "firstSeenAt": "2026-07-18T19:56:31.442Z",
+          "lastSeenAt": "2026-07-19T15:00:14.503Z",
+          "lastCheckedAt": "2026-07-18T19:57:04.135Z",
+          "updatedAt": "2021-02-05T21:37:38+09:00",
+          "contentFingerprint": "a24ba8650f1b1df254011968034d3fce78ee0bac271e91f704a36c1848f9b87e",
+          "consecutiveFetchFailures": 0
+        },
+        {
+          "url": "https://prin-game.hatenablog.com/entry/2026/07/06/141535",
+          "sourceArticleId": "9b8216fa44735de747ff",
+          "firstSeenAt": "2026-07-18T19:47:03.489Z",
+          "lastSeenAt": "2026-07-19T15:00:14.503Z",
+          "lastCheckedAt": "2026-07-18T19:57:04.135Z",
+          "updatedAt": "2026-07-11T18:59:00+09:00",
+          "contentFingerprint": "1b9f250cfcb8661ab8e3b578b4a66037634cb40b1b3df4ee4e87b32e2deb8c06",
+          "consecutiveFetchFailures": 0
+        },
+        {
+          "url": "https://suzuri-ghost.hatenablog.com/entry/2026/06/20/212512",
+          "sourceArticleId": "b07fb45458527d670177",
+          "firstSeenAt": "2026-07-18T19:47:03.489Z",
+          "lastSeenAt": "2026-07-19T15:00:14.503Z",
+          "lastCheckedAt": "2026-07-18T19:57:04.135Z",
+          "updatedAt": "2026-06-20T21:25:12+09:00",
+          "contentFingerprint": "0f0ee5df06bb6a7b6c85744e7cd7bbd62c6909b99460f59675ff0b4203a4815c",
+          "consecutiveFetchFailures": 0
+        },
+        {
+          "url": "https://suzuri-ghost.hatenablog.com/entry/2026/05/13/100653",
+          "sourceArticleId": "4c5eb289ab882e25e041",
+          "firstSeenAt": "2026-07-18T19:47:03.489Z",
+          "lastSeenAt": "2026-07-19T15:00:14.503Z",
+          "lastCheckedAt": "2026-07-18T19:57:04.135Z",
+          "updatedAt": "2026-05-13T16:02:49+09:00",
+          "contentFingerprint": "4fe6569967ea082bf1c8660ccf916378143f5dcf3e6cb07ceb06e45c556637fe",
+          "consecutiveFetchFailures": 0
+        },
+        {
+          "url": "https://suzuri-ghost.hatenablog.com/entry/2026/04/20/162531",
+          "sourceArticleId": "0e161f811bc0e6199d4d",
+          "firstSeenAt": "2026-07-18T19:47:03.489Z",
+          "lastSeenAt": "2026-07-19T15:00:14.503Z",
+          "lastCheckedAt": "2026-07-18T19:57:04.135Z",
+          "updatedAt": "2026-04-24T21:08:21+09:00",
+          "contentFingerprint": "f09cad1c4734180fcfdbca3dc1c8e9354a8487ed5c651c4e31936ae39e199c80",
+          "consecutiveFetchFailures": 0
+        }
+      ]
     }
-  }
+  },
+  "hatenaFeeds": {
+    "an-channel.hatenablog.com": {
+      "domain": "an-channel.hatenablog.com",
+      "feedUrl": "https://an-channel.hatenablog.com/feed?exclude_body=1",
+      "etag": null,
+      "lastModified": null,
+      "lastCheckedAt": "2026-07-19T15:00:14.503Z",
+      "lastSuccessfulFetchAt": "2026-07-19T15:00:14.503Z",
+      "consecutiveFetchFailures": 0,
+      "entries": {
+        "https://an-channel.hatenablog.com/entry/2026/05/23/175055": {
+          "updatedAt": "2026-05-23T20:28:46+09:00",
+          "contentFingerprint": "e9342ff19e9ef295592ac0d24db7e936ac4852a1b7d6cc7db002833f25ad6728"
+        },
+        "https://an-channel.hatenablog.com/entry/2024/07/17/074038": {
+          "updatedAt": "2024-07-19T03:01:08+09:00",
+          "contentFingerprint": "5e767ca9168de62b9c08d19fe5afb34b07aecbf8fe9cc5627902cdd86b97cb7f"
+        }
+      }
+    },
+    "ev-pkmn.hatenablog.com": {
+      "domain": "ev-pkmn.hatenablog.com",
+      "feedUrl": "https://ev-pkmn.hatenablog.com/feed?exclude_body=1",
+      "etag": null,
+      "lastModified": null,
+      "lastCheckedAt": "2026-07-19T15:00:14.503Z",
+      "lastSuccessfulFetchAt": "2026-07-19T15:00:14.503Z",
+      "consecutiveFetchFailures": 0,
+      "entries": {
+        "https://ev-pkmn.hatenablog.com/entry/2026/07/08/220000": {
+          "updatedAt": "2026-07-08T22:00:00+09:00",
+          "contentFingerprint": "18578bca7a46adce931dadc9ef41aeeb434afff74a7e713119d70023c1b46dc5"
+        },
+        "https://ev-pkmn.hatenablog.com/entry/2026/05/13/210000": {
+          "updatedAt": "2026-06-17T00:29:09+09:00",
+          "contentFingerprint": "5445adbb1787226aa6ea421a1afc57ebb5c33db514c2b43e2d7ddbd91b06b9de"
+        },
+        "https://ev-pkmn.hatenablog.com/entry/2026/05/03/140000": {
+          "updatedAt": "2026-06-17T00:28:59+09:00",
+          "contentFingerprint": "1ea1dab5d766a4fedbe9ee4023dc1489bd93980e7e1b777e8d324064dc987ab2"
+        }
+      }
+    },
+    "guyapoke-9.hatenablog.com": {
+      "domain": "guyapoke-9.hatenablog.com",
+      "feedUrl": "https://guyapoke-9.hatenablog.com/feed?exclude_body=1",
+      "etag": null,
+      "lastModified": null,
+      "lastCheckedAt": "2026-07-19T15:00:14.503Z",
+      "lastSuccessfulFetchAt": "2026-07-19T15:00:14.503Z",
+      "consecutiveFetchFailures": 0,
+      "entries": {
+        "https://guyapoke-9.hatenablog.com/entry/2026/05/13/184530": {
+          "updatedAt": "2026-05-16T22:22:21+09:00",
+          "contentFingerprint": "31ca75086cd5bffea89d63ffdeda1430968063605f2d145f156e83b9ae3ac5bc"
+        },
+        "https://guyapoke-9.hatenablog.com/entry/2020/12/06/040850": {
+          "updatedAt": "2020-12-06T02:00:07+09:00",
+          "contentFingerprint": "7971dcdd21eeac5b9c5927a06928883142dedecae659547cd5b8f35382da6550"
+        }
+      }
+    },
+    "mountain0531.hatenablog.com": {
+      "domain": "mountain0531.hatenablog.com",
+      "feedUrl": "https://mountain0531.hatenablog.com/feed?exclude_body=1",
+      "etag": null,
+      "lastModified": null,
+      "lastCheckedAt": "2026-07-19T15:00:14.503Z",
+      "lastSuccessfulFetchAt": "2026-07-19T15:00:14.503Z",
+      "consecutiveFetchFailures": 0,
+      "entries": {
+        "https://mountain0531.hatenablog.com/entry/2026/06/23/225020": {
+          "updatedAt": "2026-06-23T23:22:55+09:00",
+          "contentFingerprint": "d54a96b1e7e0bbd645bb845a38fe7b78ed73f3d8912a180cfa6967ae79e19007"
+        }
+      }
+    },
+    "nanchaaaaan.hatenablog.com": {
+      "domain": "nanchaaaaan.hatenablog.com",
+      "feedUrl": "https://nanchaaaaan.hatenablog.com/feed?exclude_body=1",
+      "etag": null,
+      "lastModified": null,
+      "lastCheckedAt": "2026-07-19T15:00:14.503Z",
+      "lastSuccessfulFetchAt": "2026-07-19T15:00:14.503Z",
+      "consecutiveFetchFailures": 0,
+      "entries": {
+        "https://nanchaaaaan.hatenablog.com/entry/2026/07/08/162905": {
+          "updatedAt": "2026-07-08T16:43:09+09:00",
+          "contentFingerprint": "27354cc5a487bf93d1b187ddff818449dfb4787e14058c37e6fc066fa5acc2a8"
+        }
+      }
+    },
+    "pocketyell292.hatenablog.com": {
+      "domain": "pocketyell292.hatenablog.com",
+      "feedUrl": "https://pocketyell292.hatenablog.com/feed?exclude_body=1",
+      "etag": null,
+      "lastModified": null,
+      "lastCheckedAt": "2026-07-19T15:00:14.503Z",
+      "lastSuccessfulFetchAt": "2026-07-19T15:00:14.503Z",
+      "consecutiveFetchFailures": 0,
+      "entries": {
+        "https://pocketyell292.hatenablog.com/entry/2026/05/16/231012": {
+          "updatedAt": "2026-05-26T21:01:00+09:00",
+          "contentFingerprint": "7b937075585e03bc346128e3d886014d6b8c1216bf65a4332743ad235b861d9f"
+        },
+        "https://pocketyell292.hatenablog.com/entry/2025/07/02/011137": {
+          "updatedAt": "2025-07-02T01:12:26+09:00",
+          "contentFingerprint": "df7fcea0f7d512af87d94e5ae5293b639154b48101cfc2817f5072751c2d914f"
+        },
+        "https://pocketyell292.hatenablog.com/entry/2022/05/02/010210": {
+          "updatedAt": "2022-05-01T16:02:10+09:00",
+          "contentFingerprint": "eef583ec4c159354ec8425b8e18932535952117ade36376790ff353efc0b208c"
+        },
+        "https://pocketyell292.hatenablog.com/entry/2021/11/05/000000": {
+          "updatedAt": "2021-11-04T15:00:36+09:00",
+          "contentFingerprint": "c0c871c8394c6d12709419bb659f9b3dba01677021a27b7fbee7dc4e8b104965"
+        },
+        "https://pocketyell292.hatenablog.com/entry/2021/02/06/063738": {
+          "updatedAt": "2021-02-05T21:37:38+09:00",
+          "contentFingerprint": "a24ba8650f1b1df254011968034d3fce78ee0bac271e91f704a36c1848f9b87e"
+        }
+      }
+    },
+    "prin-game.hatenablog.com": {
+      "domain": "prin-game.hatenablog.com",
+      "feedUrl": "https://prin-game.hatenablog.com/feed?exclude_body=1",
+      "etag": null,
+      "lastModified": null,
+      "lastCheckedAt": "2026-07-19T15:00:14.503Z",
+      "lastSuccessfulFetchAt": "2026-07-19T15:00:14.503Z",
+      "consecutiveFetchFailures": 0,
+      "entries": {
+        "https://prin-game.hatenablog.com/entry/2026/07/06/141535": {
+          "updatedAt": "2026-07-11T18:59:00+09:00",
+          "contentFingerprint": "1b9f250cfcb8661ab8e3b578b4a66037634cb40b1b3df4ee4e87b32e2deb8c06"
+        }
+      }
+    },
+    "suzuri-ghost.hatenablog.com": {
+      "domain": "suzuri-ghost.hatenablog.com",
+      "feedUrl": "https://suzuri-ghost.hatenablog.com/feed?exclude_body=1",
+      "etag": null,
+      "lastModified": null,
+      "lastCheckedAt": "2026-07-19T15:00:14.503Z",
+      "lastSuccessfulFetchAt": "2026-07-19T15:00:14.503Z",
+      "consecutiveFetchFailures": 0,
+      "entries": {
+        "https://suzuri-ghost.hatenablog.com/entry/2026/06/20/212512": {
+          "updatedAt": "2026-06-20T21:25:12+09:00",
+          "contentFingerprint": "0f0ee5df06bb6a7b6c85744e7cd7bbd62c6909b99460f59675ff0b4203a4815c"
+        },
+        "https://suzuri-ghost.hatenablog.com/entry/2026/05/13/100653": {
+          "updatedAt": "2026-05-13T16:02:49+09:00",
+          "contentFingerprint": "4fe6569967ea082bf1c8660ccf916378143f5dcf3e6cb07ceb06e45c556637fe"
+        },
+        "https://suzuri-ghost.hatenablog.com/entry/2026/04/20/162531": {
+          "updatedAt": "2026-04-24T21:08:21+09:00",
+          "contentFingerprint": "f09cad1c4734180fcfdbca3dc1c8e9354a8487ed5c651c4e31936ae39e199c80"
+        }
+      }
+    }
+  },
+  "hatenaBlogs": [
+    {
+      "domain": "an-channel.hatenablog.com",
+      "discoveredFrom": null,
+      "discoveredAt": "2026-07-18T19:47:03.489Z",
+      "customDomain": false,
+      "platformVerified": true,
+      "feedUrl": "https://an-channel.hatenablog.com/feed?exclude_body=1",
+      "automationAllowed": true
+    },
+    {
+      "domain": "ev-pkmn.hatenablog.com",
+      "discoveredFrom": null,
+      "discoveredAt": "2026-07-18T19:47:03.489Z",
+      "customDomain": false,
+      "platformVerified": true,
+      "feedUrl": "https://ev-pkmn.hatenablog.com/feed?exclude_body=1",
+      "automationAllowed": true
+    },
+    {
+      "domain": "guyapoke-9.hatenablog.com",
+      "discoveredFrom": null,
+      "discoveredAt": "2026-07-18T19:47:03.489Z",
+      "customDomain": false,
+      "platformVerified": true,
+      "feedUrl": "https://guyapoke-9.hatenablog.com/feed?exclude_body=1",
+      "automationAllowed": true
+    },
+    {
+      "domain": "mountain0531.hatenablog.com",
+      "discoveredFrom": null,
+      "discoveredAt": "2026-07-18T19:47:03.489Z",
+      "customDomain": false,
+      "platformVerified": true,
+      "feedUrl": "https://mountain0531.hatenablog.com/feed?exclude_body=1",
+      "automationAllowed": true
+    },
+    {
+      "domain": "nanchaaaaan.hatenablog.com",
+      "discoveredFrom": null,
+      "discoveredAt": "2026-07-18T19:47:03.489Z",
+      "customDomain": false,
+      "platformVerified": true,
+      "feedUrl": "https://nanchaaaaan.hatenablog.com/feed?exclude_body=1",
+      "automationAllowed": true
+    },
+    {
+      "domain": "pocketyell292.hatenablog.com",
+      "discoveredFrom": null,
+      "discoveredAt": "2026-07-18T19:47:03.489Z",
+      "customDomain": false,
+      "platformVerified": true,
+      "feedUrl": "https://pocketyell292.hatenablog.com/feed?exclude_body=1",
+      "automationAllowed": true
+    },
+    {
+      "domain": "prin-game.hatenablog.com",
+      "discoveredFrom": null,
+      "discoveredAt": "2026-07-18T19:47:03.489Z",
+      "customDomain": false,
+      "platformVerified": true,
+      "feedUrl": "https://prin-game.hatenablog.com/feed?exclude_body=1",
+      "automationAllowed": true
+    },
+    {
+      "domain": "suzuri-ghost.hatenablog.com",
+      "discoveredFrom": null,
+      "discoveredAt": "2026-07-18T19:47:03.489Z",
+      "customDomain": false,
+      "platformVerified": true,
+      "feedUrl": "https://suzuri-ghost.hatenablog.com/feed?exclude_body=1",
+      "automationAllowed": true
+    }
+  ]
 }

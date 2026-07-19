@@ -12,6 +12,7 @@ import { matchesBuildArticleQuery } from "@/lib/buildArticleSearch";
 import type {
   BattleFormat,
   BuildArticle,
+  BuildArticleSource,
   PokemonLabelMap
 } from "@/types/buildArticle";
 import styles from "./BuildArticleExplorer.module.css";
@@ -49,6 +50,9 @@ export function BuildArticleExplorer({
   const [completeness, setCompleteness] = useState<
     "all" | "complete" | "metadata-only"
   >("all");
+  const [source, setSource] = useState<
+    "all" | "manual" | BuildArticleSource
+  >("all");
 
   const regulationOptions = useMemo(
     () => [...new Set(articles.map((article) => article.regulation))].sort(),
@@ -73,6 +77,10 @@ export function BuildArticleExplorer({
       ) {
         return false;
       }
+      const articleSource = article.collection?.source ?? "manual";
+      if (source !== "all" && articleSource !== source) {
+        return false;
+      }
       return matchesBuildArticleQuery(
         article,
         query,
@@ -90,7 +98,8 @@ export function BuildArticleExplorer({
     regulation,
     regulationLabels,
     season,
-    seasonLabels
+    seasonLabels,
+    source
   ]);
 
   function resetFilters() {
@@ -99,6 +108,7 @@ export function BuildArticleExplorer({
     setRegulation("all");
     setSeason("all");
     setCompleteness("all");
+    setSource("all");
   }
 
   return (
@@ -174,6 +184,26 @@ export function BuildArticleExplorer({
               <option value="all">すべて</option>
               <option value="complete">6体を分析できる記事</option>
               <option value="metadata-only">記事リンクのみ</option>
+            </select>
+          </label>
+
+          <label>
+            <span>収集元</span>
+            <select
+              value={source}
+              onChange={(event) =>
+                setSource(
+                  event.target.value as
+                    | "all"
+                    | "manual"
+                    | BuildArticleSource
+                )
+              }
+            >
+              <option value="all">すべて</option>
+              <option value="note">note</option>
+              <option value="hatena-blog">はてなブログ</option>
+              <option value="manual">手動掲載</option>
             </select>
           </label>
         </div>

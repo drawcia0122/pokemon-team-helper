@@ -14,6 +14,13 @@ export type ArticleCandidate = {
   source: BuildArticleSource;
   url: string;
   sourceArticleId: string | null;
+  publishedAt?: string;
+  updatedAt?: string;
+  title?: string;
+  authorName?: string;
+  tags?: string[];
+  thumbnailUrl?: string | null;
+  contentFingerprint?: string;
 };
 
 export type SourceConfig = {
@@ -104,11 +111,40 @@ export type CandidateCollectionState = {
   firstSeenAt: string;
   lastSeenAt: string;
   lastCheckedAt: string | null;
+  updatedAt?: string | null;
+  contentFingerprint?: string | null;
+  consecutiveFetchFailures?: number;
 };
 
 export type SourceCollectionCursor = {
   nextIndex: number;
   candidates: CandidateCollectionState[];
+};
+
+export type HatenaFeedEntryState = {
+  updatedAt: string | null;
+  contentFingerprint: string;
+};
+
+export type HatenaFeedState = {
+  domain: string;
+  feedUrl: string;
+  etag: string | null;
+  lastModified: string | null;
+  lastCheckedAt: string | null;
+  lastSuccessfulFetchAt: string | null;
+  consecutiveFetchFailures: number;
+  entries: Record<string, HatenaFeedEntryState>;
+};
+
+export type HatenaBlogState = {
+  domain: string;
+  discoveredFrom: string | null;
+  discoveredAt: string;
+  feedUrl: string;
+  automationAllowed: boolean;
+  customDomain: boolean;
+  platformVerified: boolean;
 };
 
 export type CollectionStatus = {
@@ -117,6 +153,8 @@ export type CollectionStatus = {
   dryRun: boolean;
   sources: Record<BuildArticleSource, SourceCollectionStats>;
   cursors: Record<BuildArticleSource, SourceCollectionCursor>;
+  hatenaFeeds: Record<string, HatenaFeedState>;
+  hatenaBlogs: HatenaBlogState[];
 };
 
 export type CollectionContext = {
@@ -134,6 +172,11 @@ export type FetchResult =
       status: number;
       contentType: string;
       text: string;
+      headers?: {
+        etag: string | null;
+        lastModified: string | null;
+      };
+      notModified?: boolean;
     }
   | {
       ok: false;
@@ -142,3 +185,10 @@ export type FetchResult =
       reason: string;
       permanent: boolean;
     };
+
+export type FetchExpectedContent = "html" | "text" | "xml";
+
+export type FetchRequestOptions = {
+  headers?: Record<string, string>;
+  allowNotModified?: boolean;
+};

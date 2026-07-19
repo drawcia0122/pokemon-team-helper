@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
+  <title>fixture blog</title>
+  <generator uri="https://hatenablog.com/">Hatena Blog</generator>
+  <entry>
+    <title>【ポケモンチャンピオンズ】シーズンM-4 シングル最終構築</title>
+    <link rel="alternate" href="https://mountain0531.hatenablog.com/entry/2026/07/18/120000?utm_source=feed" />
+    <author><name>fixture_author</name></author>
+    <published>2026-07-18T12:00:00+09:00</published>
+    <updated>2026-07-18T13:00:00+09:00</updated>
+    <category term="ポケモンチャンピオンズ" />
+    <category term="構築記事" />
+    <media:thumbnail url="https://cdn-ak.f.st-hatena.com/images/fotolife/f/fixture/20260718/20260718120000.png" />
+  </entry>
+  <entry>
+    <title>ポケモンSV シングル構築記事</title>
+    <link rel="alternate" href="https://mountain0531.hatenablog.com/entry/2026/07/17/120000" />
+    <published>2026-07-17T12:00:00+09:00</published>
+    <updated>2026-07-17T12:00:00+09:00</updated>
+    <category term="ポケモンSV" />
+  </entry>
+</feed>

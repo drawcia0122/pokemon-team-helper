@@ -4,7 +4,7 @@
 .resultHeading h2,.resultHeading p { margin: 0; }
 .resultHeading h2 { color: #174f32; font-size: 1.15rem; }
 .resultHeading p { color: #65746a; font-size: .85rem; font-weight: 700; }
-.filters { display: grid; grid-template-columns: minmax(240px,2fr) repeat(4,minmax(120px,1fr)); gap: 10px; }
+.filters { display: grid; grid-template-columns: minmax(240px,2fr) repeat(5,minmax(110px,1fr)); gap: 10px; }
 .filters label { display: grid; gap: 6px; min-width: 0; color: #53665a; font-size: .75rem; font-weight: 800; }
 .filters input,.filters select { width: 100%; min-width: 0; min-height: 42px; padding: 9px 11px; border: 1px solid #bed2c4; border-radius: 10px; outline: none; background: #fbfefc; color: #183126; }
 .filters input:focus,.filters select:focus { border-color: #16814d; box-shadow: 0 0 0 3px rgba(22,129,77,.16); }

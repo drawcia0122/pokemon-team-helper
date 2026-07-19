@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: "17,47 * * * *"
   workflow_dispatch:
+    inputs:
+      backfill:
+        description: "はてなブログの過去100件フィードを対象に初回収集する"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -34,7 +40,14 @@ jobs:
         run: cp data/buildArticleCollectionStatus.json "$RUNNER_TEMP/build-collection-status-before.json"
 
       - name: Collect allowed public build articles
-        run: npm run collect:builds
+        env:
+          BUILD_ARTICLE_BACKFILL: ${{ github.event_name == 'workflow_dispatch' && inputs.backfill && 'true' || 'false' }}
+        run: |
+          if [[ "$BUILD_ARTICLE_BACKFILL" == "true" ]]; then
+            npm run collect:builds -- --backfill
+          else
+            npm run collect:builds
+          fi
 
       - name: Validate application
         run: npm run check

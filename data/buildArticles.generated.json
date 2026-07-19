@@ -412,5 +412,87 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-07-18T17:31:23.163Z"
+  },
+  {
+    "id": "hatena-blog-4c5eb289ab882e25e041",
+    "source": "hatena-blog",
+    "sourceArticleId": "4c5eb289ab882e25e041",
+    "sourceUrl": "https://suzuri-ghost.hatenablog.com/entry/2026/05/13/100653",
+    "canonicalUrl": "https://suzuri-ghost.hatenablog.com/entry/2026/05/13/100653",
+    "title": "【シングルM-1】ゴースト統一レート2100達成記念構築記事【ポケモンチャンピオンズ】",
+    "authorName": "suzuri_ghost",
+    "publishedAt": "2026-05-13T07:02:49.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m1",
+    "result": "レート2100到達",
+    "pokemonSlugs": [],
+    "tags": [
+      "M-1",
+      "single"
+    ],
+    "summary": "M-1のシングル構築記事です。レート2100到達。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/s/suzuri_ghost/20260513/20260513160101.jpg",
+      "source": "structured-data",
+      "alt": "【シングルM-1】ゴースト統一レート2100達成記念構築記事【ポケモンチャンピオンズ】のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "firstCollectedAt": "2026-07-18T19:47:03.489Z",
+    "lastCollectedAt": "2026-07-18T19:57:04.135Z",
+    "contentFingerprint": "b2811ed661296d667a0a9eb0f4de86c90ed2ba0318d0a22e83fc1959e6e09797",
+    "extractorVersion": "1.2.0",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-18T19:57:04.135Z"
+  },
+  {
+    "id": "hatena-blog-0e161f811bc0e6199d4d",
+    "source": "hatena-blog",
+    "sourceArticleId": "0e161f811bc0e6199d4d",
+    "sourceUrl": "https://suzuri-ghost.hatenablog.com/entry/2026/04/20/162531",
+    "canonicalUrl": "https://suzuri-ghost.hatenablog.com/entry/2026/04/20/162531",
+    "title": "【シングルM-1】初手要員としてのメガユキメノコ考察備忘録【ゴースト統一】【ポケモンチャンピオンズ】",
+    "authorName": "suzuri_ghost",
+    "publishedAt": "2026-04-24T12:08:21.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m1",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "M-1",
+      "single"
+    ],
+    "summary": "M-1のシングル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/s/suzuri_ghost/20260420/20260420160336.png",
+      "source": "structured-data",
+      "alt": "【シングルM-1】初手要員としてのメガユキメノコ考察備忘録【ゴースト統一】【ポケモンチャンピオンズ】のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "firstCollectedAt": "2026-07-18T19:47:03.489Z",
+    "lastCollectedAt": "2026-07-18T19:57:04.135Z",
+    "contentFingerprint": "0943edeaec222a4ec700caa6c765a768edcd872c039f1d99b1649496524f1ebf",
+    "extractorVersion": "1.2.0",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-18T19:57:04.135Z"
   }
 ]
