@@ -2050,5 +2050,61 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
+  },
+  {
+    "id": "hatena-blog-990211d1d4272d8c0d03",
+    "source": "hatena-blog",
+    "sourceArticleId": "990211d1d4272d8c0d03",
+    "sourceUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/20/065556",
+    "canonicalUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/20/065556",
+    "title": "【ポケチャンダブル M4】ムラっけを運ゲーにしない。能力上昇を勝ち筋に変えるメガオニゴーリ構築",
+    "authorName": "murasaki3sun",
+    "publishedAt": "2026-07-19T21:55:56.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/m/murasaki3sun/20260717/20260717211340.jpg",
+      "source": "structured-data",
+      "alt": "【ポケチャンダブル M4】ムラっけを運ゲーにしない。能力上昇を勝ち筋に変えるメガオニゴーリ構築のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.43
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-20T06:48:15.379Z",
+    "lastCollectedAt": "2026-07-20T06:48:15.379Z",
+    "contentFingerprint": "0c741a19265932a97c02868734cd8021c9ec97ae24e58c5edf1678ab1023a520",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-20T06:48:15.379Z"
   }
 ]
