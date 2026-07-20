@@ -161,6 +161,22 @@ npm run test:build-ui
 ブログ探索と既知候補の一括再評価は定期実行へ含めず、GitHub Actionsの
 `discover_blogs` / `reevaluate_articles` を指定した手動実行時だけ行います。
 
+## 公式ニュース・イベント情報の収集
+
+既存の手動7件は`data/pokemonContent.manual.json`で保護し、自動生成データを`data/pokemonContent.generated.json`へ分離する基盤を用意しています。現在は自動取得の許可を安全に確認できたソースがないため、全ソースを規約保留とし、generatedは0件です。本文・画像は保存しません。
+
+```bash
+npm run collect:content:dry-run
+npm run collect:content
+npm run test:content-collection
+```
+
+現在の収集コマンドは保留状態を表示し、外部通信やデータ更新を行いません。RSS parserと安全制御はfixtureで検証します。
+
+ソース調査、通信制限、Actionsの運用方針は
+[docs/POKEMON_CONTENT_COLLECTION.md](/Users/drawcia0122/Codex/Pokémon/docs/POKEMON_CONTENT_COLLECTION.md)
+に記載しています。
+
 ## 追加した改善点
 
 - ポケモン選択欄に検索入力を追加

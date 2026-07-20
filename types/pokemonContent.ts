@@ -1,5 +1,9 @@
 export type ContentKind = "news" | "goods" | "event" | "campaign" | "game-update";
 
+export type PokemonContentSource = "pokemon-go-official-rss";
+
+export type PokemonContentCollectionStatus = "active";
+
 export type PokemonContentItem = {
   id: string;
   kind: ContentKind;
@@ -19,6 +23,17 @@ export type PokemonContentItem = {
   salesLocation?: string;
   targetGame?: string;
   platforms?: string[];
+};
+
+export type GeneratedPokemonContentItem = PokemonContentItem & {
+  source: PokemonContentSource;
+  sourceArticleId: string;
+  canonicalUrl: string;
+  firstCollectedAt: string;
+  lastCollectedAt: string;
+  contentFingerprint: string;
+  collectorVersion: string;
+  status: PokemonContentCollectionStatus;
 };
 
 export type ContentStatus =

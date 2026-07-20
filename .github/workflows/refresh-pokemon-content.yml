@@ -1,0 +1,78 @@
+name: Refresh Pokémon content
+
+on:
+  workflow_dispatch:
+    inputs:
+      backfill:
+        description: "公開RSS内の取得上限を広げて再収集する"
+        required: false
+        type: boolean
+        default: false
+      source:
+        description: "収集対象ソース"
+        required: false
+        type: choice
+        options:
+          - all
+          - pokemon-go-official-rss
+        default: all
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-pokemon-content
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Collect official Pokémon content
+        shell: bash
+        env:
+          CONTENT_BACKFILL: ${{ github.event_name == 'workflow_dispatch' && inputs.backfill && 'true' || 'false' }}
+          CONTENT_SOURCE: ${{ github.event_name == 'workflow_dispatch' && inputs.source || 'all' }}
+        run: |
+          collector_args=()
+          if [[ "$CONTENT_BACKFILL" == "true" ]]; then
+            collector_args+=(--backfill)
+          fi
+          if [[ "$CONTENT_SOURCE" != "all" ]]; then
+            collector_args+=(--source "$CONTENT_SOURCE")
+          fi
+          npm run collect:content -- "${collector_args[@]}"
+
+      - name: Validate application
+        run: npm run check
+
+      - name: Commit meaningful generated changes
+        shell: bash
+        run: |
+          if git diff --quiet -- \
+            data/pokemonContent.generated.json \
+            data/pokemonContentCollectionStatus.json; then
+            echo "No generated Pokémon content changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            data/pokemonContent.generated.json \
+            data/pokemonContentCollectionStatus.json
+          git commit -m "chore: refresh pokemon content"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Pokémon GO</title>
+    <link>https://pokemongo.com</link>
+    <item>
+      <title>Pikachu joins the summer event!</title>
+      <guid>https://pokemongolive.com/post/pikachu-summer/?hl=en</guid>
+      <pubDate>Sat, 18 Jul 2026 08:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Lucario battle update</title>
+      <guid>https://pokemongo.com/post/lucario-battle-update/?hl=en</guid>
+      <pubDate>Fri, 17 Jul 2026 08:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Duplicate Pikachu event</title>
+      <guid>https://pokemongo.com/post/pikachu-summer/?hl=en</guid>
+      <pubDate>Sat, 18 Jul 2026 08:00:00 +0000</pubDate>
+    </item>
+  </channel>
+</rss>
