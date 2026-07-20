@@ -9,6 +9,7 @@ import {
   canAnalyzeBuildArticle
 } from "@/lib/articleImport";
 import { matchesBuildArticleQuery } from "@/lib/buildArticleSearch";
+import { formatJapaneseDate } from "@/lib/dateFormat";
 import type {
   BattleFormat,
   BuildArticle,
@@ -21,14 +22,6 @@ const formatLabels: Record<BattleFormat, string> = {
   single: "シングル",
   double: "ダブル"
 };
-
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat("ja-JP", {
-    year: "numeric",
-    month: "short",
-    day: "numeric"
-  }).format(new Date(`${value}T00:00:00+09:00`));
-}
 
 export function BuildArticleExplorer({
   articles,
@@ -289,7 +282,7 @@ export function BuildArticleExplorer({
                 <div className={styles.footer}>
                   <p className={styles.byline}>
                     {article.sourceName} / {article.author}
-                    <time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time>
+                    <time dateTime={article.publishedAt}>{formatJapaneseDate(article.publishedAt)}</time>
                   </p>
                   <div className={styles.actions}>
                     {canAnalyzeBuildArticle(article) ? (

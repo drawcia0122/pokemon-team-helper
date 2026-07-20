@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { PokemonVisual } from "@/components/pokemon/PokemonVisual";
 import { getContentStatuses } from "@/lib/contentStatus";
+import { formatJapaneseDate } from "@/lib/dateFormat";
 import type { ContentKind, ContentStatus, PokemonContentItem } from "@/types/pokemonContent";
 import styles from "./PokemonContentExplorer.module.css";
 
@@ -32,14 +33,6 @@ const priorityStatuses: ContentStatus[] = [
 
 function normalize(value: string) {
   return value.normalize("NFKC").trim().toLocaleLowerCase("ja");
-}
-
-function dateLabel(value: string) {
-  return new Intl.DateTimeFormat("ja-JP", {
-    year: "numeric",
-    month: "short",
-    day: "numeric"
-  }).format(new Date(`${value}T00:00:00+09:00`));
 }
 
 function isEnded(statuses: ContentStatus[]) {
@@ -127,7 +120,7 @@ export function PokemonContentExplorer({
           <div className={styles.meta}>
             <span className={styles.kind}>{kindLabels[item.kind]}</span>
             <span>{item.sourceName}</span>
-            <time dateTime={item.publishedAt}>公開 {dateLabel(item.publishedAt)}</time>
+            <time dateTime={item.publishedAt}>公開 {formatJapaneseDate(item.publishedAt)}</time>
           </div>
           <div className={styles.statuses}>
             {statuses.map((status) => (
@@ -148,10 +141,10 @@ export function PokemonContentExplorer({
           <h3>{item.title}</h3>
           <p className={styles.summary}>{item.summary}</p>
           <dl className={styles.schedule}>
-            {item.releaseDate ? <div><dt>発売日</dt><dd>{dateLabel(item.releaseDate)}</dd></div> : null}
-            {item.preorderStartDate ? <div><dt>予約開始</dt><dd>{dateLabel(item.preorderStartDate)}</dd></div> : null}
-            {item.preorderDeadlineDate ? <div><dt>予約締切</dt><dd>{dateLabel(item.preorderDeadlineDate)}</dd></div> : null}
-            {item.eventStartDate && item.eventEndDate ? <div><dt>開催期間</dt><dd>{dateLabel(item.eventStartDate)}〜{dateLabel(item.eventEndDate)}</dd></div> : null}
+            {item.releaseDate ? <div><dt>発売日</dt><dd>{formatJapaneseDate(item.releaseDate)}</dd></div> : null}
+            {item.preorderStartDate ? <div><dt>予約開始</dt><dd>{formatJapaneseDate(item.preorderStartDate)}</dd></div> : null}
+            {item.preorderDeadlineDate ? <div><dt>予約締切</dt><dd>{formatJapaneseDate(item.preorderDeadlineDate)}</dd></div> : null}
+            {item.eventStartDate && item.eventEndDate ? <div><dt>開催期間</dt><dd>{formatJapaneseDate(item.eventStartDate)}〜{formatJapaneseDate(item.eventEndDate)}</dd></div> : null}
             {item.priceLabel ? <div><dt>価格</dt><dd>{item.priceLabel}</dd></div> : null}
             {item.salesLocation ? <div><dt>場所</dt><dd>{item.salesLocation}</dd></div> : null}
             {item.targetGame ? <div><dt>対象</dt><dd>{item.targetGame}{item.platforms?.length ? ` / ${item.platforms.join("・")}` : ""}</dd></div> : null}

@@ -60,6 +60,17 @@ assert(
   "構築記事取り込みURLへbasePathまたはimportArticle queryを維持できません"
 );
 assert(
+  buildsHtml.includes("2026年7月19日"),
+  "構築記事の公開日をUTC環境でも日本時間の日付として出力できません"
+);
+assert(
+  newsHtml.includes("2026年7月10日") &&
+    newsHtml.includes("2026年7月23日") &&
+    newsHtml.includes("2026年7月18日") &&
+    newsHtml.includes("2026年8月31日"),
+  "ニュースの公開日・発売日・開催期間を日本時間の日付として出力できません"
+);
+assert(
   /href="https:\/\/[^"]+"/.test(buildsHtml) &&
     !allHtml.includes(`${basePath}/https://`),
   "外部URLへbasePathを誤って付与しました"
