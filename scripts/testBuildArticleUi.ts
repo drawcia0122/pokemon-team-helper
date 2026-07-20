@@ -1,6 +1,10 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { resolveBuildArticleThumbnailState } from "@/lib/buildArticleThumbnail";
+import {
+  ALLOWED_EXTERNAL_IMAGE_ORIGINS,
+  STATIC_CONTENT_SECURITY_POLICY
+} from "@/lib/contentSecurityPolicy";
 import type { BuildArticleThumbnail } from "@/types/buildArticle";
 
 function assert(condition: unknown, message: string): asserts condition {
@@ -27,11 +31,6 @@ const explorerSource = readFileSync(
   path.join(root, "components/builds/BuildArticleExplorer.tsx"),
   "utf8"
 );
-const nextConfigSource = readFileSync(
-  path.join(root, "next.config.ts"),
-  "utf8"
-);
-
 assert(
   componentSource.includes("<img") &&
     componentSource.includes('loading="lazy"') &&
@@ -62,13 +61,14 @@ assert(
   "metadata-onlyとcompleteの操作・案内を区別できません"
 );
 assert(
-  nextConfigSource.includes("\"Content-Security-Policy\"") &&
-    nextConfigSource.includes("https://assets.st-note.com") &&
-    nextConfigSource.includes("https://cdn-ak.f.st-hatena.com") &&
-    nextConfigSource.includes("https://cdn-ak2.f.st-hatena.com") &&
-    nextConfigSource.includes("https://nonbirimaru.net") &&
-    nextConfigSource.includes("https://liberty-note.com") &&
-    !nextConfigSource.includes("https://*"),
+  ALLOWED_EXTERNAL_IMAGE_ORIGINS.length === 5 &&
+    ALLOWED_EXTERNAL_IMAGE_ORIGINS.includes("https://assets.st-note.com") &&
+    ALLOWED_EXTERNAL_IMAGE_ORIGINS.includes("https://cdn-ak.f.st-hatena.com") &&
+    ALLOWED_EXTERNAL_IMAGE_ORIGINS.includes("https://cdn-ak2.f.st-hatena.com") &&
+    ALLOWED_EXTERNAL_IMAGE_ORIGINS.includes("https://nonbirimaru.net") &&
+    ALLOWED_EXTERNAL_IMAGE_ORIGINS.includes("https://liberty-note.com") &&
+    STATIC_CONTENT_SECURITY_POLICY.startsWith("img-src 'self' data: ") &&
+    !STATIC_CONTENT_SECURITY_POLICY.includes("https://*"),
   "画像CSPが許可済みホストへ限定されていません"
 );
 assert(

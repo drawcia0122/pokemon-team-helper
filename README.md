@@ -44,6 +44,43 @@ npm run dev
 
 ブラウザで `http://localhost:3000` を開いてください。
 
+## GitHub Pages向け静的build
+
+通常のローカルbuildはNext.jsのproduction server向けに生成し、basePathを付けません。
+開発サーバとproduction serverは従来どおり `/`、`/builds`、`/news` で利用できます。
+
+```bash
+# basePathなしの通常production build
+npm run build
+npm start
+
+# /pokemon-team-helperをbasePathにしてout/へ静的export
+npm run build:pages
+
+# Pages用export、内部リンク、CSP、workflowを検証
+npm run test:pages
+```
+
+`build:pages`は `GITHUB_PAGES=true` を設定してNext.jsをbuildします。この値が
+厳密に文字列 `true` の場合だけ `output=export`、`basePath=/pokemon-team-helper`、
+`trailingSlash=true` を適用します。通常buildではこれらを設定せず、`npm start`で
+production serverを起動できます。
+サブパス公開にはNext.jsの `basePath` が内部リンクと `_next` 資産へ自動適用されるため、
+CDN向けの `assetPrefix` は設定していません。`trailingSlash: true` により、
+`out/builds/index.html` と `out/news/index.html` を生成します。`out/`はGit管理対象外です。
+
+従来Next.jsのHTTPレスポンスヘッダーで設定していた画像CSPは、静的HTMLの
+`Content-Security-Policy` metaへ移しています。許可するのは同一origin、data URL、
+および構築記事サムネイル検証で許可済みの外部ホストだけです。GitHub Pagesでは
+HTTPレスポンスヘッダーをリポジトリから設定できないため、metaより前に読み込まれる
+resourceには適用できない制約があります。画像URLのhost・path検証も引き続き主防御として
+維持します。
+
+`.github/workflows/deploy-pages.yml` はmainへのpushまたは手動実行で検証と静的buildを行い、
+成功した `out/` だけを `github-pages` environmentへ渡します。実行前にリポジトリの
+Settings → Pages → Build and deployment → Sourceで `GitHub Actions` を選択してください。
+Pages設定を変更するまではworkflowを実行しないでください。
+
 ## データ生成スクリプト実行方法
 
 このアプリ本体はローカル JSON を読むだけです。  

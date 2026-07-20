@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { STATIC_CONTENT_SECURITY_POLICY } from "@/lib/contentSecurityPolicy";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,6 +15,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
+      <head>
+        <meta
+          httpEquiv="Content-Security-Policy"
+          content={STATIC_CONTENT_SECURITY_POLICY}
+        />
+      </head>
       <body>{children}</body>
     </html>
   );
