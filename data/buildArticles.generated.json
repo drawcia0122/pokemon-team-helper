@@ -585,5 +585,41 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-07-19T15:16:44.475Z"
+  },
+  {
+    "id": "note-nbd077fa5abd6",
+    "source": "note",
+    "sourceArticleId": "nbd077fa5abd6",
+    "sourceUrl": "https://note.com/enoch_dtk/n/nbd077fa5abd6",
+    "canonicalUrl": "https://note.com/enoch_dtk/n/nbd077fa5abd6",
+    "title": "【ポケモンチャンピオンズ】ゲコミミクチ＠スマホ【M-4シングル】",
+    "authorName": "えのき",
+    "publishedAt": "2026-07-20T02:46:47.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": null,
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "firstCollectedAt": "2026-07-20T04:09:26.558Z",
+    "lastCollectedAt": "2026-07-20T04:09:26.558Z",
+    "contentFingerprint": "76bbc11576531d028fa4d0a79ba21a9bdaff2b6894afc0df4d3abb08b6339c91",
+    "extractorVersion": "1.2.0",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-20T04:09:26.558Z"
   }
 ]
