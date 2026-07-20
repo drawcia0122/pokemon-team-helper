@@ -2106,5 +2106,64 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-07-20T06:48:15.379Z"
+  },
+  {
+    "id": "note-nca4e4db11bb6",
+    "source": "note",
+    "sourceArticleId": "nca4e4db11bb6",
+    "sourceUrl": "https://note.com/mega_akky/n/nca4e4db11bb6",
+    "canonicalUrl": "https://note.com/mega_akky/n/nca4e4db11bb6",
+    "title": "メガトウキョーのアッキー、天を翔ける【第53回がにゅーオフ参加レポ】",
+    "authorName": "メガトウキョーのアッキー",
+    "publishedAt": "2026-07-20T11:30:04.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": "優勝",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "ポケモン対戦",
+      "ポケモンチャンピオンズ",
+      "M-3",
+      "double"
+    ],
+    "summary": "M-3のダブル構築記事です。優勝。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/296055642/rectangle_large_type_2_9ec2c953b585fab6d5d5506e6aecbcf5.jpeg",
+      "source": "structured-data",
+      "alt": "メガトウキョーのアッキー、天を翔ける【第53回がにゅーオフ参加レポ】のサムネイル",
+      "width": 1647,
+      "height": 862
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.6,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.545
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-20T12:57:05.846Z",
+    "lastCollectedAt": "2026-07-20T12:57:05.846Z",
+    "contentFingerprint": "510bfa37febf21a4661f74650b5881f6c8397c8f3f350c52eb80612412f1f6c1",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-20T12:57:05.846Z"
   }
 ]
