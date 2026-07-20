@@ -125,12 +125,24 @@ npm run collect:builds:hatena:dry-run
 # 初回・明示実行時だけ過去100件フィードを確認
 npm run collect:builds:hatena:backfill
 
+# 手動確認済みシードと既存記事リンクからブログ候補を検証・登録
+npm run discover:build-blogs
+npm run discover:build-blogs:dry-run
+
+# parserVersion更新後に既知候補を再評価
+npm run collect:builds:reevaluate
+npm run collect:builds:reevaluate:dry-run
+
+# 公開数、完全性、判定・除外理由を集計
+npm run report:build-extraction
+
 # Pokesolは現行利用規約により通信せず disabled-by-policy になる
 npm run collect:builds:pokesol
 
 # fixtureによる収集・除外・安全制御テスト
 npm run test:build-collection
 npm run test:build-hatena
+npm run test:build-discovery
 
 # サムネイル表示とフォールバックのテスト
 npm run test:build-ui
@@ -146,6 +158,8 @@ npm run test:build-ui
 過去100件フィードを使い、1ブログ30記事・全体150記事を上限にします。定期実行は
 軽量な最新30件フィードのままです。確認済み候補の再確認は30分単位で開始位置を
 分散し、単なる実行日時や確認日時の変化だけでは自動コミットしません。
+ブログ探索と既知候補の一括再評価は定期実行へ含めず、GitHub Actionsの
+`discover_blogs` / `reevaluate_articles` を指定した手動実行時だけ行います。
 
 ## 追加した改善点
 

@@ -2,13 +2,16 @@ import type {
   BuildArticle,
   BuildArticleSource,
   BuildArticleThumbnail,
+  ArticleQualityScore,
   CollectionCompleteness,
   GeneratedBuildArticle,
+  PokemonNameResolutionStats,
+  TeamExtractionEvidence,
   TeamExtractionMethod
 } from "../../types/buildArticle";
 import type { AppMeta, PokemonEntry } from "../../types/pokemon";
 
-export const EXTRACTOR_VERSION = "1.2.0";
+export const EXTRACTOR_VERSION = "2.0.1";
 
 export type ArticleCandidate = {
   source: BuildArticleSource;
@@ -59,6 +62,9 @@ export type ExtractedArticle = {
   missingFields: string[];
   teamExtractionMethod: TeamExtractionMethod | null;
   teamExtractionIssue: string | null;
+  extractionEvidence: TeamExtractionEvidence | null;
+  qualityScore: ArticleQualityScore;
+  pokemonNameResolutionStats: PokemonNameResolutionStats;
   thumbnailExtraction: {
     rejectedCount: number;
     rejectionReasons: Record<string, number>;
@@ -99,6 +105,29 @@ export type SourceCollectionStats = {
   thumbnailRejectedCount: number;
   fallbackCount: number;
   completePromotedCount: number;
+  reevaluationTargetCount: number;
+  reevaluationCompletedCount: number;
+  networkReevaluationCount: number;
+  savedStateReevaluationCount: number;
+  completeMaintainedCount: number;
+  metadataOnlyMaintainedCount: number;
+  metadataOnlyPromotedCount: number;
+  publicDemotedCount: number;
+  excludedMaintainedCount: number;
+  judgmentPendingCount: number;
+  registeredBlogCount: number;
+  newDiscoveredBlogCount: number;
+  promotedBlogCount: number;
+  pendingBlogCount: number;
+  targetGameSuccessCount: number;
+  formatSuccessCount: number;
+  seasonSuccessCount: number;
+  teamCandidateCount: number;
+  teamResolvedCount: number;
+  aliasResolvedCount: number;
+  decoratedResolvedCount: number;
+  ambiguousNameCount: number;
+  unresolvedNameCount: number;
   thumbnailDomains: Record<string, number>;
   teamExtractionMethods: Partial<Record<TeamExtractionMethod, number>>;
   metadataOnlyReasons: Record<string, number>;
@@ -107,13 +136,34 @@ export type SourceCollectionStats = {
 
 export type CandidateCollectionState = {
   url: string;
+  source?: BuildArticleSource;
+  discoveredAt?: string;
   sourceArticleId: string | null;
+  publishedAt?: string | null;
   firstSeenAt: string;
   lastSeenAt: string;
   lastCheckedAt: string | null;
   updatedAt?: string | null;
   contentFingerprint?: string | null;
   consecutiveFetchFailures?: number;
+  targetGameResult?: string | null;
+  formatResult?: string | null;
+  seasonResult?: string | null;
+  teamResult?: string | null;
+  exclusionReason?: string | null;
+  parserVersion?: string | null;
+  previousParserVersion?: string | null;
+  reevaluationMethod?: "saved-state" | "network" | null;
+  reevaluationStatus?: "completed" | "pending" | null;
+  reevaluationOutcome?:
+    | "complete-maintained"
+    | "complete-promoted"
+    | "metadata-only-maintained"
+    | "metadata-only-promoted"
+    | "public-demoted"
+    | "excluded-maintained"
+    | null;
+  reevaluationReason?: string | null;
 };
 
 export type SourceCollectionCursor = {
@@ -145,6 +195,11 @@ export type HatenaBlogState = {
   automationAllowed: boolean;
   customDomain: boolean;
   platformVerified: boolean;
+  verifiedAt: string | null;
+  verificationMethod: string | null;
+  promotionReason: string | null;
+  candidateCount: number | null;
+  failureCount: number;
 };
 
 export type CollectionStatus = {

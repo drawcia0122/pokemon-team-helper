@@ -1,4 +1,10 @@
-import { readFile } from "node:fs/promises";
+import {
+  mkdtemp,
+  readFile,
+  rm,
+  writeFile
+} from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import appMetaData from "@/data/appMeta.json";
 import pokemonData from "@/data/pokemon.json";
@@ -321,6 +327,19 @@ async function main(): Promise<void> {
   );
 
   const calls: string[] = [];
+  const isolatedStatusDirectory = await mkdtemp(
+    path.join(tmpdir(), "hatena-collection-status-")
+  );
+  const isolatedStatusPath = path.join(
+    isolatedStatusDirectory,
+    "status.json"
+  );
+  const isolatedGeneratedArticlesPath = path.join(
+    isolatedStatusDirectory,
+    "generated.json"
+  );
+  await writeFile(isolatedStatusPath, "{}\n", "utf8");
+  await writeFile(isolatedGeneratedArticlesPath, "[]\n", "utf8");
   let activeRequests = 0;
   let maxActiveRequests = 0;
   const mockClient = {
@@ -378,6 +397,10 @@ async function main(): Promise<void> {
     source: "hatena-blog",
     dryRun: true,
     writeFiles: false,
+    paths: {
+      status: isolatedStatusPath,
+      generatedArticles: isolatedGeneratedArticlesPath
+    },
     clients: { "hatena-blog": mockClient },
     now: new Date("2026-07-19T03:00:00.000Z")
   });
@@ -433,6 +456,10 @@ async function main(): Promise<void> {
     source: "hatena-blog",
     dryRun: true,
     writeFiles: false,
+    paths: {
+      status: isolatedStatusPath,
+      generatedArticles: isolatedGeneratedArticlesPath
+    },
     clients: { "hatena-blog": failedFeedClient },
     now: new Date("2026-07-19T03:30:00.000Z")
   });
@@ -479,6 +506,10 @@ async function main(): Promise<void> {
     dryRun: true,
     backfill: true,
     writeFiles: false,
+    paths: {
+      status: isolatedStatusPath,
+      generatedArticles: isolatedGeneratedArticlesPath
+    },
     clients: { "hatena-blog": backfillClient },
     now: new Date("2026-07-19T04:00:00.000Z")
   });
@@ -503,6 +534,7 @@ async function main(): Promise<void> {
       SOURCE_REGISTRY["hatena-blog"].retries === 2,
     "初期ブログ台帳または通信上限が不正です"
   );
+  await rm(isolatedStatusDirectory, { recursive: true, force: true });
   assert(
     SOURCE_REGISTRY.pokesol.automationAllowed === false &&
       RESEARCH_ONLY_SOURCES.game8.automationAllowed === false &&

@@ -195,6 +195,38 @@ export function validateGeneratedBuildArticle(
   ) {
     errors.push(`${prefix}: 6体抽出方法または理由が完全性と一致しません`);
   }
+  const currentExtractor = article.extractorVersion === EXTRACTOR_VERSION;
+  if (currentExtractor) {
+    if (
+      !article.qualityScore ||
+      Object.values(article.qualityScore).some(
+        (value) =>
+          typeof value !== "number" || value < 0 || value > 1
+      )
+    ) {
+      errors.push(`${prefix}: qualityScore が不正です`);
+    }
+    const resolutionStats = article.pokemonNameResolutionStats;
+    if (
+      !resolutionStats ||
+      Object.values(resolutionStats).some(
+        (value) => !Number.isInteger(value) || value < 0
+      )
+    ) {
+      errors.push(`${prefix}: pokemonNameResolutionStats が不正です`);
+    }
+    if (
+      (complete &&
+        (!article.extractionEvidence ||
+          article.extractionEvidence.resolvedCount !== 6 ||
+          article.extractionEvidence.confidence !== "high" ||
+          article.extractionEvidence.extractionMethod !==
+            article.teamExtractionMethod)) ||
+      (metadataOnly && article.extractionEvidence !== null)
+    ) {
+      errors.push(`${prefix}: extractionEvidence が完全性と一致しません`);
+    }
+  }
   if (
     !Array.isArray(article.tags) ||
     new Set(article.tags).size !== article.tags.length ||
@@ -232,13 +264,16 @@ export function validateGeneratedBuildArticle(
       extractionConfidence: article.extractionConfidence,
       missingFields: article.missingFields,
       teamExtractionMethod: article.teamExtractionMethod,
-      teamExtractionIssue: article.teamExtractionIssue
+      teamExtractionIssue: article.teamExtractionIssue,
+      extractionEvidence: article.extractionEvidence,
+      qualityScore: article.qualityScore,
+      pokemonNameResolutionStats: article.pokemonNameResolutionStats
     }) !== article.contentFingerprint
   ) {
     errors.push(`${prefix}: contentFingerprint が内容と一致しません`);
   }
-  if (article.extractorVersion !== EXTRACTOR_VERSION) {
-    errors.push(`${prefix}: extractorVersion が現行版と一致しません`);
+  if (!/^\d+\.\d+\.\d+$/.test(article.extractorVersion)) {
+    errors.push(`${prefix}: extractorVersion が不正です`);
   }
   if (
     article.status !== "active" &&
@@ -262,6 +297,9 @@ export function validateCollectionStatus(
   sourceConfigs: SourceConfig[]
 ): string[] {
   const errors: string[] = [];
+  const registeredHatenaDomains = new Set(
+    (status.hatenaBlogs ?? []).map((blog) => blog.domain)
+  );
   if (
     status.lastRunAt !== null &&
     (typeof status.lastRunAt !== "string" || !isIsoDateTime(status.lastRunAt))
@@ -304,11 +342,45 @@ export function validateCollectionStatus(
         "thumbnailUpdatedCount",
         "thumbnailRejectedCount",
         "fallbackCount",
-        "completePromotedCount"
+        "completePromotedCount",
+      ] as const;
+      const task008CountKeys = [
+        "registeredBlogCount",
+        "newDiscoveredBlogCount",
+        "promotedBlogCount",
+        "pendingBlogCount",
+        "targetGameSuccessCount",
+        "formatSuccessCount",
+        "seasonSuccessCount",
+        "teamCandidateCount",
+        "teamResolvedCount",
+        "aliasResolvedCount",
+        "decoratedResolvedCount",
+        "ambiguousNameCount",
+        "unresolvedNameCount",
+        "reevaluationTargetCount",
+        "reevaluationCompletedCount",
+        "networkReevaluationCount",
+        "savedStateReevaluationCount",
+        "completeMaintainedCount",
+        "metadataOnlyMaintainedCount",
+        "metadataOnlyPromotedCount",
+        "publicDemotedCount",
+        "excludedMaintainedCount",
+        "judgmentPendingCount"
       ] as const;
       for (const key of countKeys) {
         const value = stats[key];
         if (!Number.isInteger(value) || Number(value) < 0) {
+          errors.push(`${prefix}: ${key} が不正です`);
+        }
+      }
+      for (const key of task008CountKeys) {
+        const value = stats[key];
+        if (
+          value !== undefined &&
+          (!Number.isInteger(value) || Number(value) < 0)
+        ) {
           errors.push(`${prefix}: ${key} が不正です`);
         }
       }
@@ -361,7 +433,9 @@ export function validateCollectionStatus(
         const url = new URL(candidate.url);
         validUrl =
           url.protocol === "https:" &&
-          config.allowedDomains.includes(url.hostname) &&
+          (config.allowedDomains.includes(url.hostname) ||
+            (config.id === "hatena-blog" &&
+              registeredHatenaDomains.has(url.hostname))) &&
           normalizeUrl(candidate.url) === candidate.url;
       } catch {
         validUrl = false;
@@ -389,6 +463,90 @@ export function validateCollectionStatus(
         typeof candidate.sourceArticleId !== "string"
       ) {
         errors.push(`${prefix}: sourceArticleId が不正です`);
+      }
+      if (
+        candidate.source !== undefined &&
+        candidate.source !== config.id
+      ) {
+        errors.push(`${prefix}: source が不正です`);
+      }
+      if (
+        candidate.discoveredAt !== undefined &&
+        !isIsoDateTime(candidate.discoveredAt)
+      ) {
+        errors.push(`${prefix}: discoveredAt が不正です`);
+      }
+      if (
+        candidate.publishedAt !== undefined &&
+        candidate.publishedAt !== null &&
+        Number.isNaN(Date.parse(candidate.publishedAt))
+      ) {
+        errors.push(`${prefix}: publishedAt が不正です`);
+      }
+      if (
+        candidate.parserVersion !== undefined &&
+        candidate.parserVersion !== null &&
+        !/^\d+\.\d+\.\d+$/.test(candidate.parserVersion)
+      ) {
+        errors.push(`${prefix}: parserVersion が不正です`);
+      }
+      if (
+        candidate.previousParserVersion !== undefined &&
+        candidate.previousParserVersion !== null &&
+        !/^\d+\.\d+\.\d+$/.test(candidate.previousParserVersion)
+      ) {
+        errors.push(`${prefix}: previousParserVersion が不正です`);
+      }
+      if (
+        candidate.reevaluationMethod !== undefined &&
+        candidate.reevaluationMethod !== null &&
+        candidate.reevaluationMethod !== "saved-state" &&
+        candidate.reevaluationMethod !== "network"
+      ) {
+        errors.push(`${prefix}: reevaluationMethod が不正です`);
+      }
+      if (
+        candidate.reevaluationStatus !== undefined &&
+        candidate.reevaluationStatus !== null &&
+        candidate.reevaluationStatus !== "completed" &&
+        candidate.reevaluationStatus !== "pending"
+      ) {
+        errors.push(`${prefix}: reevaluationStatus が不正です`);
+      }
+      if (
+        candidate.reevaluationOutcome !== undefined &&
+        candidate.reevaluationOutcome !== null &&
+        ![
+          "complete-maintained",
+          "complete-promoted",
+          "metadata-only-maintained",
+          "metadata-only-promoted",
+          "public-demoted",
+          "excluded-maintained"
+        ].includes(candidate.reevaluationOutcome)
+      ) {
+        errors.push(`${prefix}: reevaluationOutcome が不正です`);
+      }
+      if (
+        candidate.reevaluationReason !== undefined &&
+        candidate.reevaluationReason !== null &&
+        (typeof candidate.reevaluationReason !== "string" ||
+          candidate.reevaluationReason.trim() === "")
+      ) {
+        errors.push(`${prefix}: reevaluationReason が不正です`);
+      }
+      if (
+        candidate.reevaluationStatus !== undefined &&
+        candidate.reevaluationStatus !== null &&
+        (candidate.previousParserVersion === undefined ||
+          candidate.reevaluationMethod === undefined ||
+          candidate.reevaluationMethod === null ||
+          (candidate.previousParserVersion === null &&
+            candidate.reevaluationMethod !== "network") ||
+          candidate.reevaluationReason === undefined ||
+          candidate.reevaluationReason === null)
+      ) {
+        errors.push(`${prefix}: 再評価状態の組み合わせが不正です`);
       }
     }
   }
@@ -449,6 +607,10 @@ export function validateCollectionStatus(
 
   const blogDomains = new Set<string>();
   for (const blog of status.hatenaBlogs ?? []) {
+    const hasTask008VerificationFields =
+      Object.prototype.hasOwnProperty.call(blog, "verifiedAt") ||
+      Object.prototype.hasOwnProperty.call(blog, "verificationMethod") ||
+      Object.prototype.hasOwnProperty.call(blog, "promotionReason");
     if (
       blogDomains.has(blog.domain) ||
       (!isHatenaPlatformDomain(blog.domain) && !blog.platformVerified) ||
@@ -458,6 +620,30 @@ export function validateCollectionStatus(
       !blog.feedUrl.startsWith(`https://${blog.domain}/`)
     ) {
       errors.push("collection-status:hatena-blogs: 台帳が不正です");
+    }
+    if (
+      hasTask008VerificationFields &&
+      ((blog.verifiedAt !== null && !isIsoDateTime(blog.verifiedAt)) ||
+        (blog.verificationMethod !== null &&
+          (typeof blog.verificationMethod !== "string" ||
+            blog.verificationMethod.trim() === "")) ||
+        (blog.promotionReason !== null &&
+          (typeof blog.promotionReason !== "string" ||
+            blog.promotionReason.trim() === "")) ||
+        (blog.candidateCount !== null &&
+          (!Number.isInteger(blog.candidateCount) ||
+            blog.candidateCount < 0)) ||
+        !Number.isInteger(blog.failureCount) ||
+        blog.failureCount < 0 ||
+        (blog.automationAllowed &&
+          (!blog.platformVerified ||
+            blog.verifiedAt === null ||
+            blog.verificationMethod === null ||
+            blog.promotionReason === null)))
+    ) {
+      errors.push(
+        `collection-status:hatena-blog:${blog.domain}: 検証状態が不正です`
+      );
     }
     blogDomains.add(blog.domain);
   }

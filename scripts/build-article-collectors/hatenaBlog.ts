@@ -171,8 +171,10 @@ export function isHatenaPlatformDomain(domain: string): boolean {
 
 export function isHatenaFeed(xml: string): boolean {
   const generator = elementValue(xml, ["generator"]);
-  return /はてなブログ|Hatena Blog/i.test(generator) ||
-    /https?:\/\/(?:www\.)?hatenablog\.com/i.test(xml);
+  return /はてなブログ|Hatena(?:::|\s+)Blog/i.test(generator) ||
+    /(?:hatenablog:\/\/|https?:\/\/blog\.hatena\.ne\.jp\/|https?:\/\/(?:www\.)?hatenablog\.com)/i.test(
+      xml
+    );
 }
 
 export function isHatenaBuildCandidate(input: {

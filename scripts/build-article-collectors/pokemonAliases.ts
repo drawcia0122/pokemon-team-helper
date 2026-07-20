@@ -30,6 +30,102 @@ export const POKEMON_NAME_ALIASES: readonly PokemonAliasDefinition[] = [
   {
     aliases: ["原種サンダー", "通常サンダー"],
     pokemonSlug: "zapdos"
+  },
+  {
+    aliases: ["霊獣ランド", "ランド霊獣", "ランドロス霊獣"],
+    pokemonSlug: "landorus-therian"
+  },
+  {
+    aliases: ["化身ランド", "ランド化身", "ランドロス化身"],
+    pokemonSlug: "landorus-incarnate"
+  },
+  {
+    aliases: ["水ロトム", "ウォッシュロトム", "ミトム"],
+    pokemonSlug: "rotom-wash"
+  },
+  {
+    aliases: ["火ロトム", "ヒートロトム", "ヒトム"],
+    pokemonSlug: "rotom-heat"
+  },
+  {
+    aliases: ["氷ロトム", "フロストロトム"],
+    pokemonSlug: "rotom-frost"
+  },
+  {
+    aliases: ["飛行ロトム", "スピンロトム"],
+    pokemonSlug: "rotom-fan"
+  },
+  {
+    aliases: ["草ロトム", "カットロトム"],
+    pokemonSlug: "rotom-mow"
+  },
+  {
+    aliases: ["水オーガポン", "井戸オーガポン", "いどのめんオーガポン"],
+    pokemonSlug: "ogerpon-wellspring-mask"
+  },
+  {
+    aliases: ["炎オーガポン", "竈オーガポン", "かまどのめんオーガポン"],
+    pokemonSlug: "ogerpon-hearthflame-mask"
+  },
+  {
+    aliases: ["岩オーガポン", "礎オーガポン", "いしずえのめんオーガポン"],
+    pokemonSlug: "ogerpon-cornerstone-mask"
+  },
+  {
+    aliases: ["白バド", "白バドレックス", "はくばバドレックス"],
+    pokemonSlug: "calyrex-ice"
+  },
+  {
+    aliases: ["黒バド", "黒バドレックス", "こくばバドレックス"],
+    pokemonSlug: "calyrex-shadow"
+  },
+  {
+    aliases: ["剣の王ザシアン", "ザシアン剣の王", "王ザシアン"],
+    pokemonSlug: "zacian-crowned"
+  },
+  {
+    aliases: ["盾の王ザマゼンタ", "ザマゼンタ盾の王", "王ザマゼンタ"],
+    pokemonSlug: "zamazenta-crowned"
+  },
+  {
+    aliases: ["ブラックキュレム", "黒キュレム"],
+    pokemonSlug: "kyurem-black"
+  },
+  {
+    aliases: ["ホワイトキュレム", "白キュレム"],
+    pokemonSlug: "kyurem-white"
+  },
+  {
+    aliases: ["日食ネクロズマ", "たそがれネクロズマ"],
+    pokemonSlug: "necrozma-dusk"
+  },
+  {
+    aliases: ["月食ネクロズマ", "あかつきネクロズマ"],
+    pokemonSlug: "necrozma-dawn"
+  },
+  {
+    aliases: ["ウルトラネクロズマ"],
+    pokemonSlug: "necrozma-ultra"
+  },
+  {
+    aliases: ["アタックデオキシス"],
+    pokemonSlug: "deoxys-attack"
+  },
+  {
+    aliases: ["ディフェンスデオキシス"],
+    pokemonSlug: "deoxys-defense"
+  },
+  {
+    aliases: ["スピードデオキシス"],
+    pokemonSlug: "deoxys-speed"
+  },
+  {
+    aliases: ["アナザーギラティナ"],
+    pokemonSlug: "giratina-altered"
+  },
+  {
+    aliases: ["オリジンギラティナ"],
+    pokemonSlug: "giratina-origin"
   }
 ];
 

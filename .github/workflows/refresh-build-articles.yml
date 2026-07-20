@@ -10,6 +10,16 @@ on:
         required: false
         type: boolean
         default: false
+      discover_blogs:
+        description: "Discover and validate additional Hatena blogs"
+        required: false
+        type: boolean
+        default: false
+      reevaluate_articles:
+        description: "Reevaluate previously excluded articles"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -39,15 +49,28 @@ jobs:
       - name: Snapshot persistent collection cursor
         run: cp data/buildArticleCollectionStatus.json "$RUNNER_TEMP/build-collection-status-before.json"
 
+      - name: Discover allowed Hatena blogs
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.discover_blogs }}
+        run: npm run discover:build-blogs
+
       - name: Collect allowed public build articles
         env:
           BUILD_ARTICLE_BACKFILL: ${{ github.event_name == 'workflow_dispatch' && inputs.backfill && 'true' || 'false' }}
+          BUILD_ARTICLE_REEVALUATE: ${{ github.event_name == 'workflow_dispatch' && inputs.reevaluate_articles && 'true' || 'false' }}
         run: |
-          if [[ "$BUILD_ARTICLE_BACKFILL" == "true" ]]; then
-            npm run collect:builds -- --backfill
-          else
-            npm run collect:builds
+          if [[ "$BUILD_ARTICLE_REEVALUATE" == "true" ]]; then
+            if [[ "$BUILD_ARTICLE_BACKFILL" == "true" ]]; then
+              npm run collect:builds:reevaluate -- --backfill
+            else
+              npm run collect:builds:reevaluate
+            fi
           fi
+
+          collector_args=()
+          if [[ "$BUILD_ARTICLE_BACKFILL" == "true" ]]; then
+            collector_args+=(--backfill)
+          fi
+          npm run collect:builds -- "${collector_args[@]}"
 
       - name: Validate application
         run: npm run check

@@ -6,7 +6,23 @@ import type {
 
 type CursorCommitCandidate = Pick<
   CandidateCollectionState,
-  "url" | "sourceArticleId"
+  | "url"
+  | "source"
+  | "discoveredAt"
+  | "sourceArticleId"
+  | "publishedAt"
+  | "contentFingerprint"
+  | "targetGameResult"
+  | "formatResult"
+  | "seasonResult"
+  | "teamResult"
+  | "exclusionReason"
+  | "parserVersion"
+  | "previousParserVersion"
+  | "reevaluationMethod"
+  | "reevaluationStatus"
+  | "reevaluationOutcome"
+  | "reevaluationReason"
 > & {
   checked: boolean;
 };
@@ -32,6 +48,10 @@ type CursorCommitState = {
     automationAllowed: boolean;
     customDomain: boolean;
     platformVerified: boolean;
+    verificationMethod: string | null;
+    promotionReason: string | null;
+    candidateCount: number | null;
+    failureCount: number;
   }>;
 };
 
@@ -42,8 +62,23 @@ function normalizeCursor(
     candidates: (cursor?.candidates ?? [])
       .map((candidate) => ({
         url: candidate.url,
+        source: candidate.source,
+        discoveredAt: candidate.discoveredAt,
         sourceArticleId: candidate.sourceArticleId,
-        checked: candidate.lastCheckedAt !== null
+        publishedAt: candidate.publishedAt,
+        checked: candidate.lastCheckedAt !== null,
+        contentFingerprint: candidate.contentFingerprint,
+        targetGameResult: candidate.targetGameResult,
+        formatResult: candidate.formatResult,
+        seasonResult: candidate.seasonResult,
+        teamResult: candidate.teamResult,
+        exclusionReason: candidate.exclusionReason,
+        parserVersion: candidate.parserVersion,
+        previousParserVersion: candidate.previousParserVersion,
+        reevaluationMethod: candidate.reevaluationMethod,
+        reevaluationStatus: candidate.reevaluationStatus,
+        reevaluationOutcome: candidate.reevaluationOutcome,
+        reevaluationReason: candidate.reevaluationReason
       }))
       .sort((a, b) => a.url.localeCompare(b.url))
   };
@@ -96,7 +131,11 @@ export function createMeaningfulCursorCommitState(
         feedUrl: blog.feedUrl,
         automationAllowed: blog.automationAllowed,
         customDomain: blog.customDomain,
-        platformVerified: blog.platformVerified
+        platformVerified: blog.platformVerified,
+        verificationMethod: blog.verificationMethod ?? null,
+        promotionReason: blog.promotionReason ?? null,
+        candidateCount: blog.candidateCount ?? null,
+        failureCount: blog.failureCount ?? 0
       }))
   };
 }

@@ -27,6 +27,26 @@ export type GeneratedArticleStatus =
   | "active"
   | "temporarily-unavailable"
   | "removed";
+export type ArticleQualityScore = {
+  targetGameConfidence: number;
+  formatConfidence: number;
+  seasonConfidence: number;
+  teamConfidence: number;
+  overallConfidence: number;
+};
+export type TeamExtractionEvidence = {
+  extractionMethod: TeamExtractionMethod;
+  sourceHeading: string;
+  resolvedCount: 6;
+  confidence: "high";
+};
+export type PokemonNameResolutionStats = {
+  exact: number;
+  alias: number;
+  decorated: number;
+  ambiguous: number;
+  unresolved: number;
+};
 
 export type BuildArticle = {
   id: string;
@@ -74,6 +94,9 @@ export type GeneratedBuildArticle = {
   missingFields: string[];
   teamExtractionMethod: TeamExtractionMethod | null;
   teamExtractionIssue: string | null;
+  extractionEvidence: TeamExtractionEvidence | null;
+  qualityScore: ArticleQualityScore;
+  pokemonNameResolutionStats: PokemonNameResolutionStats;
   firstCollectedAt: string;
   lastCollectedAt: string;
   contentFingerprint: string;

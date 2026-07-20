@@ -511,11 +511,15 @@ async function main(): Promise<void> {
   for (const [label, reason] of [
     ["ポケモンGO 構築", "pokemon-go"],
     ["ポケモンカード デッキレシピ", "pokemon-card"],
-    ["ポケモンSV 構築", "other-game-sv"]
+    ["ポケモンSV 構築", "other-game-sv"],
+    ["海外大会のメタ分析", "not-concrete-build-article"]
   ] as const) {
     const classification = classifyBuildArticle({
       title: label,
-      text: label,
+      text:
+        reason === "not-concrete-build-article"
+          ? "ポケモンチャンピオンズ M-4 シングル 構築使用率の分析"
+          : label,
       tags: [],
       battleFormat: "single",
       builderSeasonId: "season-m4",

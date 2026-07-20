@@ -1,9 +1,16 @@
 import type {
   BattleFormat,
   BuildArticleSource,
+  PokemonNameResolutionStats,
+  TeamExtractionEvidence,
   TeamExtractionMethod
 } from "../../types/buildArticle";
 import type { AppMeta, PokemonEntry } from "../../types/pokemon";
+import {
+  inferBattleFormat,
+  inferSeason,
+  inferTargetGame
+} from "./articleInference";
 import { classifyBuildArticle } from "./classify";
 import {
   decodeHtml,
@@ -12,7 +19,10 @@ import {
   sourceArticleIdFromUrl,
   stripHtml
 } from "./normalize";
-import { createPokemonAliasMap } from "./pokemonAliases";
+import {
+  createPokemonNameNormalizer,
+  type PokemonNameResolution
+} from "./pokemonNameNormalizer";
 import { extractBuildArticleThumbnail } from "./thumbnail";
 import type { ExtractionOutcome } from "./types";
 
@@ -33,6 +43,7 @@ type TeamCandidate = {
   pokemonSlugs: string[] | null;
   rawCount: number;
   issue: string | null;
+  nameResolutionStats: PokemonNameResolutionStats;
 };
 
 export type TeamExtractionResult =
@@ -40,19 +51,45 @@ export type TeamExtractionResult =
       status: "complete";
       pokemonSlugs: string[];
       method: TeamExtractionMethod;
+      evidence: TeamExtractionEvidence;
+      nameResolutionStats: PokemonNameResolutionStats;
     }
   | {
       status: "metadata-only";
       pokemonSlugs: [];
       method: null;
       reason: string;
+      evidence: null;
+      nameResolutionStats: PokemonNameResolutionStats;
     };
 
 const TEAM_SECTION_PATTERN =
-  /(?:最終日?構築|大会使用構築|序盤構築|中盤構築|個体紹介|個体詳細|ポケモン紹介|採用個体|採用ポケモン|構築メンバー|パーティメンバー|パーティ紹介|構築紹介|メンバー紹介|使用ポケモン|個別解説|調整・役割|調整と役割|使用構築|構築と配分)/i;
+  /(?:最終日?構築|大会使用構築|序盤構築|中盤構築|構築一覧|構築経緯の最終形|個体紹介|個体解説|個体詳細|ポケモン紹介|採用個体|採用ポケモン|構築メンバー|パーティメンバー|パーティ紹介|パーティ構成|レンタルパーティ|メンバー紹介|使用ポケモン|使用個体|個別解説|調整・役割|調整と役割|使用構築|構築と配分)/i;
+const EXCLUDED_TEAM_SECTION_PATTERN =
+  /(?:重いポケモン|苦手なポケモン|対策ポケモン|選出例|基本選出|選出パターン|不採用|候補|検討枠|入れ替え候補|使用率|環境考察|相手の構築|被選出|対戦ログ|結果|反省|余談|過去構築|旧構築)/i;
+
+function emptyNameResolutionStats(): PokemonNameResolutionStats {
+  return {
+    exact: 0,
+    alias: 0,
+    decorated: 0,
+    ambiguous: 0,
+    unresolved: 0
+  };
+}
+
+function summarizeNameResolutions(
+  resolutions: PokemonNameResolution[]
+): PokemonNameResolutionStats {
+  const stats = emptyNameResolutionStats();
+  for (const resolution of resolutions) {
+    stats[resolution.confidence] += 1;
+  }
+  return stats;
+}
 
 function sectionPriority(label: string): number {
-  if (/相手|対戦相手|選出候補|候補|没案|過去|旧構築/i.test(label)) return 20;
+  if (EXCLUDED_TEAM_SECTION_PATTERN.test(label)) return 0;
   if (/最終構築/i.test(label)) return 500;
   if (/最終日構築/i.test(label)) return 480;
   if (/大会使用構築/i.test(label)) return 450;
@@ -200,50 +237,8 @@ function cleanPokemonLabel(value: string): string {
 }
 
 export function createPokemonResolver(pokemon: PokemonEntry[]) {
-  const aliases = new Map<string, Set<string>>();
-  const explicitAliases = createPokemonAliasMap();
-  const knownSlugs = new Set(pokemon.map((entry) => entry.slug));
-
-  function register(alias: string, slug: string) {
-    const key = normalizeComparableText(cleanPokemonLabel(alias));
-    if (!key) return;
-    const values = aliases.get(key) ?? new Set<string>();
-    values.add(slug);
-    aliases.set(key, values);
-  }
-
-  for (const entry of pokemon) {
-    register(entry.nameJa, entry.slug);
-    register(entry.nameEn, entry.slug);
-    register(entry.slug, entry.slug);
-
-    const mega = entry.nameJa.match(/^(.+)\(メガ\)$/i);
-    if (mega) register(`メガ${mega[1]}`, entry.slug);
-    const megaForm = entry.nameJa.match(/^(.+)\(メガ・([xy])\)$/i);
-    if (megaForm) register(`メガ${megaForm[1]}${megaForm[2]}`, entry.slug);
-    const regionalForm = entry.nameJa.match(
-      /^(.+)\((アローラ|ガラル|ヒスイ|パルデア)\)$/i
-    );
-    if (regionalForm) {
-      register(`${regionalForm[2]}${regionalForm[1]}`, entry.slug);
-      register(`${regionalForm[1]}${regionalForm[2]}`, entry.slug);
-    }
-  }
-
-  for (const [alias, slug] of explicitAliases) {
-    if (knownSlugs.has(slug)) {
-      const values = aliases.get(alias) ?? new Set<string>();
-      values.add(slug);
-      aliases.set(alias, values);
-    }
-  }
-
-  return (value: string): string | null => {
-    const matches = aliases.get(
-      normalizeComparableText(cleanPokemonLabel(value))
-    );
-    return matches?.size === 1 ? [...matches][0] : null;
-  };
+  const resolve = createPokemonNameNormalizer(pokemon);
+  return (value: string): string | null => resolve(value).resolvedSlug;
 }
 
 function resolveTeamCandidate(input: {
@@ -251,9 +246,10 @@ function resolveTeamCandidate(input: {
   method: TeamExtractionMethod;
   priority: number;
   sectionLabel: string;
-  resolvePokemon: (value: string) => string | null;
+  resolvePokemon: (value: string) => PokemonNameResolution;
 }): TeamCandidate {
-  const resolved = input.names.map(input.resolvePokemon);
+  const resolutions = input.names.map(input.resolvePokemon);
+  const resolved = resolutions.map((resolution) => resolution.resolvedSlug);
   let issue: string | null = null;
   if (input.names.length < 6) issue = `team-too-few-${input.names.length}`;
   if (input.names.length > 6) issue = `team-too-many-${input.names.length}`;
@@ -277,7 +273,8 @@ function resolveTeamCandidate(input: {
         ? slugs
         : null,
     rawCount: input.names.length,
-    issue
+    issue,
+    nameResolutionStats: summarizeNameResolutions(resolutions)
   };
 }
 
@@ -294,7 +291,7 @@ function extractEmbeddedImageNames(section: string): string[] {
 
 function extractStructuredTeamCandidates(
   html: string,
-  resolvePokemon: (value: string) => string | null
+  resolvePokemon: (value: string) => PokemonNameResolution
 ): TeamCandidate[] {
   const candidates: TeamCandidate[] = [];
   for (const root of findJsonLdObjects(html)) {
@@ -373,6 +370,15 @@ function extractTableNames(section: string): string[][] {
 }
 
 function extractImageNames(section: string): string[] {
+  function splitImageLabel(value: string): string[] {
+    const cleaned = cleanPokemonLabel(value);
+    const parts = cleaned
+      .split(/\s*(?:,|、|\/|／|\||\+|・|\n)\s*/u)
+      .map((part) => part.trim())
+      .filter(Boolean);
+    return parts.length >= 6 && parts.length <= 8 ? parts : [cleaned];
+  }
+
   const figureNames: string[] = [];
   for (const figure of section.matchAll(
     /<figure\b[^>]*>([\s\S]*?)<\/figure>/gi
@@ -383,21 +389,21 @@ function extractImageNames(section: string): string[] {
       figure[1].match(
         /<figcaption\b[^>]*>([\s\S]*?)<\/figcaption>/i
       )?.[1] ?? "";
-    const candidate = cleanPokemonLabel(caption || decodeHtml(alt));
-    if (candidate) figureNames.push(candidate);
+    const candidates = splitImageLabel(caption || decodeHtml(alt));
+    figureNames.push(...candidates.filter(Boolean));
   }
   if (figureNames.length > 0) return figureNames;
 
   return [
     ...section.matchAll(/<img\b[^>]*alt=["']([^"']+)["'][^>]*>/gi)
   ]
-    .map((match) => cleanPokemonLabel(decodeHtml(match[1])))
+    .flatMap((match) => splitImageLabel(decodeHtml(match[1])))
     .filter(Boolean);
 }
 
 function extractSectionTeamCandidates(
   html: string,
-  resolvePokemon: (value: string) => string | null
+  resolvePokemon: (value: string) => PokemonNameResolution
 ): {
   candidates: TeamCandidate[];
   sections: Array<{ label: string; priority: number; html: string }>;
@@ -417,7 +423,7 @@ function extractSectionTeamCandidates(
     let run: string[] = [];
     const runs: string[][] = [];
     for (const label of labels) {
-      if (resolvePokemon(label)) {
+      if (resolvePokemon(label).resolvedSlug) {
         run.push(label);
       } else if (run.length > 0) {
         runs.push(run);
@@ -441,6 +447,7 @@ function extractSectionTeamCandidates(
   for (let index = 0; index < headings.length; index += 1) {
     const heading = headings[index];
     if (!TEAM_SECTION_PATTERN.test(heading.label)) continue;
+    if (EXCLUDED_TEAM_SECTION_PATTERN.test(heading.label)) continue;
     const boundary =
       headings
         .slice(index + 1)
@@ -456,9 +463,18 @@ function extractSectionTeamCandidates(
         .map((child) => child.level)
         .filter((level) => level > heading.level)
     );
+    const sameLevelChildren = Number.isFinite(childLevel)
+      ? childHeadings.filter((child) => child.level === childLevel)
+      : [];
+    const excludedChildIndex = sameLevelChildren.findIndex((child) =>
+      EXCLUDED_TEAM_SECTION_PATTERN.test(child.label)
+    );
     const headingNames = Number.isFinite(childLevel)
-      ? childHeadings
-          .filter((child) => child.level === childLevel)
+      ? sameLevelChildren
+          .slice(
+            0,
+            excludedChildIndex >= 0 ? excludedChildIndex : undefined
+          )
           .map((child) => child.label)
       : [];
     if (headingNames.length > 0) {
@@ -466,10 +482,23 @@ function extractSectionTeamCandidates(
       const sequential = numbers.every(
         (value, childIndex) => value === childIndex + 1
       );
+      const explicitNumberedSix =
+        headingNames.length > 6 &&
+        headingNames
+          .slice(0, 6)
+          .every(
+            (value, childIndex) =>
+              numberedValue(value) === childIndex + 1
+          );
       candidates.push(
         resolveTeamCandidate({
-          names: headingNames,
-          method: sequential ? "numbered-items" : "section-headings",
+          names: explicitNumberedSix
+            ? headingNames.slice(0, 6)
+            : headingNames,
+          method:
+            sequential || explicitNumberedSix
+              ? "numbered-items"
+              : "section-headings",
           priority,
           sectionLabel: heading.label,
           resolvePokemon
@@ -485,7 +514,7 @@ function extractSectionTeamCandidates(
     let paragraphRun: string[] = [];
     const paragraphRuns: string[][] = [];
     for (const block of blocks) {
-      if (resolvePokemon(block)) {
+      if (resolvePokemon(block).resolvedSlug) {
         paragraphRun.push(block);
       } else if (paragraphRun.length > 0) {
         paragraphRuns.push(paragraphRun);
@@ -594,7 +623,9 @@ function chooseTeamCandidate(candidates: TeamCandidate[]): TeamExtractionResult 
       status: "metadata-only",
       pokemonSlugs: [],
       method: null,
-      reason: "team-section-not-found"
+      reason: "team-section-not-found",
+      evidence: null,
+      nameResolutionStats: emptyNameResolutionStats()
     };
   }
 
@@ -627,7 +658,14 @@ function chooseTeamCandidate(candidates: TeamCandidate[]): TeamExtractionResult 
     return {
       status: "complete",
       pokemonSlugs: selected.pokemonSlugs!,
-      method: selected.method
+      method: selected.method,
+      evidence: {
+        extractionMethod: selected.method,
+        sourceHeading: selected.sectionLabel,
+        resolvedCount: 6,
+        confidence: "high"
+      },
+      nameResolutionStats: selected.nameResolutionStats
     };
   }
   if (validByTeam.size > 1) {
@@ -635,7 +673,10 @@ function chooseTeamCandidate(candidates: TeamCandidate[]): TeamExtractionResult 
       status: "metadata-only",
       pokemonSlugs: [],
       method: null,
-      reason: "multiple-equally-ranked-teams"
+      reason: "multiple-equally-ranked-teams",
+      evidence: null,
+      nameResolutionStats:
+        highest[0]?.nameResolutionStats ?? emptyNameResolutionStats()
     };
   }
 
@@ -643,13 +684,16 @@ function chooseTeamCandidate(candidates: TeamCandidate[]): TeamExtractionResult 
   return {
     status: "metadata-only",
     pokemonSlugs: [],
-    method: null,
-    reason:
+      method: null,
+      reason:
       issues.includes("team-unresolved-pokemon")
         ? "team-unresolved-pokemon"
         : issues.includes("team-duplicate-pokemon")
           ? "team-duplicate-pokemon"
-          : (issues[0] ?? "team-not-exactly-six")
+          : (issues[0] ?? "team-not-exactly-six"),
+      evidence: null,
+      nameResolutionStats:
+        highest[0]?.nameResolutionStats ?? emptyNameResolutionStats()
   };
 }
 
@@ -657,7 +701,7 @@ export function extractPokemonTeamDetailed(
   html: string,
   pokemon: PokemonEntry[]
 ): TeamExtractionResult {
-  const resolver = createPokemonResolver(pokemon);
+  const resolver = createPokemonNameNormalizer(pokemon);
   const structured = extractStructuredTeamCandidates(html, resolver);
   const sectionResult = extractSectionTeamCandidates(
     getArticleBodyHtml(html),
@@ -885,7 +929,7 @@ export function extractArticleFromHtml(input: {
   const introduction = text.slice(0, 1800);
   const sections = extractSectionTeamCandidates(
     bodyHtml,
-    createPokemonResolver(input.pokemon)
+    createPokemonNameNormalizer(input.pokemon)
   ).sections.sort((a, b) => b.priority - a.priority);
   const teamContext = stripHtml(sections[0]?.html ?? "").slice(0, 2500);
   const extractedTitle = extractTitle(input.html, posting);
@@ -928,19 +972,24 @@ export function extractArticleFromHtml(input: {
   }
 
   const team = extractPokemonTeamDetailed(bodyHtml, input.pokemon);
-  const battleFormat = extractBattleFormat(
+  const inferenceInput = {
     title,
     tags,
     introduction,
     teamContext,
     text
-  );
-  const builderSeasonId = extractSeason(
+  };
+  const targetGameInference = inferTargetGame(inferenceInput);
+  const formatInference = inferBattleFormat(inferenceInput);
+  const seasonInference = inferSeason({
     title,
+    tags,
     introduction,
     teamContext,
-    input.appMeta
-  );
+    appMeta: input.appMeta
+  });
+  const battleFormat = formatInference.value;
+  const builderSeasonId = seasonInference.value;
   const explicitRegulation = extractRegulation(
     title,
     tags,
@@ -967,7 +1016,8 @@ export function extractArticleFromHtml(input: {
     builderSeasonId,
     regulationId,
     hasExplicitTeamSection: sections.length > 0,
-    hasExactTeam: team.status === "complete"
+    hasExactTeam: team.status === "complete",
+    targetGame: targetGameInference.value ?? "unknown"
   });
   if (!classification.accepted) {
     return { status: "excluded", reason: classification.reason };
@@ -980,6 +1030,23 @@ export function extractArticleFromHtml(input: {
   const result = extractResult(title, text);
   const complete = team.status === "complete";
   const pokemonSlugs = complete ? team.pokemonSlugs : [];
+  const teamConfidence = complete
+    ? 1
+    : Math.min(
+        0.79,
+        (team.nameResolutionStats.exact +
+          team.nameResolutionStats.alias +
+          team.nameResolutionStats.decorated) /
+          6
+      );
+  const overallConfidence = Number(
+    (
+      targetGameInference.confidence * 0.3 +
+      formatInference.confidence * 0.2 +
+      seasonInference.confidence * 0.2 +
+      teamConfidence * 0.3
+    ).toFixed(3)
+  );
   const thumbnailExtraction = extractBuildArticleThumbnail({
     html: input.html,
     origin: input.source,
@@ -1018,6 +1085,15 @@ export function extractArticleFromHtml(input: {
       missingFields: complete ? [] : ["pokemonSlugs"],
       teamExtractionMethod: complete ? team.method : null,
       teamExtractionIssue: complete ? null : team.reason,
+      extractionEvidence: complete ? team.evidence : null,
+      qualityScore: {
+        targetGameConfidence: targetGameInference.confidence,
+        formatConfidence: formatInference.confidence,
+        seasonConfidence: seasonInference.confidence,
+        teamConfidence,
+        overallConfidence
+      },
+      pokemonNameResolutionStats: team.nameResolutionStats,
       thumbnailExtraction: {
         rejectedCount: thumbnailExtraction.rejectedCount,
         rejectionReasons: thumbnailExtraction.rejectionReasons

@@ -42,13 +42,33 @@
     "missingFields": [],
     "teamExtractionMethod": "numbered-items",
     "teamExtractionIssue": null,
+    "extractionEvidence": {
+      "extractionMethod": "numbered-items",
+      "sourceHeading": "パーティ紹介",
+      "resolvedCount": 6,
+      "confidence": "high"
+    },
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 1,
+      "teamConfidence": 1,
+      "overallConfidence": 0.9
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 6,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
     "firstCollectedAt": "2026-07-18T11:48:22.779Z",
-    "lastCollectedAt": "2026-07-18T17:31:23.163Z",
-    "contentFingerprint": "0fb78debf7ff03ce9b7274bf8e76405e34f9c12e1010d0f43fc2b0e605efbc26",
-    "extractorVersion": "1.2.0",
+    "lastCollectedAt": "2026-07-19T16:43:07.527Z",
+    "contentFingerprint": "d8a595570452d21397cd2901d3d436f1aadf58b81ca0d300b4ac60d958ae1466",
+    "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-18T17:31:23.163Z"
+    "lastSuccessfulFetchAt": "2026-07-19T16:43:07.527Z"
   },
   {
     "id": "note-n4896a399e5b8",
@@ -89,13 +109,28 @@
     ],
     "teamExtractionMethod": null,
     "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0.79,
+      "overallConfidence": 0.887
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 5,
+      "ambiguous": 1,
+      "unresolved": 0
+    },
     "firstCollectedAt": "2026-07-18T12:41:09.636Z",
-    "lastCollectedAt": "2026-07-18T17:31:23.163Z",
-    "contentFingerprint": "fa4f23a6ddb2e028ff812b59d5067a1cb202537fcc6ba2aecb92c6a7a75c78a9",
-    "extractorVersion": "1.2.0",
+    "lastCollectedAt": "2026-07-19T16:37:38.653Z",
+    "contentFingerprint": "f9595467e956287c7d6a3833d3f41950305369d62ff3ccbe1164bb33f1efc942",
+    "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-18T17:31:23.163Z"
+    "lastSuccessfulFetchAt": "2026-07-19T16:37:38.653Z"
   },
   {
     "id": "note-n5f7f21454fa6",
@@ -133,148 +168,28 @@
     ],
     "teamExtractionMethod": null,
     "teamExtractionIssue": "team-section-not-found",
-    "firstCollectedAt": "2026-07-18T12:41:09.636Z",
-    "lastCollectedAt": "2026-07-18T17:31:23.163Z",
-    "contentFingerprint": "7949a29ba8cf1a216d96c82d33460ccf9928ace97f4f9878a6cb6bd96d2780a6",
-    "extractorVersion": "1.2.0",
-    "status": "active",
-    "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-18T17:31:23.163Z"
-  },
-  {
-    "id": "note-n3ee2e3321d5e",
-    "source": "note",
-    "sourceArticleId": "n3ee2e3321d5e",
-    "sourceUrl": "https://note.com/r_saltpudding/n/n3ee2e3321d5e",
-    "canonicalUrl": "https://note.com/r_saltpudding/n/n3ee2e3321d5e",
-    "title": "【シーズンM-3】クチート博士獲得まで使ってみた【ポケモンチャンピオンズ】【レギュレーションM-B】",
-    "authorName": "るり",
-    "publishedAt": "2026-07-04T17:58:55.000Z",
-    "battleFormat": "double",
-    "regulationId": "M-B",
-    "builderSeasonId": "season-m3",
-    "result": "最高レート2071",
-    "pokemonSlugs": [],
-    "tags": [
-      "ポケモン",
-      "ランクマッチ",
-      "ダブルバトル",
-      "ランクマ",
-      "ポケモン対戦",
-      "クチート",
-      "2026年",
-      "ポケモン構築記事"
-    ],
-    "summary": "M-3のダブル構築記事です。最高レート2071。採用ポケモンと構築の詳細は元記事で確認できます。",
-    "thumbnail": {
-      "url": "https://assets.st-note.com/production/uploads/images/291504199/rectangle_large_type_2_e2a7cbf335d54569a38b9319385c2f13.png",
-      "source": "structured-data",
-      "alt": "【シーズンM-3】クチート博士獲得まで使ってみた【ポケモンチャンピオンズ】【レギュレーションM-B】のサムネイル",
-      "width": 710,
-      "height": 372
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.55
     },
-    "collectionCompleteness": "metadata-only",
-    "extractionConfidence": 0.9,
-    "missingFields": [
-      "pokemonSlugs"
-    ],
-    "teamExtractionMethod": null,
-    "teamExtractionIssue": "team-section-not-found",
-    "firstCollectedAt": "2026-07-18T12:41:09.636Z",
-    "lastCollectedAt": "2026-07-18T17:31:23.163Z",
-    "contentFingerprint": "84fda05d30e1e34ca62cb6afdaa1f3c2cd1d8a809a531e77395a08f6cb81ec17",
-    "extractorVersion": "1.2.0",
-    "status": "active",
-    "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-18T17:31:23.163Z"
-  },
-  {
-    "id": "note-n944523fd7bc4",
-    "source": "note",
-    "sourceArticleId": "n944523fd7bc4",
-    "sourceUrl": "https://note.com/tama_unite0825/n/n944523fd7bc4",
-    "canonicalUrl": "https://note.com/tama_unite0825/n/n944523fd7bc4",
-    "title": "【M-3ダブル瞬間1位】さしす様のカメマフォ構築を考察してみた",
-    "authorName": "たまゆな",
-    "publishedAt": "2026-07-12T11:03:41.000Z",
-    "battleFormat": "double",
-    "regulationId": "M-B",
-    "builderSeasonId": "season-m3",
-    "result": "瞬間1位",
-    "pokemonSlugs": [],
-    "tags": [
-      "ポケモン",
-      "構築",
-      "構築記事",
-      "ダブルバトル",
-      "ポケモン対戦",
-      "ポケチャン",
-      "ポケモンチャンピオンズ",
-      "M-3"
-    ],
-    "summary": "M-3のダブル構築記事です。瞬間1位。採用ポケモンと構築の詳細は元記事で確認できます。",
-    "thumbnail": {
-      "url": "https://assets.st-note.com/production/uploads/images/293772998/rectangle_large_type_2_b7870cb39d5a5655076350282214afee.png",
-      "source": "structured-data",
-      "alt": "【M-3ダブル瞬間1位】さしす様のカメマフォ構築を考察してみたのサムネイル",
-      "width": 1000,
-      "height": 523
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
     },
-    "collectionCompleteness": "metadata-only",
-    "extractionConfidence": 0.9,
-    "missingFields": [
-      "pokemonSlugs"
-    ],
-    "teamExtractionMethod": null,
-    "teamExtractionIssue": "team-unresolved-pokemon",
-    "firstCollectedAt": "2026-07-18T12:42:21.273Z",
-    "lastCollectedAt": "2026-07-18T17:31:23.163Z",
-    "contentFingerprint": "05fb144a174122bdd377022a0fb6ebd9a7379e00f59efa32ab5a3630808cbd23",
-    "extractorVersion": "1.2.0",
+    "firstCollectedAt": "2026-07-18T12:41:09.636Z",
+    "lastCollectedAt": "2026-07-19T16:37:38.653Z",
+    "contentFingerprint": "ab70910da270e572de5d3942cbe9a9fe9a0336f91ccf7e6d9b86fa7270bbe014",
+    "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-18T17:31:23.163Z"
-  },
-  {
-    "id": "note-n148b96f7ec99",
-    "source": "note",
-    "sourceArticleId": "n148b96f7ec99",
-    "sourceUrl": "https://note.com/ashiki_games/n/n148b96f7ec99",
-    "canonicalUrl": "https://note.com/ashiki_games/n/n148b96f7ec99",
-    "title": "Sandstorm Village【チャンピオンズM-3 最終470位】",
-    "authorName": "アシキ",
-    "publishedAt": "2026-07-11T08:06:27.000Z",
-    "battleFormat": "single",
-    "regulationId": "M-B",
-    "builderSeasonId": "season-m3",
-    "result": "最終470位",
-    "pokemonSlugs": [],
-    "tags": [
-      "ポケモン",
-      "構築記事",
-      "砂パ",
-      "シングルバトル",
-      "ポケモンチャンピオンズ",
-      "シーズンM3",
-      "M-3",
-      "single"
-    ],
-    "summary": "M-3のシングル構築記事です。最終470位。採用ポケモンと構築の詳細は元記事で確認できます。",
-    "thumbnail": null,
-    "collectionCompleteness": "metadata-only",
-    "extractionConfidence": 0.9,
-    "missingFields": [
-      "pokemonSlugs"
-    ],
-    "teamExtractionMethod": null,
-    "teamExtractionIssue": "team-section-not-found",
-    "firstCollectedAt": "2026-07-18T12:42:21.273Z",
-    "lastCollectedAt": "2026-07-18T12:42:21.273Z",
-    "contentFingerprint": "a6fe041a3c856987d0b7a6e61446ebc064b8996e6b2ffaf367b734bfcfeb1027",
-    "extractorVersion": "1.2.0",
-    "status": "active",
-    "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-18T12:42:21.273Z"
+    "lastSuccessfulFetchAt": "2026-07-19T16:37:38.653Z"
   },
   {
     "id": "note-n909f682d32b8",
@@ -314,13 +229,28 @@
     ],
     "teamExtractionMethod": null,
     "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.625
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
     "firstCollectedAt": "2026-07-18T12:42:21.273Z",
-    "lastCollectedAt": "2026-07-18T17:31:23.163Z",
-    "contentFingerprint": "06b3d76b2304844e8491aed1daede51f64c560595322e2e89dd8681a7ff635be",
-    "extractorVersion": "1.2.0",
+    "lastCollectedAt": "2026-07-19T16:40:30.202Z",
+    "contentFingerprint": "903d22c7b37d7db10911c98f2e576122c53ef3e391294f33415783b3983067cf",
+    "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-18T17:31:23.163Z"
+    "lastSuccessfulFetchAt": "2026-07-19T16:40:30.202Z"
   },
   {
     "id": "note-n84b579def5ab",
@@ -361,57 +291,28 @@
     ],
     "teamExtractionMethod": null,
     "teamExtractionIssue": "team-section-not-found",
-    "firstCollectedAt": "2026-07-18T12:42:21.273Z",
-    "lastCollectedAt": "2026-07-18T17:31:23.163Z",
-    "contentFingerprint": "17c88f097a934c62691ae5bac92df1d11b922c7567a483baa09c7b919c1cb929",
-    "extractorVersion": "1.2.0",
-    "status": "active",
-    "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-18T17:31:23.163Z"
-  },
-  {
-    "id": "note-n11983cc70c25",
-    "source": "note",
-    "sourceArticleId": "n11983cc70c25",
-    "sourceUrl": "https://note.com/loyal_coyote714/n/n11983cc70c25",
-    "canonicalUrl": "https://note.com/loyal_coyote714/n/n11983cc70c25",
-    "title": "【ポケチャン　シーズンM-3 最終レート2216】　暑い夏には雪を降らせよう☃️",
-    "authorName": "さとる",
-    "publishedAt": "2026-07-07T13:20:31.000Z",
-    "battleFormat": "single",
-    "regulationId": "M-B",
-    "builderSeasonId": "season-m3",
-    "result": "最終レート2216",
-    "pokemonSlugs": [],
-    "tags": [
-      "シングルバトル",
-      "ポケモンチャンピオンズ",
-      "レギュレーションMB",
-      "M-3",
-      "single"
-    ],
-    "summary": "M-3のシングル構築記事です。最終レート2216。採用ポケモンと構築の詳細は元記事で確認できます。",
-    "thumbnail": {
-      "url": "https://assets.st-note.com/production/uploads/images/292364218/rectangle_large_type_2_dd376dae9bc525fa912636c47d462860.jpeg",
-      "source": "structured-data",
-      "alt": "【ポケチャン　シーズンM-3 最終レート2216】　暑い夏には雪を降らせよう☃️のサムネイル",
-      "width": 1845,
-      "height": 966
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.8,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.61
     },
-    "collectionCompleteness": "metadata-only",
-    "extractionConfidence": 0.9,
-    "missingFields": [
-      "pokemonSlugs"
-    ],
-    "teamExtractionMethod": null,
-    "teamExtractionIssue": "team-unresolved-pokemon",
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
     "firstCollectedAt": "2026-07-18T12:42:21.273Z",
-    "lastCollectedAt": "2026-07-18T17:31:23.163Z",
-    "contentFingerprint": "9ec3fc12de6c0eee7d70ac3810f5b6318ea37b57f3004063c15d04a0aa1f7626",
-    "extractorVersion": "1.2.0",
+    "lastCollectedAt": "2026-07-19T16:40:30.202Z",
+    "contentFingerprint": "a44d538327e6d82468498950a862225e5d3ed5cffe54bc691a6a03071951c10d",
+    "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-18T17:31:23.163Z"
+    "lastSuccessfulFetchAt": "2026-07-19T16:40:30.202Z"
   },
   {
     "id": "hatena-blog-4c5eb289ab882e25e041",
@@ -446,13 +347,28 @@
     ],
     "teamExtractionMethod": null,
     "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0.5,
+      "overallConfidence": 0.58
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 3,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 3,
+      "unresolved": 0
+    },
     "firstCollectedAt": "2026-07-18T19:47:03.489Z",
-    "lastCollectedAt": "2026-07-18T19:57:04.135Z",
-    "contentFingerprint": "b2811ed661296d667a0a9eb0f4de86c90ed2ba0318d0a22e83fc1959e6e09797",
-    "extractorVersion": "1.2.0",
+    "lastCollectedAt": "2026-07-19T16:12:48.200Z",
+    "contentFingerprint": "3a6c6c230e3ffba25bf82d298d7088e9c0f750eebc6715faf0d3622857ef0a9d",
+    "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-18T19:57:04.135Z"
+    "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
   },
   {
     "id": "hatena-blog-0e161f811bc0e6199d4d",
@@ -487,13 +403,28 @@
     ],
     "teamExtractionMethod": null,
     "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.55
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 2
+    },
     "firstCollectedAt": "2026-07-18T19:47:03.489Z",
-    "lastCollectedAt": "2026-07-18T19:57:04.135Z",
-    "contentFingerprint": "0943edeaec222a4ec700caa6c765a768edcd872c039f1d99b1649496524f1ebf",
-    "extractorVersion": "1.2.0",
+    "lastCollectedAt": "2026-07-19T16:12:48.200Z",
+    "contentFingerprint": "2cae9b75c4c5b3b3057a9f9244510ffc8001424bd4a6dc681d46ec791ae0de2c",
+    "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-18T19:57:04.135Z"
+    "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
   },
   {
     "id": "note-n182caf1b8a56",
@@ -531,13 +462,28 @@
     ],
     "teamExtractionMethod": null,
     "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.625
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
     "firstCollectedAt": "2026-07-19T15:12:27.051Z",
-    "lastCollectedAt": "2026-07-19T15:12:27.051Z",
-    "contentFingerprint": "c96adc5fe60d398010a7f0feedb6f7a23007bf142e33901a3106c4794e6a5abd",
-    "extractorVersion": "1.2.0",
+    "lastCollectedAt": "2026-07-19T16:37:38.653Z",
+    "contentFingerprint": "04432d2be8a745f98c6cbf8e69f6e561c503dec97d27a7ec37b4de1bd34ac017",
+    "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-19T15:12:27.051Z"
+    "lastSuccessfulFetchAt": "2026-07-19T16:37:38.653Z"
   },
   {
     "id": "note-n85dfae525727",
@@ -578,34 +524,48 @@
     ],
     "teamExtractionMethod": null,
     "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.6
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
     "firstCollectedAt": "2026-07-19T15:16:44.475Z",
-    "lastCollectedAt": "2026-07-19T15:16:44.475Z",
-    "contentFingerprint": "ad5e0f0ec110d9d4c0682ad0db08942e332e5e4a38cb4c933d1085cc3418d3d1",
-    "extractorVersion": "1.2.0",
+    "lastCollectedAt": "2026-07-19T16:37:38.653Z",
+    "contentFingerprint": "c38953cc505fd8f3d187731991f77f403f4edaead59233b63b05bc3ba35f6b0f",
+    "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-19T15:16:44.475Z"
+    "lastSuccessfulFetchAt": "2026-07-19T16:37:38.653Z"
   },
   {
-    "id": "note-nbd077fa5abd6",
-    "source": "note",
-    "sourceArticleId": "nbd077fa5abd6",
-    "sourceUrl": "https://note.com/enoch_dtk/n/nbd077fa5abd6",
-    "canonicalUrl": "https://note.com/enoch_dtk/n/nbd077fa5abd6",
-    "title": "【ポケモンチャンピオンズ】ゲコミミクチ＠スマホ【M-4シングル】",
-    "authorName": "えのき",
-    "publishedAt": "2026-07-20T02:46:47.000Z",
+    "id": "hatena-blog-30951ee92ac7712b4bb5",
+    "source": "hatena-blog",
+    "sourceArticleId": "30951ee92ac7712b4bb5",
+    "sourceUrl": "https://chikaramochida.hatenablog.com/entry/2026/07/10/064138",
+    "canonicalUrl": "https://chikaramochida.hatenablog.com/entry/2026/07/10/064138",
+    "title": "【ポケモンチャンピオンズ】シングルバトル　シーズンM-3　振り返り",
+    "authorName": "chikaramochida",
+    "publishedAt": "2026-07-09T21:41:38.000Z",
     "battleFormat": "single",
     "regulationId": "M-B",
-    "builderSeasonId": "season-m4",
-    "result": null,
+    "builderSeasonId": "season-m3",
+    "result": "マスターボール級",
     "pokemonSlugs": [],
     "tags": [
-      "ポケモンチャンピオンズ",
-      "M-4",
+      "M-3",
       "single"
     ],
-    "summary": "M-4のシングル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "summary": "M-3のシングル構築記事です。マスターボール級。採用ポケモンと構築の詳細は元記事で確認できます。",
     "thumbnail": null,
     "collectionCompleteness": "metadata-only",
     "extractionConfidence": 0.9,
@@ -614,12 +574,1481 @@
     ],
     "teamExtractionMethod": null,
     "teamExtractionIssue": "team-section-not-found",
-    "firstCollectedAt": "2026-07-20T04:09:26.558Z",
-    "lastCollectedAt": "2026-07-20T04:09:26.558Z",
-    "contentFingerprint": "76bbc11576531d028fa4d0a79ba21a9bdaff2b6894afc0df4d3abb08b6339c91",
-    "extractorVersion": "1.2.0",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.6
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:05:45.614Z",
+    "lastCollectedAt": "2026-07-19T16:37:38.653Z",
+    "contentFingerprint": "5d9ae1038ea0c067197a3f7ae55b5cf83e911d9e9b585df5f0736dabe81a0753",
+    "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-20T04:09:26.558Z"
+    "lastSuccessfulFetchAt": "2026-07-19T16:37:38.653Z"
+  },
+  {
+    "id": "hatena-blog-6f4f9c9a054230b425c6",
+    "source": "hatena-blog",
+    "sourceArticleId": "6f4f9c9a054230b425c6",
+    "sourceUrl": "https://chikaramochida.hatenablog.com/entry/2026/06/20/064448",
+    "canonicalUrl": "https://chikaramochida.hatenablog.com/entry/2026/06/20/064448",
+    "title": "【ポケモンチャンピオンズ】シングルバトル　シーズンM-2　振り返り",
+    "authorName": "chikaramochida",
+    "publishedAt": "2026-06-19T21:56:45.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m2",
+    "result": "マスターボール級",
+    "pokemonSlugs": [],
+    "tags": [
+      "M-2",
+      "single"
+    ],
+    "summary": "M-2のシングル構築記事です。マスターボール級。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": null,
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.6
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:05:45.614Z",
+    "lastCollectedAt": "2026-07-19T16:37:38.653Z",
+    "contentFingerprint": "bfb4191c20fa5bfa02b2c8857a12e856eb24cc53cf4c44cb2ec847ae83f9f0b6",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:37:38.653Z"
+  },
+  {
+    "id": "hatena-blog-365d938a2c290c450947",
+    "source": "hatena-blog",
+    "sourceArticleId": "365d938a2c290c450947",
+    "sourceUrl": "https://chikaramochida.hatenablog.com/entry/2026/05/18/000000",
+    "canonicalUrl": "https://chikaramochida.hatenablog.com/entry/2026/05/18/000000",
+    "title": "【ポケモンチャンピオンズ】シングルバトル　シーズンM‐1　振り返り",
+    "authorName": "chikaramochida",
+    "publishedAt": "2026-05-17T15:00:04.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m1",
+    "result": "マスターボール級",
+    "pokemonSlugs": [],
+    "tags": [
+      "M-1",
+      "single"
+    ],
+    "summary": "M-1のシングル構築記事です。マスターボール級。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": null,
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.7
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:05:45.614Z",
+    "lastCollectedAt": "2026-07-19T16:37:38.653Z",
+    "contentFingerprint": "f7ca002d7885bdc35daebad4f7e7847d10e391f29c7491beba55b6f6e48d7859",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:37:38.653Z"
+  },
+  {
+    "id": "hatena-blog-a4308ddeb85d5bfc2ca7",
+    "source": "hatena-blog",
+    "sourceArticleId": "a4308ddeb85d5bfc2ca7",
+    "sourceUrl": "https://kocho3.hatenablog.com/entry/2026/07/10/205853",
+    "canonicalUrl": "https://kocho3.hatenablog.com/entry/2026/07/10/205853",
+    "title": "【ポケモンチャンピオンズシングルシーズンM-3】ブラッキークチート【最終レート2064】",
+    "authorName": "kocho3",
+    "publishedAt": "2026-07-10T15:04:57.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": "最終8787位",
+    "pokemonSlugs": [],
+    "tags": [
+      "M-3",
+      "single"
+    ],
+    "summary": "M-3のシングル構築記事です。最終8787位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/k/kocho3/20260708/20260708221731.png",
+      "source": "structured-data",
+      "alt": "【ポケモンチャンピオンズシングルシーズンM-3】ブラッキークチート【最終レート2064】のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.43
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:08:45.702Z",
+    "lastCollectedAt": "2026-07-19T16:08:45.702Z",
+    "contentFingerprint": "6066bac7d63f230fd20ade4cc6ab789d26cf0f9689851aad1ce701751a211d09",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:08:45.702Z"
+  },
+  {
+    "id": "hatena-blog-3d9a6cb97bcb5d409f7b",
+    "source": "hatena-blog",
+    "sourceArticleId": "3d9a6cb97bcb5d409f7b",
+    "sourceUrl": "https://kocho3.hatenablog.com/entry/2026/05/15/203059",
+    "canonicalUrl": "https://kocho3.hatenablog.com/entry/2026/05/15/203059",
+    "title": "【ポケモンチャンピオンズシングルシーズンM-1】ブラッキーフシギバナ【最終レート2204】",
+    "authorName": "kocho3",
+    "publishedAt": "2026-05-16T05:34:58.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m1",
+    "result": "最終5678位",
+    "pokemonSlugs": [],
+    "tags": [
+      "M-1",
+      "single"
+    ],
+    "summary": "M-1のシングル構築記事です。最終5678位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/k/kocho3/20260505/20260505204718.png",
+      "source": "structured-data",
+      "alt": "【ポケモンチャンピオンズシングルシーズンM-1】ブラッキーフシギバナ【最終レート2204】のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.43
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:08:45.702Z",
+    "lastCollectedAt": "2026-07-19T16:08:45.702Z",
+    "contentFingerprint": "8b7477af182cbf5eb18dc386710397b33b4daf5f7b2c9458ae779d28d69b9ce8",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:08:45.702Z"
+  },
+  {
+    "id": "hatena-blog-97d89d7bab8465d6e451",
+    "source": "hatena-blog",
+    "sourceArticleId": "97d89d7bab8465d6e451",
+    "sourceUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/19/073349",
+    "canonicalUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/19/073349",
+    "title": "【ポケチャンダブルM4】メガペンドラーは\"かそく\"を見せてからメガ進化！？中速スタンダード構築",
+    "authorName": "murasaki3sun",
+    "publishedAt": "2026-07-18T22:33:49.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/m/murasaki3sun/20260717/20260717170505.jpg",
+      "source": "structured-data",
+      "alt": "【ポケチャンダブルM4】メガペンドラーは\"かそく\"を見せてからメガ進化！？中速スタンダード構築のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.43
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:08:45.702Z",
+    "lastCollectedAt": "2026-07-19T16:08:45.702Z",
+    "contentFingerprint": "98792ad64303c8d13935445b01cd7ee895caf78ea9a9e1dfbe7515a8d41cc264",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:08:45.702Z"
+  },
+  {
+    "id": "hatena-blog-118adbbd5a8e5e647ac6",
+    "source": "hatena-blog",
+    "sourceArticleId": "118adbbd5a8e5e647ac6",
+    "sourceUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/18/060800",
+    "canonicalUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/18/060800",
+    "title": "【ポケチャンダブルM4】積みに依存しないメガガメノデス構築",
+    "authorName": "murasaki3sun",
+    "publishedAt": "2026-07-17T21:08:00.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/m/murasaki3sun/20260714/20260714220829.jpg",
+      "source": "structured-data",
+      "alt": "【ポケチャンダブルM4】積みに依存しないメガガメノデス構築のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.43
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:08:45.702Z",
+    "lastCollectedAt": "2026-07-19T16:08:45.702Z",
+    "contentFingerprint": "0b58570f7401ec60e945ffdf96301f9c52997dedefabc689e053ea055e3340c2",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:08:45.702Z"
+  },
+  {
+    "id": "hatena-blog-eae928e0e662f9a385bc",
+    "source": "hatena-blog",
+    "sourceArticleId": "eae928e0e662f9a385bc",
+    "sourceUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/17/055506",
+    "canonicalUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/17/055506",
+    "title": "【ポケチャンダブルM4】メガランチャーで盤面を制圧！メガカメックス構築",
+    "authorName": "murasaki3sun",
+    "publishedAt": "2026-07-16T20:55:06.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/m/murasaki3sun/20260714/20260714195308.jpg",
+      "source": "structured-data",
+      "alt": "【ポケチャンダブルM4】メガランチャーで盤面を制圧！メガカメックス構築のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.53
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:08:45.702Z",
+    "lastCollectedAt": "2026-07-19T16:08:45.702Z",
+    "contentFingerprint": "7aa2724677f1ad529e435c3fe53eac7e2bb9bbcc6b81d997602bb2f444d57224",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:08:45.702Z"
+  },
+  {
+    "id": "hatena-blog-028133cc1fa84d016677",
+    "source": "hatena-blog",
+    "sourceArticleId": "028133cc1fa84d016677",
+    "sourceUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/16/052821",
+    "canonicalUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/16/052821",
+    "title": "【ポケチャンM4】壁＋威嚇で不沈化！半要塞メガフシギバナ構築",
+    "authorName": "murasaki3sun",
+    "publishedAt": "2026-07-15T20:28:21.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/m/murasaki3sun/20260712/20260712215537.jpg",
+      "source": "structured-data",
+      "alt": "【ポケチャンM4】壁＋威嚇で不沈化！半要塞メガフシギバナ構築のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.6,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.45
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:08:45.702Z",
+    "lastCollectedAt": "2026-07-19T16:08:45.702Z",
+    "contentFingerprint": "5ad152ad768441ad11788dc6e927ef65006fb5dea85da99ed424bbc3cc3fd0da",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:08:45.702Z"
+  },
+  {
+    "id": "hatena-blog-08966bcffafedb1ee4b8",
+    "source": "hatena-blog",
+    "sourceArticleId": "08966bcffafedb1ee4b8",
+    "sourceUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/15/052514",
+    "canonicalUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/15/052514",
+    "title": "【ポケチャンダブルM4】物理読みを逆手に取る！特殊メガルカリオ構築",
+    "authorName": "murasaki3sun",
+    "publishedAt": "2026-07-14T20:25:14.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/m/murasaki3sun/20260712/20260712080609.jpg",
+      "source": "structured-data",
+      "alt": "【ポケチャンダブルM4】物理読みを逆手に取る！特殊メガルカリオ構築のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.43
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:12:48.200Z",
+    "lastCollectedAt": "2026-07-19T16:12:48.200Z",
+    "contentFingerprint": "9fca552a8da3c77a217d3554fbad9cfb4f7483f15ece0f1e16dd0da51bf1e79f",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
+  },
+  {
+    "id": "hatena-blog-b440370b35a9d231f391",
+    "source": "hatena-blog",
+    "sourceArticleId": "b440370b35a9d231f391",
+    "sourceUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/14/054208",
+    "canonicalUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/14/054208",
+    "title": "【ポケチャンダブルM4】メガタブンネで受けサイクル！回復と妨害で勝つ耐久構築",
+    "authorName": "murasaki3sun",
+    "publishedAt": "2026-07-13T20:42:08.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/m/murasaki3sun/20260712/20260712072647.jpg",
+      "source": "structured-data",
+      "alt": "【ポケチャンダブルM4】メガタブンネで受けサイクル！回復と妨害で勝つ耐久構築のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.53
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:12:48.200Z",
+    "lastCollectedAt": "2026-07-19T16:12:48.200Z",
+    "contentFingerprint": "0d0947740794ddc782a87629cc19ca02c0dfdca6aa3a7f294d00c0055c62b0eb",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
+  },
+  {
+    "id": "hatena-blog-9b6a2b5ed641ddd21fee",
+    "source": "hatena-blog",
+    "sourceArticleId": "9b6a2b5ed641ddd21fee",
+    "sourceUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/11/080406",
+    "canonicalUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/11/080406",
+    "title": "【ポケチャンダブルM4】メガジュカインで環境を切り裂く！いたずらごころ2枚採用のおいかぜ高速構築",
+    "authorName": "murasaki3sun",
+    "publishedAt": "2026-07-11T22:15:13.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/m/murasaki3sun/20260711/20260711080311.jpg",
+      "source": "structured-data",
+      "alt": "【ポケチャンダブルM4】メガジュカインで環境を切り裂く！いたずらごころ2枚採用のおいかぜ高速構築のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.53
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:12:48.200Z",
+    "lastCollectedAt": "2026-07-19T16:12:48.200Z",
+    "contentFingerprint": "7eaae2879bc4d874f5f2b3e952098a52cc2ae7761bd87b4f83db9d3b1160f4c7",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
+  },
+  {
+    "id": "hatena-blog-0cfeeef8af7f67ac4341",
+    "source": "hatena-blog",
+    "sourceArticleId": "0cfeeef8af7f67ac4341",
+    "sourceUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/11/074204",
+    "canonicalUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/11/074204",
+    "title": "【ポケチャンダブルM4】メガデンリュウ軸トリックルーム構築！高耐久特殊エースで環境を制圧！",
+    "authorName": "murasaki3sun",
+    "publishedAt": "2026-07-10T22:42:04.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/m/murasaki3sun/20260709/20260709223614.jpg",
+      "source": "structured-data",
+      "alt": "【ポケチャンダブルM4】メガデンリュウ軸トリックルーム構築！高耐久特殊エースで環境を制圧！のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.53
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:12:48.200Z",
+    "lastCollectedAt": "2026-07-19T16:12:48.200Z",
+    "contentFingerprint": "c7cdbd1d80ca38ea2fa6425a663d6f7a56cc69a751078f51ff6cf42da2c9adc8",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
+  },
+  {
+    "id": "hatena-blog-5215c272662640b67edb",
+    "source": "hatena-blog",
+    "sourceArticleId": "5215c272662640b67edb",
+    "sourceUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/10/063135",
+    "canonicalUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/10/063135",
+    "title": "【ポケチャンダブルM4】メガゴルーグ軸トリックルーム構築！ふかしのこぶしで守りを貫く低速メガエース",
+    "authorName": "murasaki3sun",
+    "publishedAt": "2026-07-09T21:31:35.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/m/murasaki3sun/20260709/20260709093740.jpg",
+      "source": "structured-data",
+      "alt": "【ポケチャンダブルM4】メガゴルーグ軸トリックルーム構築！ふかしのこぶしで守りを貫く低速メガエースのサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.53
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:12:48.200Z",
+    "lastCollectedAt": "2026-07-19T16:12:48.200Z",
+    "contentFingerprint": "68fa434fa9fce1e92a01152d75db1fdb1886e10b75ac786afe613fbcaf748b61",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
+  },
+  {
+    "id": "hatena-blog-7d238aa9e128c196477b",
+    "source": "hatena-blog",
+    "sourceArticleId": "7d238aa9e128c196477b",
+    "sourceUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/09/084944",
+    "canonicalUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/09/084944",
+    "title": "【ポケチャンダブルM4】メガギャラドス軸いかくスタン！おいかぜ＆トリックルーム対応の安定ダブル構築\n\nはじ",
+    "authorName": "murasaki3sun",
+    "publishedAt": "2026-07-08T23:49:44.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/m/murasaki3sun/20260709/20260709084745.jpg",
+      "source": "structured-data",
+      "alt": "【ポケチャンダブルM4】メガギャラドス軸いかくスタン！おいかぜ＆トリックルーム対応の安定ダブル構築\n\nはじのサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.65
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:12:48.200Z",
+    "lastCollectedAt": "2026-07-19T16:12:48.200Z",
+    "contentFingerprint": "495efc2e3374e8dcb8276469f0a8438c58dbde48488e1560471f50eda4365650",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
+  },
+  {
+    "id": "hatena-blog-02c3c2a812e3ce29945f",
+    "source": "hatena-blog",
+    "sourceArticleId": "02c3c2a812e3ce29945f",
+    "sourceUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/06/191357",
+    "canonicalUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/06/191357",
+    "title": "【ポケチャンダブルMB】メガヘラクロスが環境に刺さる！トリル×追い風中速スタン構築",
+    "authorName": "murasaki3sun",
+    "publishedAt": "2026-07-06T10:13:57.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "M-3",
+      "double"
+    ],
+    "summary": "M-3のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/m/murasaki3sun/20260706/20260706183916.jpg",
+      "source": "structured-data",
+      "alt": "【ポケチャンダブルMB】メガヘラクロスが環境に刺さる！トリル×追い風中速スタン構築のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.505
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:12:48.200Z",
+    "lastCollectedAt": "2026-07-19T16:12:48.200Z",
+    "contentFingerprint": "d80546017255e9de1698c6ab2126bc0d25951d828e7bd8518a4e2edd8a419daa",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
+  },
+  {
+    "id": "hatena-blog-cec5c36ffa44b4e29834",
+    "source": "hatena-blog",
+    "sourceArticleId": "cec5c36ffa44b4e29834",
+    "sourceUrl": "https://mutou610pokepoke.hatenablog.com/entry/2026/05/11/104825",
+    "canonicalUrl": "https://mutou610pokepoke.hatenablog.com/entry/2026/05/11/104825",
+    "title": "【ポケチャンシーズンM-1 ダブルバトル最終81位/2528】ミミズカメニクス構築",
+    "authorName": "mutou610pokepoke",
+    "publishedAt": "2026-05-13T06:41:11.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m1",
+    "result": "最終81位",
+    "pokemonSlugs": [],
+    "tags": [
+      "M-1",
+      "double"
+    ],
+    "summary": "M-1のダブル構築記事です。最終81位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/m/mutou610pokepoke/20260513/20260513154045.jpg",
+      "source": "structured-data",
+      "alt": "【ポケチャンシーズンM-1 ダブルバトル最終81位/2528】ミミズカメニクス構築のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.7
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:12:48.200Z",
+    "lastCollectedAt": "2026-07-19T16:12:48.200Z",
+    "contentFingerprint": "68dc3ff4a7aaaf5f40de75bdfa79650ecc60a12a7f2310e8ca989c522ea42882",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
+  },
+  {
+    "id": "hatena-blog-c7909ca5391f506eedf0",
+    "source": "hatena-blog",
+    "sourceArticleId": "c7909ca5391f506eedf0",
+    "sourceUrl": "https://party-librarian.hatenablog.com/entry/2026/05/24/113000",
+    "canonicalUrl": "https://party-librarian.hatenablog.com/entry/2026/05/24/113000",
+    "title": "【ポケチャン】【シングル】メガブリガロン受けサイクル【M-1】【マスター到達】",
+    "authorName": "sort_yatye",
+    "publishedAt": "2026-05-24T02:30:00.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m1",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "M-1",
+      "single"
+    ],
+    "summary": "M-1のシングル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/s/sort_yatye/20260510/20260510215057.jpg",
+      "source": "structured-data",
+      "alt": "【ポケチャン】【シングル】メガブリガロン受けサイクル【M-1】【マスター到達】のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.8,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.59
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:12:48.200Z",
+    "lastCollectedAt": "2026-07-19T16:12:48.200Z",
+    "contentFingerprint": "6d4394900a6ccbb9a92758e1bb99957e2acd748977b0a82578c7239c27748893",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
+  },
+  {
+    "id": "hatena-blog-79c93745a2e561c751bb",
+    "source": "hatena-blog",
+    "sourceArticleId": "79c93745a2e561c751bb",
+    "sourceUrl": "https://pokest.hatenablog.com/entry/2026/05/16/154058",
+    "canonicalUrl": "https://pokest.hatenablog.com/entry/2026/05/16/154058",
+    "title": "【ポケモンチャンピオンズ・シングル】シーズンM-1 最終1616位(2362.727) ミミッキュとイダイトウが強かっただけ構築",
+    "authorName": "t-gene",
+    "publishedAt": "2026-05-16T06:40:58.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m1",
+    "result": "最終1616位",
+    "pokemonSlugs": [],
+    "tags": [
+      "M-1",
+      "single"
+    ],
+    "summary": "M-1のシングル構築記事です。最終1616位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/t/t-gene/20260516/20260516123451.jpg",
+      "source": "structured-data",
+      "alt": "【ポケモンチャンピオンズ・シングル】シーズンM-1 最終1616位(2362.727) ミミッキュとイダイトウが強かっただけ構築のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.6
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:12:48.200Z",
+    "lastCollectedAt": "2026-07-19T16:12:48.200Z",
+    "contentFingerprint": "bc1a14d602a347058d1bfa6a44662fd3c4516a5ab376cbac08e38f15c50d26e6",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
+  },
+  {
+    "id": "hatena-blog-9ddc16c6dd9a6554ea7b",
+    "source": "hatena-blog",
+    "sourceArticleId": "9ddc16c6dd9a6554ea7b",
+    "sourceUrl": "https://tenku64.hatenablog.com/entry/2026/07/08/230145",
+    "canonicalUrl": "https://tenku64.hatenablog.com/entry/2026/07/08/230145",
+    "title": "【シーズンM-3使用構築】ラグ式ペリジュラスジュペッタ【最終150位】",
+    "authorName": "tenku64",
+    "publishedAt": "2026-07-11T01:14:09.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": "最終150位",
+    "pokemonSlugs": [
+      "greninja",
+      "kleavor",
+      "banette",
+      "swampert",
+      "archaludon",
+      "pelipper"
+    ],
+    "tags": [
+      "M-3",
+      "single"
+    ],
+    "summary": "M-3のシングルで使用された、ゲッコウガ入りの構築記事です。最終150位。採用ポケモン6体と構築経緯を確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/t/tenku64/20260708/20260708230320.png",
+      "source": "structured-data",
+      "alt": "【シーズンM-3使用構築】ラグ式ペリジュラスジュペッタ【最終150位】のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "complete",
+    "extractionConfidence": 1,
+    "missingFields": [],
+    "teamExtractionMethod": "numbered-items",
+    "teamExtractionIssue": null,
+    "extractionEvidence": {
+      "extractionMethod": "numbered-items",
+      "sourceHeading": "【個別解説】",
+      "resolvedCount": 6,
+      "confidence": "high"
+    },
+    "qualityScore": {
+      "targetGameConfidence": 0.7,
+      "formatConfidence": 0.6,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 1,
+      "overallConfidence": 0.78
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 6,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:12:48.200Z",
+    "lastCollectedAt": "2026-07-19T16:12:48.200Z",
+    "contentFingerprint": "e13cfcac133ee767db50ad9b7685b2fe915b44d83d75788fe13b55828eb76a2a",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
+  },
+  {
+    "id": "hatena-blog-d295a4080e35d45adbed",
+    "source": "hatena-blog",
+    "sourceArticleId": "d295a4080e35d45adbed",
+    "sourceUrl": "https://tenku64.hatenablog.com/entry/2026/05/27/213223",
+    "canonicalUrl": "https://tenku64.hatenablog.com/entry/2026/05/27/213223",
+    "title": "チャンピオンズシーズンM-1構築裏話4最終日対戦編",
+    "authorName": "tenku64",
+    "publishedAt": "2026-05-27T12:32:50.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m1",
+    "result": "チャンピオン級",
+    "pokemonSlugs": [],
+    "tags": [
+      "M-1",
+      "single"
+    ],
+    "summary": "M-1のシングル構築記事です。チャンピオン級。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/t/tenku64/20260517/20260517155809.png",
+      "source": "structured-data",
+      "alt": "チャンピオンズシーズンM-1構築裏話4最終日対戦編のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.7,
+      "formatConfidence": 0.6,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.48
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:12:48.200Z",
+    "lastCollectedAt": "2026-07-19T16:12:48.200Z",
+    "contentFingerprint": "bb8d704c4d17daa1efed133376dbb3a1dad24f9b6dcefd7bb63543481e4f09d0",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
+  },
+  {
+    "id": "hatena-blog-e94d4f13641a388faefa",
+    "source": "hatena-blog",
+    "sourceArticleId": "e94d4f13641a388faefa",
+    "sourceUrl": "https://tenku64.hatenablog.com/entry/2026/05/23/233554",
+    "canonicalUrl": "https://tenku64.hatenablog.com/entry/2026/05/23/233554",
+    "title": "チャンピオンズシーズンM-1構築裏話3最終日構築完成編",
+    "authorName": "tenku64",
+    "publishedAt": "2026-05-27T12:36:12.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m1",
+    "result": "チャンピオン級",
+    "pokemonSlugs": [],
+    "tags": [
+      "M-1",
+      "single"
+    ],
+    "summary": "M-1のシングル構築記事です。チャンピオン級。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/t/tenku64/20260517/20260517155809.png",
+      "source": "structured-data",
+      "alt": "チャンピオンズシーズンM-1構築裏話3最終日構築完成編のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.7,
+      "formatConfidence": 0.6,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.48
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:12:48.200Z",
+    "lastCollectedAt": "2026-07-19T16:12:48.200Z",
+    "contentFingerprint": "46e45fe9604c89900efb73df94acb82307ec57fb1982e1c42f879ff7050ca32b",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
+  },
+  {
+    "id": "hatena-blog-51789cdc487b92f392a1",
+    "source": "hatena-blog",
+    "sourceArticleId": "51789cdc487b92f392a1",
+    "sourceUrl": "https://tenku64.hatenablog.com/entry/2026/05/17/160102",
+    "canonicalUrl": "https://tenku64.hatenablog.com/entry/2026/05/17/160102",
+    "title": "チャンピオンズシーズンM-1構築裏話1絶望のルール発表編",
+    "authorName": "tenku64",
+    "publishedAt": "2026-05-20T11:44:44.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m1",
+    "result": "レート2100 到達",
+    "pokemonSlugs": [],
+    "tags": [
+      "M-1",
+      "single"
+    ],
+    "summary": "M-1のシングル構築記事です。レート2100 到達。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/t/tenku64/20260517/20260517155809.png",
+      "source": "structured-data",
+      "alt": "チャンピオンズシーズンM-1構築裏話1絶望のルール発表編のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.7,
+      "formatConfidence": 0.6,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.48
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:12:48.200Z",
+    "lastCollectedAt": "2026-07-19T16:12:48.200Z",
+    "contentFingerprint": "b8ed492e0623ae3cdcb038c684121d119e8985ace1ed2f5d581951011481fee3",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
+  },
+  {
+    "id": "hatena-blog-0768bc06b4ba1be54dd5",
+    "source": "hatena-blog",
+    "sourceArticleId": "0768bc06b4ba1be54dd5",
+    "sourceUrl": "https://tenku64.hatenablog.com/entry/2026/05/14/013838",
+    "canonicalUrl": "https://tenku64.hatenablog.com/entry/2026/05/14/013838",
+    "title": "【シーズンM-1使用構築】ペリジュラスジュペッタ【最終473位】",
+    "authorName": "tenku64",
+    "publishedAt": "2026-05-13T16:38:38.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m1",
+    "result": "最終473位",
+    "pokemonSlugs": [],
+    "tags": [
+      "M-1",
+      "single"
+    ],
+    "summary": "M-1のシングル構築記事です。最終473位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/t/tenku64/20260514/20260514013208.png",
+      "source": "structured-data",
+      "alt": "【シーズンM-1使用構築】ペリジュラスジュペッタ【最終473位】のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.7,
+      "formatConfidence": 0.6,
+      "seasonConfidence": 1,
+      "teamConfidence": 0.79,
+      "overallConfidence": 0.767
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 5,
+      "ambiguous": 0,
+      "unresolved": 1
+    },
+    "firstCollectedAt": "2026-07-19T16:12:48.200Z",
+    "lastCollectedAt": "2026-07-19T16:12:48.200Z",
+    "contentFingerprint": "2d100bae99547d153d6f05a3c854a11214a86c867ca95d8a7f36ce29db512a7f",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
+  },
+  {
+    "id": "hatena-blog-538ec6f0774557e9e5df",
+    "source": "hatena-blog",
+    "sourceArticleId": "538ec6f0774557e9e5df",
+    "sourceUrl": "https://totsuwaki.hatenablog.com/entry/2026/06/24/221234",
+    "canonicalUrl": "https://totsuwaki.hatenablog.com/entry/2026/06/24/221234",
+    "title": "第22回【ポケチャンM-3・ダブルバトル】レート2000達成！メガバクーダ・ユキノオー構築",
+    "authorName": "totsuwaki",
+    "publishedAt": "2026-06-26T17:10:24.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "M-3",
+      "double"
+    ],
+    "summary": "M-3のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/t/totsuwaki/20260624/20260624201031.png",
+      "source": "structured-data",
+      "alt": "第22回【ポケチャンM-3・ダブルバトル】レート2000達成！メガバクーダ・ユキノオー構築のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.65
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:12:48.200Z",
+    "lastCollectedAt": "2026-07-19T16:12:48.200Z",
+    "contentFingerprint": "da70ddccb731ce46ccebff9adf98d0859f498152584dbece3768f40dd52d049f",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
+  },
+  {
+    "id": "hatena-blog-ce809fa4086cdd0e7b1f",
+    "source": "hatena-blog",
+    "sourceArticleId": "ce809fa4086cdd0e7b1f",
+    "sourceUrl": "https://uc-pokemon.hatenablog.com/entry/2026/07/13/163502",
+    "canonicalUrl": "https://uc-pokemon.hatenablog.com/entry/2026/07/13/163502",
+    "title": "【ポケチャン】シングルM-3 使用構築（最終880位・レート2306）",
+    "authorName": "uc_pokemon",
+    "publishedAt": "2026-07-13T07:35:02.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": "最終880位",
+    "pokemonSlugs": [],
+    "tags": [
+      "M-3",
+      "single"
+    ],
+    "summary": "M-3のシングル構築記事です。最終880位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/u/uc_pokemon/20260609/20260609020106.png",
+      "source": "structured-data",
+      "alt": "【ポケチャン】シングルM-3 使用構築（最終880位・レート2306）のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.48
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:12:48.200Z",
+    "lastCollectedAt": "2026-07-19T16:12:48.200Z",
+    "contentFingerprint": "a2403e51cb70ce81b3b93525dbf0bf51dc963c8286c9af892b626070bcf0d17c",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
+  },
+  {
+    "id": "hatena-blog-743c105e88fc5b7ed9f5",
+    "source": "hatena-blog",
+    "sourceArticleId": "743c105e88fc5b7ed9f5",
+    "sourceUrl": "https://uc-pokemon.hatenablog.com/entry/2026/06/12/234159",
+    "canonicalUrl": "https://uc-pokemon.hatenablog.com/entry/2026/06/12/234159",
+    "title": "【ポケチャン・シングルM-2】コットンエルフーンスタン(最高・最終レート2101)",
+    "authorName": "uc_pokemon",
+    "publishedAt": "2026-07-13T07:47:55.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m2",
+    "result": "最終レート2101",
+    "pokemonSlugs": [],
+    "tags": [
+      "M-2",
+      "single"
+    ],
+    "summary": "M-2のシングル構築記事です。最終レート2101。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/u/uc_pokemon/20260609/20260609020106.png",
+      "source": "structured-data",
+      "alt": "【ポケチャン・シングルM-2】コットンエルフーンスタン(最高・最終レート2101)のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.7,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.47
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-19T16:12:48.200Z",
+    "lastCollectedAt": "2026-07-19T16:12:48.200Z",
+    "contentFingerprint": "24b6aede2c2164f29a6f37cbcb155d4e2185ddde98b65dd0ff6c564eb5393c25",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-19T16:12:48.200Z"
   }
 ]

@@ -57,7 +57,10 @@ export function createContentFingerprint(
       extractionConfidence: article.extractionConfidence,
       missingFields: article.missingFields,
       teamExtractionMethod: article.teamExtractionMethod,
-      teamExtractionIssue: article.teamExtractionIssue
+      teamExtractionIssue: article.teamExtractionIssue,
+      extractionEvidence: article.extractionEvidence,
+      qualityScore: article.qualityScore,
+      pokemonNameResolutionStats: article.pokemonNameResolutionStats
     })
   );
 }
@@ -176,6 +179,10 @@ export function createOrUpdateGeneratedArticle(input: {
     missingFields: effectiveArticle.missingFields,
     teamExtractionMethod: effectiveArticle.teamExtractionMethod,
     teamExtractionIssue: effectiveArticle.teamExtractionIssue,
+    extractionEvidence: effectiveArticle.extractionEvidence,
+    qualityScore: effectiveArticle.qualityScore,
+    pokemonNameResolutionStats:
+      effectiveArticle.pokemonNameResolutionStats,
     firstCollectedAt: input.existing?.firstCollectedAt ?? input.nowIso,
     lastCollectedAt: input.nowIso,
     contentFingerprint,

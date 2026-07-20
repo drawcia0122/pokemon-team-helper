@@ -9,6 +9,10 @@ export type ClassificationInput = {
   regulationId: string | null;
   hasExplicitTeamSection: boolean;
   hasExactTeam: boolean;
+  targetGame?:
+    | "pokemon-champions"
+    | "other-pokemon-game"
+    | "unknown";
 };
 
 const EXCLUDED_PATTERNS: Array<{ reason: string; pattern: RegExp }> = [
@@ -20,26 +24,51 @@ const EXCLUDED_PATTERNS: Array<{ reason: string; pattern: RegExp }> = [
   { reason: "video-only", pattern: /動画のみ|動画で解説|youtubeのみ/i }
 ];
 
+const NON_CONCRETE_BUILD_TITLE_PATTERN =
+  /初心者講座|環境考察|環境分析|メタ分析|対戦日記|構築まとめ|構築\d+選|これを読め|ランキング/i;
+
+export function isNonConcreteBuildTitle(title: string): boolean {
+  return NON_CONCRETE_BUILD_TITLE_PATTERN.test(title);
+}
+
 export function classifyBuildArticle(
   input: ClassificationInput
 ): { accepted: true } | { accepted: false; reason: string } {
   const combined = [input.title, ...input.tags, input.text.slice(0, 8000)].join(
     "\n"
   );
+  const targetGame =
+    input.targetGame ??
+    (/pok[eé]mon\s*champions|ポケモンチャンピオンズ|ポケモンchampions|ポケチャン/i.test(
+      combined
+    )
+      ? "pokemon-champions"
+      : /スカーレット|バイオレット|ポケモンsv|\bsv\b|pok[eé]mon\s*go|ポケモンカード/i.test(
+            combined
+          )
+        ? "other-pokemon-game"
+        : "unknown");
 
   for (const exclusion of EXCLUDED_PATTERNS) {
+    if (
+      targetGame === "pokemon-champions" &&
+      ["pokemon-go", "pokemon-card", "pokemon-unite"].includes(
+        exclusion.reason
+      )
+    ) {
+      continue;
+    }
     if (exclusion.pattern.test(combined)) {
       return { accepted: false, reason: exclusion.reason };
     }
   }
 
-  const championsRelated =
-    /pok[eé]mon\s*champions|ポケモンチャンピオンズ|ポケモンchampions|ポケチャン/i.test(
-      combined
-    );
-  if (!championsRelated) {
-    if (/スカーレット|バイオレット|ポケモンsv|\bsv\b/i.test(combined)) {
-      return { accepted: false, reason: "other-game-sv" };
+  if (targetGame !== "pokemon-champions") {
+    if (targetGame === "other-pokemon-game") {
+      if (/スカーレット|バイオレット|ポケモンsv|\bsv\b/i.test(combined)) {
+        return { accepted: false, reason: "other-game-sv" };
+      }
+      return { accepted: false, reason: "other-pokemon-game" };
     }
     return { accepted: false, reason: "not-pokemon-champions" };
   }
@@ -49,9 +78,7 @@ export function classifyBuildArticle(
   if (
     !input.hasExactTeam &&
     !input.hasExplicitTeamSection &&
-    /初心者講座|環境考察|対戦日記|構築まとめ|構築\d+選|これを読め|ランキング/i.test(
-      input.title
-    )
+    isNonConcreteBuildTitle(input.title)
   ) {
     return { accepted: false, reason: "not-concrete-build-article" };
   }

@@ -5,10 +5,12 @@ function parseArgs(argv: string[]): {
   source?: BuildArticleSource;
   dryRun: boolean;
   backfill: boolean;
+  reevaluate: boolean;
 } {
   let source: BuildArticleSource | undefined;
   let dryRun = false;
   let backfill = false;
+  let reevaluate = false;
 
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
@@ -18,6 +20,10 @@ function parseArgs(argv: string[]): {
     }
     if (argument === "--backfill") {
       backfill = true;
+      continue;
+    }
+    if (argument === "--reevaluate") {
+      reevaluate = true;
       continue;
     }
     if (argument === "--source") {
@@ -38,7 +44,7 @@ function parseArgs(argv: string[]): {
     throw new Error(`不明な引数です: ${argument}`);
   }
 
-  return { source, dryRun, backfill };
+  return { source, dryRun, backfill, reevaluate };
 }
 
 async function main(): Promise<void> {

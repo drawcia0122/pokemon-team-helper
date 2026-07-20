@@ -23,6 +23,10 @@ import {
   parseHatenaFeed
 } from "./hatenaBlog";
 import { normalizeUrl } from "./normalize";
+import {
+  planSavedParserMigration,
+  type ParserMigrationOutcome
+} from "./parserMigration";
 import { parseNoteArticle, parseNoteCandidateList } from "./note";
 import { parsePokesolArticle, parsePokesolCandidateList } from "./pokesol";
 import {
@@ -75,6 +79,7 @@ export type CollectionOptions = {
   source?: BuildArticleSource;
   dryRun?: boolean;
   backfill?: boolean;
+  reevaluate?: boolean;
   rootDir?: string;
   now?: Date;
   sourceConfigs?: SourceConfig[];
@@ -117,6 +122,29 @@ function createStats(
     thumbnailRejectedCount: 0,
     fallbackCount: 0,
     completePromotedCount: 0,
+    reevaluationTargetCount: 0,
+    reevaluationCompletedCount: 0,
+    networkReevaluationCount: 0,
+    savedStateReevaluationCount: 0,
+    completeMaintainedCount: 0,
+    metadataOnlyMaintainedCount: 0,
+    metadataOnlyPromotedCount: 0,
+    publicDemotedCount: 0,
+    excludedMaintainedCount: 0,
+    judgmentPendingCount: 0,
+    registeredBlogCount: 0,
+    newDiscoveredBlogCount: 0,
+    promotedBlogCount: 0,
+    pendingBlogCount: 0,
+    targetGameSuccessCount: 0,
+    formatSuccessCount: 0,
+    seasonSuccessCount: 0,
+    teamCandidateCount: 0,
+    teamResolvedCount: 0,
+    aliasResolvedCount: 0,
+    decoratedResolvedCount: 0,
+    ambiguousNameCount: 0,
+    unresolvedNameCount: 0,
     thumbnailDomains: {},
     teamExtractionMethods: {},
     metadataOnlyReasons: {},
@@ -222,7 +250,35 @@ function normalizeHatenaBlogs(
         automationAllowed:
           typeof entry.automationAllowed === "boolean"
             ? entry.automationAllowed
+            : entry.platformVerified,
+        verifiedAt:
+          typeof entry.verifiedAt === "string"
+            ? entry.verifiedAt
             : entry.platformVerified
+              ? entry.discoveredAt
+              : null,
+        verificationMethod:
+          typeof entry.verificationMethod === "string"
+            ? entry.verificationMethod
+            : entry.platformVerified
+              ? "legacy-hatena-platform-registry"
+              : null,
+        promotionReason:
+          typeof entry.promotionReason === "string"
+            ? entry.promotionReason
+            : entry.automationAllowed
+              ? "TASK007で公開フィードと対象記事を確認済み"
+              : "feed-and-robots-verification-pending",
+        candidateCount:
+          Number.isInteger(entry.candidateCount) &&
+          Number(entry.candidateCount) >= 0
+            ? Number(entry.candidateCount)
+            : null,
+        failureCount:
+          Number.isInteger(entry.failureCount) &&
+          Number(entry.failureCount) >= 0
+            ? Number(entry.failureCount)
+            : 0
       }))
     : [];
   const byDomain = new Map(previous.map((entry) => [entry.domain, entry]));
@@ -235,7 +291,12 @@ function normalizeHatenaBlogs(
       feedUrl: `https://${domain}/feed?exclude_body=1`,
       automationAllowed: true,
       customDomain: false,
-      platformVerified: true
+      platformVerified: true,
+      verifiedAt: nowIso,
+      verificationMethod: "seeded-hatena-platform-domain-and-feed",
+      promotionReason: "TASK007で公開フィードと対象記事を確認済み",
+      candidateCount: null,
+      failureCount: 0
     });
   }
   return [...byDomain.values()]
@@ -248,6 +309,45 @@ function normalizeHatenaBlogs(
 
 function addCount(target: Record<string, number>, reason: string): void {
   target[reason] = (target[reason] ?? 0) + 1;
+}
+
+function recordExtractionStats(
+  stats: SourceCollectionStats,
+  article: {
+    collectionCompleteness: "complete" | "metadata-only";
+    qualityScore: {
+      targetGameConfidence: number;
+      formatConfidence: number;
+      seasonConfidence: number;
+    };
+    pokemonNameResolutionStats: {
+      alias: number;
+      decorated: number;
+      ambiguous: number;
+      unresolved: number;
+    };
+  }
+): void {
+  if (article.qualityScore.targetGameConfidence >= 0.5) {
+    stats.targetGameSuccessCount += 1;
+  }
+  if (article.qualityScore.formatConfidence >= 0.5) {
+    stats.formatSuccessCount += 1;
+  }
+  if (article.qualityScore.seasonConfidence >= 0.5) {
+    stats.seasonSuccessCount += 1;
+  }
+  stats.teamCandidateCount += 1;
+  if (article.collectionCompleteness === "complete") {
+    stats.teamResolvedCount += 1;
+  }
+  stats.aliasResolvedCount += article.pokemonNameResolutionStats.alias;
+  stats.decoratedResolvedCount +=
+    article.pokemonNameResolutionStats.decorated;
+  stats.ambiguousNameCount +=
+    article.pokemonNameResolutionStats.ambiguous;
+  stats.unresolvedNameCount +=
+    article.pokemonNameResolutionStats.unresolved;
 }
 
 async function readJson<T>(filePath: string): Promise<T> {
@@ -336,14 +436,29 @@ export function mergeCandidateCursor(input: {
     if (!previous) newUrls.add(candidate.url);
     states.push({
       url: candidate.url,
+      source: input.source,
+      discoveredAt:
+        previous?.discoveredAt ?? previous?.firstSeenAt ?? input.nowIso,
       sourceArticleId: candidate.sourceArticleId,
+      publishedAt: candidate.publishedAt ?? previous?.publishedAt ?? null,
       firstSeenAt: previous?.firstSeenAt ?? input.nowIso,
       lastSeenAt: input.nowIso,
       lastCheckedAt: previous?.lastCheckedAt ?? null,
       updatedAt: candidate.updatedAt ?? previous?.updatedAt ?? null,
       contentFingerprint:
         candidate.contentFingerprint ?? previous?.contentFingerprint ?? null,
-      consecutiveFetchFailures: previous?.consecutiveFetchFailures ?? 0
+      consecutiveFetchFailures: previous?.consecutiveFetchFailures ?? 0,
+      targetGameResult: previous?.targetGameResult ?? null,
+      formatResult: previous?.formatResult ?? null,
+      seasonResult: previous?.seasonResult ?? null,
+      teamResult: previous?.teamResult ?? null,
+      exclusionReason: previous?.exclusionReason ?? null,
+      parserVersion: previous?.parserVersion ?? null,
+      previousParserVersion: previous?.previousParserVersion ?? null,
+      reevaluationMethod: previous?.reevaluationMethod ?? null,
+      reevaluationStatus: previous?.reevaluationStatus ?? null,
+      reevaluationOutcome: previous?.reevaluationOutcome ?? null,
+      reevaluationReason: previous?.reevaluationReason ?? null
     });
     seen.add(candidate.url);
   }
@@ -358,10 +473,19 @@ export function mergeCandidateCursor(input: {
     if (article.source !== input.source || seen.has(article.sourceUrl)) continue;
     states.push({
       url: article.sourceUrl,
+      source: input.source,
+      discoveredAt: article.firstCollectedAt,
       sourceArticleId: article.sourceArticleId,
+      publishedAt: article.publishedAt,
       firstSeenAt: article.firstCollectedAt,
       lastSeenAt: article.lastCollectedAt,
-      lastCheckedAt: article.lastSuccessfulFetchAt
+      lastCheckedAt: article.lastSuccessfulFetchAt,
+      targetGameResult: "pokemon-champions",
+      formatResult: article.battleFormat,
+      seasonResult: article.builderSeasonId,
+      teamResult: article.collectionCompleteness,
+      exclusionReason: null,
+      parserVersion: article.extractorVersion
     });
     seen.add(article.sourceUrl);
   }
@@ -481,6 +605,347 @@ function markCandidateChecked(
   if (candidate) candidate.lastCheckedAt = nowIso;
 }
 
+function recordCandidateOutcome(
+  cursor: SourceCollectionCursor,
+  url: string,
+  outcome:
+    | { status: "excluded"; reason: string }
+    | {
+        status: "accepted";
+        article: {
+          battleFormat: string;
+          builderSeasonId: string;
+          collectionCompleteness: string;
+        };
+      }
+): void {
+  const candidate = cursor.candidates.find((entry) => entry.url === url);
+  if (!candidate) return;
+  candidate.parserVersion = EXTRACTOR_VERSION;
+  if (outcome.status === "excluded") {
+    candidate.exclusionReason = outcome.reason;
+    candidate.targetGameResult =
+      outcome.reason === "not-pokemon-champions" ||
+      outcome.reason === "other-pokemon-game" ||
+      outcome.reason.startsWith("other-game-") ||
+      outcome.reason.startsWith("pokemon-")
+        ? "not-pokemon-champions"
+        : null;
+    candidate.formatResult = null;
+    candidate.seasonResult = null;
+    candidate.teamResult = "excluded";
+    return;
+  }
+  candidate.exclusionReason = null;
+  candidate.targetGameResult = "pokemon-champions";
+  candidate.formatResult = outcome.article.battleFormat;
+  candidate.seasonResult = outcome.article.builderSeasonId;
+  candidate.teamResult = outcome.article.collectionCompleteness;
+}
+
+function recordMigrationOutcome(
+  stats: SourceCollectionStats,
+  outcome: ParserMigrationOutcome
+): void {
+  if (outcome === "complete-maintained") {
+    stats.completeMaintainedCount += 1;
+    return;
+  }
+  if (outcome === "complete-promoted") {
+    stats.completePromotedCount += 1;
+    return;
+  }
+  if (outcome === "metadata-only-maintained") {
+    stats.metadataOnlyMaintainedCount += 1;
+    return;
+  }
+  if (outcome === "metadata-only-promoted") {
+    stats.metadataOnlyPromotedCount += 1;
+    return;
+  }
+  if (outcome === "public-demoted") {
+    stats.publicDemotedCount += 1;
+    return;
+  }
+  stats.excludedMaintainedCount += 1;
+}
+
+function markCandidateMigration(input: {
+  candidate: CandidateCollectionState;
+  previousVersion: string | null;
+  method: "saved-state" | "network";
+  status: "completed" | "pending";
+  outcome: ParserMigrationOutcome | null;
+  reason: string;
+}): void {
+  input.candidate.previousParserVersion = input.previousVersion;
+  input.candidate.parserVersion = EXTRACTOR_VERSION;
+  input.candidate.reevaluationMethod = input.method;
+  input.candidate.reevaluationStatus = input.status;
+  input.candidate.reevaluationOutcome = input.outcome;
+  input.candidate.reevaluationReason = input.reason;
+}
+
+function determineNetworkMigrationOutcome(input: {
+  existing: GeneratedBuildArticle | null;
+  outcome:
+    | { status: "excluded"; reason: string }
+    | {
+        status: "accepted";
+        article: {
+          collectionCompleteness: "complete" | "metadata-only";
+        };
+      };
+}): ParserMigrationOutcome {
+  if (input.outcome.status === "excluded") {
+    return input.existing
+      ? "public-demoted"
+      : "excluded-maintained";
+  }
+  if (input.outcome.article.collectionCompleteness === "complete") {
+    return input.existing?.collectionCompleteness === "complete"
+      ? "complete-maintained"
+      : "complete-promoted";
+  }
+  return input.existing?.collectionCompleteness === "metadata-only"
+    ? "metadata-only-maintained"
+    : "metadata-only-promoted";
+}
+
+async function reevaluateSourceFromSavedState(input: {
+  config: SourceConfig;
+  client: FetchClient;
+  appMeta: AppMeta;
+  pokemon: PokemonEntry[];
+  manualArticles: BuildArticle[];
+  generatedArticles: GeneratedBuildArticle[];
+  previousCursor: SourceCollectionCursor;
+  nowIso: string;
+  stats: SourceCollectionStats;
+  backfill: boolean;
+  hatenaBlogs: HatenaBlogState[];
+}): Promise<{
+  generatedArticles: GeneratedBuildArticle[];
+  cursor: SourceCollectionCursor;
+}> {
+  const cursor: SourceCollectionCursor = {
+    nextIndex: input.previousCursor.nextIndex,
+    candidates: input.previousCursor.candidates.map((candidate) => ({
+      ...candidate
+    }))
+  };
+  let generatedArticles = [...input.generatedArticles];
+  const targets = cursor.candidates.filter(
+    (candidate) => candidate.parserVersion !== EXTRACTOR_VERSION
+  );
+  const networkTargets: CandidateCollectionState[] = [];
+  input.stats.knownCandidateCount = cursor.candidates.length;
+  input.stats.reevaluationTargetCount = targets.length;
+  if (input.config.id === "hatena-blog") {
+    input.stats.registeredBlogCount = input.hatenaBlogs.length;
+    input.stats.pendingBlogCount = input.hatenaBlogs.filter(
+      (blog) => !blog.automationAllowed
+    ).length;
+  }
+
+  for (const candidate of targets) {
+    const previousVersion = candidate.parserVersion ?? null;
+    const plan = planSavedParserMigration({
+      candidate,
+      source: input.config.id,
+      generatedArticles
+    });
+    if (plan.method === "network") {
+      networkTargets.push(candidate);
+      continue;
+    }
+
+    if (plan.outcome === "public-demoted") {
+      generatedArticles = generatedArticles.filter(
+        (article) => article.id !== plan.article?.id
+      );
+      recordCandidateOutcome(cursor, candidate.url, {
+        status: "excluded",
+        reason: plan.reason
+      });
+    } else if (plan.article) {
+      generatedArticles = replaceGenerated(generatedArticles, {
+        ...plan.article,
+        extractorVersion: EXTRACTOR_VERSION
+      });
+    }
+    markCandidateMigration({
+      candidate,
+      previousVersion,
+      method: "saved-state",
+      status: "completed",
+      outcome: plan.outcome,
+      reason: plan.reason
+    });
+    input.stats.savedStateReevaluationCount += 1;
+    input.stats.reevaluationCompletedCount += 1;
+    recordMigrationOutcome(input.stats, plan.outcome);
+  }
+
+  const maxNetworkFetches = input.backfill
+    ? Math.min(150, input.config.maxCandidates)
+    : input.config.maxArticleFetches;
+  const selected: CandidateCollectionState[] = [];
+  const perDomainCounts = new Map<string, number>();
+  for (const candidate of networkTargets) {
+    if (selected.length >= maxNetworkFetches) break;
+    const domain = new URL(candidate.url).hostname;
+    const domainCount = perDomainCounts.get(domain) ?? 0;
+    if (input.config.id === "hatena-blog" && domainCount >= 30) {
+      continue;
+    }
+    perDomainCounts.set(domain, domainCount + 1);
+    selected.push(candidate);
+  }
+  input.stats.remainingCount = networkTargets.length - selected.length;
+  const robotsByDomain = new Map<
+    string,
+    { ok: true; text: string } | { ok: false; reason: string }
+  >();
+
+  for (const candidate of selected) {
+    const previousVersion = candidate.parserVersion ?? null;
+    const domain = new URL(candidate.url).hostname;
+    const robotsKey =
+      input.config.id === "hatena-blog" ? domain : input.config.id;
+    let robots = robotsByDomain.get(robotsKey);
+    if (!robots) {
+      const robotsUrl =
+        input.config.id === "hatena-blog"
+          ? `https://${domain}/robots.txt`
+          : input.config.robotsUrl;
+      const result = await input.client.fetchText(robotsUrl, "text");
+      robots = result.ok
+        ? { ok: true, text: result.text }
+        : { ok: false, reason: `robots-${result.reason}` };
+      robotsByDomain.set(robotsKey, robots);
+    }
+    if (!robots.ok || !isAllowedByRobots(robots.text, candidate.url)) {
+      const reason = robots.ok
+        ? "robots-disallowed-article"
+        : robots.reason;
+      markCandidateMigration({
+        candidate,
+        previousVersion,
+        method: "network",
+        status: "pending",
+        outcome: null,
+        reason
+      });
+      input.stats.judgmentPendingCount += 1;
+      addCount(input.stats.exclusionReasons, reason);
+      continue;
+    }
+
+    input.stats.networkReevaluationCount += 1;
+    input.stats.fetchedCount += 1;
+    const fetchResult = await input.client.fetchText(
+      candidate.url,
+      "html"
+    );
+    if (!fetchResult.ok) {
+      markCandidateMigration({
+        candidate,
+        previousVersion,
+        method: "network",
+        status: "pending",
+        outcome: null,
+        reason: fetchResult.reason
+      });
+      input.stats.fetchFailureCount += 1;
+      input.stats.judgmentPendingCount += 1;
+      addCount(input.stats.exclusionReasons, fetchResult.reason);
+      continue;
+    }
+
+    candidate.lastCheckedAt = input.nowIso;
+    candidate.consecutiveFetchFailures = 0;
+    const outcome =
+      input.config.id === "hatena-blog"
+        ? parseHatenaArticle({
+            html: fetchResult.text,
+            url: fetchResult.url,
+            appMeta: input.appMeta,
+            pokemon: input.pokemon
+          })
+        : parserForSource(input.config.id)({
+            html: fetchResult.text,
+            url: fetchResult.url,
+            appMeta: input.appMeta,
+            pokemon: input.pokemon
+          });
+    const existing = findExistingByUrl(
+      generatedArticles,
+      input.config.id,
+      candidate.url
+    );
+    const migrationOutcome = determineNetworkMigrationOutcome({
+      existing,
+      outcome
+    });
+    recordCandidateOutcome(cursor, candidate.url, outcome);
+
+    if (outcome.status === "excluded") {
+      if (existing) {
+        generatedArticles = generatedArticles.filter(
+          (article) => article.id !== existing.id
+        );
+      }
+      input.stats.excludedCount += 1;
+      addCount(input.stats.exclusionReasons, outcome.reason);
+    } else if (matchesManualArticle(outcome.article, input.manualArticles)) {
+      input.stats.duplicateCount += 1;
+      addCount(input.stats.exclusionReasons, "duplicate-of-manual-article");
+    } else {
+      const matched = findGeneratedMatch(
+        outcome.article,
+        generatedArticles
+      );
+      const updated = createOrUpdateGeneratedArticle({
+        source: input.config.id,
+        sourceUrl: candidate.url,
+        article: outcome.article,
+        existing: matched,
+        nowIso: input.nowIso
+      });
+      generatedArticles = replaceGenerated(
+        generatedArticles,
+        updated.article
+      );
+      if (updated.change === "new") input.stats.publishedCount += 1;
+      if (updated.change === "updated") input.stats.updatedCount += 1;
+      if (updated.change === "unchanged") {
+        input.stats.duplicateCount += 1;
+      }
+    }
+    markCandidateMigration({
+      candidate,
+      previousVersion,
+      method: "network",
+      status: "completed",
+      outcome: migrationOutcome,
+      reason:
+        outcome.status === "excluded"
+          ? outcome.reason
+          : "network-reevaluation-completed"
+    });
+    input.stats.reevaluationCompletedCount += 1;
+    recordMigrationOutcome(input.stats, migrationOutcome);
+  }
+
+  input.stats.status =
+    input.stats.judgmentPendingCount > 0 ||
+    input.stats.remainingCount > 0
+      ? "partial"
+      : "completed";
+  return { generatedArticles, cursor };
+}
+
 async function collectSource(input: {
   config: SourceConfig;
   client: FetchClient;
@@ -491,6 +956,7 @@ async function collectSource(input: {
   previousCursor: SourceCollectionCursor;
   nowIso: string;
   stats: SourceCollectionStats;
+  reevaluate: boolean;
 }): Promise<{
   generatedArticles: GeneratedBuildArticle[];
   cursor: SourceCollectionCursor;
@@ -503,7 +969,8 @@ async function collectSource(input: {
     manualArticles,
     previousCursor,
     nowIso,
-    stats
+    stats,
+    reevaluate
   } = input;
   let generatedArticles = input.generatedArticles;
 
@@ -566,6 +1033,15 @@ async function collectSource(input: {
   });
   const cursor = merged.cursor;
   stats.knownCandidateCount = cursor.candidates.length;
+  const legacyGeneratedUrls = new Set(
+    generatedArticles
+      .filter(
+        (article) =>
+          article.source === config.id &&
+          article.extractorVersion !== EXTRACTOR_VERSION
+      )
+      .map((article) => article.sourceUrl)
+  );
   if (cursor.candidates.length === 0) {
     stats.status = "partial";
     addCount(stats.exclusionReasons, "no-candidates");
@@ -576,15 +1052,23 @@ async function collectSource(input: {
     cursor,
     newUrls: merged.newUrls,
     priorityUrls: new Set(
-      generatedArticles
-        .filter(
-          (article) =>
-            article.source === config.id &&
-            (article.extractorVersion !== EXTRACTOR_VERSION ||
-              !Object.prototype.hasOwnProperty.call(article, "thumbnail") ||
-              article.thumbnail === null)
-        )
-        .map((article) => article.sourceUrl)
+      reevaluate
+        ? cursor.candidates
+            .filter(
+              (candidate) =>
+                candidate.parserVersion !== EXTRACTOR_VERSION ||
+                legacyGeneratedUrls.has(candidate.url)
+            )
+            .map((candidate) => candidate.url)
+        : generatedArticles
+            .filter(
+              (article) =>
+                article.source === config.id &&
+                (article.extractorVersion !== EXTRACTOR_VERSION ||
+                  !Object.prototype.hasOwnProperty.call(article, "thumbnail") ||
+                  article.thumbnail === null)
+            )
+            .map((article) => article.sourceUrl)
     ),
     maxFetches: config.maxArticleFetches,
     source: config.id,
@@ -641,7 +1125,18 @@ async function collectSource(input: {
       appMeta,
       pokemon
     });
+    recordCandidateOutcome(cursor, candidate.url, outcome);
     if (outcome.status === "excluded") {
+      if (reevaluate && legacyGeneratedUrls.has(candidate.url)) {
+        generatedArticles = generatedArticles.filter(
+          (article) =>
+            !(
+              article.source === config.id &&
+              (article.sourceUrl === candidate.url ||
+                article.canonicalUrl === candidate.url)
+            )
+        );
+      }
       stats.excludedCount += 1;
       addCount(stats.exclusionReasons, outcome.reason);
       continue;
@@ -649,6 +1144,7 @@ async function collectSource(input: {
 
     stats.extractionSuccessCount =
       (stats.extractionSuccessCount ?? 0) + 1;
+    recordExtractionStats(stats, outcome.article);
     stats.thumbnailRejectedCount +=
       outcome.article.thumbnailExtraction.rejectedCount;
     for (const [reason, count] of Object.entries(
@@ -743,6 +1239,7 @@ async function collectHatenaSource(input: {
   nowIso: string;
   stats: SourceCollectionStats;
   backfill: boolean;
+  reevaluate: boolean;
 }): Promise<{
   generatedArticles: GeneratedBuildArticle[];
   cursor: SourceCollectionCursor;
@@ -759,7 +1256,8 @@ async function collectHatenaSource(input: {
     previousFeeds,
     nowIso,
     stats,
-    backfill
+    backfill,
+    reevaluate
   } = input;
   let generatedArticles = input.generatedArticles;
   const feeds = { ...previousFeeds };
@@ -769,8 +1267,20 @@ async function collectHatenaSource(input: {
   const changedUrls = new Set<string>();
   const robotsByDomain = new Map<string, string>();
   let successfulFeedRequests = 0;
+  stats.registeredBlogCount = blogs.length;
+  stats.pendingBlogCount = blogs.filter(
+    (blog) => !blog.automationAllowed
+  ).length;
+  const recordBlogFailure = (blog: HatenaBlogState, reason: string): void => {
+    blog.failureCount = (blog.failureCount ?? 0) + 1;
+    blog.promotionReason = reason;
+    if (blog.failureCount >= 3) {
+      blog.automationAllowed = false;
+      stats.pendingBlogCount += 1;
+    }
+  };
 
-  for (const blog of blogs) {
+  for (const blog of blogs.filter((entry) => entry.automationAllowed)) {
     const domain = blog.domain;
     const previousFeed = normalizeHatenaFeedState(
       domain,
@@ -786,6 +1296,7 @@ async function collectHatenaSource(input: {
     const requestedFeedUrl = requestedFeed.toString();
     const robotsResult = await client.fetchText(robotsUrl, "text");
     if (!robotsResult.ok) {
+      recordBlogFailure(blog, `robots-${robotsResult.reason}`);
       stats.fetchFailureCount += 1;
       addCount(stats.exclusionReasons, `robots-${robotsResult.reason}`);
       feeds[domain] = {
@@ -800,6 +1311,7 @@ async function collectHatenaSource(input: {
     if (
       !isAllowedByRobots(robotsResult.text, requestedFeedUrl)
     ) {
+      recordBlogFailure(blog, "robots-disallowed-feed");
       stats.excludedCount += 1;
       addCount(stats.exclusionReasons, "robots-disallowed-feed");
       continue;
@@ -817,6 +1329,7 @@ async function collectHatenaSource(input: {
       allowNotModified: !backfill
     });
     if (!feedResult.ok) {
+      recordBlogFailure(blog, `feed-${feedResult.reason}`);
       stats.fetchFailureCount += 1;
       addCount(stats.exclusionReasons, `feed-${feedResult.reason}`);
       feeds[domain] = {
@@ -829,6 +1342,7 @@ async function collectHatenaSource(input: {
     }
 
     successfulFeedRequests += 1;
+    blog.failureCount = 0;
     if (feedResult.notModified) {
       feeds[domain] = {
         ...previousFeed,
@@ -841,17 +1355,10 @@ async function collectHatenaSource(input: {
       };
       continue;
     }
-    if (
-      (!blog.automationAllowed || blog.customDomain) &&
-      !isHatenaFeed(feedResult.text)
-    ) {
+    if (blog.customDomain && !isHatenaFeed(feedResult.text)) {
       stats.excludedCount += 1;
       addCount(stats.exclusionReasons, "custom-domain-not-verified-as-hatena");
       continue;
-    }
-    if (!blog.automationAllowed) {
-      blog.automationAllowed = true;
-      blog.platformVerified = true;
     }
 
     const candidates = parseHatenaFeed(
@@ -910,10 +1417,11 @@ async function collectHatenaSource(input: {
   stats.knownCandidateCount = cursor.candidates.length;
   const eligible = cursor.candidates.filter(
     (candidate) =>
-      backfill ||
+      reevaluate ||
       merged.newUrls.has(candidate.url) ||
       changedUrls.has(candidate.url) ||
-      candidate.lastCheckedAt === null
+      candidate.lastCheckedAt === null ||
+      candidate.parserVersion !== EXTRACTOR_VERSION
   );
   const maxTotalFetches = backfill ? 150 : config.maxArticleFetches;
   const perBlogCounts = new Map<string, number>();
@@ -970,6 +1478,7 @@ async function collectHatenaSource(input: {
       appMeta,
       pokemon
     });
+    recordCandidateOutcome(cursor, state.url, outcome);
     for (const discoveredDomain of extractHatenaBlogDomains(
       fetchResult.text,
       domain
@@ -982,12 +1491,33 @@ async function collectHatenaSource(input: {
         feedUrl: `https://${discoveredDomain}/feed?exclude_body=1`,
         automationAllowed: false,
         customDomain: false,
-        platformVerified: true
+        platformVerified: false,
+        verifiedAt: null,
+        verificationMethod: null,
+        promotionReason: "feed-and-robots-verification-pending",
+        candidateCount: null,
+        failureCount: 0
       };
       blogByDomain.set(discoveredDomain, discovered);
       blogs.push(discovered);
+      stats.newDiscoveredBlogCount += 1;
+      stats.pendingBlogCount += 1;
     }
     if (outcome.status === "excluded") {
+      if (reevaluate) {
+        const legacy = generatedArticles.find(
+          (article) =>
+            article.source === "hatena-blog" &&
+            article.extractorVersion !== EXTRACTOR_VERSION &&
+            (article.sourceUrl === state.url ||
+              article.canonicalUrl === state.url)
+        );
+        if (legacy) {
+          generatedArticles = generatedArticles.filter(
+            (article) => article.id !== legacy.id
+          );
+        }
+      }
       stats.excludedCount += 1;
       addCount(stats.exclusionReasons, outcome.reason);
       continue;
@@ -1001,6 +1531,7 @@ async function collectHatenaSource(input: {
     }
     stats.extractionSuccessCount =
       (stats.extractionSuccessCount ?? 0) + 1;
+    recordExtractionStats(stats, outcome.article);
     stats.thumbnailRejectedCount +=
       outcome.article.thumbnailExtraction.rejectedCount;
     for (const [reason, count] of Object.entries(
@@ -1169,6 +1700,24 @@ export async function collectBuildArticles(
         : config;
     const client =
       options.clients?.[config.id] ?? new SafeHttpClient(effectiveConfig);
+    if (options.reevaluate) {
+      const result = await reevaluateSourceFromSavedState({
+        config: effectiveConfig,
+        client,
+        appMeta,
+        pokemon,
+        manualArticles,
+        generatedArticles,
+        previousCursor: status.cursors[config.id],
+        nowIso,
+        stats,
+        backfill: options.backfill ?? false,
+        hatenaBlogs: status.hatenaBlogs
+      });
+      generatedArticles = result.generatedArticles;
+      status.cursors[config.id] = result.cursor;
+      continue;
+    }
     if (config.id === "hatena-blog") {
       const result = await collectHatenaSource({
         config: effectiveConfig,
@@ -1182,7 +1731,8 @@ export async function collectBuildArticles(
         blogs: status.hatenaBlogs,
         nowIso,
         stats,
-        backfill: options.backfill ?? false
+        backfill: options.backfill ?? false,
+        reevaluate: options.reevaluate ?? false
       });
       generatedArticles = result.generatedArticles;
       status.cursors[config.id] = result.cursor;
@@ -1199,7 +1749,8 @@ export async function collectBuildArticles(
       generatedArticles,
       previousCursor: status.cursors[config.id],
       nowIso,
-      stats
+      stats,
+      reevaluate: options.reevaluate ?? false
     });
     generatedArticles = result.generatedArticles;
     status.cursors[config.id] = result.cursor;

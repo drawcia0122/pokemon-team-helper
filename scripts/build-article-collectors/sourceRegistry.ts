@@ -12,6 +12,115 @@ export const INITIAL_HATENA_BLOGS = [
   "suzuri-ghost.hatenablog.com"
 ] as const;
 
+/**
+ * 手動検索で公開済みのPokémon Champions構築記事を確認した探索シード。
+ * 検索結果ページ自体は収集せず、各ブログの公開feedとrobots.txtを
+ * discover:build-blogsで改めて検証してから自動巡回へ昇格する。
+ */
+export const RESEARCHED_HATENA_BLOG_CANDIDATES = [
+  {
+    domain: "totsuwaki.hatenablog.com",
+    discoveredFrom: "https://totsuwaki.hatenablog.com/"
+  },
+  {
+    domain: "egina33699307.hatenablog.com",
+    discoveredFrom: "https://egina33699307.hatenablog.com/"
+  },
+  {
+    domain: "murasaki3sun.hatenablog.com",
+    discoveredFrom: "https://murasaki3sun.hatenablog.com/"
+  },
+  {
+    domain: "senyakazuya.hatenablog.com",
+    discoveredFrom: "https://senyakazuya.hatenablog.com/"
+  },
+  {
+    domain: "party-librarian.hatenablog.com",
+    discoveredFrom: "https://party-librarian.hatenablog.com/"
+  },
+  {
+    domain: "kocho3.hatenablog.com",
+    discoveredFrom: "https://kocho3.hatenablog.com/"
+  },
+  {
+    domain: "ebapoke.hatenablog.com",
+    discoveredFrom: "https://ebapoke.hatenablog.com/"
+  },
+  {
+    domain: "penpenpendlar.hatenablog.com",
+    discoveredFrom: "https://penpenpendlar.hatenablog.com/"
+  },
+  {
+    domain: "mutimoumai.hatenablog.com",
+    discoveredFrom: "https://mutimoumai.hatenablog.com/"
+  },
+  {
+    domain: "judaspoke.hatenablog.com",
+    discoveredFrom: "https://judaspoke.hatenablog.com/"
+  },
+  {
+    domain: "mutou610pokepoke.hatenablog.com",
+    discoveredFrom: "https://mutou610pokepoke.hatenablog.com/"
+  },
+  {
+    domain: "pokest.hatenablog.com",
+    discoveredFrom: "https://pokest.hatenablog.com/"
+  },
+  {
+    domain: "foolmoon.hatenablog.com",
+    discoveredFrom: "https://foolmoon.hatenablog.com/"
+  },
+  {
+    domain: "pokemonza.hatenablog.jp",
+    discoveredFrom: "https://pokemonza.hatenablog.jp/"
+  },
+  {
+    domain: "tenku64.hatenablog.com",
+    discoveredFrom: "https://tenku64.hatenablog.com/"
+  },
+  {
+    domain: "chikaramochida.hatenablog.com",
+    discoveredFrom: "https://chikaramochida.hatenablog.com/"
+  },
+  {
+    domain: "uc-pokemon.hatenablog.com",
+    discoveredFrom:
+      "https://uc-pokemon.hatenablog.com/entry/2026/07/13/163502"
+  },
+  {
+    domain: "mabo-nebo.hatenablog.com",
+    discoveredFrom:
+      "https://mabo-nebo.hatenablog.com/entry/2026/05/14/013452"
+  },
+  {
+    domain: "nanami2000.hatenablog.jp",
+    discoveredFrom:
+      "https://nanami2000.hatenablog.jp/entry/2026/07/08/150917"
+  },
+  {
+    domain: "daisuke-poke.hatenablog.jp",
+    discoveredFrom: "https://daisuke-poke.hatenablog.jp/archive/2026/07"
+  },
+  {
+    domain: "zahnradpoke.hatenablog.com",
+    discoveredFrom: "https://zahnradpoke.hatenablog.com/"
+  },
+  {
+    domain: "bllizzard0508.hatenablog.jp",
+    discoveredFrom:
+      "https://bllizzard0508.hatenablog.jp/entry/2026/07/08/174208"
+  },
+  {
+    domain: "schwarz5555.hatenablog.jp",
+    discoveredFrom:
+      "https://schwarz5555.hatenablog.jp/entry/2026/06/23/120323"
+  },
+  {
+    domain: "iron-hands29.hatenablog.com",
+    discoveredFrom: "https://iron-hands29.hatenablog.com/"
+  }
+] as const;
+
 export const RESEARCH_ONLY_SOURCES = {
   game8: {
     label: "Game8",
