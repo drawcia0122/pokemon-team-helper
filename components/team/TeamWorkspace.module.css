@@ -40,6 +40,8 @@
 .control > span { color: #56685d; font-size: .68rem; font-weight: 800; }
 .control input,.control select { min-height: 38px; padding: 7px 9px; font-size: .78rem; }
 .matchCount { display: block; margin-bottom: 8px; color: #748078; font-size: .65rem; }
+.statsSelectButton { align-self: flex-start; min-height: 32px; margin: -3px 0 9px; padding: 5px 9px; border: 1px solid #b9d1c1; border-radius: 8px; background: #fff; color: #286044; cursor: pointer; font-size: .67rem; font-weight: 850; }
+.statsSelectButton[aria-pressed="true"] { border-color: #23764c; background: #e5f3e9; color: #174f32; }
 .dualControls { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
 .removeButton { min-height: 36px; margin-top: auto; border: 0; border-top: 1px solid #dce7df; background: transparent; color: #7b5147; cursor: pointer; font-size: .7rem; font-weight: 800; }
 .emptySlot { display: grid; place-content: center; justify-items: center; gap: 5px; padding: 18px; border-style: dashed; background: #fbfdfb; color: #557062; cursor: pointer; }
@@ -47,6 +49,28 @@
 .emptySlot strong { color: #365743; }
 .emptySlot small { color: #718077; }
 .inputActions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.statsPanel { min-width: 0; margin-top: 14px; padding: 15px; border: 1px solid #c8dace; border-radius: 14px; background: #f7fbf8; }
+.statsHeading { margin-bottom: 12px; }
+.statsHeading span { color: #26714a; font-size: .64rem; font-weight: 900; letter-spacing: .1em; }
+.statsHeading h3 { margin: 3px 0 0; color: #173f2a; font-size: 1rem; }
+.statsLayout { display: grid; grid-template-columns: minmax(155px,.65fr) minmax(190px,.8fr) minmax(230px,1fr); align-items: center; gap: 18px; }
+.statsIdentity { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.statsIdentity > div { display: grid; min-width: 0; gap: 3px; }
+.statsIdentity strong { overflow-wrap: anywhere; color: #183c29; font-size: 1rem; }
+.statsIdentity small { overflow-wrap: anywhere; color: #6c796f; font-size: .68rem; }
+.statsIdentity div > span { margin-top: 4px; color: #176b42; font-size: .76rem; font-weight: 900; }
+.radarChart { display: block; width: min(100%,220px); height: auto; margin: 0 auto; overflow: visible; }
+.radarGrid { fill: none; stroke: #c4d7ca; stroke-width: 1; }
+.radarAxis { stroke: #d5e2d9; stroke-width: 1; }
+.radarValue { fill: rgba(34,126,79,.24); stroke: #197049; stroke-linejoin: round; stroke-width: 2; }
+.radarLabel { fill: #52685b; font-size: 8px; font-weight: 850; }
+.statsList { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; margin: 0; }
+.statsList > div { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; min-width: 0; padding: 7px 9px; border-radius: 8px; background: #fff; }
+.statsList dt { color: #65736a; font-size: .68rem; font-weight: 800; }
+.statsList dd { margin: 0; color: #193f2b; font-weight: 900; font-variant-numeric: tabular-nums; }
+.statsList .statsTotal { grid-column: 1/-1; border: 1px solid #bed6c6; background: #e7f3ea; }
+.statsTotal dt,.statsTotal dd { color: #165b37; }
+.statsFallback { margin: 0; color: #637269; font-size: .8rem; line-height: 1.65; }
 .primaryButton,.secondaryButton,.textButton,.addCandidate { min-height: 42px; padding: 9px 14px; border-radius: 9px; cursor: pointer; font-weight: 850; }
 .primaryButton,.addCandidate { border: 0; background: #176f42; color: #fff; }
 .secondaryButton { border: 1px solid #b7cdbf; background: #fff; color: #205f3c; }
@@ -152,7 +176,7 @@
 .offenseDetailGrid > div { display: grid; padding: 8px; border-radius: 7px; background: #f1f6f3; }
 .offenseDetailGrid span { color: #68776e; font-size: .7rem; }
 
-.modeTabs button:focus-visible,.emptySlot:focus-visible,.removeButton:focus-visible,.primaryButton:focus-visible,.secondaryButton:focus-visible,.textButton:focus-visible,.typeRecommendations button:focus-visible,.candidateSelect:focus-visible,.addCandidate:focus-visible,.compactRanking button:focus-visible,.inlineDetails summary:focus-visible,.rankingDetails summary:focus-visible,.detailPanel summary:focus-visible { outline: 3px solid rgba(22,115,72,.28); outline-offset: 2px; }
+.modeTabs button:focus-visible,.statsSelectButton:focus-visible,.emptySlot:focus-visible,.removeButton:focus-visible,.primaryButton:focus-visible,.secondaryButton:focus-visible,.textButton:focus-visible,.typeRecommendations button:focus-visible,.candidateSelect:focus-visible,.addCandidate:focus-visible,.compactRanking button:focus-visible,.inlineDetails summary:focus-visible,.rankingDetails summary:focus-visible,.detailPanel summary:focus-visible { outline: 3px solid rgba(22,115,72,.28); outline-offset: 2px; }
 
 @media (max-width:1100px) {
   .seasonBar { grid-template-columns: 1fr 1fr; }
@@ -162,6 +186,8 @@
 }
 @media (max-width:900px) {
   .teamGrid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .statsLayout { grid-template-columns: minmax(150px,.65fr) minmax(190px,.8fr); }
+  .statsList { grid-column: 1/-1; }
   .topCandidates { grid-template-columns: 1fr; }
 }
 @media (max-width:640px) {
@@ -179,6 +205,11 @@
   .slotIdentity > span:first-child { width: 52px; height: 52px; flex-basis: 52px; }
   .typeVisual { flex-basis: 52px; width: 52px; height: 52px; }
   .dualControls { grid-template-columns: 1fr; gap: 0; }
+  .statsPanel { padding: 13px 11px; }
+  .statsLayout { grid-template-columns: 1fr; gap: 12px; }
+  .statsIdentity { justify-content: center; }
+  .radarChart { width: min(100%,250px); }
+  .statsList { grid-column: auto; }
   .control input,.control select { font-size: .72rem; }
   .inputActions { display: grid; grid-template-columns: 1fr 1fr; }
   .textButton { grid-column: 1/-1; margin-left: 0; }

@@ -34,6 +34,16 @@ export type PokemonEntry = {
   nameJa: string;
   nameEn: string;
   types: TypeName[];
+  baseStats?: PokemonBaseStats;
+};
+
+export type PokemonBaseStats = {
+  hp: number;
+  attack: number;
+  defense: number;
+  specialAttack: number;
+  specialDefense: number;
+  speed: number;
 };
 
 export type Regulation = {

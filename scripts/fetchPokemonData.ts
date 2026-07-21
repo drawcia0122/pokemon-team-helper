@@ -68,7 +68,21 @@ type PokeApiPokemon = {
     slot: number;
     type: NamedApiResource;
   }>;
+  stats: Array<{
+    base_stat: number;
+    stat: NamedApiResource;
+  }>;
 };
+
+function getBaseStat(pokemon: PokeApiPokemon, statName: string): number {
+  const value = pokemon.stats.find((entry) => entry.stat.name === statName)?.base_stat;
+
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 1) {
+    throw new Error(`Missing base stat ${statName} for ${pokemon.name} (${pokemon.id})`);
+  }
+
+  return value;
+}
 
 const formJaSuffixMap: Record<string, string> = {
   alola: "アローラ",
@@ -229,7 +243,15 @@ async function fetchPokemonEntries(resources: NamedApiResource[]): Promise<Pokem
       nameEn: formatEnglishName(pokemon.name, speciesName.nameEn),
       types: pokemon.types
         .sort((a, b) => a.slot - b.slot)
-        .map((typeEntry) => typeEntry.type.name as TypeName)
+        .map((typeEntry) => typeEntry.type.name as TypeName),
+      baseStats: {
+        hp: getBaseStat(pokemon, "hp"),
+        attack: getBaseStat(pokemon, "attack"),
+        defense: getBaseStat(pokemon, "defense"),
+        specialAttack: getBaseStat(pokemon, "special-attack"),
+        specialDefense: getBaseStat(pokemon, "special-defense"),
+        speed: getBaseStat(pokemon, "speed")
+      }
     };
 
     if ((index + 1) % 50 === 0 || index === resources.length - 1) {

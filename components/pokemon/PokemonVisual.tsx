@@ -12,6 +12,7 @@ type PokemonVisualProps = {
   slug: string;
   pokemonId?: number;
   size?: "small" | "medium" | "large";
+  appearance?: "framed" | "plain";
 };
 
 function initials(name: string): string {
@@ -22,7 +23,8 @@ export function PokemonVisual({
   name,
   slug,
   pokemonId,
-  size = "medium"
+  size = "medium",
+  appearance = "framed"
 }: PokemonVisualProps) {
   const [loadedImageUrl, setLoadedImageUrl] = useState<string | null>(null);
   const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
@@ -35,7 +37,7 @@ export function PokemonVisual({
 
   return (
     <span
-      className={`${styles.visual} ${styles[size]}`}
+      className={`${styles.visual} ${styles[size]} ${styles[appearance]}`}
       data-pokemon-slug={slug}
       data-image-state={imageState}
       aria-hidden="true"

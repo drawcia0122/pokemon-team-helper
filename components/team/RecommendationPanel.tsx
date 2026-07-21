@@ -61,6 +61,7 @@ export function RecommendationPanel({
                 <button type="button" className={styles.candidateSelect} onClick={() => onSelect({ kind: "pokemon", value: candidate })}>
                   <span className={styles.rank}>#{index + 1}</span>
                   <PokemonVisual
+                    appearance="plain"
                     name={candidate.pokemon.nameJa}
                     slug={candidate.pokemon.slug}
                     pokemonId={candidate.pokemon.id}

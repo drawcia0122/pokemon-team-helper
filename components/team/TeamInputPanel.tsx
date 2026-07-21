@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { PokemonVisual } from "@/components/pokemon/PokemonVisual";
+import { PokemonStatsPanel } from "@/components/team/PokemonStatsPanel";
+import { resolveSelectedPokemonSlotId } from "@/lib/pokemonBaseStats";
 import { searchPokemon } from "@/lib/pokemonSearch";
 import { isTeamSlotAllowed } from "@/lib/teamUi";
 import { getPokemonBySlug, getTypeLabel } from "@/lib/typeChart";
@@ -23,6 +25,19 @@ export function TeamInputPanel({
   allTypes: TypeEntry[];
   sampleTeam: TeamSlot[];
 }) {
+  const [preferredStatsSlotId, setPreferredStatsSlotId] = useState<string | null>(null);
+  const selectedStatsSlotId = resolveSelectedPokemonSlotId(
+    team,
+    preferredStatsSlotId
+  );
+  const selectedStatsSlot = team.find(
+    (slot) => slot.id === selectedStatsSlotId && slot.mode === "pokemon"
+  );
+  const selectedStatsPokemon =
+    selectedStatsSlot?.mode === "pokemon"
+      ? getPokemonBySlug(selectedStatsSlot.pokemonSlug) ?? null
+      : null;
+
   function updateSlot(slotId: string, nextSlot: TeamSlot) {
     onChange(team.map((slot) => (slot.id === slotId ? nextSlot : slot)));
   }
@@ -65,13 +80,14 @@ export function TeamInputPanel({
                 <button
                   type="button"
                   aria-pressed={slot.mode === "pokemon"}
-                  onClick={() =>
+                  onClick={() => {
+                    setPreferredStatsSlotId(slot.id);
                     updateSlot(slot.id, {
                       id: slot.id,
                       mode: "pokemon",
                       pokemonSlug: pokemonInputOptions[0]?.slug ?? ""
-                    })
-                  }
+                    });
+                  }}
                 >
                   ポケモン
                 </button>
@@ -96,7 +112,12 @@ export function TeamInputPanel({
                 slot={slot}
                 availablePokemon={pokemonInputOptions}
                 isAllowed={isTeamSlotAllowed(slot, availablePokemon)}
-                onChange={(nextSlot) => updateSlot(slot.id, nextSlot)}
+                isStatsSelected={selectedStatsSlotId === slot.id}
+                onSelectStats={() => setPreferredStatsSlotId(slot.id)}
+                onChange={(nextSlot) => {
+                  setPreferredStatsSlotId(slot.id);
+                  updateSlot(slot.id, nextSlot);
+                }}
               />
             ) : (
               <TypeSlotEditor
@@ -131,6 +152,8 @@ export function TeamInputPanel({
         ))}
       </div>
 
+      <PokemonStatsPanel pokemon={selectedStatsPokemon} />
+
       <div className={styles.inputActions}>
         <button type="button" className={styles.primaryButton} onClick={addSlot} disabled={team.length >= 6}>
           メンバーを追加
@@ -150,11 +173,15 @@ function PokemonSlotEditor({
   slot,
   availablePokemon,
   isAllowed,
+  isStatsSelected,
+  onSelectStats,
   onChange
 }: {
   slot: Extract<TeamSlot, { mode: "pokemon" }>;
   availablePokemon: PokemonEntry[];
   isAllowed: boolean;
+  isStatsSelected: boolean;
+  onSelectStats: () => void;
   onChange: (nextSlot: Extract<TeamSlot, { mode: "pokemon" }>) => void;
 }) {
   const [query, setQuery] = useState("");
@@ -173,6 +200,7 @@ function PokemonSlotEditor({
     <>
       <div className={styles.slotIdentity}>
         <PokemonVisual
+          appearance="plain"
           name={name}
           slug={slot.pokemonSlug}
           pokemonId={selectedPokemon?.id}
@@ -185,6 +213,14 @@ function PokemonSlotEditor({
           </div>
         </div>
       </div>
+      <button
+        type="button"
+        className={styles.statsSelectButton}
+        aria-pressed={isStatsSelected}
+        onClick={onSelectStats}
+      >
+        {isStatsSelected ? "種族値を表示中" : "種族値を見る"}
+      </button>
       {!isAllowed ? <p className={styles.slotWarning} role="status">現在のシーズンでは使用不可</p> : null}
       <label className={styles.control}>
         <span>検索</span>
