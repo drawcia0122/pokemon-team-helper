@@ -2,8 +2,11 @@
 
 import { useEffect, useId, useMemo, useState } from "react";
 import { PokemonVisual } from "@/components/pokemon/PokemonVisual";
-import { PokemonStatsPanel } from "@/components/team/PokemonStatsPanel";
-import { resolveSelectedPokemonSlotId } from "@/lib/pokemonBaseStats";
+import {
+  getPokemonBaseStatTotal,
+  isPokemonBaseStats,
+  POKEMON_BASE_STAT_DEFINITIONS
+} from "@/lib/pokemonBaseStats";
 import {
   getFormOptionLabel,
   getSelectableForms,
@@ -37,20 +40,7 @@ export function TeamInputPanel({
   pokemonInputOptions: PokemonEntry[];
   allTypes: TypeEntry[];
 }) {
-  const [preferredStatsSlotId, setPreferredStatsSlotId] = useState<string | null>(null);
   const positionedTeam = getTeamSlotsByPosition(team);
-  const orderedTeam = positionedTeam.filter((slot): slot is TeamSlot => slot !== null);
-  const selectedStatsSlotId = resolveSelectedPokemonSlotId(
-    orderedTeam,
-    preferredStatsSlotId
-  );
-  const statsOptions = positionedTeam.flatMap((slot, position) => {
-    if (slot?.mode !== "pokemon") return [];
-    const pokemon = getPokemonBySlug(slot.pokemonSlug);
-    return pokemon ? [{ slotId: slot.id, position, pokemon }] : [];
-  });
-  const selectedStatsPokemon =
-    statsOptions.find((option) => option.slotId === selectedStatsSlotId)?.pokemon ?? null;
 
   function updateSlot(position: number, nextSlot: TeamSlotWithoutId | TeamSlot) {
     onChange(setTeamSlotAtPosition(team, position, nextSlot));
@@ -144,13 +134,6 @@ export function TeamInputPanel({
         ))}
       </div>
 
-      <PokemonStatsPanel
-        pokemon={selectedStatsPokemon}
-        options={statsOptions}
-        selectedSlotId={selectedStatsSlotId}
-        onSelectSlot={setPreferredStatsSlotId}
-      />
-
       <div className={styles.inputActions}>
         <button
           type="button"
@@ -214,19 +197,22 @@ function PokemonSlotEditor({
       />
 
       {selectedPokemon ? (
-        <div className={styles.slotIdentity}>
-          <PokemonVisual
-            appearance="plain"
-            name={selectedPokemon.nameJa}
-            slug={selectedPokemon.slug}
-            pokemonId={selectedPokemon.id}
-            size="large"
-          />
-          <div className={styles.typeRow} aria-label="タイプ">
-            {selectedPokemon.types.map((type) => (
-              <span key={type}>{getTypeLabel(type)}</span>
-            ))}
+        <div className={styles.slotPokemonDetails}>
+          <div className={`${styles.slotIdentity} ${styles.pokemonIdentity}`}>
+            <PokemonVisual
+              appearance="plain"
+              name={selectedPokemon.nameJa}
+              slug={selectedPokemon.slug}
+              pokemonId={selectedPokemon.id}
+              size="medium"
+            />
+            <div className={styles.typeRow} aria-label="タイプ">
+              {selectedPokemon.types.map((type) => (
+                <span key={type}>{getTypeLabel(type)}</span>
+              ))}
+            </div>
           </div>
+          <PokemonCardBaseStats pokemon={selectedPokemon} />
         </div>
       ) : (
         <div className={styles.emptyIdentity} aria-hidden="true">
@@ -259,6 +245,35 @@ function PokemonSlotEditor({
         </label>
       ) : null}
     </>
+  );
+}
+
+function PokemonCardBaseStats({ pokemon }: { pokemon: PokemonEntry }) {
+  const stats = pokemon.baseStats;
+  if (!isPokemonBaseStats(stats)) {
+    return (
+      <p className={styles.slotStatsFallback} role="status">
+        種族値データなし
+      </p>
+    );
+  }
+
+  return (
+    <dl
+      className={styles.slotStats}
+      aria-label={`${pokemon.nameJa}の種族値`}
+    >
+      {POKEMON_BASE_STAT_DEFINITIONS.map(({ key, label, shortLabel }) => (
+        <div key={key}>
+          <dt aria-label={label}>{shortLabel}</dt>
+          <dd>{stats[key]}</dd>
+        </div>
+      ))}
+      <div className={styles.slotStatsTotal}>
+        <dt>BST</dt>
+        <dd>{getPokemonBaseStatTotal(stats)}</dd>
+      </div>
+    </dl>
   );
 }
 

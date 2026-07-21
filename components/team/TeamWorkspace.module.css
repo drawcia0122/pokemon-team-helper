@@ -33,6 +33,16 @@
 .modeTabs button[aria-pressed="true"] { background: #fff; color: #17623b; box-shadow: 0 2px 7px rgba(20,70,43,.1); }
 .slotIdentity { display: flex; align-items: center; gap: 10px; min-height: 60px; margin: 7px 0; }
 .slotIdentity > div { min-width: 0; }
+.slotPokemonDetails { display: grid; grid-template-columns: auto minmax(0,1fr); align-items: center; gap: 9px; min-width: 0; margin: 3px 0; }
+.slotPokemonDetails .pokemonIdentity { display: grid; min-width: 56px; min-height: 0; margin: 0; justify-items: center; gap: 3px; }
+.slotPokemonDetails .typeRow { justify-content: center; margin-top: 0; }
+.slotStats { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 4px; min-width: 0; margin: 0; }
+.slotStats > div { display: flex; align-items: baseline; justify-content: center; gap: 4px; min-width: 0; padding: 3px 2px; border-radius: 6px; background: #fff; }
+.slotStats dt { color: #68766e; font-size: .55rem; font-weight: 900; line-height: 1.1; }
+.slotStats dd { margin: 0; color: #193f2b; font-size: .72rem; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.slotStats .slotStatsTotal { grid-column: 1/-1; border: 1px solid #bed6c6; background: #e7f3ea; }
+.slotStatsTotal dt,.slotStatsTotal dd { color: #165b37; }
+.slotStatsFallback { align-self: stretch; display: grid; min-width: 0; margin: 0; place-items: center; border-radius: 7px; background: #f0f4f1; color: #637269; font-size: .68rem; text-align: center; }
 .typeVisual { display: grid; flex: 0 0 72px; width: 72px; height: 72px; place-items: center; border: 1px solid #bad3c1; border-radius: 50%; background: #dfefe4; color: #17623b; font-size: .7rem; font-weight: 900; }
 .typeRow { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
 .typeRow span { padding: 3px 6px; border-radius: 999px; background: #e5f3e9; color: #2e6847; font-size: .65rem; font-weight: 800; }
@@ -60,32 +70,6 @@
 .comboboxList p { margin: 0; padding: 12px; color: #65736a; font-size: .74rem; }
 .visuallyHidden { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .inputActions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-.statsPanel { min-width: 0; margin-top: 14px; padding: 15px; border: 1px solid #c8dace; border-radius: 14px; background: #f7fbf8; }
-.statsHeading { margin-bottom: 12px; }
-.statsHeading span { color: #26714a; font-size: .64rem; font-weight: 900; letter-spacing: .1em; }
-.statsHeading h3 { margin: 3px 0 0; color: #173f2a; font-size: 1rem; }
-.statsTabs { display: flex; gap: 6px; margin: 0 0 12px; overflow-x: auto; padding: 2px 2px 5px; scrollbar-width: thin; }
-.statsTabs button { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 5px; max-width: 170px; min-height: 42px; padding: 5px 8px; border: 1px solid #c1d5c7; border-radius: 9px; background: #fff; color: #315843; cursor: pointer; }
-.statsTabs button[aria-pressed="true"] { border-color: #22764b; background: #e5f3e9; box-shadow: inset 0 -3px #22764b; }
-.statsTabs button > span:last-child { overflow: hidden; font-size: .68rem; font-weight: 850; text-overflow: ellipsis; white-space: nowrap; }
-.statsLayout { display: grid; grid-template-columns: minmax(155px,.65fr) minmax(190px,.8fr) minmax(230px,1fr); align-items: center; gap: 18px; }
-.statsIdentity { display: flex; align-items: center; gap: 11px; min-width: 0; }
-.statsIdentity > div { display: grid; min-width: 0; gap: 3px; }
-.statsIdentity strong { overflow-wrap: anywhere; color: #183c29; font-size: 1rem; }
-.statsIdentity small { overflow-wrap: anywhere; color: #6c796f; font-size: .68rem; }
-.statsIdentity div > span { margin-top: 4px; color: #176b42; font-size: .76rem; font-weight: 900; }
-.radarChart { display: block; width: min(100%,220px); height: auto; margin: 0 auto; overflow: visible; }
-.radarGrid { fill: none; stroke: #c4d7ca; stroke-width: 1; }
-.radarAxis { stroke: #d5e2d9; stroke-width: 1; }
-.radarValue { fill: rgba(34,126,79,.24); stroke: #197049; stroke-linejoin: round; stroke-width: 2; }
-.radarLabel { fill: #52685b; font-size: 8px; font-weight: 850; }
-.statsList { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; margin: 0; }
-.statsList > div { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; min-width: 0; padding: 7px 9px; border-radius: 8px; background: #fff; }
-.statsList dt { color: #65736a; font-size: .68rem; font-weight: 800; }
-.statsList dd { margin: 0; color: #193f2b; font-weight: 900; font-variant-numeric: tabular-nums; }
-.statsList .statsTotal { grid-column: 1/-1; border: 1px solid #bed6c6; background: #e7f3ea; }
-.statsTotal dt,.statsTotal dd { color: #165b37; }
-.statsFallback { margin: 0; color: #637269; font-size: .8rem; line-height: 1.65; }
 .primaryButton,.secondaryButton,.textButton,.addCandidate { min-height: 42px; padding: 9px 14px; border-radius: 9px; cursor: pointer; font-weight: 850; }
 .primaryButton,.addCandidate { border: 0; background: #176f42; color: #fff; }
 .secondaryButton { border: 1px solid #b7cdbf; background: #fff; color: #205f3c; }
@@ -229,7 +213,7 @@
 .offenseDetailGrid > div { display: grid; padding: 8px; border-radius: 7px; background: #f1f6f3; }
 .offenseDetailGrid span { color: #68776e; font-size: .7rem; }
 
-.modeTabs button:focus-visible,.comboboxList button:focus-visible,.statsTabs button:focus-visible,.removeButton:focus-visible,.primaryButton:focus-visible,.secondaryButton:focus-visible,.textButton:focus-visible,.typeRecommendations button:focus-visible,.candidateSelect:focus-visible,.addCandidate:focus-visible,.compactRanking button:focus-visible,.inlineDetails summary:focus-visible,.rankingDetails summary:focus-visible,.detailPanel summary:focus-visible { outline: 3px solid rgba(22,115,72,.28); outline-offset: 2px; }
+.modeTabs button:focus-visible,.comboboxList button:focus-visible,.removeButton:focus-visible,.primaryButton:focus-visible,.secondaryButton:focus-visible,.textButton:focus-visible,.typeRecommendations button:focus-visible,.candidateSelect:focus-visible,.addCandidate:focus-visible,.compactRanking button:focus-visible,.inlineDetails summary:focus-visible,.rankingDetails summary:focus-visible,.detailPanel summary:focus-visible { outline: 3px solid rgba(22,115,72,.28); outline-offset: 2px; }
 
 @media (max-width:1100px) {
   .seasonBar { grid-template-columns: 1fr 1fr; }
@@ -239,8 +223,6 @@
 }
 @media (max-width:900px) {
   .teamGrid { grid-template-columns: repeat(2,minmax(0,1fr)); }
-  .statsLayout { grid-template-columns: minmax(150px,.65fr) minmax(190px,.8fr); }
-  .statsList { grid-column: 1/-1; }
   .topCandidates { grid-template-columns: 1fr; }
   .threatList { grid-template-columns: repeat(3,minmax(0,1fr)); }
 }
@@ -258,6 +240,15 @@
   .slotHeading { align-items: flex-start; flex-direction: column; }
   .slotIdentity { align-items: center; min-height: 54px; margin-block: 5px; }
   .slotIdentity > span:first-child { width: 48px; height: 48px; flex-basis: 48px; }
+  .slotPokemonDetails { grid-template-columns: 1fr; gap: 4px; margin-block: 2px; }
+  .slotPokemonDetails .pokemonIdentity { display: flex; min-width: 0; min-height: 36px; margin: 0; justify-items: normal; gap: 5px; }
+  .slotPokemonDetails .pokemonIdentity > span:first-child { flex-basis: 36px; width: 36px; height: 36px; }
+  .slotPokemonDetails .typeRow { justify-content: flex-start; }
+  .slotPokemonDetails .typeRow span { padding: 2px 4px; font-size: .58rem; }
+  .slotStats { gap: 3px; }
+  .slotStats > div { gap: 2px; padding: 2px 1px; }
+  .slotStats dt { font-size: .5rem; }
+  .slotStats dd { font-size: .66rem; }
   .typeVisual { flex-basis: 52px; width: 52px; height: 52px; }
   .pokemonCombobox > input { min-height: 38px; padding-inline: 8px; font-size: .7rem; }
   .comboboxList { width: min(280px,calc(200vw - 42px)); max-height: 250px; }
@@ -267,12 +258,6 @@
   .formControl select { min-height: 36px; padding: 6px 7px; }
   .removeButton { min-height: 32px; }
   .dualControls { grid-template-columns: 1fr; gap: 0; }
-  .statsPanel { padding: 13px 11px; }
-  .statsTabs button { max-width: 125px; min-height: 40px; padding: 4px 6px; }
-  .statsLayout { grid-template-columns: 1fr; gap: 12px; }
-  .statsIdentity { justify-content: center; }
-  .radarChart { width: min(100%,250px); }
-  .statsList { grid-column: auto; }
   .control input,.control select { font-size: .72rem; }
   .inputActions { display: grid; grid-template-columns: 1fr 1fr; }
   .textButton { grid-column: 1/-1; margin-left: 0; }
