@@ -31,11 +31,29 @@ export type TypeEntry = {
 export type PokemonEntry = {
   id: number;
   slug: string;
+  speciesId: number;
+  isDefaultForm: boolean;
+  formKind: PokemonFormKind;
+  formOrder: number;
+  isBattleOnly: boolean;
+  formSelection: PokemonFormSelection;
   nameJa: string;
   nameEn: string;
   types: TypeName[];
   baseStats?: PokemonBaseStats;
 };
+
+export type PokemonFormKind =
+  | "base"
+  | "mega"
+  | "regional"
+  | "standard"
+  | "gender"
+  | "gmax"
+  | "battle-only"
+  | "appearance";
+
+export type PokemonFormSelection = "team" | "excluded";
 
 export type PokemonBaseStats = {
   hp: number;

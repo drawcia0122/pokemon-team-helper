@@ -6,6 +6,7 @@ import {
   getSeasonDefinition,
   resolveArticleSeasonId
 } from "@/lib/regulations";
+import { resolvePokemonSlugAlias } from "@/lib/typeChart";
 import type { BuildArticle } from "@/types/buildArticle";
 import type {
   PokemonEntry,
@@ -78,10 +79,11 @@ export function resolveArticleImport(
   }
 
   const knownSlugs = new Set(pokemonList.map((entry) => entry.slug));
-  const uniqueSlugs = new Set(article.pokemonSlugs);
+  const resolvedSlugs = article.pokemonSlugs.map(resolvePokemonSlugAlias);
+  const uniqueSlugs = new Set(resolvedSlugs);
   if (
     uniqueSlugs.size !== 6 ||
-    article.pokemonSlugs.some((slug) => typeof slug !== "string" || !knownSlugs.has(slug))
+    resolvedSlugs.some((slug) => typeof slug !== "string" || !knownSlugs.has(slug))
   ) {
     return {
       status: "error",
@@ -92,7 +94,7 @@ export function resolveArticleImport(
   return {
     status: "ready",
     article,
-    team: article.pokemonSlugs.map((pokemonSlug, index) => ({
+    team: resolvedSlugs.map((pokemonSlug, index) => ({
       id: `article-import-${index + 1}`,
       mode: "pokemon",
       pokemonSlug

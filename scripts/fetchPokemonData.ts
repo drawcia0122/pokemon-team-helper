@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { resolvePokemonFormPolicy } from "../lib/pokemonFormPolicy";
 import type { PokemonEntry, TypeEntry, TypeName } from "../types/pokemon";
 
 const POKEAPI_BASE = "https://pokeapi.co/api/v2";
@@ -63,7 +64,9 @@ type PokeApiPokemonList = {
 type PokeApiPokemon = {
   id: number;
   name: string;
+  is_default: boolean;
   species: NamedApiResource;
+  forms: NamedApiResource[];
   types: Array<{
     slot: number;
     type: NamedApiResource;
@@ -72,6 +75,12 @@ type PokeApiPokemon = {
     base_stat: number;
     stat: NamedApiResource;
   }>;
+};
+
+type PokeApiPokemonForm = {
+  form_order: number;
+  is_battle_only: boolean;
+  is_mega: boolean;
 };
 
 function getBaseStat(pokemon: PokeApiPokemon, statName: string): number {
@@ -167,6 +176,17 @@ function formatJapaneseName(slug: string, speciesNameJa: string): string {
   return `${speciesNameJa}(${cleanedSuffix})`;
 }
 
+function getResourceId(resource: NamedApiResource): number {
+  const match = resource.url.match(/\/(\d+)\/?$/);
+  const id = match ? Number(match[1]) : Number.NaN;
+
+  if (!Number.isSafeInteger(id) || id < 1) {
+    throw new Error(`Invalid resource id: ${resource.url}`);
+  }
+
+  return id;
+}
+
 async function fetchTypes(): Promise<TypeEntry[]> {
   const entries: TypeEntry[] = [];
 
@@ -221,6 +241,13 @@ async function fetchPokemonEntries(resources: NamedApiResource[]): Promise<Pokem
 
   return mapWithConcurrency(resources, async (resource, index) => {
     const pokemon = await fetchJson<PokeApiPokemon>(resource.url);
+    const pokemonForm = pokemon.forms[0]
+      ? await fetchJson<PokeApiPokemonForm>(pokemon.forms[0].url)
+      : null;
+
+    if (!pokemonForm) {
+      throw new Error(`Missing Pokemon form metadata for ${pokemon.name} (${pokemon.id})`);
+    }
 
     if (!speciesNameCache.has(pokemon.species.url)) {
       speciesNameCache.set(
@@ -236,9 +263,21 @@ async function fetchPokemonEntries(resources: NamedApiResource[]): Promise<Pokem
     }
 
     const speciesName = await speciesNameCache.get(pokemon.species.url)!;
+    const formPolicy = resolvePokemonFormPolicy({
+      slug: pokemon.name,
+      isDefaultForm: pokemon.is_default,
+      isBattleOnly: pokemonForm.is_battle_only,
+      isMega: pokemonForm.is_mega
+    });
     const entry: PokemonEntry = {
       id: pokemon.id,
       slug: pokemon.name,
+      speciesId: getResourceId(pokemon.species),
+      isDefaultForm: pokemon.is_default,
+      formKind: formPolicy.formKind,
+      formOrder: pokemonForm.form_order,
+      isBattleOnly: pokemonForm.is_battle_only,
+      formSelection: formPolicy.formSelection,
       nameJa: formatJapaneseName(pokemon.name, speciesName.nameJa),
       nameEn: formatEnglishName(pokemon.name, speciesName.nameEn),
       types: pokemon.types

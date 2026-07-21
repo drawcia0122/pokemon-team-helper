@@ -4,9 +4,16 @@ import { useState } from "react";
 import { PokemonVisual } from "@/components/pokemon/PokemonVisual";
 import { PokemonStatsPanel } from "@/components/team/PokemonStatsPanel";
 import { resolveSelectedPokemonSlotId } from "@/lib/pokemonBaseStats";
-import { searchPokemon } from "@/lib/pokemonSearch";
+import {
+  getFormOptionLabel,
+  getSelectableForms,
+  getSpeciesRepresentative,
+  searchPokemonSpeciesRepresentatives,
+  selectInitialFormForSpecies,
+  switchTeamSlotForm
+} from "@/lib/pokemonForms";
 import { isTeamSlotAllowed } from "@/lib/teamUi";
-import { getPokemonBySlug, getTypeLabel } from "@/lib/typeChart";
+import { getAllPokemon, getPokemonBySlug, getTypeLabel } from "@/lib/typeChart";
 import type { PokemonEntry, TeamSlot, TypeEntry, TypeName } from "@/types/pokemon";
 import styles from "./TeamWorkspace.module.css";
 
@@ -110,7 +117,8 @@ export function TeamInputPanel({
             {slot.mode === "pokemon" ? (
               <PokemonSlotEditor
                 slot={slot}
-                availablePokemon={pokemonInputOptions}
+                availablePokemon={availablePokemon}
+                pokemonInputOptions={pokemonInputOptions}
                 isAllowed={isTeamSlotAllowed(slot, availablePokemon)}
                 isStatsSelected={selectedStatsSlotId === slot.id}
                 onSelectStats={() => setPreferredStatsSlotId(slot.id)}
@@ -172,6 +180,7 @@ export function TeamInputPanel({
 function PokemonSlotEditor({
   slot,
   availablePokemon,
+  pokemonInputOptions,
   isAllowed,
   isStatsSelected,
   onSelectStats,
@@ -179,6 +188,7 @@ function PokemonSlotEditor({
 }: {
   slot: Extract<TeamSlot, { mode: "pokemon" }>;
   availablePokemon: PokemonEntry[];
+  pokemonInputOptions: PokemonEntry[];
   isAllowed: boolean;
   isStatsSelected: boolean;
   onSelectStats: () => void;
@@ -186,14 +196,31 @@ function PokemonSlotEditor({
 }) {
   const [query, setQuery] = useState("");
   const selectedPokemon =
-    availablePokemon.find((pokemon) => pokemon.slug === slot.pokemonSlug) ??
+    pokemonInputOptions.find((pokemon) => pokemon.slug === slot.pokemonSlug) ??
     getPokemonBySlug(slot.pokemonSlug) ??
     null;
-  const searchedPokemon = searchPokemon(availablePokemon, query).slice(0, 50);
+  const allPokemon = getAllPokemon();
+  const searchedPokemon = searchPokemonSpeciesRepresentatives(
+    allPokemon,
+    pokemonInputOptions,
+    query
+  ).slice(0, 50);
+  const selectedRepresentative = selectedPokemon
+    ? getSpeciesRepresentative(allPokemon, selectedPokemon.speciesId)
+    : null;
   const matchedPokemon =
-    selectedPokemon && !searchedPokemon.some((pokemon) => pokemon.slug === selectedPokemon.slug)
-      ? [selectedPokemon, ...searchedPokemon]
+    selectedRepresentative && !searchedPokemon.some(
+      (pokemon) => pokemon.speciesId === selectedRepresentative.speciesId
+    )
+      ? [selectedRepresentative, ...searchedPokemon]
       : searchedPokemon;
+  const selectableForms = selectedPokemon
+    ? getSelectableForms(allPokemon, selectedPokemon.speciesId)
+    : [];
+  const selectedFormIsSelectable = Boolean(
+    selectedPokemon && selectableForms.some((form) => form.slug === selectedPokemon.slug)
+  );
+  const availableSlugs = new Set(availablePokemon.map((pokemon) => pokemon.slug));
   const name = selectedPokemon?.nameJa ?? slot.pokemonSlug;
 
   return (
@@ -234,8 +261,21 @@ function PokemonSlotEditor({
       <label className={styles.control}>
         <span>ポケモンを選択</span>
         <select
-          value={slot.pokemonSlug}
-          onChange={(event) => onChange({ ...slot, pokemonSlug: event.target.value })}
+          value={selectedRepresentative?.slug ?? slot.pokemonSlug}
+          onChange={(event) => {
+            const representative = getPokemonBySlug(event.target.value);
+            const nextPokemon = representative
+              ? selectInitialFormForSpecies(
+                  allPokemon,
+                  pokemonInputOptions,
+                  representative.speciesId
+                )
+              : undefined;
+
+            if (nextPokemon) {
+              onChange(switchTeamSlotForm(slot, nextPokemon.slug));
+            }
+          }}
         >
           {matchedPokemon.length ? matchedPokemon.map((pokemon) => (
             <option key={pokemon.slug} value={pokemon.slug}>
@@ -244,7 +284,28 @@ function PokemonSlotEditor({
           )) : <option value={slot.pokemonSlug}>候補がありません</option>}
         </select>
       </label>
-      <small className={styles.matchCount}>{query ? `検索一致 ${searchedPokemon.length}件` : `候補 ${availablePokemon.length}件`}</small>
+      {selectableForms.length > 1 ? (
+        <label className={`${styles.control} ${styles.formControl}`}>
+          <span>フォーム</span>
+          <select
+            value={selectedFormIsSelectable ? slot.pokemonSlug : ""}
+            onChange={(event) => onChange(switchTeamSlotForm(slot, event.target.value))}
+          >
+            {!selectedFormIsSelectable ? (
+              <option value="" disabled>保存済みフォームは切り替え対象外です</option>
+            ) : null}
+            {selectableForms.map((form) => (
+              <option key={form.slug} value={form.slug}>
+                {getFormOptionLabel(form)}
+                {availableSlugs.has(form.slug) ? "" : "（現在のシーズンでは使用不可）"}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
+      <small className={styles.matchCount}>
+        {query ? `検索一致 ${searchedPokemon.length}種` : `候補 ${searchPokemonSpeciesRepresentatives(allPokemon, pokemonInputOptions, "").length}種`}
+      </small>
     </>
   );
 }

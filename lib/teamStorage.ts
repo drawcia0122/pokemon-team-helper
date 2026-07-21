@@ -1,4 +1,4 @@
-import { getAllTypes, getPokemonBySlug } from "@/lib/typeChart";
+import { getAllTypes, getPokemonBySlug, resolvePokemonSlugAlias } from "@/lib/typeChart";
 import type { TeamSlot, TypeName } from "@/types/pokemon";
 
 export const TEAM_STORAGE_KEY = "pokemon-helper:team";
@@ -6,7 +6,12 @@ export const SEASON_STORAGE_KEY = "pokemon-helper:seasonId";
 export const ARTICLE_IMPORT_BACKUP_KEY = "pokemon-helper:teamBeforeArticleImport";
 
 export function parseStoredTeam(value: string): TeamSlot[] {
-  return JSON.parse(value) as TeamSlot[];
+  const parsed = JSON.parse(value) as TeamSlot[];
+  return parsed.map((slot) =>
+    slot.mode === "pokemon"
+      ? { ...slot, pokemonSlug: resolvePokemonSlugAlias(slot.pokemonSlug) }
+      : slot
+  );
 }
 
 export function serializeTeam(team: TeamSlot[]): string {
@@ -56,7 +61,11 @@ export function parseTeamBackup(value: string | null): TeamSlot[] | null {
       return null;
     }
 
-    return parsed;
+    return parsed.map((slot) =>
+      slot.mode === "pokemon"
+        ? { ...slot, pokemonSlug: resolvePokemonSlugAlias(slot.pokemonSlug) }
+        : slot
+    );
   } catch {
     return null;
   }

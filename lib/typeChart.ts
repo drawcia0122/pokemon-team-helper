@@ -1,4 +1,5 @@
 import pokemonData from "@/data/pokemon.json";
+import pokemonSlugAliases from "@/data/pokemonSlugAliases.json";
 import typeData from "@/data/types.json";
 import type {
   DefensiveBucket,
@@ -19,6 +20,7 @@ const allPokemon = pokemonData as PokemonEntry[];
 
 const typeMap = new Map(allTypes.map((type) => [type.nameEn, type]));
 const pokemonMap = new Map(allPokemon.map((pokemon) => [pokemon.slug, pokemon]));
+const slugAliasMap = pokemonSlugAliases as Record<string, string>;
 
 export const multiplierBuckets: DefensiveBucket[] = [
   "quadWeak",
@@ -51,7 +53,16 @@ export function getTypeLabel(typeName: TypeName): string {
 }
 
 export function getPokemonBySlug(slug: string): PokemonEntry | undefined {
-  return pokemonMap.get(slug);
+  return pokemonMap.get(resolvePokemonSlugAlias(slug));
+}
+
+export function resolvePokemonSlugAlias(slug: string): string {
+  if (pokemonMap.has(slug)) {
+    return slug;
+  }
+
+  const alias = slugAliasMap[slug];
+  return alias && pokemonMap.has(alias) ? alias : slug;
 }
 
 export function getMultiplier(attackType: TypeName, defendTypes: TypeName[]): number {

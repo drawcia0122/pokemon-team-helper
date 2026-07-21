@@ -40,6 +40,8 @@
 .control > span { color: #56685d; font-size: .68rem; font-weight: 800; }
 .control input,.control select { min-height: 38px; padding: 7px 9px; font-size: .78rem; }
 .matchCount { display: block; margin-bottom: 8px; color: #748078; font-size: .65rem; }
+.formControl { padding: 7px; border: 1px solid #c8dbcf; border-radius: 9px; background: #f4faf6; }
+.formControl > span::after { content: " · 同一species"; color: #7b8a81; font-weight: 700; }
 .statsSelectButton { align-self: flex-start; min-height: 32px; margin: -3px 0 9px; padding: 5px 9px; border: 1px solid #b9d1c1; border-radius: 8px; background: #fff; color: #286044; cursor: pointer; font-size: .67rem; font-weight: 850; }
 .statsSelectButton[aria-pressed="true"] { border-color: #23764c; background: #e5f3e9; color: #174f32; }
 .dualControls { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
