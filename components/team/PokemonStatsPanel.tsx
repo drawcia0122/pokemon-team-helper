@@ -18,7 +18,17 @@ function polygonAtRatio(ratio: number): string {
   );
 }
 
-export function PokemonStatsPanel({ pokemon }: { pokemon: PokemonEntry | null }) {
+export function PokemonStatsPanel({
+  pokemon,
+  options,
+  selectedSlotId,
+  onSelectSlot
+}: {
+  pokemon: PokemonEntry | null;
+  options: Array<{ slotId: string; position: number; pokemon: PokemonEntry }>;
+  selectedSlotId: string | null;
+  onSelectSlot: (slotId: string) => void;
+}) {
   const stats = pokemon?.baseStats;
 
   return (
@@ -27,6 +37,29 @@ export function PokemonStatsPanel({ pokemon }: { pokemon: PokemonEntry | null })
         <span>SELECTED POKÉMON</span>
         <h3 id="pokemon-stats-heading">選択中のポケモンの種族値</h3>
       </div>
+
+      {options.length ? (
+        <div className={styles.statsTabs} aria-label="種族値を表示するポケモン">
+          {options.map((option) => (
+            <button
+              type="button"
+              key={option.slotId}
+              aria-pressed={option.slotId === selectedSlotId}
+              aria-label={`枠${option.position + 1} ${option.pokemon.nameJa}の種族値を表示`}
+              onClick={() => onSelectSlot(option.slotId)}
+            >
+              <PokemonVisual
+                appearance="plain"
+                name={option.pokemon.nameJa}
+                slug={option.pokemon.slug}
+                pokemonId={option.pokemon.id}
+                size="small"
+              />
+              <span>{option.pokemon.nameJa}</span>
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       {!pokemon ? (
         <p className={styles.statsFallback} role="status">

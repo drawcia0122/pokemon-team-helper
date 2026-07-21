@@ -1,67 +1,63 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { PokemonVisual } from "@/components/pokemon/PokemonVisual";
 import { PokemonStatsPanel } from "@/components/team/PokemonStatsPanel";
 import { resolveSelectedPokemonSlotId } from "@/lib/pokemonBaseStats";
 import {
   getFormOptionLabel,
   getSelectableForms,
-  getSpeciesRepresentative,
   searchPokemonSpeciesRepresentatives,
   selectInitialFormForSpecies,
   switchTeamSlotForm
 } from "@/lib/pokemonForms";
+import {
+  clearTeamSlotAtPosition,
+  getTeamSlotsByPosition,
+  setTeamSlotAtPosition,
+  type TeamSlotWithoutId
+} from "@/lib/teamSlotLayout";
 import { isTeamSlotAllowed } from "@/lib/teamUi";
 import { getAllPokemon, getPokemonBySlug, getTypeLabel } from "@/lib/typeChart";
 import type { PokemonEntry, TeamSlot, TypeEntry, TypeName } from "@/types/pokemon";
 import styles from "./TeamWorkspace.module.css";
+
+const SUGGESTION_LIMIT = 12;
 
 export function TeamInputPanel({
   team,
   onChange,
   availablePokemon,
   pokemonInputOptions,
-  allTypes,
-  sampleTeam
+  allTypes
 }: {
   team: TeamSlot[];
   onChange: (team: TeamSlot[]) => void;
   availablePokemon: PokemonEntry[];
   pokemonInputOptions: PokemonEntry[];
   allTypes: TypeEntry[];
-  sampleTeam: TeamSlot[];
 }) {
   const [preferredStatsSlotId, setPreferredStatsSlotId] = useState<string | null>(null);
+  const positionedTeam = getTeamSlotsByPosition(team);
+  const orderedTeam = positionedTeam.filter((slot): slot is TeamSlot => slot !== null);
   const selectedStatsSlotId = resolveSelectedPokemonSlotId(
-    team,
+    orderedTeam,
     preferredStatsSlotId
   );
-  const selectedStatsSlot = team.find(
-    (slot) => slot.id === selectedStatsSlotId && slot.mode === "pokemon"
-  );
+  const statsOptions = positionedTeam.flatMap((slot, position) => {
+    if (slot?.mode !== "pokemon") return [];
+    const pokemon = getPokemonBySlug(slot.pokemonSlug);
+    return pokemon ? [{ slotId: slot.id, position, pokemon }] : [];
+  });
   const selectedStatsPokemon =
-    selectedStatsSlot?.mode === "pokemon"
-      ? getPokemonBySlug(selectedStatsSlot.pokemonSlug) ?? null
-      : null;
+    statsOptions.find((option) => option.slotId === selectedStatsSlotId)?.pokemon ?? null;
 
-  function updateSlot(slotId: string, nextSlot: TeamSlot) {
-    onChange(team.map((slot) => (slot.id === slotId ? nextSlot : slot)));
+  function updateSlot(position: number, nextSlot: TeamSlotWithoutId | TeamSlot) {
+    onChange(setTeamSlotAtPosition(team, position, nextSlot));
   }
 
-  function removeSlot(slotId: string) {
-    onChange(team.filter((slot) => slot.id !== slotId));
-  }
-
-  function addSlot() {
-    if (team.length >= 6) return;
-    const fallbackPokemon = availablePokemon[0] ?? pokemonInputOptions[0];
-    onChange([
-      ...team,
-      fallbackPokemon
-        ? { id: `slot-${Date.now()}`, mode: "pokemon", pokemonSlug: fallbackPokemon.slug }
-        : { id: `slot-${Date.now()}`, mode: "type", primaryType: "normal" }
-    ]);
+  function removeSlot(position: number) {
+    onChange(clearTeamSlotAtPosition(team, position));
   }
 
   return (
@@ -70,40 +66,44 @@ export function TeamInputPanel({
         <div>
           <span className={styles.step}>STEP 1</span>
           <h2 id="team-input-heading">パーティを入力する</h2>
-          <p>2体から分析できます。空き枠は後から追加できます。</p>
+          <p>6枠から直接ポケモンを検索できます。2体以上で分析を表示します。</p>
         </div>
         <strong className={styles.slotCount}>{team.length}<span> / 6体</span></strong>
       </div>
 
       <div className={styles.teamGrid}>
-        {team.map((slot, index) => (
+        {positionedTeam.map((slot, position) => (
           <article
-            key={slot.id}
-            className={`${styles.slotCard} ${!isTeamSlotAllowed(slot, availablePokemon) ? styles.unavailableSlot : ""}`}
+            key={`team-position-${position + 1}`}
+            className={`${styles.slotCard} ${slot === null ? styles.emptySlotCard : ""} ${slot && !isTeamSlotAllowed(slot, availablePokemon) ? styles.unavailableSlot : ""}`}
+            onClick={(event) => {
+              if (
+                slot === null &&
+                !(event.target as HTMLElement).closest("button, input, select")
+              ) {
+                event.currentTarget.querySelector<HTMLInputElement>("[role='combobox']")?.focus();
+              }
+            }}
           >
             <div className={styles.slotHeading}>
-              <span>枠 {index + 1}</span>
-              <div className={styles.modeTabs} aria-label={`枠${index + 1}の入力方法`}>
+              <span>枠 {position + 1}</span>
+              <div className={styles.modeTabs} aria-label={`枠${position + 1}の入力方法`}>
                 <button
                   type="button"
-                  aria-pressed={slot.mode === "pokemon"}
+                  aria-pressed={slot === null || slot.mode === "pokemon"}
                   onClick={() => {
-                    setPreferredStatsSlotId(slot.id);
-                    updateSlot(slot.id, {
-                      id: slot.id,
-                      mode: "pokemon",
-                      pokemonSlug: pokemonInputOptions[0]?.slug ?? ""
-                    });
+                    if (slot?.mode === "type") {
+                      removeSlot(position);
+                    }
                   }}
                 >
                   ポケモン
                 </button>
                 <button
                   type="button"
-                  aria-pressed={slot.mode === "type"}
+                  aria-pressed={slot?.mode === "type"}
                   onClick={() =>
-                    updateSlot(slot.id, {
-                      id: slot.id,
+                    updateSlot(position, {
                       mode: "type",
                       primaryType: "water"
                     })
@@ -114,62 +114,50 @@ export function TeamInputPanel({
               </div>
             </div>
 
-            {slot.mode === "pokemon" ? (
-              <PokemonSlotEditor
-                slot={slot}
-                availablePokemon={availablePokemon}
-                pokemonInputOptions={pokemonInputOptions}
-                isAllowed={isTeamSlotAllowed(slot, availablePokemon)}
-                isStatsSelected={selectedStatsSlotId === slot.id}
-                onSelectStats={() => setPreferredStatsSlotId(slot.id)}
-                onChange={(nextSlot) => {
-                  setPreferredStatsSlotId(slot.id);
-                  updateSlot(slot.id, nextSlot);
-                }}
-              />
-            ) : (
+            {slot?.mode === "type" ? (
               <TypeSlotEditor
                 slot={slot}
                 allTypes={allTypes}
-                onChange={(nextSlot) => updateSlot(slot.id, nextSlot)}
+                onChange={(nextSlot) => updateSlot(position, nextSlot)}
+              />
+            ) : (
+              <PokemonSlotEditor
+                position={position}
+                slot={slot?.mode === "pokemon" ? slot : null}
+                availablePokemon={availablePokemon}
+                pokemonInputOptions={pokemonInputOptions}
+                onChange={(nextSlot) => updateSlot(position, nextSlot)}
               />
             )}
 
-            <button
-              type="button"
-              className={styles.removeButton}
-              onClick={() => removeSlot(slot.id)}
-              aria-label={`枠${index + 1}を空にする`}
-            >
-              この枠を空にする
-            </button>
+            {slot ? (
+              <button
+                type="button"
+                className={styles.removeButton}
+                onClick={() => removeSlot(position)}
+                aria-label={`枠${position + 1}を空にする`}
+              >
+                この枠を空にする
+              </button>
+            ) : null}
           </article>
-        ))}
-
-        {Array.from({ length: 6 - team.length }, (_, index) => (
-          <button
-            type="button"
-            className={styles.emptySlot}
-            key={`empty-${index}`}
-            onClick={addSlot}
-          >
-            <span aria-hidden="true">＋</span>
-            <strong>空き枠 {team.length + index + 1}</strong>
-            <small>ポケモンを追加</small>
-          </button>
         ))}
       </div>
 
-      <PokemonStatsPanel pokemon={selectedStatsPokemon} />
+      <PokemonStatsPanel
+        pokemon={selectedStatsPokemon}
+        options={statsOptions}
+        selectedSlotId={selectedStatsSlotId}
+        onSelectSlot={setPreferredStatsSlotId}
+      />
 
       <div className={styles.inputActions}>
-        <button type="button" className={styles.primaryButton} onClick={addSlot} disabled={team.length >= 6}>
-          メンバーを追加
-        </button>
-        <button type="button" className={styles.secondaryButton} onClick={() => onChange(sampleTeam)}>
-          サンプルに戻す
-        </button>
-        <button type="button" className={styles.textButton} onClick={() => onChange([])} disabled={team.length === 0}>
+        <button
+          type="button"
+          className={styles.textButton}
+          onClick={() => onChange([])}
+          disabled={team.length === 0}
+        >
           すべて空にする
         </button>
       </div>
@@ -178,42 +166,20 @@ export function TeamInputPanel({
 }
 
 function PokemonSlotEditor({
+  position,
   slot,
   availablePokemon,
   pokemonInputOptions,
-  isAllowed,
-  isStatsSelected,
-  onSelectStats,
   onChange
 }: {
-  slot: Extract<TeamSlot, { mode: "pokemon" }>;
+  position: number;
+  slot: Extract<TeamSlot, { mode: "pokemon" }> | null;
   availablePokemon: PokemonEntry[];
   pokemonInputOptions: PokemonEntry[];
-  isAllowed: boolean;
-  isStatsSelected: boolean;
-  onSelectStats: () => void;
-  onChange: (nextSlot: Extract<TeamSlot, { mode: "pokemon" }>) => void;
+  onChange: (nextSlot: Omit<Extract<TeamSlot, { mode: "pokemon" }>, "id"> | Extract<TeamSlot, { mode: "pokemon" }>) => void;
 }) {
-  const [query, setQuery] = useState("");
-  const selectedPokemon =
-    pokemonInputOptions.find((pokemon) => pokemon.slug === slot.pokemonSlug) ??
-    getPokemonBySlug(slot.pokemonSlug) ??
-    null;
   const allPokemon = getAllPokemon();
-  const searchedPokemon = searchPokemonSpeciesRepresentatives(
-    allPokemon,
-    pokemonInputOptions,
-    query
-  ).slice(0, 50);
-  const selectedRepresentative = selectedPokemon
-    ? getSpeciesRepresentative(allPokemon, selectedPokemon.speciesId)
-    : null;
-  const matchedPokemon =
-    selectedRepresentative && !searchedPokemon.some(
-      (pokemon) => pokemon.speciesId === selectedRepresentative.speciesId
-    )
-      ? [selectedRepresentative, ...searchedPokemon]
-      : searchedPokemon;
+  const selectedPokemon = slot ? getPokemonBySlug(slot.pokemonSlug) ?? null : null;
   const selectableForms = selectedPokemon
     ? getSelectableForms(allPokemon, selectedPokemon.speciesId)
     : [];
@@ -221,70 +187,59 @@ function PokemonSlotEditor({
     selectedPokemon && selectableForms.some((form) => form.slug === selectedPokemon.slug)
   );
   const availableSlugs = new Set(availablePokemon.map((pokemon) => pokemon.slug));
-  const name = selectedPokemon?.nameJa ?? slot.pokemonSlug;
+
+  function selectSpecies(representative: PokemonEntry) {
+    const nextPokemon = selectInitialFormForSpecies(
+      allPokemon,
+      pokemonInputOptions,
+      representative.speciesId
+    );
+    if (!nextPokemon) return;
+
+    onChange(
+      slot
+        ? switchTeamSlotForm(slot, nextPokemon.slug)
+        : { mode: "pokemon", pokemonSlug: nextPokemon.slug }
+    );
+  }
 
   return (
     <>
-      <div className={styles.slotIdentity}>
-        <PokemonVisual
-          appearance="plain"
-          name={name}
-          slug={slot.pokemonSlug}
-          pokemonId={selectedPokemon?.id}
-          size="large"
-        />
-        <div>
-          <strong>{name}</strong>
-          <div className={styles.typeRow}>
-            {selectedPokemon?.types.map((type) => <span key={type}>{getTypeLabel(type)}</span>)}
+      <PokemonSearchCombobox
+        position={position}
+        allPokemon={allPokemon}
+        pokemonInputOptions={pokemonInputOptions}
+        selectedPokemon={selectedPokemon}
+        onSelect={selectSpecies}
+      />
+
+      {selectedPokemon ? (
+        <div className={styles.slotIdentity}>
+          <PokemonVisual
+            appearance="plain"
+            name={selectedPokemon.nameJa}
+            slug={selectedPokemon.slug}
+            pokemonId={selectedPokemon.id}
+            size="large"
+          />
+          <div className={styles.typeRow} aria-label="タイプ">
+            {selectedPokemon.types.map((type) => (
+              <span key={type}>{getTypeLabel(type)}</span>
+            ))}
           </div>
         </div>
-      </div>
-      <button
-        type="button"
-        className={styles.statsSelectButton}
-        aria-pressed={isStatsSelected}
-        onClick={onSelectStats}
-      >
-        {isStatsSelected ? "種族値を表示中" : "種族値を見る"}
-      </button>
-      {!isAllowed ? <p className={styles.slotWarning} role="status">現在のシーズンでは使用不可</p> : null}
-      <label className={styles.control}>
-        <span>検索</span>
-        <input
-          type="search"
-          value={query}
-          placeholder="日本語名 / 英語名 / slug"
-          onChange={(event) => setQuery(event.target.value)}
-        />
-      </label>
-      <label className={styles.control}>
-        <span>ポケモンを選択</span>
-        <select
-          value={selectedRepresentative?.slug ?? slot.pokemonSlug}
-          onChange={(event) => {
-            const representative = getPokemonBySlug(event.target.value);
-            const nextPokemon = representative
-              ? selectInitialFormForSpecies(
-                  allPokemon,
-                  pokemonInputOptions,
-                  representative.speciesId
-                )
-              : undefined;
+      ) : (
+        <div className={styles.emptyIdentity} aria-hidden="true">
+          <span>＋</span>
+          <small>ポケモンを選択</small>
+        </div>
+      )}
 
-            if (nextPokemon) {
-              onChange(switchTeamSlotForm(slot, nextPokemon.slug));
-            }
-          }}
-        >
-          {matchedPokemon.length ? matchedPokemon.map((pokemon) => (
-            <option key={pokemon.slug} value={pokemon.slug}>
-              {pokemon.nameJa} ({pokemon.types.map(getTypeLabel).join(" / ")})
-            </option>
-          )) : <option value={slot.pokemonSlug}>候補がありません</option>}
-        </select>
-      </label>
-      {selectableForms.length > 1 ? (
+      {slot && !isTeamSlotAllowed(slot, availablePokemon) ? (
+        <p className={styles.slotWarning} role="status">現在のシーズンでは使用不可</p>
+      ) : null}
+
+      {slot && selectableForms.length > 1 ? (
         <label className={`${styles.control} ${styles.formControl}`}>
           <span>フォーム</span>
           <select
@@ -303,10 +258,141 @@ function PokemonSlotEditor({
           </select>
         </label>
       ) : null}
-      <small className={styles.matchCount}>
-        {query ? `検索一致 ${searchedPokemon.length}種` : `候補 ${searchPokemonSpeciesRepresentatives(allPokemon, pokemonInputOptions, "").length}種`}
-      </small>
     </>
+  );
+}
+
+function PokemonSearchCombobox({
+  position,
+  allPokemon,
+  pokemonInputOptions,
+  selectedPokemon,
+  onSelect
+}: {
+  position: number;
+  allPokemon: PokemonEntry[];
+  pokemonInputOptions: PokemonEntry[];
+  selectedPokemon: PokemonEntry | null;
+  onSelect: (pokemon: PokemonEntry) => void;
+}) {
+  const listboxId = useId();
+  const [draft, setDraft] = useState(selectedPokemon?.nameJa ?? "");
+  const [isEditing, setIsEditing] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const suggestions = useMemo(
+    () => searchPokemonSpeciesRepresentatives(
+      allPokemon,
+      pokemonInputOptions,
+      isEditing ? draft : ""
+    ).slice(0, SUGGESTION_LIMIT),
+    [allPokemon, draft, isEditing, pokemonInputOptions]
+  );
+
+  useEffect(() => {
+    if (!isEditing) setDraft(selectedPokemon?.nameJa ?? "");
+  }, [isEditing, selectedPokemon?.nameJa, selectedPokemon?.slug]);
+
+  useEffect(() => {
+    setActiveIndex((current) => Math.min(current, Math.max(0, suggestions.length - 1)));
+  }, [suggestions.length]);
+
+  function closeAndRestore() {
+    setIsEditing(false);
+    setDraft(selectedPokemon?.nameJa ?? "");
+    setActiveIndex(0);
+  }
+
+  function commit(pokemon: PokemonEntry) {
+    onSelect(pokemon);
+    setIsEditing(false);
+    setDraft(pokemon.nameJa);
+    setActiveIndex(0);
+  }
+
+  return (
+    <div
+      className={styles.pokemonCombobox}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+          closeAndRestore();
+        }
+      }}
+    >
+      <label className={styles.visuallyHidden} htmlFor={`${listboxId}-input`}>
+        枠{position + 1}のポケモン
+      </label>
+      <input
+        id={`${listboxId}-input`}
+        type="text"
+        role="combobox"
+        aria-autocomplete="list"
+        aria-expanded={isEditing}
+        aria-controls={listboxId}
+        aria-activedescendant={isEditing && suggestions[activeIndex] ? `${listboxId}-option-${activeIndex}` : undefined}
+        aria-label={`枠${position + 1}のポケモン`}
+        autoComplete="off"
+        placeholder="ポケモン名を入力"
+        value={draft}
+        onFocus={() => {
+          if (!isEditing) setDraft("");
+          setIsEditing(true);
+          setActiveIndex(0);
+        }}
+        onChange={(event) => {
+          setDraft(event.target.value);
+          setIsEditing(true);
+          setActiveIndex(0);
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            setIsEditing(true);
+            setActiveIndex((current) => Math.min(current + 1, suggestions.length - 1));
+          } else if (event.key === "ArrowUp") {
+            event.preventDefault();
+            setActiveIndex((current) => Math.max(0, current - 1));
+          } else if (event.key === "Enter" && isEditing && suggestions[activeIndex]) {
+            event.preventDefault();
+            commit(suggestions[activeIndex]);
+          } else if (event.key === "Escape") {
+            event.preventDefault();
+            closeAndRestore();
+            event.currentTarget.blur();
+          }
+        }}
+      />
+
+      {isEditing ? (
+        <div className={styles.comboboxList} id={listboxId} role="listbox">
+          {suggestions.length ? suggestions.map((pokemon, index) => (
+            <button
+              type="button"
+              role="option"
+              id={`${listboxId}-option-${index}`}
+              aria-selected={index === activeIndex}
+              key={pokemon.slug}
+              onMouseDown={(event) => event.preventDefault()}
+              onMouseEnter={() => setActiveIndex(index)}
+              onClick={() => commit(pokemon)}
+            >
+              <PokemonVisual
+                appearance="plain"
+                name={pokemon.nameJa}
+                slug={pokemon.slug}
+                pokemonId={pokemon.id}
+                size="small"
+              />
+              <span>
+                <strong>{pokemon.nameJa}</strong>
+                <small>{pokemon.nameEn}</small>
+              </span>
+            </button>
+          )) : (
+            <p>候補がありません</p>
+          )}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -328,12 +414,8 @@ function TypeSlotEditor({
     <>
       <div className={styles.slotIdentity}>
         <span className={styles.typeVisual} aria-hidden="true">タイプ</span>
-        <div>
-          <strong>{label}</strong>
-          <div className={styles.typeRow}>
-            <span>{getTypeLabel(slot.primaryType)}</span>
-            {slot.secondaryType ? <span>{getTypeLabel(slot.secondaryType)}</span> : null}
-          </div>
+        <div className={styles.typeRow}>
+          <span>{label}</span>
         </div>
       </div>
       <div className={styles.dualControls}>

@@ -25,6 +25,7 @@ import {
   resolveStoredSeasonId
 } from "@/lib/regulations";
 import type { CandidateSelection } from "@/lib/teamUi";
+import { addTeamSlotToFirstEmpty } from "@/lib/teamSlotLayout";
 import {
   ARTICLE_IMPORT_BACKUP_KEY,
   parseStoredTeam,
@@ -37,22 +38,9 @@ import { getAllTypes, summarizeTeam } from "@/lib/typeChart";
 import type { PokemonCandidateScore, TeamSlot, TypeCandidateScore } from "@/types/pokemon";
 import styles from "./page.module.css";
 
-const sampleTeam: TeamSlot[] = [
-  {
-    id: "slot-1",
-    mode: "pokemon",
-    pokemonSlug: "empoleon"
-  },
-  {
-    id: "slot-2",
-    mode: "pokemon",
-    pokemonSlug: "landorus-therian"
-  }
-];
-
 export default function HomePage() {
   const [seasonId, setSeasonId] = useState(() => getLatestSeasonId());
-  const [team, setTeam] = useState<TeamSlot[]>(sampleTeam);
+  const [team, setTeam] = useState<TeamSlot[]>([]);
   const [selection, setSelection] = useState<CandidateSelection>(null);
   const [articleImport, setArticleImport] = useState<ArticleImportResult>({ status: "idle" });
   const [importNotice, setImportNotice] = useState<string | null>(null);
@@ -129,37 +117,17 @@ export default function HomePage() {
   }, [seasonId, team, typeCandidates]);
 
   function addTypeCandidateToTeam(candidate: TypeCandidateScore) {
-    setTeam((current) => {
-      if (current.length >= 6) {
-        return current;
-      }
-
-      return [
-        ...current,
-        {
-          id: `slot-${Date.now()}`,
-          mode: "type",
-          primaryType: candidate.type
-        }
-      ];
-    });
+    setTeam((current) => addTeamSlotToFirstEmpty(current, {
+      mode: "type",
+      primaryType: candidate.type
+    }));
   }
 
   function addPokemonCandidateToTeam(candidate: PokemonCandidateScore) {
-    setTeam((current) => {
-      if (current.length >= 6) {
-        return current;
-      }
-
-      return [
-        ...current,
-        {
-          id: `slot-${Date.now()}`,
-          mode: "pokemon",
-          pokemonSlug: candidate.pokemon.slug
-        }
-      ];
-    });
+    setTeam((current) => addTeamSlotToFirstEmpty(current, {
+      mode: "pokemon",
+      pokemonSlug: candidate.pokemon.slug
+    }));
   }
 
   function removeImportArticleParameter() {
@@ -301,7 +269,6 @@ export default function HomePage() {
           availablePokemon={availablePokemon}
           pokemonInputOptions={pokemonInputOptions}
           allTypes={allTypes}
-          sampleTeam={sampleTeam}
         />
 
         <AnalysisSummary summary={summary} slotCount={team.length} />

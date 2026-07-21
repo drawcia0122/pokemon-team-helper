@@ -129,7 +129,9 @@ assert(
   panelSource.includes('role="img"') &&
     panelSource.includes("<dl") &&
     panelSource.includes("このポケモンの種族値データはまだありません") &&
-    inputSource.includes('aria-pressed={isStatsSelected}'),
+    panelSource.includes('aria-label="種族値を表示するポケモン"') &&
+    !inputSource.includes("種族値を見る") &&
+    !inputSource.includes("種族値を表示中"),
   "数値で理解できるUI、フォールバック、キーボード操作が不足しています"
 );
 

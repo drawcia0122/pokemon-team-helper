@@ -20,6 +20,7 @@
     "test:content-collection": "tsx scripts/testPokemonContentCollection.ts",
     "test:navigation": "tsx scripts/testSiteNavigation.ts",
     "test:team-ui": "tsx scripts/testTeamUi.ts",
+    "test:team-selection": "tsx scripts/testTeamSelectionUi.ts",
     "test:regulations": "tsx scripts/testRegulations.ts",
     "test:build-collection": "tsx scripts/testBuildArticleCollection.ts",
     "test:build-hatena": "tsx scripts/testHatenaBuildCollection.ts",
@@ -48,7 +49,7 @@
     "collect:content:backfill": "tsx scripts/collectPokemonContent.ts --backfill",
     "collect:content:pokemon-go": "tsx scripts/collectPokemonContent.ts --source pokemon-go-official-rss",
     "collect:builds:dry-run": "tsx scripts/collectBuildArticles.ts --dry-run",
-    "check": "npm run data:validate && npm run test:storage && npm run test:import && npm run test:content && npm run test:content-collection && npm run test:navigation && npm run test:team-ui && npm run test:regulations && npm run test:build-collection && npm run test:build-hatena && npm run test:build-discovery && npm run test:build-migration && npm run test:build-ui && npm run test:date && npm run test:pokemon-image && npm run test:base-stats && npm run test:forms && npm run test:availability && npm run typecheck && npm run build",
+    "check": "npm run data:validate && npm run test:storage && npm run test:import && npm run test:content && npm run test:content-collection && npm run test:navigation && npm run test:team-ui && npm run test:team-selection && npm run test:regulations && npm run test:build-collection && npm run test:build-hatena && npm run test:build-discovery && npm run test:build-migration && npm run test:build-ui && npm run test:date && npm run test:pokemon-image && npm run test:base-stats && npm run test:forms && npm run test:availability && npm run typecheck && npm run build",
     "data:fetch": "tsx scripts/fetchPokemonData.ts",
     "data:seed-season1": "node scripts/seedSeason1FromJapaneseList.mjs"
   },

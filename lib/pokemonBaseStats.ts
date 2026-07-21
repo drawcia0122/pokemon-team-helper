@@ -73,9 +73,17 @@ export function resolveSelectedPokemonSlotId(
       slot.mode === "pokemon"
   );
 
-  return (
-    pokemonSlots.find((slot) => slot.id === preferredSlotId)?.id ??
-    pokemonSlots[0]?.id ??
-    null
-  );
+  const preferredSlot = pokemonSlots.find((slot) => slot.id === preferredSlotId);
+  if (preferredSlot) return preferredSlot.id;
+
+  const preferredPosition = preferredSlotId?.match(/-(\d+)$/)?.[1];
+  if (preferredPosition) {
+    const nextSlot = pokemonSlots.find((slot) => {
+      const position = slot.id.match(/-(\d+)$/)?.[1];
+      return position && Number(position) > Number(preferredPosition);
+    });
+    if (nextSlot) return nextSlot.id;
+  }
+
+  return pokemonSlots[0]?.id ?? null;
 }
