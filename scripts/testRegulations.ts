@@ -10,6 +10,7 @@ import { getBuildArticles } from "@/lib/buildArticles";
 import {
   getAvailablePokemonBySeason,
   getLatestSeasonId,
+  getRegulationAvailabilitySummary,
   getRegulationForSeason,
   getSeasonDefinitions,
   getSeasonOptions,
@@ -95,11 +96,22 @@ assert(
 const m2Pokemon = getAvailablePokemonBySeason("season-m2");
 const m3Pokemon = getAvailablePokemonBySeason("season-m3");
 const m4Pokemon = getAvailablePokemonBySeason("season-m4");
-assert(m2Pokemon.length === 213, "M-2の使用可能ポケモン数が213体ではありません");
+assert(m2Pokemon.length === 277, "M-2の使用可能フォーム数が277件ではありません");
 assert(m2Pokemon.length > 0, "M-2の使用可能ポケモンが0体です");
 assert(
-  m3Pokemon.length === 235 && m4Pokemon.length === 235,
-  "M-3とM-4がM-Bの235体を共通参照していません"
+  m3Pokemon.length === 313 && m4Pokemon.length === 313,
+  "M-3とM-4がM-Bの313フォームを共通参照していません"
+);
+const m4Availability = getRegulationAvailabilitySummary(
+  pokemon,
+  getRegulationForSeason("season-m4")
+);
+assert(
+  m4Availability.speciesCount === 208 &&
+    m4Availability.selectableFormCount === 313 &&
+    m4Availability.explicitFormCount === 235 &&
+    m4Availability.inheritedMegaCount === 78,
+  "M-Bの208種・明示235フォーム・継承メガ78件の内訳が不正です"
 );
 assert(
   m4Pokemon.length < pokemon.length,

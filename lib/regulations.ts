@@ -192,14 +192,17 @@ export function getSeasonMeta(id: string): {
   startDate: string | null;
   endDate: string | null;
   notes: string[];
-  allowedCount: number;
+  allowedSpeciesCount: number;
+  selectableFormCount: number;
+  explicitFormCount: number;
+  inheritedMegaCount: number;
   isAllMode: false;
 } {
   const season = getSeasonDefinition(id);
   const regulation = season
     ? getRegulationDefinition(season.regulationId)
     : null;
-  const allowedCount = filterAllowedPokemon(allPokemon, regulation).length;
+  const availability = getRegulationAvailabilitySummary(allPokemon, regulation);
 
   return {
     id,
@@ -209,9 +212,26 @@ export function getSeasonMeta(id: string): {
     startDate: season?.startAt?.slice(0, 10) ?? null,
     endDate: season?.endAt?.slice(0, 10) ?? null,
     notes: regulation?.notes ?? [],
-    allowedCount,
+    allowedSpeciesCount: availability.speciesCount,
+    selectableFormCount: availability.selectableFormCount,
+    explicitFormCount: availability.explicitFormCount,
+    inheritedMegaCount: availability.inheritedMegaCount,
     isAllMode: false
   };
+}
+
+function getExplicitAvailability(
+  pokemonSlug: string,
+  allowedSet: Set<string>,
+  bannedSet: Set<string>
+): boolean | null {
+  if (bannedSet.has(pokemonSlug)) {
+    return false;
+  }
+  if (allowedSet.has(pokemonSlug)) {
+    return true;
+  }
+  return null;
 }
 
 export function filterAllowedPokemon(
@@ -224,11 +244,78 @@ export function filterAllowedPokemon(
 
   const allowedSet = new Set(regulation.allowedPokemonSlugs);
   const bannedSet = new Set(regulation.bannedPokemonSlugs);
+  const defaultFormsBySpecies = new Map<number, PokemonEntry[]>();
 
-  return pokemonList.filter(
-    (pokemon) =>
-      allowedSet.has(pokemon.slug) && !bannedSet.has(pokemon.slug)
+  for (const pokemon of pokemonList) {
+    if (!pokemon.isDefaultForm) {
+      continue;
+    }
+    defaultFormsBySpecies.set(pokemon.speciesId, [
+      ...(defaultFormsBySpecies.get(pokemon.speciesId) ?? []),
+      pokemon
+    ]);
+  }
+
+  return pokemonList.filter((pokemon) => {
+    const explicitAvailability = getExplicitAvailability(
+      pokemon.slug,
+      allowedSet,
+      bannedSet
+    );
+    if (explicitAvailability !== null) {
+      return explicitAvailability;
+    }
+
+    if (pokemon.formKind !== "mega" || pokemon.formSelection !== "team") {
+      return false;
+    }
+
+    const defaultForms = defaultFormsBySpecies.get(pokemon.speciesId) ?? [];
+    if (defaultForms.length !== 1) {
+      return false;
+    }
+
+    return getExplicitAvailability(
+      defaultForms[0].slug,
+      allowedSet,
+      bannedSet
+    ) === true;
+  });
+}
+
+export function getRegulationAvailabilitySummary(
+  pokemonList: PokemonEntry[],
+  regulation: RegulationDefinition | null
+): {
+  speciesCount: number;
+  selectableFormCount: number;
+  explicitFormCount: number;
+  inheritedMegaCount: number;
+} {
+  if (!regulation) {
+    return {
+      speciesCount: 0,
+      selectableFormCount: 0,
+      explicitFormCount: 0,
+      inheritedMegaCount: 0
+    };
+  }
+
+  const allowedSet = new Set(regulation.allowedPokemonSlugs);
+  const bannedSet = new Set(regulation.bannedPokemonSlugs);
+  const selectableForms = filterAllowedPokemon(pokemonList, regulation).filter(
+    (pokemon) => pokemon.formSelection === "team"
   );
+  const explicitFormCount = selectableForms.filter(
+    (pokemon) => allowedSet.has(pokemon.slug) && !bannedSet.has(pokemon.slug)
+  ).length;
+
+  return {
+    speciesCount: new Set(selectableForms.map((pokemon) => pokemon.speciesId)).size,
+    selectableFormCount: selectableForms.length,
+    explicitFormCount,
+    inheritedMegaCount: selectableForms.length - explicitFormCount
+  };
 }
 
 export function getAvailablePokemonBySeason(

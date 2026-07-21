@@ -8,7 +8,8 @@ type SeasonSelectorProps = {
     label: string;
     regulationLabel: string;
     startDate: string | null;
-    allowedCount: number;
+    allowedSpeciesCount: number;
+    selectableFormCount: number;
     notes: string[];
   };
 };
@@ -55,8 +56,12 @@ export const SeasonSelector: FC<SeasonSelectorProps> = ({
               <strong>{meta.startDate ?? "未設定"}</strong>
             </div>
             <div className="mini-card">
-              <span>使用可能ポケモン数</span>
-              <strong>{meta.allowedCount}体</strong>
+              <span>使用可能</span>
+              <strong>{meta.allowedSpeciesCount}種</strong>
+            </div>
+            <div className="mini-card">
+              <span>選択可能フォーム</span>
+              <strong>{meta.selectableFormCount}件</strong>
             </div>
           </div>
         </div>

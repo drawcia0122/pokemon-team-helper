@@ -4,6 +4,8 @@
 .seasonHeading > span,.seasonControl > span { color: #637269; font-size: .72rem; font-weight: 800; }
 .seasonHeading strong { color: #194b31; font-size: 1rem; }
 .seasonHeading small { color: #617168; }
+.seasonCounts { display: flex; flex-wrap: wrap; gap: 2px 12px; }
+.seasonCounts > span { white-space: nowrap; }
 .seasonControl { display: grid; gap: 5px; }
 .seasonControl select,.control input,.control select { width: 100%; min-width: 0; min-height: 42px; padding: 9px 11px; border: 1px solid #b9ccc0; border-radius: 9px; background: #fbfdfb; color: #1c3225; outline: none; }
 .seasonControl select:focus,.control input:focus,.control select:focus { border-color: #167348; outline: 3px solid rgba(22,115,72,.2); outline-offset: 2px; }

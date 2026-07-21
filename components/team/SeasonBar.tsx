@@ -19,8 +19,9 @@ export function SeasonBar({
       <div className={styles.seasonHeading}>
         <span>現在のルール</span>
         <strong id="season-heading">{meta.regulationLabel}</strong>
-        <small>
-          使用可能ポケモン: {meta.allowedCount}体
+        <small className={styles.seasonCounts}>
+          <span>使用可能: {meta.allowedSpeciesCount}種</span>
+          <span>選択可能フォーム: {meta.selectableFormCount}件</span>
         </small>
       </div>
       <label className={styles.seasonControl}>
