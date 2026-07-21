@@ -1,13 +1,10 @@
-import { getTeamUiSummary } from "@/lib/teamUi";
-import { getTypeLabel } from "@/lib/typeChart";
-import type { TeamSummary, TypeName } from "@/types/pokemon";
+import {
+  getCoveredOffenseRows,
+  getDefensiveAttentionRows,
+  getTeamUiSummary
+} from "@/lib/teamUi";
+import type { TeamSummary } from "@/types/pokemon";
 import styles from "./TeamWorkspace.module.css";
-
-function memberNamesForType(summary: TeamSummary, type: TypeName, buckets: Array<"quadWeak" | "weak" | "resist" | "doubleResist" | "immune">) {
-  return summary.memberProfiles
-    .filter((profile) => buckets.some((bucket) => profile.byMultiplier[bucket].includes(type)))
-    .map((profile) => profile.member.label);
-}
 
 export function AnalysisSummary({
   summary,
@@ -17,9 +14,7 @@ export function AnalysisSummary({
   slotCount: number;
 }) {
   const ui = getTeamUiSummary(summary, slotCount);
-  const topWeaknesses = summary.rows
-    .filter((row) => row.multiplierMap.quadWeak + row.multiplierMap.weak > 0)
-    .slice(0, 4);
+  const attentionRows = getDefensiveAttentionRows(summary);
   const topResistances = summary.rows
     .filter((row) => row.multiplierMap.resist + row.multiplierMap.doubleResist + row.multiplierMap.immune > 0)
     .sort((a, b) =>
@@ -68,22 +63,14 @@ export function AnalysisSummary({
             <div className={styles.weaknessPanel}>
               <div className={styles.panelLabel}>
                 <strong>要注意</strong>
-                <span>弱点が重なるタイプ</span>
+                <span>半減・無効で受けられるメンバーなし</span>
               </div>
-              <div className={styles.matchupList}>
-                {topWeaknesses.length ? topWeaknesses.map((row) => {
-                  const weakCount = row.multiplierMap.quadWeak + row.multiplierMap.weak;
-                  const names = memberNamesForType(summary, row.attackType, ["quadWeak", "weak"]);
-                  return (
-                    <article key={row.attackType} className={row.multiplierMap.quadWeak > 0 ? styles.severeMatchup : ""}>
-                      <div>
-                        <strong>{row.attackTypeJa}</strong>
-                        <span>{weakCount}体が弱点{row.multiplierMap.quadWeak ? `・4倍 ${row.multiplierMap.quadWeak}体` : ""}</span>
-                      </div>
-                      <p>{names.join("、")}</p>
-                    </article>
-                  );
-                }) : <p className={styles.goodMessage}>目立つ弱点はありません。</p>}
+              <div className={styles.coveragePills}>
+                {attentionRows.length ? attentionRows.map((row) => (
+                  <span key={row.attackType}>{row.attackTypeJa}</span>
+                )) : (
+                  <p className={styles.goodMessage}>半減・無効で受けられないタイプはありません。</p>
+                )}
               </div>
             </div>
 
@@ -92,18 +79,13 @@ export function AnalysisSummary({
                 <strong>受けやすい</strong>
                 <span>主な耐性・無効</span>
               </div>
-              <div className={styles.matchupList}>
+              <div className={styles.coveragePills}>
                 {topResistances.map((row) => {
                   const coverCount = row.multiplierMap.resist + row.multiplierMap.doubleResist + row.multiplierMap.immune;
-                  const names = memberNamesForType(summary, row.attackType, ["resist", "doubleResist", "immune"]);
                   return (
-                    <article key={row.attackType}>
-                      <div>
-                        <strong>{row.attackTypeJa}</strong>
-                        <span>{coverCount}体で受けられる{row.multiplierMap.immune ? `・無効 ${row.multiplierMap.immune}体` : ""}</span>
-                      </div>
-                      <p>{names.join("、")}</p>
-                    </article>
+                    <span key={row.attackType}>
+                      {row.attackTypeJa} <small>{coverCount}枠</small>
+                    </span>
                   );
                 })}
               </div>
@@ -116,8 +98,7 @@ export function AnalysisSummary({
 }
 
 export function OffensiveCoveragePanel({ summary }: { summary: TeamSummary }) {
-  const covered = summary.offensiveCoverage.filter((row) => row.superEffectiveCount > 0);
-  const strong = summary.offensiveCoverage.filter((row) => row.superEffectiveCount >= 2);
+  const covered = getCoveredOffenseRows(summary);
 
   return (
     <section className={styles.offenseSection} aria-labelledby="offense-heading">
@@ -131,23 +112,22 @@ export function OffensiveCoveragePanel({ summary }: { summary: TeamSummary }) {
       </div>
       <div className={styles.offenseGrid}>
         <div>
-          <h3>十分に狙える</h3>
+          <h3>抜群を取れるタイプ</h3>
           <div className={styles.typePills}>
-            {strong.length ? strong.map((row) => <span key={row.defendType}>{row.defendTypeJa} <small>{row.superEffectiveCount}枠</small></span>) : <p>2枠以上で抜群を取れるタイプはまだありません。</p>}
+            {covered.length ? covered.map((row) => (
+              <span key={row.defendType}>
+                {row.defendTypeJa} <small>{row.superEffectiveCount}枠</small>
+              </span>
+            )) : <p>抜群を取れるタイプはまだありません。</p>}
           </div>
         </div>
         <div className={summary.missingOffense.length ? styles.offenseWarning : ""}>
-          <h3>攻撃が不足</h3>
+          <h3>未対応（0枠）</h3>
           <div className={styles.typePills}>
             {summary.missingOffense.length ? summary.missingOffense.map((row) => <span key={row.defendType}>{row.defendTypeJa}</span>) : <p>全タイプに抜群打点があります。</p>}
           </div>
         </div>
       </div>
-      {summary.thinOffense.length ? (
-        <p className={styles.offenseNote}>
-          1枠だけで抜群を取れる相手: {summary.thinOffense.slice(0, 8).map((row) => getTypeLabel(row.defendType)).join("、")}
-        </p>
-      ) : null}
     </section>
   );
 }

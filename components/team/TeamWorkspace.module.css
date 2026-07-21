@@ -110,6 +110,10 @@
 .panelLabel strong { color: #9d3832; }
 .resistancePanel .panelLabel strong { color: #236944; }
 .panelLabel span { color: #68766e; font-size: .7rem; }
+.coveragePills { display: flex; flex-wrap: wrap; gap: 6px; }
+.coveragePills > span { padding: 6px 8px; border-radius: 7px; background: rgba(255,255,255,.82); color: #315642; font-size: .73rem; font-weight: 850; }
+.coveragePills > span small { color: #68766e; font-size: .62rem; }
+.coveragePills > p { width: 100%; margin: 0; font-size: .76rem; line-height: 1.5; }
 .matchupList { display: grid; gap: 7px; }
 .matchupList article { padding: 9px 10px; border: 1px solid rgba(77,105,88,.13); border-radius: 8px; background: rgba(255,255,255,.78); }
 .matchupList article > div { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
@@ -239,6 +243,10 @@
   .textButton { grid-column: 1/-1; margin-left: 0; }
   .summaryStrip { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .analysisGrid,.offenseGrid { grid-template-columns: 1fr; }
+  .offenseGrid > div { padding: 10px; }
+  .offenseGrid h3 { margin-bottom: 6px; }
+  .offenseGrid .typePills { gap: 4px; }
+  .offenseGrid .typePills span { padding: 4px 6px; }
   .typeRecommendations { align-items: flex-start; flex-direction: column; }
   .typeRecommendations > div { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); width: 100%; }
   .typeRecommendations button { justify-content: center; min-width: 0; padding-inline: 5px; }

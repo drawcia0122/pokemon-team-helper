@@ -1,5 +1,7 @@
 import type {
   PokemonCandidateScore,
+  DefensiveSummaryRow,
+  OffensiveCoverageRow,
   PokemonEntry,
   TeamSlot,
   TeamSummary,
@@ -16,6 +18,38 @@ export const TEAM_DETAIL_SECTIONS = [
   { id: "type-table", label: "完全なタイプ相性表", defaultOpen: false },
   { id: "offense", label: "攻撃範囲の詳細", defaultOpen: false }
 ] as const;
+
+export function getCoveredOffenseRows(
+  summary: TeamSummary
+): OffensiveCoverageRow[] {
+  return summary.offensiveCoverage
+    .filter((row) => row.superEffectiveCount > 0)
+    .sort(
+      (a, b) =>
+        b.superEffectiveCount - a.superEffectiveCount ||
+        a.defendTypeJa.localeCompare(b.defendTypeJa, "ja")
+    );
+}
+
+export function getDefensiveAttentionRows(
+  summary: TeamSummary
+): DefensiveSummaryRow[] {
+  const memberCount = summary.members.length;
+  if (memberCount === 0) return [];
+
+  return summary.rows.filter((row) => {
+    const coveredCount =
+      row.multiplierMap.resist +
+      row.multiplierMap.doubleResist +
+      row.multiplierMap.immune;
+    const neutralOrWorseCount =
+      row.multiplierMap.neutral +
+      row.multiplierMap.weak +
+      row.multiplierMap.quadWeak;
+
+    return coveredCount === 0 && neutralOrWorseCount === memberCount;
+  });
+}
 
 export function getTeamUiSummary(summary: TeamSummary, slotCount: number) {
   const severeMemberIds = new Set(
