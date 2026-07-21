@@ -84,3 +84,12 @@ export function getBuildArticleById(id: string): BuildArticle | null {
 export function getPokemonLabelMap(): PokemonLabelMap {
   return Object.fromEntries(pokemon.map((entry) => [entry.slug, entry.nameJa]));
 }
+
+export function getPokemonIdMap(slugs: Iterable<string>): Record<string, number> {
+  const targets = new Set(slugs);
+  return Object.fromEntries(
+    pokemon
+      .filter((entry) => targets.has(entry.slug))
+      .map((entry) => [entry.slug, entry.id])
+  );
+}

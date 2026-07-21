@@ -112,6 +112,7 @@ assert(
     headHtml.includes("cdn-ak2.f.st-hatena.com") &&
     headHtml.includes("nonbirimaru.net") &&
     headHtml.includes("liberty-note.com") &&
+    headHtml.includes("raw.githubusercontent.com") &&
     !bodyHtml.includes('http-equiv="Content-Security-Policy"'),
   "CSP metaがhead内にないか、許可済み画像ホストを維持できません"
 );

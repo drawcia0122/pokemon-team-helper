@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { PokemonContentExplorer } from "@/components/news/PokemonContentExplorer";
 import { SiteNavigation } from "@/components/navigation/SiteNavigation";
-import { getContentPokemonLabels, getPokemonContent } from "@/lib/pokemonContent";
+import {
+  getContentPokemonIds,
+  getContentPokemonLabels,
+  getPokemonContent
+} from "@/lib/pokemonContent";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -40,6 +44,9 @@ export default function NewsPage() {
       </section>
       <PokemonContentExplorer
         items={items}
+        pokemonIds={getContentPokemonIds(
+          items.flatMap((item) => item.pokemonSlugs)
+        )}
         pokemonLabels={getContentPokemonLabels()}
         today={todayInJapan()}
       />

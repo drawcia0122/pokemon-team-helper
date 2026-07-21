@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import {
+  resolvePokemonImageState,
+  resolvePokemonSpriteUrl
+} from "@/lib/pokemonImage";
 import styles from "./PokemonVisual.module.css";
 
 type PokemonVisualProps = {
   name: string;
   slug: string;
-  imageUrl?: string;
+  pokemonId?: number;
   size?: "small" | "medium" | "large";
 };
 
@@ -17,26 +21,39 @@ function initials(name: string): string {
 export function PokemonVisual({
   name,
   slug,
-  imageUrl,
+  pokemonId,
   size = "medium"
 }: PokemonVisualProps) {
-  const [imageFailed, setImageFailed] = useState(false);
-  const showImage = Boolean(imageUrl) && !imageFailed;
+  const [loadedImageUrl, setLoadedImageUrl] = useState<string | null>(null);
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
+  const spriteUrl = resolvePokemonSpriteUrl({ id: pokemonId });
+  const imageState = resolvePokemonImageState({
+    spriteUrl,
+    loadedImageUrl,
+    failedImageUrl
+  });
 
   return (
     <span
       className={`${styles.visual} ${styles[size]}`}
       data-pokemon-slug={slug}
-      data-image-state={showImage ? "image" : "fallback"}
+      data-image-state={imageState}
       aria-hidden="true"
     >
-      {showImage ? (
-        <img src={imageUrl} alt="" onError={() => setImageFailed(true)} />
-      ) : (
-        <span className={styles.fallback} aria-hidden="true">
-          {initials(name)}
-        </span>
-      )}
+      <span className={styles.fallback} aria-hidden="true">
+        {initials(name)}
+      </span>
+      {spriteUrl && imageState !== "fallback" ? (
+        <img
+          src={spriteUrl}
+          alt=""
+          decoding="async"
+          loading="lazy"
+          referrerPolicy="no-referrer"
+          onLoad={() => setLoadedImageUrl(spriteUrl)}
+          onError={() => setFailedImageUrl(spriteUrl)}
+        />
+      ) : null}
     </span>
   );
 }

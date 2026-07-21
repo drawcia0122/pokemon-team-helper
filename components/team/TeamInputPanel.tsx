@@ -172,7 +172,12 @@ function PokemonSlotEditor({
   return (
     <>
       <div className={styles.slotIdentity}>
-        <PokemonVisual name={name} slug={slot.pokemonSlug} size="large" />
+        <PokemonVisual
+          name={name}
+          slug={slot.pokemonSlug}
+          pokemonId={selectedPokemon?.id}
+          size="large"
+        />
         <div>
           <strong>{name}</strong>
           <div className={styles.typeRow}>

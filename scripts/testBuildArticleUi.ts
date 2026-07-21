@@ -61,12 +61,13 @@ assert(
   "metadata-onlyとcompleteの操作・案内を区別できません"
 );
 assert(
-  ALLOWED_EXTERNAL_IMAGE_ORIGINS.length === 5 &&
+  ALLOWED_EXTERNAL_IMAGE_ORIGINS.length === 6 &&
     ALLOWED_EXTERNAL_IMAGE_ORIGINS.includes("https://assets.st-note.com") &&
     ALLOWED_EXTERNAL_IMAGE_ORIGINS.includes("https://cdn-ak.f.st-hatena.com") &&
     ALLOWED_EXTERNAL_IMAGE_ORIGINS.includes("https://cdn-ak2.f.st-hatena.com") &&
     ALLOWED_EXTERNAL_IMAGE_ORIGINS.includes("https://nonbirimaru.net") &&
     ALLOWED_EXTERNAL_IMAGE_ORIGINS.includes("https://liberty-note.com") &&
+    ALLOWED_EXTERNAL_IMAGE_ORIGINS.includes("https://raw.githubusercontent.com") &&
     STATIC_CONTENT_SECURITY_POLICY.startsWith("img-src 'self' data: ") &&
     !STATIC_CONTENT_SECURITY_POLICY.includes("https://*"),
   "画像CSPが許可済みホストへ限定されていません"

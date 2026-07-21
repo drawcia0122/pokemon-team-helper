@@ -47,7 +47,8 @@
 .schedule dt { color: #6b796f; font-size: .64rem; }
 .schedule dd { margin: 2px 0 0; overflow-wrap: anywhere; font-size: .73rem; font-weight: 800; }
 .pokemon button,.tags button { padding: 5px 8px; border-radius: 999px; cursor: pointer; font-size: .7rem; }
-.pokemon button { border: 1px solid #c4dbc9; background: #f2faf4; color: #255f3e; }
+.pokemon button { display: inline-flex; align-items: center; gap: 5px; border: 1px solid #c4dbc9; background: #f2faf4; color: #255f3e; }
+.pokemon button > span:first-child { width: 24px; height: 24px; flex-basis: 24px; font-size: .55rem; }
 .tags { margin: 7px 0 12px; }
 .tags button { border: 0; background: transparent; color: #337252; }
 .cardBody > a { align-self: flex-start; margin-top: auto; padding: 8px 11px; border-radius: 8px; background: #2771a9; color: #fff; font-size: .76rem; font-weight: 850; text-decoration: none; }

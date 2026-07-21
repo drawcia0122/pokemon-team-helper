@@ -32,9 +32,20 @@
 }
 
 .visual img {
+  position: absolute;
+  inset: 6%;
   width: 88%;
   height: 88%;
   object-fit: contain;
+  opacity: 0;
+}
+
+.visual[data-image-state="image"] img {
+  opacity: 1;
+}
+
+.visual[data-image-state="image"] .fallback {
+  opacity: 0;
 }
 
 .fallback {

@@ -90,6 +90,20 @@ PokeAPI を使うのは `scripts/fetchPokemonData.ts` のみです。
 npm run data:fetch
 ```
 
+### ポケモン小型スプライト（試験導入）
+
+ポケモン表示には、`data/pokemon.json` に保存済みの明示的なPokéAPI数値IDを使い、
+[PokeAPI/sprites](https://github.com/PokeAPI/sprites) の通常・正面・静止PNGを
+`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/<ID>.png`
+から外部参照します。画像本体はリポジトリへ保存せず、ブラウザからPokéAPI APIへ
+問い合わせません。未対応ID、URL不正、404、読込失敗、CSP拒否時は従来の文字表示へ
+戻るため、利用停止や取得元の差し替えが可能です。
+
+本サイトは非公式です。Pokémonおよび関連する名称・画像の権利は各権利者に帰属します。
+spritesリポジトリは画像内容を株式会社ポケモンの著作物と明記しており、PokeAPIによる
+配布が第三者権利の処理や本サイトでの利用許諾を保証するものではありません。試験導入の
+継続可否は、表示品質・通信量とあわせて別途確認します。
+
 レギュレーションM-Aの使用可能ポケモンは、確認済みの日本語リストから再生成できます。
 
 ```bash

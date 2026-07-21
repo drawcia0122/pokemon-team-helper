@@ -52,3 +52,14 @@ export function getPokemonContent(): PokemonContentItem[] {
 export function getContentPokemonLabels(): Record<string, string> {
   return Object.fromEntries(pokemon.map((entry) => [entry.slug, entry.nameJa]));
 }
+
+export function getContentPokemonIds(
+  slugs: Iterable<string>
+): Record<string, number> {
+  const targets = new Set(slugs);
+  return Object.fromEntries(
+    pokemon
+      .filter((entry) => targets.has(entry.slug))
+      .map((entry) => [entry.slug, entry.id])
+  );
+}

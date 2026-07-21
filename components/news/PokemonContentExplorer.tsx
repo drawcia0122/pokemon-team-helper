@@ -41,10 +41,12 @@ function isEnded(statuses: ContentStatus[]) {
 
 export function PokemonContentExplorer({
   items,
+  pokemonIds,
   pokemonLabels,
   today
 }: {
   items: PokemonContentItem[];
+  pokemonIds: Record<string, number>;
   pokemonLabels: Record<string, string>;
   today: string;
 }) {
@@ -109,6 +111,7 @@ export function PokemonContentExplorer({
             <PokemonVisual
               name={pokemonLabels[firstPokemon] ?? firstPokemon}
               slug={firstPokemon}
+              pokemonId={pokemonIds[firstPokemon]}
               size="large"
             />
           ) : (
@@ -153,7 +156,13 @@ export function PokemonContentExplorer({
             <div className={styles.pokemon}>
               {item.pokemonSlugs.map((slug) => (
                 <button type="button" key={slug} onClick={() => setQuery(pokemonLabels[slug] ?? slug)}>
-                  {pokemonLabels[slug] ?? slug}
+                  <PokemonVisual
+                    name={pokemonLabels[slug] ?? slug}
+                    slug={slug}
+                    pokemonId={pokemonIds[slug]}
+                    size="small"
+                  />
+                  <span>{pokemonLabels[slug] ?? slug}</span>
                 </button>
               ))}
             </div>

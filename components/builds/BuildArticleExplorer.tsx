@@ -25,12 +25,14 @@ const formatLabels: Record<BattleFormat, string> = {
 
 export function BuildArticleExplorer({
   articles,
+  pokemonIds,
   pokemonLabels,
   regulationLabels,
   seasonLabels,
   seasonOptions
 }: {
   articles: BuildArticle[];
+  pokemonIds: Record<string, number>;
   pokemonLabels: PokemonLabelMap;
   regulationLabels: Record<string, string>;
   seasonLabels: Record<string, string>;
@@ -263,7 +265,11 @@ export function BuildArticleExplorer({
                           onClick={() => setQuery(label)}
                           title={`${label}で検索`}
                         >
-                          <PokemonVisual name={label} slug={slug} />
+                          <PokemonVisual
+                            name={label}
+                            slug={slug}
+                            pokemonId={pokemonIds[slug]}
+                          />
                           <span>{label}</span>
                         </button>
                       );
