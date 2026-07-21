@@ -1,20 +1,25 @@
+import { PokemonVisual } from "@/components/pokemon/PokemonVisual";
 import {
   getCoveredOffenseRows,
   getDefensiveAttentionRows,
   getTeamUiSummary
 } from "@/lib/teamUi";
 import type { TeamDiagnostics } from "@/lib/teamDiagnostics";
+import type { ThreatPokemonAnalysis } from "@/lib/teamThreats";
+import { getTypeLabel } from "@/lib/typeChart";
 import type { TeamSummary } from "@/types/pokemon";
 import styles from "./TeamWorkspace.module.css";
 
 export function AnalysisSummary({
   summary,
   slotCount,
-  diagnostics
+  diagnostics,
+  threatPokemon
 }: {
   summary: TeamSummary;
   slotCount: number;
   diagnostics: TeamDiagnostics;
+  threatPokemon: ThreatPokemonAnalysis[];
 }) {
   const ui = getTeamUiSummary(summary, slotCount);
   const attentionRows = getDefensiveAttentionRows(summary);
@@ -140,6 +145,53 @@ export function AnalysisSummary({
         <p className={styles.diagnosticsNote}>
           技・特性・持ち物・努力値・テラスタイプは考慮していません。
         </p>
+      </section>
+
+      <section
+        className={styles.threatsPanel}
+        aria-labelledby="threat-pokemon-heading"
+      >
+        <div className={styles.threatsHeading}>
+          <strong id="threat-pokemon-heading">要警戒ポケモン</strong>
+          <span>タイプ相性と種族値をもとにした参考診断です。</span>
+        </div>
+        {threatPokemon.length ? (
+          <ol className={styles.threatList}>
+            {threatPokemon.map((threat, index) => (
+              <li key={threat.pokemon.slug}>
+                <div className={styles.threatCardHeading}>
+                  <span className={styles.threatRank}>{index + 1}</span>
+                  <PokemonVisual
+                    appearance="plain"
+                    name={threat.pokemon.nameJa}
+                    slug={threat.pokemon.slug}
+                    pokemonId={threat.pokemon.id}
+                    size="small"
+                  />
+                  <div className={styles.threatIdentity}>
+                    <strong>{threat.pokemon.nameJa}</strong>
+                    <span>
+                      {threat.pokemon.types.map(getTypeLabel).join(" / ")}
+                    </span>
+                  </div>
+                  <div className={styles.threatScore}>
+                    <span>脅威スコア</span>
+                    <strong>{threat.score}</strong>
+                  </div>
+                </div>
+                <ul className={styles.threatReasons}>
+                  {threat.reasons.map((reason) => (
+                    <li key={reason}>{reason}</li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className={styles.threatEmpty}>
+            パーティを入力すると警戒候補を表示します。
+          </p>
+        )}
       </section>
     </section>
   );

@@ -1,5 +1,6 @@
 import { getPokemonBySlug } from "@/lib/typeChart";
 import type {
+  DefensiveSummaryRow,
   PokemonEntry,
   TeamSlot,
   TeamSummary
@@ -24,6 +25,34 @@ const BULK_STAT_MINIMUM = 80;
 const WIDE_OFFENSE_THRESHOLD = 12;
 const WIDE_DEFENSE_THRESHOLD = 12;
 const MAX_DIAGNOSTICS_PER_GROUP = 3;
+
+export function getTeamTypeGapRows(
+  summary: TeamSummary
+): DefensiveSummaryRow[] {
+  const memberCount = summary.members.length;
+  if (memberCount === 0) return [];
+
+  const weakMinimum = Math.max(1, Math.ceil(memberCount / 2));
+  return summary.rows
+    .filter((row) => {
+      const weakCount =
+        row.multiplierMap.weak + row.multiplierMap.quadWeak;
+      const coverCount =
+        row.multiplierMap.resist +
+        row.multiplierMap.doubleResist +
+        row.multiplierMap.immune;
+      return coverCount === 0 && weakCount >= weakMinimum;
+    })
+    .sort((a, b) => {
+      const aWeak = a.multiplierMap.weak + a.multiplierMap.quadWeak;
+      const bWeak = b.multiplierMap.weak + b.multiplierMap.quadWeak;
+      return (
+        bWeak - aWeak ||
+        b.multiplierMap.quadWeak - a.multiplierMap.quadWeak ||
+        a.attackTypeJa.localeCompare(b.attackTypeJa, "ja")
+      );
+    });
+}
 
 function formatRatio(count: number, total: number): string {
   return `${count}/${total}体`;
@@ -206,26 +235,7 @@ export function getTeamDiagnostics(
   }
 
   if (memberCount > 0) {
-    const weakMinimum = Math.max(1, Math.ceil(memberCount / 2));
-    summary.rows
-      .filter((row) => {
-        const weakCount =
-          row.multiplierMap.weak + row.multiplierMap.quadWeak;
-        const coverCount =
-          row.multiplierMap.resist +
-          row.multiplierMap.doubleResist +
-          row.multiplierMap.immune;
-        return coverCount === 0 && weakCount >= weakMinimum;
-      })
-      .sort((a, b) => {
-        const aWeak = a.multiplierMap.weak + a.multiplierMap.quadWeak;
-        const bWeak = b.multiplierMap.weak + b.multiplierMap.quadWeak;
-        return (
-          bWeak - aWeak ||
-          b.multiplierMap.quadWeak - a.multiplierMap.quadWeak ||
-          a.attackTypeJa.localeCompare(b.attackTypeJa, "ja")
-        );
-      })
+    getTeamTypeGapRows(summary)
       .slice(0, 2)
       .forEach((row) => {
         const weakCount =

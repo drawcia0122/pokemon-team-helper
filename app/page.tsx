@@ -18,6 +18,7 @@ import {
 } from "@/lib/articleImport";
 import { getPokemonCandidateScores, getTypeCandidateScores } from "@/lib/scoring";
 import { getTeamDiagnostics } from "@/lib/teamDiagnostics";
+import { getThreatPokemonAnalysis } from "@/lib/teamThreats";
 import {
   getAvailablePokemonBySeason,
   getLatestSeasonId,
@@ -64,6 +65,10 @@ export default function HomePage() {
   const summary = useMemo(() => summarizeTeam(team), [team]);
   const diagnostics = useMemo(
     () => getTeamDiagnostics(team, summary, availablePokemon),
+    [availablePokemon, summary, team]
+  );
+  const threatPokemon = useMemo(
+    () => getThreatPokemonAnalysis(team, summary, availablePokemon),
     [availablePokemon, summary, team]
   );
   const typeCandidates = useMemo(() => getTypeCandidateScores(team), [team]);
@@ -280,6 +285,7 @@ export default function HomePage() {
           summary={summary}
           slotCount={team.length}
           diagnostics={diagnostics}
+          threatPokemon={threatPokemon}
         />
         {summary.members.length >= 2 ? (
           <>
