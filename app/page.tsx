@@ -17,6 +17,7 @@ import {
   type ArticleImportResult
 } from "@/lib/articleImport";
 import { getPokemonCandidateScores, getTypeCandidateScores } from "@/lib/scoring";
+import { getTeamDiagnostics } from "@/lib/teamDiagnostics";
 import {
   getAvailablePokemonBySeason,
   getLatestSeasonId,
@@ -61,6 +62,10 @@ export default function HomePage() {
     [availablePokemon, preserveImportedTeam, team]
   );
   const summary = useMemo(() => summarizeTeam(team), [team]);
+  const diagnostics = useMemo(
+    () => getTeamDiagnostics(team, summary, availablePokemon),
+    [availablePokemon, summary, team]
+  );
   const typeCandidates = useMemo(() => getTypeCandidateScores(team), [team]);
   const pokemonCandidates = useMemo(
     () => getPokemonCandidateScores(team, availablePokemon),
@@ -271,7 +276,11 @@ export default function HomePage() {
           allTypes={allTypes}
         />
 
-        <AnalysisSummary summary={summary} slotCount={team.length} />
+        <AnalysisSummary
+          summary={summary}
+          slotCount={team.length}
+          diagnostics={diagnostics}
+        />
         {summary.members.length >= 2 ? (
           <>
             <OffensiveCoveragePanel summary={summary} />

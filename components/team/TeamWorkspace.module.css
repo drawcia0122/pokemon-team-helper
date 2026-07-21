@@ -122,6 +122,22 @@
 .matchupList article p { margin: 4px 0 0; line-height: 1.4; }
 .matchupList .severeMatchup { border-left: 4px solid #b83f38; }
 .goodMessage { color: #286947; }
+.diagnosticsPanel { margin-top: 16px; padding-top: 15px; border-top: 1px solid #d8e4dc; }
+.diagnosticsHeading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.diagnosticsHeading strong { color: #173f2a; font-size: 1rem; }
+.diagnosticsHeading span { color: #6a776f; font-size: .68rem; }
+.diagnosticsGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.diagnosticsGrid > div { min-width: 0; padding: 11px 12px; border-radius: 10px; }
+.strengthDiagnostics { border-left: 4px solid #36845a; background: #f0f8f3; }
+.cautionDiagnostics { border-left: 4px solid #d39b28; background: #fff8e8; }
+.diagnosticsGrid h3 { margin: 0 0 7px; font-size: .8rem; }
+.strengthDiagnostics h3 { color: #226642; }
+.cautionDiagnostics h3 { color: #805b12; }
+.diagnosticsGrid ul { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
+.diagnosticsGrid li { display: grid; gap: 1px; }
+.diagnosticsGrid li strong { color: #2d4235; font-size: .75rem; line-height: 1.4; }
+.diagnosticsGrid li span,.diagnosticsGrid > div > p { margin: 0; color: #647269; font-size: .68rem; line-height: 1.45; }
+.diagnosticsNote { margin: 8px 0 0; color: #738078; font-size: .62rem; line-height: 1.45; }
 
 .offenseSection { background: #fbfdfc; }
 .coverageScore { color: #176b42; font-size: 1.8rem; }
@@ -243,6 +259,10 @@
   .textButton { grid-column: 1/-1; margin-left: 0; }
   .summaryStrip { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .analysisGrid,.offenseGrid { grid-template-columns: 1fr; }
+  .diagnosticsHeading { align-items: flex-start; flex-direction: column; gap: 2px; }
+  .diagnosticsGrid { grid-template-columns: 1fr; gap: 7px; }
+  .diagnosticsGrid > div { padding: 9px 10px; }
+  .diagnosticsGrid ul { gap: 5px; }
   .offenseGrid > div { padding: 10px; }
   .offenseGrid h3 { margin-bottom: 6px; }
   .offenseGrid .typePills { gap: 4px; }

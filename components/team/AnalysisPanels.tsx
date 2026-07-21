@@ -3,15 +3,18 @@ import {
   getDefensiveAttentionRows,
   getTeamUiSummary
 } from "@/lib/teamUi";
+import type { TeamDiagnostics } from "@/lib/teamDiagnostics";
 import type { TeamSummary } from "@/types/pokemon";
 import styles from "./TeamWorkspace.module.css";
 
 export function AnalysisSummary({
   summary,
-  slotCount
+  slotCount,
+  diagnostics
 }: {
   summary: TeamSummary;
   slotCount: number;
+  diagnostics: TeamDiagnostics;
 }) {
   const ui = getTeamUiSummary(summary, slotCount);
   const attentionRows = getDefensiveAttentionRows(summary);
@@ -93,6 +96,51 @@ export function AnalysisSummary({
           </div>
         </>
       )}
+
+      <section
+        className={styles.diagnosticsPanel}
+        aria-labelledby="team-diagnostics-heading"
+      >
+        <div className={styles.diagnosticsHeading}>
+          <strong id="team-diagnostics-heading">パーティ診断</strong>
+          <span>種族値とタイプ相性による特徴</span>
+        </div>
+        <div className={styles.diagnosticsGrid}>
+          <div className={styles.strengthDiagnostics}>
+            <h3>強み</h3>
+            {diagnostics.strengths.length ? (
+              <ul>
+                {diagnostics.strengths.map((item) => (
+                  <li key={item.id}>
+                    <strong>{item.title}</strong>
+                    <span>{item.reason}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>大きな偏りは見つかりませんでした。</p>
+            )}
+          </div>
+          <div className={styles.cautionDiagnostics}>
+            <h3>注意点</h3>
+            {diagnostics.cautions.length ? (
+              <ul>
+                {diagnostics.cautions.map((item) => (
+                  <li key={item.id}>
+                    <strong>{item.title}</strong>
+                    <span>{item.reason}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>大きな偏りは見つかりませんでした。</p>
+            )}
+          </div>
+        </div>
+        <p className={styles.diagnosticsNote}>
+          技・特性・持ち物・努力値・テラスタイプは考慮していません。
+        </p>
+      </section>
     </section>
   );
 }
