@@ -2165,5 +2165,61 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-07-20T12:57:05.846Z"
+  },
+  {
+    "id": "hatena-blog-36fffb05cb4a98769f67",
+    "source": "hatena-blog",
+    "sourceArticleId": "36fffb05cb4a98769f67",
+    "sourceUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/21/083639",
+    "canonicalUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/21/083639",
+    "title": "【ポケチャンダブルM4】不遇メガ進化を救え！メガエンブオーで環境に挑む中速スタンダード構築",
+    "authorName": "murasaki3sun",
+    "publishedAt": "2026-07-20T23:36:39.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/m/murasaki3sun/20260718/20260718101753.jpg",
+      "source": "structured-data",
+      "alt": "【ポケチャンダブルM4】不遇メガ進化を救え！メガエンブオーで環境に挑む中速スタンダード構築のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.43
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-21T00:15:45.260Z",
+    "lastCollectedAt": "2026-07-21T00:15:45.260Z",
+    "contentFingerprint": "89fd76fcb26d022b646d0bbd5f8bce0efdca577c26736a7359c1a09b20fe2c0a",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-21T00:15:45.260Z"
   }
 ]
