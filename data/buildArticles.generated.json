@@ -2221,5 +2221,67 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-07-21T00:15:45.260Z"
+  },
+  {
+    "id": "note-n1036e31f9a30",
+    "source": "note",
+    "sourceArticleId": "n1036e31f9a30",
+    "sourceUrl": "https://note.com/hira830/n/n1036e31f9a30",
+    "canonicalUrl": "https://note.com/hira830/n/n1036e31f9a30",
+    "title": "【ポケモンチャンピオンズ】クエスパトラを使いたい！重力催眠ジャラランガwith滅び【M-3ダブル使用パーティ】",
+    "authorName": "ひら",
+    "publishedAt": "2026-07-21T16:26:48.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "重力",
+      "ゲンガー",
+      "リザードン",
+      "構築記事",
+      "フシギバナ",
+      "ランクバトル",
+      "ヤミラミ"
+    ],
+    "summary": "M-3のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/291626373/rectangle_large_type_2_77a638e4df2b6fb7bea0109fccbbcc01.png",
+      "source": "structured-data",
+      "alt": "【ポケモンチャンピオンズ】クエスパトラを使いたい！重力催眠ジャラランガwith滅び【M-3ダブル使用パーティ】のサムネイル",
+      "width": 2065,
+      "height": 1080
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 1,
+      "teamConfidence": 0.79,
+      "overallConfidence": 0.937
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 5,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 1,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-21T17:02:17.903Z",
+    "lastCollectedAt": "2026-07-21T17:02:17.903Z",
+    "contentFingerprint": "4201a25a57c4bb5a77955cf32f2c9892805559a3c72137a75e5f7dcf109f66f5",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-21T17:02:17.903Z"
   }
 ]
