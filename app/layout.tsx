@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { SiteAttribution } from "@/components/navigation/SiteAttribution";
 import { STATIC_CONTENT_SECURITY_POLICY } from "@/lib/contentSecurityPolicy";
 import "./globals.css";
 
@@ -21,7 +22,10 @@ export default function RootLayout({
           content={STATIC_CONTENT_SECURITY_POLICY}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <SiteAttribution />
+      </body>
     </html>
   );
 }

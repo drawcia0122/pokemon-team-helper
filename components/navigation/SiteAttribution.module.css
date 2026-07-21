@@ -1,0 +1,23 @@
+.footer {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 0 0 32px;
+  color: #697168;
+  font-size: 0.72rem;
+  line-height: 1.75;
+  text-align: center;
+}
+
+.footer p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 520px) {
+  .footer {
+    width: calc(100% - 24px);
+    padding-bottom: 24px;
+    font-size: 0.68rem;
+    text-align: left;
+  }
+}
