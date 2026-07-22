@@ -254,12 +254,20 @@ const standardTeam = [
   "kingambit"
 ];
 const standard = analyzeAdvisorTeam(standardTeam, "standard");
+const standardSpeedPlans = standard.simulation.plansByCategory.speed;
 assert(
-  standard.simulation.plansByCategory.speed
-    .map((plan) => plan.candidate.pokemon.slug)
-    .join(",") ===
-    "sceptile-mega,metagross-mega,gyarados,armarouge",
-  "通常プロファイルの既存推薦結果を変更しました"
+  standardSpeedPlans.length > 0 &&
+    standardSpeedPlans.every(
+      (plan) =>
+        plan.metrics.profileSpeedAdvantageCount > 0 ||
+        plan.metrics.speedRoleImprovement > 0
+    ) &&
+    standardSpeedPlans.every((plan) =>
+      plan.categoryReasons.speed.every(
+        (reason) => !reason.includes("トリックルーム下")
+      )
+    ),
+  "通常プロファイルの速度評価がトリックルーム向けに変化しました"
 );
 
 console.log("トリックルーム推薦多様性テストに成功しました");

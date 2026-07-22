@@ -15,6 +15,13 @@ import {
   getTeamTypeGapRows
 } from "@/lib/teamDiagnostics";
 import {
+  ADVISOR_USAGE_THRESHOLDS,
+  evaluateAdvisorThreatCoverage,
+  getAdvisorCounterplayMethodLabel,
+  isAdvisorThreatCoverageEligible,
+  type AdvisorThreatCoverage
+} from "@/lib/advisorThreatCoverage";
+import {
   getAdvisorCompatibleThreatAnalysis,
   type ThreatPokemonAnalysis
 } from "@/lib/teamThreats";
@@ -67,6 +74,7 @@ export const ADVISOR_TEAM_RULES = {
 export const ADVISOR_RECOMMENDATION_RULES = {
   maxPerCategory: 5,
   preselectPerCategory: 8,
+  preselectByThreatCoverage: 16,
   overallScoreWindow: 30,
   maxSameRole: 2,
   maxMegaInOverall: 2,
@@ -288,6 +296,7 @@ export type AdvisorSwapPlan = {
   recommendationRoles: AdvisorRecommendationRole[];
   selectedOverallRole: AdvisorRecommendationRole | null;
   profileRoles: AdvisorProfileRole[];
+  threatCoverage: AdvisorThreatCoverage;
   improvements: string[];
   cautions: string[];
   lostRoles: string[];
@@ -1111,7 +1120,8 @@ function getCategoryScores({
   uniqueResistanceLossCount,
   newMajorWeaknessCount,
   evidence,
-  profile
+  profile,
+  counterplayScore
 }: {
   improvementScore: number;
   threatReduction: number;
@@ -1130,6 +1140,7 @@ function getCategoryScores({
   newMajorWeaknessCount: number;
   evidence: AdvisorCandidateEvidence;
   profile: TeamProfile;
+  counterplayScore: number;
 }): Record<AdvisorRecommendationCategory, number> {
   const defensiveLosses =
     lostRoleCount + uniqueImmunityLossCount + uniqueResistanceLossCount;
@@ -1151,6 +1162,7 @@ function getCategoryScores({
   return {
     overall: improvementScore,
     defensive: Math.round(
+      counterplayScore * 0.3 +
       threatReduction * defensive.threatReduction +
         issueReduction * defensive.issueReduction +
         defensiveImprovement * defensive.defensiveImprovement +
@@ -1165,6 +1177,7 @@ function getCategoryScores({
         newMajorWeaknessCount * defensive.newWeaknessPenalty
     ),
     offensive: Math.round(
+      counterplayScore * 0.4 +
       threatReduction * offensive.threatReduction +
         issueReduction * offensive.issueReduction +
         offensiveImprovement * offensive.offensiveImprovement +
@@ -1176,6 +1189,7 @@ function getCategoryScores({
         newMajorWeaknessCount * offensive.newWeaknessPenalty
     ),
     speed: Math.round(
+      counterplayScore * 0.25 +
       threatReduction * speed.threatReduction +
         issueReduction * speed.issueReduction +
         evidence.profileSpeedAdvantageCount *
@@ -1187,6 +1201,7 @@ function getCategoryScores({
         newMajorWeaknessCount * speed.newWeaknessPenalty
     ),
     typeSpecific: Math.round(
+      counterplayScore * 0.35 +
       threatReduction * typeSpecific.threatReduction +
         issueReduction * typeSpecific.issueReduction +
         consistencyReduction * typeSpecific.consistencyReduction +
@@ -1261,7 +1276,8 @@ function getAdvisorProfileRoles({
     Math.max(
       pokemon.baseStats?.attack ?? 0,
       pokemon.baseStats?.specialAttack ?? 0
-    ) >= ATTACKER_STAT_THRESHOLD;
+    ) >= ATTACKER_STAT_THRESHOLD ||
+    evidence.mainstreamPhysicalShare + evidence.mainstreamSpecialShare >= 0.5;
 
   if (evidence.trickRoomMoveShare > 0) roles.push("trickRoomSetter");
   if (evidence.priorityMoveShare > 0) roles.push("priorityUser");
@@ -1532,6 +1548,48 @@ function buildCategoryReasons({
   };
 }
 
+function buildThreatCoverageReasons(
+  coverage: AdvisorThreatCoverage
+): string[] {
+  const methods = [...new Set(
+    coverage.threatAnswers
+      .filter((answer) => answer.answerStrength >= 0.6)
+      .flatMap((answer) => answer.counterplayMethods)
+      .filter((method) => method !== "none" && method !== "conditional")
+  )].slice(0, 3);
+  const summary = `要警戒TOP5の${coverage.distinctThreatCount}/${coverage.threatAnswers.length}体へ明確な対策方法を持ちます。`;
+  const methodSummary = methods.length
+    ? `主な対策方法: ${methods.map(getAdvisorCounterplayMethodLabel).join("・")}`
+    : null;
+  const topReason = coverage.threatAnswers
+    .filter((answer) => answer.answerStrength >= 0.6 && answer.primaryReason)
+    .sort(
+      (left, right) =>
+        right.importanceWeight - left.importanceWeight ||
+        left.threatRank - right.threatRank
+    )[0]?.primaryReason;
+  return uniqueText([summary, methodSummary, topReason].filter(Boolean) as string[]);
+}
+
+function buildThreatCoverageCautions(
+  coverage: AdvisorThreatCoverage,
+  threats: ThreatPokemonAnalysis[]
+): string[] {
+  const threatBySlug = new Map(
+    threats.map((threat) => [threat.pokemon.slug, threat])
+  );
+  return coverage.unresolvedHighPriorityThreats.slice(0, 2).map((slug) => {
+    const threat = threatBySlug.get(slug);
+    const answer = coverage.threatAnswers.find(
+      (entry) => entry.threatId === slug
+    );
+    return (
+      answer?.failureReasons[0] ??
+      `${threat?.pokemon.nameJa ?? slug}への明確な回答にはなりません。`
+    );
+  });
+}
+
 export function evaluateAdvisorSwapPlan(
   input: AdvisorSwapSimulationInput,
   candidate: TeamAdvisorCandidate,
@@ -1614,6 +1672,13 @@ export function evaluateAdvisorSwapPlan(
       : 0;
   const issueReduction =
     beforeMetrics.issueIds.length - afterMetrics.issueIds.length;
+  const threatCoverage = evaluateAdvisorThreatCoverage({
+    candidate: candidate.pokemon,
+    threats: beforeThreats,
+    currentTeam: beforeTeam,
+    environmentDataset: input.environmentDataset,
+    profile
+  });
   const consistencyReduction =
     beforeMetrics.consistencyTypes.length -
     afterMetrics.consistencyTypes.length;
@@ -1714,7 +1779,7 @@ export function evaluateAdvisorSwapPlan(
     ADVISOR_SWAP_WEIGHTS.usageTieBreaker,
     environmentUsageRate * ADVISOR_SWAP_WEIGHTS.usageTieBreaker
   );
-  const improvementScore = Math.round(
+  const baseImprovementScore = Math.round(
     threatReduction * ADVISOR_SWAP_WEIGHTS.threatReduction +
       issueReduction * ADVISOR_SWAP_WEIGHTS.issueReduction +
       consistencyReduction * ADVISOR_SWAP_WEIGHTS.consistencyReduction +
@@ -1733,6 +1798,7 @@ export function evaluateAdvisorSwapPlan(
       Math.max(0, -threatReduction) *
         ADVISOR_SWAP_WEIGHTS.threatIncreasePenalty
   );
+  const improvementScore = baseImprovementScore + threatCoverage.finalScore;
   const notes = buildPlanNotes(
     beforeMetrics,
     afterMetrics,
@@ -1768,9 +1834,10 @@ export function evaluateAdvisorSwapPlan(
     uniqueResistanceLossCount: uniqueResistanceLosses.length,
     newMajorWeaknessCount: newMajorWeaknesses.length,
     evidence: evidenceGain,
-    profile
+    profile,
+    counterplayScore: threatCoverage.finalScore
   });
-  const categoryReasons = buildCategoryReasons({
+  const baseCategoryReasons = buildCategoryReasons({
     beforeMetrics,
     afterMetrics,
     evidence,
@@ -1778,6 +1845,20 @@ export function evaluateAdvisorSwapPlan(
     improvements: notes.improvements,
     profile
   });
+  const threatCoverageReasons = buildThreatCoverageReasons(threatCoverage);
+  const categoryReasons = Object.fromEntries(
+    (Object.keys(baseCategoryReasons) as AdvisorRecommendationCategory[]).map(
+      (category) => [
+        category,
+        category === "overall"
+          ? takeRecommendationReasons(
+              threatCoverageReasons,
+              baseCategoryReasons[category]
+            )
+          : baseCategoryReasons[category]
+      ]
+    )
+  ) as Record<AdvisorRecommendationCategory, string[]>;
   const recommendationRoles = getRecommendationRoles({
     issueReduction,
     consistencyReduction,
@@ -1806,6 +1887,7 @@ export function evaluateAdvisorSwapPlan(
     (profile !== "trick-room" && speedRoleImprovement > 0);
   const sharedRecommendationGate =
     megaLimitPassed &&
+    isAdvisorThreatCoverageEligible(threatCoverage, issueReduction) &&
     newMajorWeaknesses.length === 0 &&
     !(lostRoles.length >= 2 && improvementScore < 30);
   const isRecommendation =
@@ -1885,8 +1967,12 @@ export function evaluateAdvisorSwapPlan(
     recommendationRoles,
     selectedOverallRole: null,
     profileRoles,
+    threatCoverage,
     improvements: notes.improvements,
-    cautions: notes.cautions,
+    cautions: uniqueText([
+      ...notes.cautions,
+      ...buildThreatCoverageCautions(threatCoverage, beforeThreats)
+    ]).slice(0, MAX_CAUTION_NOTES),
     lostRoles,
     metrics: {
       threatReduction,
@@ -1939,6 +2025,10 @@ function comparePlansForCategory(
 ): number {
   return (
     right.categoryScores[category] - left.categoryScores[category] ||
+    right.threatCoverage.weightedThreatCoverage -
+      left.threatCoverage.weightedThreatCoverage ||
+    right.threatCoverage.distinctThreatCount -
+      left.threatCoverage.distinctThreatCount ||
     right.improvementScore - left.improvementScore ||
     right.metrics.threatReduction - left.metrics.threatReduction ||
     right.metrics.issueReduction - left.metrics.issueReduction ||
@@ -2014,6 +2104,42 @@ function preselectSimulationCandidates(
       : input.advisor.candidates;
   const selected = new Map<string, TeamAdvisorCandidate>();
   const currentSlowCount = getAdvisorRoleCounts(input.team).slow;
+  const summary = summarizeTeam(input.team);
+  const currentThreats = getAdvisorCompatibleThreatAnalysis(
+    input.team,
+    summary,
+    input.availablePokemon,
+    input.environmentDataset,
+    5,
+    profile
+  );
+  [...pool]
+    .filter(
+      (candidate) =>
+        (environmentBySlug.get(candidate.pokemon.slug)?.usageRate ?? -1) >=
+        ADVISOR_USAGE_THRESHOLDS.minimumCandidate
+    )
+    .map((candidate) => ({
+      candidate,
+      coverage: evaluateAdvisorThreatCoverage({
+        candidate: candidate.pokemon,
+        threats: currentThreats,
+        currentTeam: input.team,
+        environmentDataset: input.environmentDataset,
+        profile
+      })
+    }))
+    .sort(
+      (left, right) =>
+        right.coverage.finalScore - left.coverage.finalScore ||
+        right.coverage.weightedThreatCoverage -
+          left.coverage.weightedThreatCoverage ||
+        left.candidate.pokemon.id - right.candidate.pokemon.id
+    )
+    .slice(0, ADVISOR_RECOMMENDATION_RULES.preselectByThreatCoverage)
+    .forEach(({ candidate }) =>
+      selected.set(candidate.pokemon.slug, candidate)
+    );
   for (const category of [
     "overall",
     "defensive",
@@ -2090,10 +2216,11 @@ function selectCategoryPlans(
   type?: TypeName,
   profile: TeamProfile = "standard"
 ): AdvisorSwapPlan[] {
+  const ranked = getBestPlansBySpecies(plans, category, type);
   const selected: AdvisorSwapPlan[] = [];
   let megaCount = 0;
   let slowCount = 0;
-  for (const plan of getBestPlansBySpecies(plans, category, type)) {
+  for (const plan of ranked) {
     if (
       isMegaPlan(plan) &&
       megaCount >= ADVISOR_RECOMMENDATION_RULES.maxMegaInOverall
@@ -2113,6 +2240,59 @@ function selectCategoryPlans(
     if (isMegaPlan(plan)) megaCount += 1;
     if (isSlowRecommendation(plan)) slowCount += 1;
     if (selected.length >= ADVISOR_RECOMMENDATION_RULES.maxPerCategory) break;
+  }
+  if (profile === "trick-room" && selected.length > 0) {
+    const needsDefensiveFallback =
+      category === "defensive" &&
+      !selected.some(
+        (plan) =>
+          (plan.candidate.pokemon.baseStats?.speed ?? 0) >=
+            TEAM_SPEED_THRESHOLDS.fastMinimum
+      );
+    const needsOffensiveFallback =
+      category === "offensive" &&
+      !selected.some(
+        (plan) =>
+          plan.profileRoles.includes("fastFallback") ||
+          plan.profileRoles.includes("priorityUser")
+      );
+    const fallback = ranked.find((plan) => {
+      if (
+        selected.some(
+          (entry) =>
+            entry.candidate.pokemon.speciesId ===
+            plan.candidate.pokemon.speciesId
+        )
+      ) {
+        return false;
+      }
+      if (
+        isMegaPlan(plan) &&
+        selected.filter(isMegaPlan).length >=
+          ADVISOR_RECOMMENDATION_RULES.maxMegaInOverall
+      ) {
+        return false;
+      }
+      if (needsDefensiveFallback) {
+        return (
+          (plan.candidate.pokemon.baseStats?.speed ?? 0) >=
+            TEAM_SPEED_THRESHOLDS.fastMinimum &&
+          (plan.metrics.stableCheckCount > 0 ||
+            plan.metrics.threatMoveResistanceCount > 0 ||
+            plan.metrics.threatMoveImmunityCount > 0)
+        );
+      }
+      if (needsOffensiveFallback) {
+        return (
+          plan.profileRoles.includes("fastFallback") ||
+          plan.profileRoles.includes("priorityUser")
+        );
+      }
+      return false;
+    });
+    if (fallback && (needsDefensiveFallback || needsOffensiveFallback)) {
+      selected[selected.length - 1] = fallback;
+    }
   }
   return selected;
 }
@@ -2272,7 +2452,16 @@ export function getAdvisorSwapSimulation(
   const eligibleCandidates = candidatePool.filter((candidate) => {
     const speciesId = candidate.pokemon.speciesId;
     const slug = candidate.pokemon.slug;
-    if (teamSpeciesIds.has(speciesId) || seenCandidateSlugs.has(slug)) {
+    const usageRate = input.environmentDataset?.pokemon.find(
+      (entry) => entry.slug === slug
+    )?.usageRate;
+    if (
+      teamSpeciesIds.has(speciesId) ||
+      seenCandidateSlugs.has(slug) ||
+      (input.environmentDataset !== null &&
+        (typeof usageRate !== "number" ||
+          usageRate < ADVISOR_USAGE_THRESHOLDS.minimumCandidate))
+    ) {
       return false;
     }
     seenCandidateSlugs.add(slug);

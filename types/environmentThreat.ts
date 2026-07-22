@@ -42,6 +42,7 @@ export type ThreatEnvironmentPokemon = {
   slug: string;
   usageRank: number;
   usageRate: number;
+  choiceScarfShare?: number;
   offenseProfile: {
     physicalShare: number;
     specialShare: number;

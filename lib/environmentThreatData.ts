@@ -58,6 +58,8 @@ export function buildThreatEnvironmentDataset(
         slug: entry.slug,
         usageRank: entry.usage.rank,
         usageRate: entry.usage.rate,
+        choiceScarfShare:
+          entry.items.find((item) => item.id === "choicescarf")?.share ?? 0,
         offenseProfile,
         moves: entry.moves.slice(0, MOVE_LIMIT).flatMap((move) => {
           const metadata = moveMetadata.moves[move.id];

@@ -1,5 +1,6 @@
 import { writeFileSync } from "node:fs";
 import { getAdvisorRoleCounts } from "@/lib/advisorSwapSimulator";
+import { getAdvisorCounterplayMethodLabel } from "@/lib/advisorThreatCoverage";
 import { TEAM_SPEED_THRESHOLDS } from "@/lib/teamProfile";
 import {
   analyzeTrickRoomFixture,
@@ -31,8 +32,20 @@ for (const fixture of TRICK_ROOM_DIVERSITY_FIXTURES) {
     lines.push(
       `${category}[slow=${slowCount}/${plans.length}]=${plans
         .map(
-          (plan) =>
-            `${plan.candidate.pokemon.nameJa}(S${plan.candidate.pokemon.baseStats?.speed ?? "?"},roles:${plan.profileRoles.join("+") || "none"},${plan.action.removedLabel ?? "空き枠"},score:${plan.categoryScores[category]},threat:${plan.beforeThreatAverage}->${plan.afterThreatAverage})`
+          (plan) => {
+            const methods = [...new Set(
+              plan.threatCoverage.threatAnswers
+                .filter((answer) => answer.answerStrength >= 0.6)
+                .flatMap((answer) => answer.counterplayMethods)
+                .filter(
+                  (method) => method !== "conditional" && method !== "none"
+                )
+            )]
+              .slice(0, 3)
+              .map(getAdvisorCounterplayMethodLabel)
+              .join("+");
+            return `${plan.candidate.pokemon.nameJa}(S${plan.candidate.pokemon.baseStats?.speed ?? "?"},roles:${plan.profileRoles.join("+") || "none"},${plan.action.removedLabel ?? "空き枠"},score:${plan.categoryScores[category]},threat:${plan.beforeThreatAverage}->${plan.afterThreatAverage},coverage:${plan.threatCoverage.distinctThreatCount}/5@${plan.threatCoverage.weightedThreatCoverage.toFixed(3)},usage:${plan.threatCoverage.candidateUsage === null ? "unknown" : `${(plan.threatCoverage.candidateUsage * 100).toFixed(1)}%`},methods:${methods || "none"})`;
+          }
         )
         .join(" / ")}`
     );

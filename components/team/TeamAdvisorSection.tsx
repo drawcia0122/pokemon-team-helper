@@ -8,6 +8,7 @@ import type {
   AdvisorSwapSimulation
 } from "@/lib/advisorSwapSimulator";
 import { getAdvisorCategoryLabels } from "@/lib/advisorSwapSimulator";
+import { getAdvisorCounterplayMethodLabel } from "@/lib/advisorThreatCoverage";
 import type {
   AdvisorDiagnosticCategory,
   AdvisorTeamDiagnostics
@@ -62,7 +63,7 @@ export function TeamAdvisorSection({
       </div>
 
       <p className={styles.advisorNote}>
-        タイプ相性・種族値・Pokemon Showdown環境統計を使った参考シミュレーションです。実採用攻撃技と特性による相性変化を考慮し、持ち物とテラスタイプは考慮していません。
+        タイプ相性・種族値・Pokemon Showdown環境統計を使った参考シミュレーションです。実採用攻撃技と特性による相性変化に加え、こだわりスカーフの採用率を考慮し、その他の持ち物とテラスタイプは考慮していません。
       </p>
     </section>
   );
@@ -248,6 +249,12 @@ function AdvisorRecommendationCard({
 }) {
   const candidate = plan.candidate;
   const categoryLabel = getAdvisorCategoryLabels(profile)[category];
+  const counterplayMethods = [...new Set(
+    plan.threatCoverage.threatAnswers
+      .filter((answer) => answer.answerStrength >= 0.6)
+      .flatMap((answer) => answer.counterplayMethods)
+      .filter((method) => method !== "conditional" && method !== "none")
+  )].slice(0, 3);
   return (
     <article className={styles.advisorCandidateCard}>
       <span className={styles.advisorCategoryBadge}>
@@ -305,6 +312,27 @@ function AdvisorRecommendationCard({
           ) : (
             <strong>環境データの読み込み待ち</strong>
           )}
+        </div>
+        <div className={styles.advisorThreatCoverageSummary}>
+          <span>現在の要警戒TOP5への対応</span>
+          <strong>
+            {plan.threatCoverage.distinctThreatCount} / {plan.threatCoverage.threatAnswers.length}体
+          </strong>
+          <small>
+            {counterplayMethods.length
+              ? counterplayMethods
+                  .map(getAdvisorCounterplayMethodLabel)
+                  .join("・")
+              : "明確な対策方法なし"}
+          </small>
+        </div>
+        <div>
+          <span>環境使用率</span>
+          <strong>
+            {plan.threatCoverage.candidateUsage === null
+              ? "データなし"
+              : `${(plan.threatCoverage.candidateUsage * 100).toFixed(1)}%`}
+          </strong>
         </div>
       </div>
 
