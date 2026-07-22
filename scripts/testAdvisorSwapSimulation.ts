@@ -271,10 +271,16 @@ assert(
     ),
   "同一speciesまたは現在のパーティspeciesを改善案へ含めました"
 );
+const metagrossMega = availablePokemon.find(
+  (pokemon) => pokemon.slug === "metagross-mega"
+);
+assert(metagrossMega, "メガメタグロスが使用可能一覧にいません");
+const megaCandidateAnalysis = analyze(iceTeam, [metagrossMega]);
 assert(
-  ice.simulation.plans.some(
-    (plan) => plan.candidate.pokemon.slug === "metagross-mega"
-  ),
+  megaCandidateAnalysis.advisor.candidates[0]?.pokemon.slug ===
+    "metagross-mega" &&
+    megaCandidateAnalysis.simulation.plans[0]?.candidate.pokemon.slug ===
+      "metagross-mega",
   "現在のルールで使用可能なメガフォームを入れ替え候補から除外しました"
 );
 

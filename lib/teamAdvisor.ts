@@ -1,7 +1,11 @@
 import { getTeamTypeGapRows, type TeamDiagnostics } from "@/lib/teamDiagnostics";
 import {
+  evaluateMoveAgainstPokemon,
+  getEnvironmentAttackingMoves,
+  THREAT_MOVE_THRESHOLDS
+} from "@/lib/battleEffectiveness";
+import {
   isThreatPokemonCandidate,
-  POPULAR_MOVE_MIN_SHARE,
   type ThreatPokemonAnalysis
 } from "@/lib/teamThreats";
 import {
@@ -174,6 +178,7 @@ function addReason(reasons: RankedReason[], reason: RankedReason): void {
 function scoreIssueResponses(
   pokemon: PokemonEntry,
   issues: TeamAdvisorIssue[],
+  environment: ThreatEnvironmentPokemon | undefined,
   reasons: RankedReason[],
   addressedIssueIds: Set<string>
 ): { issueResolutionPoints: number; rolePoints: number } {
@@ -183,22 +188,40 @@ function scoreIssueResponses(
 
   for (const issue of issues) {
     if (issue.kind === "type-gap" && issue.type) {
-      const multiplier = getMultiplier(issue.type, pokemon.types);
+      const evaluation = evaluateMoveAgainstPokemon({
+        move: { type: issue.type, damageClass: "physical" },
+        attacker: { slug: `issue:${issue.type}`, types: [issue.type] },
+        defender: pokemon,
+        defenderAbilityUsage: environment?.abilities
+      });
       let points = 0;
       let text = "";
-      if (multiplier === 0) {
-        points = ADVISOR_WEIGHTS.issueTypeImmune;
-        text = `${getTypeLabel(issue.type)}を無効化できます。`;
-      } else if (multiplier <= 0.25) {
-        points = ADVISOR_WEIGHTS.issueTypeQuarter;
+      points += Math.round(
+        evaluation.immunityProbability * ADVISOR_WEIGHTS.issueTypeImmune +
+          evaluation.quarterResistanceProbability *
+            ADVISOR_WEIGHTS.issueTypeQuarter +
+          (evaluation.resistanceProbability -
+            evaluation.quarterResistanceProbability) *
+            ADVISOR_WEIGHTS.issueTypeResist
+      );
+      issueResolutionPoints -= Math.round(
+        evaluation.weaknessProbability * ADVISOR_WEIGHTS.issueTypeWeakPenalty
+      );
+      const immunity = evaluation.relevantAbilities.find(
+        (effect) => effect.kind === "immunity"
+      );
+      if (evaluation.immunityProbability >= 0.5) {
+        text = immunity
+          ? `${getTypeLabel(issue.type)}を${immunity.abilityName}で無効化できます。`
+          : `${getTypeLabel(issue.type)}を無効化できます。`;
+      } else if (evaluation.quarterResistanceProbability >= 0.5) {
         text = `${getTypeLabel(issue.type)}を1/4以下で受けられます。`;
-      } else if (multiplier <= 0.5) {
-        points = ADVISOR_WEIGHTS.issueTypeResist;
+      } else if (evaluation.resistanceProbability >= 0.5) {
         text = `${getTypeLabel(issue.type)}を半減できます。`;
-      } else if (multiplier > 1) {
-        issueResolutionPoints -= ADVISOR_WEIGHTS.issueTypeWeakPenalty;
+      } else if (immunity && evaluation.immunityProbability > 0) {
+        text = `${immunity.abilityName}型（採用率${Math.round(immunity.probability * 100)}%）なら${getTypeLabel(issue.type)}を無効化できます。`;
       }
-      if (points > 0) {
+      if (points > 0 && text) {
         issueResolutionPoints += points;
         addressedIssueIds.add(issue.id);
         addReason(reasons, {
@@ -276,52 +299,107 @@ function scoreThreatResponses(
   pokemon: PokemonEntry,
   threats: ThreatPokemonAnalysis[],
   environment: ThreatEnvironmentPokemon | undefined,
+  environmentBySlug: Map<string, ThreatEnvironmentPokemon>,
   reasons: RankedReason[]
 ): number {
   let points = 0;
   const stats = pokemon.baseStats;
 
   for (const threat of threats.slice(0, 5)) {
-    const incomingMoves = threat.metrics.scoredPopularMoves
-      .map((entry) => entry.move)
-      .filter((move) => move.share >= POPULAR_MOVE_MIN_SHARE);
+    const threatEnvironment = environmentBySlug.get(threat.pokemon.slug);
+    const incomingMoves = getEnvironmentAttackingMoves(
+      threatEnvironment?.moves
+    );
     if (incomingMoves.length > 0) {
-      const resistedMoves = incomingMoves.filter(
-        (move) => getMultiplier(move.type, pokemon.types) <= 0.5
+      const incomingEvaluations = incomingMoves.map((move) => ({
+        move,
+        evaluation: evaluateMoveAgainstPokemon({
+          move,
+          attacker: threat.pokemon,
+          defender: pokemon,
+          attackerAbilityUsage: threatEnvironment?.abilities,
+          defenderAbilityUsage: environment?.abilities
+        })
+      }));
+      const weightedResponse = incomingEvaluations.reduce(
+        (total, { move, evaluation }) => {
+          const tier =
+            move.share >= THREAT_MOVE_THRESHOLDS.primary ? 1 : 0.5;
+          return (
+            total +
+            tier *
+              move.share *
+              (evaluation.immunityProbability +
+                evaluation.resistanceProbability)
+          );
+        },
+        0
       );
-      const weakToMove = incomingMoves.some(
-        (move) => getMultiplier(move.type, pokemon.types) > 1
+      const responsePoints = Math.min(
+        ADVISOR_WEIGHTS.threatMovesResisted,
+        Math.round(weightedResponse * ADVISOR_WEIGHTS.threatMovesResisted)
       );
-      if (resistedMoves.length === incomingMoves.length) {
-        points += ADVISOR_WEIGHTS.threatMovesResisted;
+      points += responsePoints;
+      const weakPressure = incomingEvaluations.reduce(
+        (total, { move, evaluation }) =>
+          total + move.share * evaluation.weaknessProbability,
+        0
+      );
+      if (weakPressure >= THREAT_MOVE_THRESHOLDS.primary) {
+        points -= Math.min(
+          ADVISOR_WEIGHTS.threatMoveWeakPenalty,
+          Math.round(weakPressure * ADVISOR_WEIGHTS.threatMoveWeakPenalty)
+        );
+      }
+
+      const bestDefensiveAnswer = incomingEvaluations
+        .filter(
+          ({ evaluation }) =>
+            evaluation.stableResistanceProbability >= 0.5
+        )
+        .sort(
+          (left, right) =>
+            right.move.share - left.move.share ||
+            right.evaluation.immunityProbability -
+              left.evaluation.immunityProbability
+        )[0];
+      if (bestDefensiveAnswer) {
+        const { move, evaluation } = bestDefensiveAnswer;
+        const immunity = evaluation.relevantAbilities.find(
+          (effect) => effect.kind === "immunity"
+        );
+        const text =
+          evaluation.immunityProbability >= 0.5 && immunity
+            ? `${threat.pokemon.nameJa}の${move.name}（採用率${Math.round(move.share * 100)}%）を${immunity.abilityName}で無効化しやすいです。`
+            : `${threat.pokemon.nameJa}の${move.name}（採用率${Math.round(move.share * 100)}%）を半減以下で受けられます。`;
         addReason(reasons, {
-          id: `threat-defense-${threat.pokemon.speciesId}`,
-          text: `${threat.pokemon.nameJa}の主流攻撃技を半減以下で受けられます。`,
-          points: ADVISOR_WEIGHTS.threatMovesResisted,
+          id: `threat-defense-${threat.pokemon.speciesId}-${move.id}`,
+          text,
+          points: responsePoints,
           order: 20
         });
-      } else if (resistedMoves.length >= Math.ceil(incomingMoves.length / 2)) {
-        points += ADVISOR_WEIGHTS.threatMovesPartlyResisted;
-        addReason(reasons, {
-          id: `threat-defense-${threat.pokemon.speciesId}`,
-          text: `${threat.pokemon.nameJa}の主流攻撃技の一部を半減できます。`,
-          points: ADVISOR_WEIGHTS.threatMovesPartlyResisted,
-          order: 21
-        });
-      }
-      if (weakToMove) {
-        points -= ADVISOR_WEIGHTS.threatMoveWeakPenalty;
       }
     }
 
-    const popularEffectiveMove = environment?.moves
-      .filter(
-        (move) =>
-          move.damageClass !== "status" &&
-          move.share >= POPULAR_MOVE_MIN_SHARE &&
-          getMultiplier(move.type, threat.pokemon.types) > 1
-      )
-      .sort((left, right) => right.share - left.share)[0];
+    const candidateMoves = getEnvironmentAttackingMoves(environment?.moves);
+    const popularEffectiveMove = candidateMoves
+      .map((move) => ({
+        move,
+        evaluation: evaluateMoveAgainstPokemon({
+          move,
+          attacker: pokemon,
+          defender: threat.pokemon,
+          attackerAbilityUsage: environment?.abilities,
+          defenderAbilityUsage: threatEnvironment?.abilities
+        })
+      }))
+      .filter(({ evaluation }) => evaluation.weaknessProbability >= 0.5)
+      .sort(
+        (left, right) =>
+          right.move.share - left.move.share ||
+          right.evaluation.weaknessProbability -
+            left.evaluation.weaknessProbability
+      )[0];
     const bestStabMultiplier = pokemon.types.reduce(
       (best, type) =>
         Math.max(best, getMultiplier(type, threat.pokemon.types)),
@@ -331,17 +409,17 @@ function scoreThreatResponses(
     if (popularEffectiveMove) {
       const movePoints = Math.min(
         ADVISOR_WEIGHTS.threatPopularMove,
-        8 + Math.round(popularEffectiveMove.share * 4)
+        8 + Math.round(popularEffectiveMove.move.share * 4)
       );
       points += movePoints;
       appliesPressure = true;
       addReason(reasons, {
         id: `threat-offense-${threat.pokemon.speciesId}`,
-        text: `採用率${Math.round(popularEffectiveMove.share * 100)}%の${popularEffectiveMove.name}で${threat.pokemon.nameJa}へ抜群を狙えます。`,
+        text: `採用率${Math.round(popularEffectiveMove.move.share * 100)}%の${popularEffectiveMove.move.name}で${threat.pokemon.nameJa}へ抜群を狙えます。`,
         points: movePoints,
         order: 22
       });
-    } else if (bestStabMultiplier > 1) {
+    } else if (candidateMoves.length === 0 && bestStabMultiplier > 1) {
       points += ADVISOR_WEIGHTS.threatStabPressure;
       appliesPressure = true;
       addReason(reasons, {
@@ -442,13 +520,15 @@ function scoreCandidate(
   issues: TeamAdvisorIssue[],
   threats: ThreatPokemonAnalysis[],
   summary: TeamSummary,
-  environment: ThreatEnvironmentPokemon | undefined
+  environment: ThreatEnvironmentPokemon | undefined,
+  environmentBySlug: Map<string, ThreatEnvironmentPokemon>
 ): TeamAdvisorCandidate | null {
   const reasons: RankedReason[] = [];
   const addressedIssueIds = new Set<string>();
   const issueScore = scoreIssueResponses(
     pokemon,
     issues,
+    environment,
     reasons,
     addressedIssueIds
   );
@@ -456,6 +536,7 @@ function scoreCandidate(
     pokemon,
     threats,
     environment,
+    environmentBySlug,
     reasons
   );
   const offensePoints = scoreOffenseGaps(pokemon, summary, reasons);
@@ -551,7 +632,8 @@ export function getTeamAdvisorAnalysis({
       issues,
       threats,
       summary,
-      environmentBySlug.get(pokemon.slug)
+      environmentBySlug.get(pokemon.slug),
+      environmentBySlug
     );
     if (!candidate) continue;
     const current = bestBySpecies.get(pokemon.speciesId);

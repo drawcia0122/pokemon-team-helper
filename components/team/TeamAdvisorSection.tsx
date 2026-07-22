@@ -53,7 +53,7 @@ export function TeamAdvisorSection({
       </div>
 
       <p className={styles.advisorNote}>
-        タイプ相性・種族値・Pokemon Showdown環境統計を使った参考シミュレーションです。技の効果、持ち物、テラスタイプは考慮していません。
+        タイプ相性・種族値・Pokemon Showdown環境統計を使った参考シミュレーションです。実採用攻撃技と特性による相性変化を考慮し、持ち物とテラスタイプは考慮していません。
       </p>
     </section>
   );

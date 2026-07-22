@@ -190,6 +190,98 @@ assert(
   "環境使用率の補助点が上限を超えました"
 );
 
+const groundThreatPokemon = syntheticPokemon({
+  slug: "advisor-ground-threat",
+  speciesId: 19101,
+  types: ["ground"],
+  nameJa: "じめん脅威"
+});
+const levitateAnswerPokemon = syntheticPokemon({
+  slug: "advisor-levitate-answer",
+  speciesId: 19102,
+  types: ["electric"],
+  nameJa: "ふゆう回答"
+});
+const moveAbilityDataset: ThreatEnvironmentDataset = {
+  ...environmentDataset,
+  snapshotId: "advisor-move-ability-test",
+  pokemon: [
+    {
+      ...environmentEntry(groundThreatPokemon.slug, 0.2, 1),
+      offenseProfile: {
+        physicalShare: 1,
+        specialShare: 0,
+        neutralShare: 0
+      },
+      moves: [
+        {
+          id: "earthquake",
+          name: "じしん",
+          type: "ground",
+          damageClass: "physical",
+          share: 0.82
+        },
+        {
+          id: "swordsdance",
+          name: "つるぎのまい",
+          type: "normal",
+          damageClass: "status",
+          share: 0.9
+        }
+      ]
+    },
+    {
+      ...environmentEntry(levitateAnswerPokemon.slug, 0.05, 2),
+      moves: [
+        {
+          id: "hydropump",
+          name: "ハイドロポンプ",
+          type: "water",
+          damageClass: "special",
+          share: 0.65
+        }
+      ],
+      abilities: [{ id: "levitate", name: "ふゆう", share: 1 }]
+    }
+  ]
+};
+const electricTypeTeam: TeamSlot[] = [
+  { id: "slot-1", mode: "type", primaryType: "electric" },
+  { id: "slot-2", mode: "type", primaryType: "electric" }
+];
+const moveAbilitySummary = summarizeTeam(electricTypeTeam);
+const moveAbilityDiagnostics = getTeamDiagnostics(
+  electricTypeTeam,
+  moveAbilitySummary,
+  [groundThreatPokemon, levitateAnswerPokemon]
+);
+const moveAbilityThreats = getAdvisorCompatibleThreatAnalysis(
+  electricTypeTeam,
+  moveAbilitySummary,
+  [groundThreatPokemon],
+  moveAbilityDataset
+);
+const moveAbilityAdvisor = getTeamAdvisorAnalysis({
+  team: electricTypeTeam,
+  summary: moveAbilitySummary,
+  diagnostics: moveAbilityDiagnostics,
+  threats: moveAbilityThreats,
+  availablePokemon: [levitateAnswerPokemon],
+  environmentDataset: moveAbilityDataset
+});
+const levitateAnswer = moveAbilityAdvisor.candidates[0];
+assert(
+  levitateAnswer?.pokemon.slug === levitateAnswerPokemon.slug &&
+    levitateAnswer.reasons.some(
+      (reason) => reason.includes("じしん") && reason.includes("ふゆう")
+    ) &&
+    levitateAnswer.reasons.some((reason) =>
+      reason.includes("ハイドロポンプ")
+    ) &&
+    !levitateAnswer.reasons.some((reason) => reason.includes("つるぎのまい")),
+  `Advisorの受け先理由が実採用攻撃技・特性判定へ切り替わっていません: ${JSON.stringify(levitateAnswer?.reasons)}`
+);
+
 const sixTeam = [
   pokemonSlot("slot-1", "charizard"),
   pokemonSlot("slot-2", "rotom-wash"),
@@ -357,6 +449,7 @@ assert(
     sectionSource.includes("要警戒TOP5平均") &&
     sectionSource.includes("改善点") &&
     sectionSource.includes("注意点") &&
+    sectionSource.includes("実採用攻撃技と特性による相性変化") &&
     sectionSource.includes("function AdvisorIssues") &&
     sectionSource.includes("function AdvisorRecommendations") &&
     sectionSource.includes("function AdvisorTeamDiagnosticsPanel") &&

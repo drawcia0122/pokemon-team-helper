@@ -1,5 +1,10 @@
 import { getTeamTypeGapRows } from "@/lib/teamDiagnostics";
 import {
+  evaluateMoveAgainstPokemon,
+  getEnvironmentAttackingMoves,
+  THREAT_MOVE_THRESHOLDS
+} from "@/lib/battleEffectiveness";
+import {
   getMultiplier,
   getPokemonBySlug,
   getTypeLabel
@@ -59,7 +64,7 @@ export const THREAT_USAGE_SCORE_CURVE = [
   { usageRate: 0.2, points: 20 }
 ] as const;
 
-export const POPULAR_MOVE_MIN_SHARE = 0.2;
+export const POPULAR_MOVE_MIN_SHARE = THREAT_MOVE_THRESHOLDS.primary;
 export const MIN_THREAT_USAGE_RATE = 0.001;
 
 export type ThreatPokemonEnvironment = {
@@ -98,6 +103,10 @@ export type ThreatPokemonAnalysis = {
       move: ThreatEnvironmentMove;
       targetCount: number;
       quadTargetCount: number;
+      immuneTargetCount: number;
+      resistantTargetCount: number;
+      stableAnswerCount: number;
+      abilityNotes: string[];
       points: number;
     }>;
   };
@@ -169,8 +178,10 @@ function getDominantDamageClass(
 }
 
 function scorePopularMoves(
+  attacker: PokemonEntry,
   environment: ThreatEnvironmentPokemon | undefined,
   summary: TeamSummary,
+  environmentBySlug: Map<string, ThreatEnvironmentPokemon>,
   weights: ThreatScoringWeights
 ): {
   points: number;
@@ -188,31 +199,69 @@ function scorePopularMoves(
   }
 
   const dominantDamageClass = getDominantDamageClass(environment);
-  const popularMoves = environment.moves.filter(
-    (move) =>
-      move.damageClass !== "status" &&
-      move.share >= POPULAR_MOVE_MIN_SHARE &&
-      (dominantDamageClass === "mixed" ||
-        dominantDamageClass === null ||
-        move.damageClass === dominantDamageClass)
-  );
+  const popularMoves = getEnvironmentAttackingMoves(environment.moves);
   const scoredMoves = popularMoves
     .map((move) => {
       let targetCount = 0;
       let quadTargetCount = 0;
+      let immuneTargetCount = 0;
+      let resistantTargetCount = 0;
+      let stableAnswerCount = 0;
+      const abilityNotes = new Set<string>();
       for (const member of summary.members) {
-        const multiplier = getMultiplier(move.type, member.types);
-        if (multiplier > 1) targetCount += 1;
-        if (multiplier >= 4) quadTargetCount += 1;
+        const defender = member.slug
+          ? getPokemonBySlug(member.slug)
+          : undefined;
+        const evaluation = evaluateMoveAgainstPokemon({
+          move,
+          attacker,
+          defender: defender ?? {
+            slug: `type:${member.slotId}`,
+            types: member.types
+          },
+          attackerAbilityUsage: environment.abilities,
+          defenderAbilityUsage: member.slug
+            ? environmentBySlug.get(member.slug)?.abilities
+            : undefined
+        });
+        if (evaluation.weaknessProbability >= 0.5) targetCount += 1;
+        if (evaluation.quadWeaknessProbability >= 0.5) quadTargetCount += 1;
+        if (evaluation.immunityProbability >= 0.5) immuneTargetCount += 1;
+        if (evaluation.resistanceProbability >= 0.5) {
+          resistantTargetCount += 1;
+        }
+        if (evaluation.stableResistanceProbability >= 0.5) {
+          stableAnswerCount += 1;
+        }
+        evaluation.relevantAbilities.forEach((effect) => {
+          if (effect.probability < 0.5) return;
+          if (effect.kind === "immunity") {
+            abilityNotes.add(`${member.label}は${effect.abilityName}で無効`);
+          } else if (effect.kind === "bypass") {
+            abilityNotes.add(`${effect.abilityName}で防御特性を無視`);
+          }
+        });
       }
       const targetRatio = targetCount / summary.members.length;
       const quadRatio = quadTargetCount / summary.members.length;
-      const points = move.share *
+      const moveTierFactor =
+        move.share >= THREAT_MOVE_THRESHOLDS.primary ? 1 : 0.5;
+      const stablePressure = stableAnswerCount === 0 ? 0.2 : 0;
+      const points = move.share * moveTierFactor *
         (targetRatio * weights.popularMoves +
-          quadRatio * weights.popularMoves * 0.2);
-      return { move, targetCount, quadTargetCount, points };
+          quadRatio * weights.popularMoves * 0.2 +
+          stablePressure * weights.popularMoves);
+      return {
+        move,
+        targetCount,
+        quadTargetCount,
+        immuneTargetCount,
+        resistantTargetCount,
+        stableAnswerCount,
+        abilityNotes: [...abilityNotes],
+        points
+      };
     })
-    .filter((entry) => entry.targetCount > 0)
     .sort(
       (left, right) =>
         right.points - left.points || right.move.share - left.move.share
@@ -228,6 +277,79 @@ function scorePopularMoves(
       : 0;
 
   return { points, setPoints, dominantDamageClass, scoredMoves };
+}
+
+function getActualMoveCoverage(
+  attacker: PokemonEntry,
+  environment: ThreatEnvironmentPokemon | undefined,
+  summary: TeamSummary,
+  environmentBySlug: Map<string, ThreatEnvironmentPokemon>
+): {
+  hasActualMoves: boolean;
+  superEffectiveTargetCount: number;
+  quadEffectiveTargetCount: number;
+  coverageRatio: number;
+  quadRatio: number;
+} {
+  const moves = getEnvironmentAttackingMoves(environment?.moves);
+  if (!environment || moves.length === 0 || summary.members.length === 0) {
+    return {
+      hasActualMoves: false,
+      superEffectiveTargetCount: 0,
+      quadEffectiveTargetCount: 0,
+      coverageRatio: 0,
+      quadRatio: 0
+    };
+  }
+
+  const memberScores = summary.members.map((member) => {
+    const defender = member.slug ? getPokemonBySlug(member.slug) : undefined;
+    let bestWeakness = 0;
+    let bestQuadWeakness = 0;
+    for (const move of moves) {
+      const evaluation = evaluateMoveAgainstPokemon({
+        move,
+        attacker,
+        defender: defender ?? {
+          slug: `type:${member.slotId}`,
+          types: member.types
+        },
+        attackerAbilityUsage: environment.abilities,
+        defenderAbilityUsage: member.slug
+          ? environmentBySlug.get(member.slug)?.abilities
+          : undefined
+      });
+      const adoptionWeight = Math.min(
+        1,
+        move.share / THREAT_MOVE_THRESHOLDS.primary
+      );
+      bestWeakness = Math.max(
+        bestWeakness,
+        evaluation.weaknessProbability * adoptionWeight
+      );
+      bestQuadWeakness = Math.max(
+        bestQuadWeakness,
+        evaluation.quadWeaknessProbability * adoptionWeight
+      );
+    }
+    return { bestWeakness, bestQuadWeakness };
+  });
+
+  return {
+    hasActualMoves: true,
+    superEffectiveTargetCount: memberScores.filter(
+      (entry) => entry.bestWeakness >= 0.5
+    ).length,
+    quadEffectiveTargetCount: memberScores.filter(
+      (entry) => entry.bestQuadWeakness >= 0.5
+    ).length,
+    coverageRatio:
+      memberScores.reduce((sum, entry) => sum + entry.bestWeakness, 0) /
+      memberScores.length,
+    quadRatio:
+      memberScores.reduce((sum, entry) => sum + entry.bestQuadWeakness, 0) /
+      memberScores.length
+  };
 }
 
 export function scoreThreatUsageRate(
@@ -281,17 +403,29 @@ function scoreThreatPokemon(
   scoreUsage: (usageRate: number | undefined) => number
 ): ThreatPokemonAnalysis {
   const memberCount = summary.members.length;
+  const environmentSource = environmentBySlug.get(pokemon.slug);
+  const actualMoveCoverage = getActualMoveCoverage(
+    pokemon,
+    environmentSource,
+    summary,
+    environmentBySlug
+  );
   let superEffectiveTargetCount = 0;
   let quadEffectiveTargetCount = 0;
 
-  for (const member of summary.members) {
-    const bestMultiplier = pokemon.types.reduce(
-      (best, attackType) =>
-        Math.max(best, getMultiplier(attackType, member.types)),
-      0
-    );
-    if (bestMultiplier > 1) superEffectiveTargetCount += 1;
-    if (bestMultiplier >= 4) quadEffectiveTargetCount += 1;
+  if (actualMoveCoverage.hasActualMoves) {
+    superEffectiveTargetCount = actualMoveCoverage.superEffectiveTargetCount;
+    quadEffectiveTargetCount = actualMoveCoverage.quadEffectiveTargetCount;
+  } else {
+    for (const member of summary.members) {
+      const bestMultiplier = pokemon.types.reduce(
+        (best, attackType) =>
+          Math.max(best, getMultiplier(attackType, member.types)),
+        0
+      );
+      if (bestMultiplier > 1) superEffectiveTargetCount += 1;
+      if (bestMultiplier >= 4) quadEffectiveTargetCount += 1;
+    }
   }
 
   const teamAnswerCount = summary.members.filter((member) =>
@@ -299,9 +433,15 @@ function scoreThreatPokemon(
       (attackType) => getMultiplier(attackType, pokemon.types) > 1
     )
   ).length;
-  const matchedTypeGaps = pokemon.types.filter((type) =>
-    typeGaps.includes(type)
+  const actualMoveTypes = new Set(
+    getEnvironmentAttackingMoves(environmentSource?.moves).map(
+      (move) => move.type
+    )
   );
+  const matchedTypeGaps = (actualMoveCoverage.hasActualMoves
+    ? [...actualMoveTypes]
+    : pokemon.types
+  ).filter((type) => typeGaps.includes(type));
   const stats = pokemon.baseStats;
   const maxAttackingStat = stats
     ? Math.max(stats.attack, stats.specialAttack)
@@ -313,9 +453,13 @@ function scoreThreatPokemon(
 
   const attackCoveragePoints = memberCount
     ? Math.round(
-        (superEffectiveTargetCount / memberCount) *
+        (actualMoveCoverage.hasActualMoves
+          ? actualMoveCoverage.coverageRatio
+          : superEffectiveTargetCount / memberCount) *
           weights.attackCoverage +
-          (quadEffectiveTargetCount / memberCount) *
+          (actualMoveCoverage.hasActualMoves
+            ? actualMoveCoverage.quadRatio
+            : quadEffectiveTargetCount / memberCount) *
             weights.quadCoverage
       )
     : 0;
@@ -347,14 +491,22 @@ function scoreThreatPokemon(
           : maxAttackingStat >= 100
             ? Math.round(weights.offense * 0.375)
             : 0;
-  const typeGapPoints = Math.min(
+  const rawTypeGapPoints = Math.min(
     weights.typeGap,
     matchedTypeGaps.length *
       Math.round(weights.typeGap * (10 / 12))
   );
-  const environmentSource = environmentBySlug.get(pokemon.slug);
+  const typeGapPoints = actualMoveCoverage.hasActualMoves
+    ? Math.round(rawTypeGapPoints * 0.35)
+    : rawTypeGapPoints;
   const usagePoints = scoreUsage(environmentSource?.usageRate);
-  const popularMoves = scorePopularMoves(environmentSource, summary, weights);
+  const popularMoves = scorePopularMoves(
+    pokemon,
+    environmentSource,
+    summary,
+    environmentBySlug,
+    weights
+  );
   const baseMatchupPoints =
     attackCoveragePoints +
     defensivePressurePoints +
@@ -369,23 +521,36 @@ function scoreThreatPokemon(
   );
   const reasons: ScoredReason[] = [];
 
-  matchedTypeGaps.forEach((type, index) => {
-    reasons.push({
-      id: `type-gap-${type}`,
-      text: `${getTypeLabel(type)}が一貫しています。`,
-      points: typeGapPoints,
-      order: 1 + index
+  if (!actualMoveCoverage.hasActualMoves) {
+    matchedTypeGaps.forEach((type, index) => {
+      reasons.push({
+        id: `type-gap-${type}`,
+        text: `${getTypeLabel(type)}が一貫しています。`,
+        points: typeGapPoints,
+        order: 10 + index
+      });
     });
-  });
+  }
   popularMoves.scoredMoves.slice(0, 2).forEach((entry, index) => {
     const quadNote = entry.quadTargetCount
       ? `（うち${entry.quadTargetCount}体は4倍弱点）`
       : "";
     reasons.push({
       id: `popular-move-${entry.move.id}`,
-      text: `採用率${Math.round(entry.move.share * 100)}%の${entry.move.name}が${entry.targetCount}体へ抜群です${quadNote}。`,
+      text:
+        entry.targetCount > 0
+          ? `採用率${Math.round(entry.move.share * 100)}%の${entry.move.name}が${entry.targetCount}体へ抜群です${quadNote}。`
+          : `採用率${Math.round(entry.move.share * 100)}%の${entry.move.name}を半減・無効で受ける枠がありません。`,
       points: entry.points,
-      order: 10 + index
+      order: 1 + index
+    });
+    entry.abilityNotes.slice(0, 1).forEach((note) => {
+      reasons.push({
+        id: `popular-move-ability-${entry.move.id}`,
+        text: `${note}のため、${entry.move.name}は通りません。`,
+        points: entry.points,
+        order: 5 + index
+      });
     });
   });
   if (speedPoints > 0 && stats && speedDifference !== null) {
@@ -396,7 +561,7 @@ function scoreThreatPokemon(
       order: 20
     });
   }
-  if (attackCoveragePoints > 0) {
+  if (attackCoveragePoints > 0 && !actualMoveCoverage.hasActualMoves) {
     const quadNote = quadEffectiveTargetCount
       ? `（うち${quadEffectiveTargetCount}体は4倍弱点）`
       : "";

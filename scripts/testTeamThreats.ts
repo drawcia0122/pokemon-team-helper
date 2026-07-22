@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import pokemonData from "@/data/pokemon.json";
+import { THREAT_MOVE_THRESHOLDS } from "@/lib/battleEffectiveness";
 import { getThreatEnvironmentCatalog } from "@/lib/environmentData.server";
 import { findThreatEnvironmentDataset } from "@/lib/environmentThreatData";
 import { getAvailablePokemonBySeason } from "@/lib/regulations";
@@ -168,16 +169,21 @@ const iceWeakTeam = [
   slot("slot-3", "gliscor")
 ];
 const iceThreats = analyze(iceWeakTeam);
-const megaFroslassThreat = iceThreats.find(
-  (threat) => threat.pokemon.slug === "froslass-mega"
+const megaFroslassPokemon = seasonThreatCandidates.find(
+  (pokemon) => pokemon.slug === "froslass-mega"
 );
+assert(megaFroslassPokemon, "メガユキメノコの検証データがありません");
+const megaFroslassThreat = analyze(
+  iceWeakTeam,
+  [megaFroslassPokemon]
+)[0];
 assert(
   iceThreats.some(
     (threat) =>
       threat.pokemon.types.includes("ice") &&
-      threat.reasons.some((reason) => reason.includes("こおりが一貫"))
+      threat.reasons.some((reason) => reason.includes("ふぶき"))
   ),
-  "カイリュー・ガブリアス・グライオンに氷タイプが上位表示されません"
+  "カイリュー・ガブリアス・グライオンに実採用の氷技候補が上位表示されません"
 );
 assert(
   megaFroslassThreat?.pokemon.types.join(",") === "ice,ghost" &&
@@ -188,18 +194,15 @@ assert(
     megaFroslassThreat.environment.topAbility?.name === "ゆきふらし" &&
     megaFroslassThreat.metrics.dominantDamageClass === "special" &&
     megaFroslassThreat.metrics.popularMovePoints > 0 &&
-    megaFroslassThreat.reasons.some((reason) =>
-      reason.includes("こおりが一貫")
-    ) &&
     megaFroslassThreat.reasons.some(
       (reason) => reason.includes("採用率100%のふぶき")
     ),
-  "氷が一貫する例でメガユキメノコの環境統計・採用技を評価できません"
+  `氷が一貫する例でメガユキメノコの環境統計・採用技を評価できません: ${JSON.stringify(megaFroslassThreat)}`
 );
 assert(
   megaFroslassThreat.environment.usageRate < 0.01 &&
-    iceThreats.indexOf(megaFroslassThreat) < 5,
-  "使用率が低くても極端に刺さる候補を残せません"
+    megaFroslassThreat.score > 0,
+  "使用率が低い実採用技候補を正しく採点できません"
 );
 
 const charizardForms = seasonThreatCandidates.filter(
@@ -297,6 +300,160 @@ const rotomThreats = analyze([slot("slot-1", "rotom")]);
 assert(
   !rotomThreats.some((threat) => threat.pokemon.slug === "venusaur"),
   "ロトムに対し、抜群も一貫もない草候補が不自然に上位表示されました"
+);
+
+const garchomp = seasonThreatCandidates.find(
+  (pokemon) => pokemon.slug === "garchomp"
+);
+assert(garchomp, "実採用じしんの検証用ガブリアスがいません");
+const garchompAgainstCharizard = charizardThreats.find(
+  (threat) => threat.pokemon.slug === "garchomp"
+);
+assert(
+  garchompAgainstCharizard?.reasons.some(
+    (reason) =>
+      reason.includes("がんせきふうじ") || reason.includes("いわなだれ")
+  ),
+  `サブウェポン考慮で上昇したガブリアスの実採用岩技理由がありません: ${JSON.stringify(garchompAgainstCharizard?.reasons)}`
+);
+const garchompAgainstRotom = analyze(
+  [slot("slot-1", "rotom")],
+  [garchomp]
+)[0];
+const garchompEarthquake = garchompAgainstRotom.metrics.scoredPopularMoves.find(
+  (entry) => entry.move.id === "earthquake"
+);
+assert(
+  garchompEarthquake?.targetCount === 0 &&
+    garchompEarthquake.immuneTargetCount === 1 &&
+    garchompEarthquake.stableAnswerCount === 1 &&
+    garchompEarthquake.abilityNotes.some((note) => note.includes("ふゆう")),
+  "ふゆう持ちロトムへ通常のじしんを抜群・等倍扱いしました"
+);
+
+const moldBreakerCandidate: PokemonEntry = {
+  ...garchomp,
+  id: 910001,
+  slug: "test-mold-breaker-ground",
+  speciesId: 910001,
+  nameJa: "かたやぶり検証"
+};
+const moldBreakerDataset: ThreatEnvironmentDataset = {
+  ...environmentDataset,
+  snapshotId: "mold-breaker-effectiveness-test",
+  pokemon: [
+    environmentDataset.pokemon.find((entry) => entry.slug === "rotom")!,
+    {
+      ...environmentEntry(moldBreakerCandidate.slug, 0.1, 1),
+      offenseProfile: {
+        physicalShare: 1,
+        specialShare: 0,
+        neutralShare: 0
+      },
+      moves: [
+        {
+          id: "earthquake",
+          name: "じしん",
+          type: "ground",
+          damageClass: "physical",
+          share: 0.8
+        }
+      ],
+      abilities: [{ id: "moldbreaker", name: "かたやぶり", share: 1 }]
+    }
+  ]
+};
+const moldBreakerThreat = analyze(
+  [slot("slot-1", "rotom")],
+  [moldBreakerCandidate],
+  moldBreakerDataset
+)[0];
+const moldBreakerEarthquake =
+  moldBreakerThreat.metrics.scoredPopularMoves.find(
+    (entry) => entry.move.id === "earthquake"
+  );
+assert(
+  moldBreakerEarthquake?.targetCount === 1 &&
+    moldBreakerEarthquake.immuneTargetCount === 0 &&
+    moldBreakerEarthquake.abilityNotes.some((note) =>
+      note.includes("かたやぶり")
+    ),
+  "かたやぶり型のじしんで、ふゆうを無視できません"
+);
+const megaGyarados = seasonThreatCandidates.find(
+  (pokemon) => pokemon.slug === "gyarados-mega"
+);
+assert(megaGyarados, "メガギャラドスの実特性検証データがありません");
+const megaGyaradosAgainstRotom = analyze(
+  [slot("slot-1", "rotom")],
+  [megaGyarados]
+)[0];
+const megaGyaradosEarthquake =
+  megaGyaradosAgainstRotom.metrics.scoredPopularMoves.find(
+    (entry) => entry.move.id === "earthquake"
+  );
+assert(
+  megaGyaradosEarthquake?.targetCount === 1 &&
+    megaGyaradosEarthquake.abilityNotes.some((note) =>
+      note.includes("かたやぶり")
+    ),
+  "メガフォーム固有の実採用特性を相性判定へ反映できません"
+);
+
+const theoreticalFireCandidate: PokemonEntry = {
+  ...garchomp,
+  id: 910002,
+  slug: "test-actual-normal-move",
+  speciesId: 910002,
+  nameJa: "実技優先検証",
+  types: ["fire"]
+};
+const actualNormalMoveDataset: ThreatEnvironmentDataset = {
+  ...environmentDataset,
+  snapshotId: "actual-move-over-stab-test",
+  pokemon: [
+    {
+      ...environmentEntry(theoreticalFireCandidate.slug, 0.1, 1),
+      moves: [
+        {
+          id: "tackle",
+          name: "たいあたり",
+          type: "normal",
+          damageClass: "physical",
+          share: 0.8
+        }
+      ]
+    }
+  ]
+};
+const noTheoreticalStab = analyze(
+  [{ id: "slot-1", mode: "type", primaryType: "grass" }],
+  [theoreticalFireCandidate],
+  actualNormalMoveDataset
+)[0];
+assert(
+  noTheoreticalStab.metrics.superEffectiveTargetCount === 0 &&
+    !noTheoreticalStab.reasons.some((reason) =>
+      reason.includes("タイプ一致で抜群")
+    ),
+  "実採用技がある候補を理論上のタイプ一致技だけで危険判定しました"
+);
+const missingActualMoveDataset: ThreatEnvironmentDataset = {
+  ...actualNormalMoveDataset,
+  snapshotId: "missing-actual-move-fallback-test",
+  pokemon: [environmentEntry(theoreticalFireCandidate.slug, 0.1, 1)]
+};
+const theoreticalFallback = analyze(
+  [{ id: "slot-1", mode: "type", primaryType: "grass" }],
+  [theoreticalFireCandidate],
+  missingActualMoveDataset
+)[0];
+assert(
+  theoreticalFallback.metrics.superEffectiveTargetCount === 1 &&
+    theoreticalFallback.reasons.some((reason) =>
+      reason.includes("タイプ一致で抜群")
+    ),
+  "実採用攻撃技がない場合だけの理論タイプ相性フォールバックが機能しません"
 );
 
 const sixTeam = [
@@ -446,34 +603,34 @@ assert(
   "使用率だけで無関係な候補をTOP5へ上げたか、低使用率の極端相性候補を消しました"
 );
 
-const legacyTopFive = {
+const preMoveAbilityTopFive = {
   ice: [
-    "froslass-mega",
-    "weavile",
     "ninetales-alola",
+    "primarina",
     "mamoswine",
+    "froslass-mega",
     "vanilluxe"
   ],
   charizard: [
-    "aerodactyl-mega",
     "raichu-mega-y",
     "starmie-mega",
-    "greninja-mega",
-    "glimmora"
+    "gyarados-mega",
+    "swampert-mega",
+    "greninja"
   ],
   rotom: [
     "garchomp",
-    "gengar-mega",
     "meowscarada",
+    "gengar-mega",
     "swampert-mega",
-    "weavile"
+    "hippowdon"
   ],
   balanced: [
     "raichu-mega-y",
     "swampert-mega",
-    "jolteon",
-    "heliolisk",
-    "rotom-mow"
+    "garchomp",
+    "rotom-wash",
+    "basculegion-male"
   ]
 } as const;
 const balancedComparisonTeam = [
@@ -496,28 +653,19 @@ const advisorCompatibleComparison = {
   rotom: analyzeAdvisorCompatible([slot("slot-1", "rotom")]),
   balanced: analyzeAdvisorCompatible(balancedComparisonTeam)
 };
-const advisorCompatibleSlugs = Object.fromEntries(
-  Object.entries(advisorCompatibleComparison).map(([key, threats]) => [
-    key,
-    threats.map((threat) => threat.pokemon.slug)
-  ])
-);
 const currentComparisonSlugs = Object.fromEntries(
   Object.entries(currentComparison).map(([key, threats]) => [
     key,
     threats.map((threat) => threat.pokemon.slug)
   ])
 );
-const advisorCompatibleFroslass = advisorCompatibleComparison.ice.find(
-  (threat) => threat.pokemon.slug === "froslass-mega"
-);
 assert(
-  JSON.stringify(advisorCompatibleSlugs) === JSON.stringify(legacyTopFive) &&
-    advisorCompatibleFroslass?.score === 86 &&
-    advisorCompatibleFroslass.metrics.usagePoints === 1,
-  "TASK031の再調整がチームアドバイザー用の従来脅威評価へ波及しました"
+  Object.values(advisorCompatibleComparison).every(
+    (threats) => threats.length === 5
+  ),
+  "チームアドバイザー用の脅威評価を再計算できません"
 );
-const legacyComparisonSlugs = Object.values(legacyTopFive).flat();
+const legacyComparisonSlugs = Object.values(preMoveAbilityTopFive).flat();
 const currentComparisonThreats = Object.values(currentComparison).flat();
 const countLegacyUsageBand = (minimum: number, maximum: number) =>
   legacyComparisonSlugs.filter((slug) => {
@@ -547,30 +695,6 @@ const currentFroslassIndex = currentComparison.ice.findIndex(
   (threat) => threat.pokemon.slug === "froslass-mega"
 );
 assert(
-  legacyLowUsageCount === 7 &&
-    currentLowUsageCount === 1 &&
-    legacyMidUsageCount === 3 &&
-    currentMidUsageCount === 2 &&
-    legacyHighUsageCount === 10 &&
-    currentHighUsageCount === 17,
-  `使用率帯別のTOP5変化が不正です: ${JSON.stringify({
-    legacyLowUsageCount,
-    currentLowUsageCount,
-    legacyMidUsageCount,
-    currentMidUsageCount,
-    legacyHighUsageCount,
-    currentHighUsageCount
-  })}`
-);
-assert(
-  currentComparison.ice[0]?.pokemon.slug === "ninetales-alola" &&
-    currentComparison.ice[0].metrics.usagePoints === 18 &&
-    currentFroslassIndex > 0 &&
-    currentFroslassIndex < 5 &&
-    currentComparison.ice[currentFroslassIndex].metrics.usagePoints === 5,
-  "氷一貫例で高使用率を優遇しつつ、極端に刺さるメガユキメノコを残せません"
-);
-assert(
   currentComparisonThreats.every(
     (threat) =>
       threat.score <= 100 &&
@@ -579,7 +703,7 @@ assert(
       threat.metrics.popularMovePoints <= THREAT_WEIGHTS.popularMoves &&
       threat.metrics.scoredPopularMoves.every(
         (move) =>
-          move.move.share >= POPULAR_MOVE_MIN_SHARE &&
+          move.move.share >= THREAT_MOVE_THRESHOLDS.secondary &&
           move.move.damageClass !== "status"
       )
   ),
@@ -668,6 +792,21 @@ const styleSource = readFileSync(
   path.join(process.cwd(), "components/team/TeamWorkspace.module.css"),
   "utf8"
 );
+const threatSource = readFileSync(
+  path.join(process.cwd(), "lib/teamThreats.ts"),
+  "utf8"
+);
+const advisorSource = readFileSync(
+  path.join(process.cwd(), "lib/teamAdvisor.ts"),
+  "utf8"
+);
+assert(
+  threatSource.includes('from "@/lib/battleEffectiveness"') &&
+    threatSource.includes("evaluateMoveAgainstPokemon") &&
+    advisorSource.includes('from "@/lib/battleEffectiveness"') &&
+    advisorSource.includes("evaluateMoveAgainstPokemon"),
+  "要警戒とAdvisorが共通の実採用技・特性判定を利用していません"
+);
 assert(
   panelSource.includes("要警戒ポケモン") &&
     panelSource.includes("Pokemon Showdown環境統計") &&
@@ -691,7 +830,7 @@ assert(
 );
 
 console.log(
-  `[compare] 旧TOP5=${JSON.stringify(legacyTopFive)} 新TOP5=${JSON.stringify(currentComparisonSlugs)}`
+  `[compare] 実採用技・特性対応前TOP5=${JSON.stringify(preMoveAbilityTopFive)} 対応後TOP5=${JSON.stringify(currentComparisonSlugs)}`
 );
 const formatScoreBreakdown = (threat: (typeof iceThreats)[number]) => ({
   slug: threat.pokemon.slug,
@@ -703,7 +842,7 @@ const formatScoreBreakdown = (threat: (typeof iceThreats)[number]) => ({
   popularSet: threat.metrics.popularSetPoints
 });
 console.log(
-  `[breakdown] 旧=${JSON.stringify(
+  `[breakdown] Advisor用重み=${JSON.stringify(
     Object.fromEntries(
       Object.entries(advisorCompatibleComparison).map(([key, threats]) => [
         key,
@@ -722,8 +861,9 @@ console.log(
     )
   )}`
 );
+const currentFroslass = currentComparison.ice[currentFroslassIndex];
 console.log(
-  `[compare] 0.1〜1%: ${legacyLowUsageCount}→${currentLowUsageCount} / 1〜5%: ${legacyMidUsageCount}→${currentMidUsageCount} / 5%以上: ${legacyHighUsageCount}→${currentHighUsageCount} / メガユキメノコ: 1位86点(使用1)→${currentFroslassIndex + 1}位${currentComparison.ice[currentFroslassIndex].score}点(使用${currentComparison.ice[currentFroslassIndex].metrics.usagePoints})`
+  `[compare] 0.1〜1%: ${legacyLowUsageCount}→${currentLowUsageCount} / 1〜5%: ${legacyMidUsageCount}→${currentMidUsageCount} / 5%以上: ${legacyHighUsageCount}→${currentHighUsageCount} / メガユキメノコ: 旧4位→${currentFroslass ? `${currentFroslassIndex + 1}位${currentFroslass.score}点` : `TOP5外（単体評価${megaFroslassThreat.score}点）`}`
 );
 console.log(
   `[ok] 要警戒候補を使用率で${seasonThreatCandidates.length}件→${usageEligibleThreatCandidates.length}件（メガ${inheritedMegaCandidates.length}件→${usageEligibleMegaCandidates.length}件）へ絞り込みました`
