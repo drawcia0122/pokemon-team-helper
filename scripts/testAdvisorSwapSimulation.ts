@@ -597,7 +597,7 @@ assert(
     sectionSource.includes("注意点") &&
     sectionSource.includes("チーム詳細診断") &&
     sectionSource.includes("推薦カテゴリ") &&
-    sectionSource.includes("ADVISOR_CATEGORY_LABELS") &&
+    sectionSource.includes("getAdvisorCategoryLabels") &&
     sectionSource.includes("改善タイプ") &&
     !sectionSource.includes("補完スコア候補") &&
     !sectionSource.includes("4位以下") &&

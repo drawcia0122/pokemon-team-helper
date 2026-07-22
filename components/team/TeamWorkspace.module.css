@@ -19,6 +19,10 @@
 .sectionHeading h2 { margin: 2px 0 4px; color: #173f2a; font-size: clamp(1.2rem,2vw,1.5rem); line-height: 1.3; }
 .sectionHeading p { margin: 0; color: #617168; font-size: .86rem; line-height: 1.55; }
 .step { color: #22734c; font-size: .68rem; font-weight: 900; letter-spacing: .11em; }
+.inputHeadingActions { display: flex; align-items: flex-end; justify-content: flex-end; gap: 16px; }
+.teamProfileControl { display: grid; min-width: 190px; gap: 4px; color: #52645a; font-size: .67rem; font-weight: 850; }
+.teamProfileControl select { width: 100%; min-height: 40px; padding: 8px 34px 8px 10px; border: 1px solid #b9cec0; border-radius: 8px; background: #fff; color: #244f37; font: inherit; font-size: .78rem; font-weight: 750; }
+.teamProfileControl small { color: #7a897f; font-size: .58rem; font-weight: 650; line-height: 1.35; }
 .slotCount { display: flex; align-items: baseline; gap: 2px; color: #176b42; font-size: 1.55rem; }
 .slotCount span { color: #617168; font-size: .78rem; }
 
@@ -257,7 +261,7 @@
 .offenseDetailGrid > div { display: grid; padding: 8px; border-radius: 7px; background: #f1f6f3; }
 .offenseDetailGrid span { color: #68776e; font-size: .7rem; }
 
-.modeTabs button:focus-visible,.comboboxList button:focus-visible,.statsTabs button:focus-visible,.removeButton:focus-visible,.primaryButton:focus-visible,.secondaryButton:focus-visible,.textButton:focus-visible,.inlineDetails summary:focus-visible,.detailPanel summary:focus-visible,.advisorCategoryControls select:focus-visible { outline: 3px solid rgba(22,115,72,.28); outline-offset: 2px; }
+.modeTabs button:focus-visible,.comboboxList button:focus-visible,.statsTabs button:focus-visible,.removeButton:focus-visible,.primaryButton:focus-visible,.secondaryButton:focus-visible,.textButton:focus-visible,.inlineDetails summary:focus-visible,.detailPanel summary:focus-visible,.advisorCategoryControls select:focus-visible,.teamProfileControl select:focus-visible { outline: 3px solid rgba(22,115,72,.28); outline-offset: 2px; }
 
 @media (max-width:1100px) {
   .seasonBar { grid-template-columns: 1fr 1fr; }
@@ -276,6 +280,9 @@
   .inlineDetails > div { position: static; width: auto; margin-top: 7px; box-shadow: none; }
   .inputPanel,.statsPanel,.analysisSection,.offenseSection,.advisorSection,.detailsSection { padding: 15px 13px; border-radius: 14px; }
   .sectionHeading { margin-bottom: 14px; }
+  .inputPanel .sectionHeading { align-items: stretch; flex-direction: column; }
+  .inputHeadingActions { width: 100%; align-items: flex-end; justify-content: space-between; }
+  .teamProfileControl { min-width: 0; width: min(220px,calc(100% - 74px)); }
   .teamGrid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
   .slotCard { min-height: 230px; padding: 9px 8px; border-radius: 11px; }
   .slotHeading { align-items: center; margin-bottom: 8px; }

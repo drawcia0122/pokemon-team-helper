@@ -33,6 +33,14 @@ import type {
   TeamSummary,
   TypeName
 } from "@/types/pokemon";
+import {
+  getProfileSpeedRoleCount,
+  isProfileSpeedAdvantage,
+  PROFILE_SPEED_WEIGHTS,
+  TEAM_PROFILE_CONFIG,
+  TEAM_SPEED_THRESHOLDS,
+  type TeamProfile
+} from "@/lib/teamProfile";
 
 export const ADVISOR_SWAP_WEIGHTS = {
   threatReduction: 2,
@@ -92,7 +100,7 @@ export const ADVISOR_CATEGORY_WEIGHTS = {
   speed: {
     threatReduction: 1,
     issueReduction: 4,
-    outspeedThreat: 8,
+    speedAdvantageThreat: 8,
     speedRoleImprovement: 15,
     popularMoveCoverage: 4,
     roleLossPenalty: 12,
@@ -134,9 +142,16 @@ export const ADVISOR_CATEGORY_LABELS: Record<
   typeSpecific: "タイプ別"
 };
 
+export function getAdvisorCategoryLabels(
+  profile: TeamProfile
+): Record<AdvisorRecommendationCategory, string> {
+  return {
+    ...ADVISOR_CATEGORY_LABELS,
+    speed: TEAM_PROFILE_CONFIG[profile].speedCategoryLabel
+  };
+}
+
 const ATTACKER_STAT_THRESHOLD = 100;
-const FAST_SPEED_THRESHOLD = 100;
-const MID_SPEED_THRESHOLD = 70;
 const BULK_TOTAL_THRESHOLD = 180;
 const BULK_STAT_THRESHOLD = 80;
 const MAX_TEAM_SIZE = 6;
@@ -225,7 +240,7 @@ export type AdvisorSwapPlanMetrics = {
   physicalThreatCheckCount: number;
   specialThreatCheckCount: number;
   popularMoveCoverageCount: number;
-  outspeedThreatCount: number;
+  profileSpeedAdvantageCount: number;
   physicalWallImprovement: number;
   specialWallImprovement: number;
   physicalAttackerImprovement: number;
@@ -283,6 +298,7 @@ export type AdvisorSwapSimulationInput = {
   advisor: TeamAdvisorAnalysis;
   availablePokemon: PokemonEntry[];
   environmentDataset: ThreatEnvironmentDataset | null;
+  profile?: TeamProfile;
 };
 
 type Note = { id: string; text: string; priority: number };
@@ -294,7 +310,7 @@ type AdvisorCandidateEvidence = {
   physicalThreatCheckCount: number;
   specialThreatCheckCount: number;
   popularMoveCoverageCount: number;
-  outspeedThreatCount: number;
+  profileSpeedAdvantageCount: number;
   recoveryMoveShare: number;
   defensiveAbilityShare: number;
   mainstreamPhysicalShare: number;
@@ -313,7 +329,7 @@ function emptyCandidateEvidence(): AdvisorCandidateEvidence {
     physicalThreatCheckCount: 0,
     specialThreatCheckCount: 0,
     popularMoveCoverageCount: 0,
-    outspeedThreatCount: 0,
+    profileSpeedAdvantageCount: 0,
     recoveryMoveShare: 0,
     defensiveAbilityShare: 0,
     mainstreamPhysicalShare: 0,
@@ -341,8 +357,9 @@ function subtractCandidateEvidence(
       candidate.specialThreatCheckCount - replaced.specialThreatCheckCount,
     popularMoveCoverageCount:
       candidate.popularMoveCoverageCount - replaced.popularMoveCoverageCount,
-    outspeedThreatCount:
-      candidate.outspeedThreatCount - replaced.outspeedThreatCount,
+    profileSpeedAdvantageCount:
+      candidate.profileSpeedAdvantageCount -
+      replaced.profileSpeedAdvantageCount,
     recoveryMoveShare: candidate.recoveryMoveShare - replaced.recoveryMoveShare,
     defensiveAbilityShare:
       candidate.defensiveAbilityShare - replaced.defensiveAbilityShare,
@@ -370,7 +387,8 @@ function uniqueText(items: string[]): string[] {
 function getCandidateEvidence(
   candidate: PokemonEntry,
   threats: ThreatPokemonAnalysis[],
-  environmentDataset: ThreatEnvironmentDataset | null
+  environmentDataset: ThreatEnvironmentDataset | null,
+  profile: TeamProfile
 ): AdvisorCandidateEvidence {
   const environmentBySlug = new Map(
     environmentDataset?.pokemon.map((entry) => [entry.slug, entry]) ?? []
@@ -382,7 +400,7 @@ function getCandidateEvidence(
   let physicalThreatCheckCount = 0;
   let specialThreatCheckCount = 0;
   let popularMoveCoverageCount = 0;
-  let outspeedThreatCount = 0;
+  let profileSpeedAdvantageCount = 0;
   const defensiveReasons: Array<{ text: string; share: number }> = [];
   const offensiveReasons: Array<{ text: string; share: number }> = [];
 
@@ -490,9 +508,13 @@ function getCandidateEvidence(
     if (
       candidate.baseStats &&
       threat.pokemon.baseStats &&
-      candidate.baseStats.speed > threat.pokemon.baseStats.speed
+      isProfileSpeedAdvantage(
+        candidate.baseStats.speed,
+        threat.pokemon.baseStats.speed,
+        profile
+      )
     ) {
-      outspeedThreatCount += 1;
+      profileSpeedAdvantageCount += 1;
     }
   }
 
@@ -519,7 +541,7 @@ function getCandidateEvidence(
     physicalThreatCheckCount,
     specialThreatCheckCount,
     popularMoveCoverageCount,
-    outspeedThreatCount,
+    profileSpeedAdvantageCount,
     recoveryMoveShare: recoveryMove?.share ?? 0,
     defensiveAbilityShare:
       stableCheckCount > 0 ? defensiveAbility?.share ?? 0 : 0,
@@ -593,8 +615,8 @@ export function getAdvisorRoleCounts(team: TeamSlot[]): AdvisorRoleCounts {
     ) {
       roles.specialWall += 1;
     }
-    if (stats.speed >= FAST_SPEED_THRESHOLD) roles.fast += 1;
-    else if (stats.speed >= MID_SPEED_THRESHOLD) roles.mediumSpeed += 1;
+    if (stats.speed >= TEAM_SPEED_THRESHOLDS.fastMinimum) roles.fast += 1;
+    else if (stats.speed >= TEAM_SPEED_THRESHOLDS.mediumMinimum) roles.mediumSpeed += 1;
     else roles.slow += 1;
   }
 
@@ -716,17 +738,45 @@ function getRemovedPokemon(
 
 function collectLostRoles(
   before: AdvisorRoleCounts,
-  after: AdvisorRoleCounts
+  after: AdvisorRoleCounts,
+  profile: TeamProfile
 ): string[] {
   const labels: Array<[keyof AdvisorRoleCounts, string]> = [
     ["physicalAttacker", "唯一の物理アタッカー"],
     ["specialAttacker", "唯一の特殊アタッカー"],
-    ["fast", "唯一の高速枠"],
+    [
+      TEAM_PROFILE_CONFIG[profile].activeSpeedRole,
+      `唯一の${TEAM_PROFILE_CONFIG[profile].speedRoleLabel}`
+    ],
     ["physicalWall", "唯一の物理耐久候補"],
     ["specialWall", "唯一の特殊耐久候補"]
   ];
   return labels.flatMap(([key, label]) =>
     before[key] === 1 && after[key] === 0 ? [label] : []
+  );
+}
+
+export function getAdvisorProfileSpeedRoleImprovement(
+  before: AdvisorRoleCounts,
+  after: AdvisorRoleCounts,
+  profile: TeamProfile
+): number {
+  const weights = PROFILE_SPEED_WEIGHTS[profile];
+  const fastDelta = after.fast - before.fast;
+  const slowDelta = after.slow - before.slow;
+  const weightedDelta = (
+    delta: number,
+    gainWeight: number,
+    lossWeight: number
+  ) => delta >= 0 ? delta * gainWeight : delta * lossWeight;
+  return weightedDelta(
+    fastDelta,
+    weights.fastRoleGain,
+    weights.fastRoleLoss
+  ) + weightedDelta(
+    slowDelta,
+    weights.slowRoleGain,
+    weights.slowRoleLoss
   );
 }
 
@@ -773,7 +823,8 @@ function buildPlanNotes(
   uniqueImmunityLosses: TypeName[],
   uniqueResistanceLosses: TypeName[],
   threatAnswerLosses: string[],
-  newMajorWeaknesses: TypeName[]
+  newMajorWeaknesses: TypeName[],
+  profile: TeamProfile
 ): { improvements: string[]; cautions: string[] } {
   const improvements: Note[] = [];
   const cautions: Note[] = [];
@@ -844,10 +895,22 @@ function buildPlanNotes(
       priority: 105
     });
   }
-  if (after.roles.fast > before.roles.fast) {
+  const beforeProfileSpeedRoles = getProfileSpeedRoleCount(
+    before.roles,
+    profile
+  );
+  const afterProfileSpeedRoles = getProfileSpeedRoleCount(
+    after.roles,
+    profile
+  );
+  if (afterProfileSpeedRoles > beforeProfileSpeedRoles) {
     addNote(improvements, {
-      id: "fast-role",
-      text: formatCountChange("高速枠", before.roles.fast, after.roles.fast),
+      id: "profile-speed-role",
+      text: formatCountChange(
+        TEAM_PROFILE_CONFIG[profile].speedRoleLabel,
+        beforeProfileSpeedRoles,
+        afterProfileSpeedRoles
+      ),
       priority: 88
     });
   }
@@ -1024,7 +1087,8 @@ function getCategoryScores({
     speed: Math.round(
       threatReduction * speed.threatReduction +
         issueReduction * speed.issueReduction +
-        evidence.outspeedThreatCount * speed.outspeedThreat +
+        evidence.profileSpeedAdvantageCount *
+          speed.speedAdvantageThreat +
         Math.max(0, speedRoleImprovement) *
           speed.speedRoleImprovement +
         evidence.popularMoveCoverageCount * speed.popularMoveCoverage -
@@ -1053,7 +1117,7 @@ function getRecommendationRoles(
     | "speedRoleImprovement"
     | "stableCheckCount"
     | "popularMoveCoverageCount"
-    | "outspeedThreatCount"
+    | "profileSpeedAdvantageCount"
   >
 ): AdvisorRecommendationRole[] {
   const roles: AdvisorRecommendationRole[] = [];
@@ -1069,7 +1133,10 @@ function getRecommendationRoles(
   ) {
     roles.push("offensive");
   }
-  if (metrics.speedRoleImprovement > 0 || metrics.outspeedThreatCount >= 3) {
+  if (
+    metrics.speedRoleImprovement > 0 ||
+    metrics.profileSpeedAdvantageCount >= 3
+  ) {
     roles.push("speed");
   }
   if (metrics.consistencyReduction > 0 || metrics.defensiveImprovement >= 2) {
@@ -1096,13 +1163,15 @@ function buildCategoryReasons({
   afterMetrics,
   evidence,
   evidenceGain,
-  improvements
+  improvements,
+  profile
 }: {
   beforeMetrics: AdvisorTeamMetrics;
   afterMetrics: AdvisorTeamMetrics;
   evidence: AdvisorCandidateEvidence;
   evidenceGain: AdvisorCandidateEvidence;
   improvements: string[];
+  profile: TeamProfile;
 }): Record<AdvisorRecommendationCategory, string[]> {
   const physicalWallReason =
     afterMetrics.roles.physicalWall > beforeMetrics.roles.physicalWall
@@ -1149,8 +1218,10 @@ function buildCategoryReasons({
   const offenseReason = evidenceGain.popularMoveCoverageCount > 0
     ? `要警戒TOP5のうち${evidence.popularMoveCoverageCount}体へ実採用技で抜群を取れます。`
     : null;
-  const speedReason = evidenceGain.outspeedThreatCount > 0
-    ? `要警戒TOP5のうち${evidence.outspeedThreatCount}体より先に動けます。`
+  const speedReason = evidenceGain.profileSpeedAdvantageCount > 0
+    ? profile === "trick-room"
+      ? `要警戒TOP5のうち${evidence.profileSpeedAdvantageCount}体より遅く、トリックルーム下で先に動きやすいです。`
+      : `要警戒TOP5のうち${evidence.profileSpeedAdvantageCount}体より速く、先に動きやすいです。`
     : null;
   const defensiveMoveReasons =
     evidenceGain.threatMoveImmunityCount > 0 ||
@@ -1195,6 +1266,7 @@ export function evaluateAdvisorSwapPlan(
   candidate: TeamAdvisorCandidate,
   removedSlotId: string | null
 ): AdvisorSwapPlan {
+  const profile = input.profile ?? "standard";
   const beforeTeam = cloneTeam(input.team);
   const afterTeam = buildAfterTeam(input.team, candidate, removedSlotId);
   const beforeSummary = summarizeTeam(beforeTeam);
@@ -1202,12 +1274,14 @@ export function evaluateAdvisorSwapPlan(
   const beforeDiagnostics = getTeamDiagnostics(
     beforeTeam,
     beforeSummary,
-    input.availablePokemon
+    input.availablePokemon,
+    profile
   );
   const afterDiagnostics = getTeamDiagnostics(
     afterTeam,
     afterSummary,
-    input.availablePokemon
+    input.availablePokemon,
+    profile
   );
   const beforeIssues = getTeamAdvisorIssues(
     beforeSummary,
@@ -1218,13 +1292,17 @@ export function evaluateAdvisorSwapPlan(
     beforeTeam,
     beforeSummary,
     input.availablePokemon,
-    input.environmentDataset
+    input.environmentDataset,
+    5,
+    profile
   );
   const afterThreats = getAdvisorCompatibleThreatAnalysis(
     afterTeam,
     afterSummary,
     input.availablePokemon,
-    input.environmentDataset
+    input.environmentDataset,
+    5,
+    profile
   );
   const beforeMetrics = getAdvisorTeamMetrics(
     beforeTeam,
@@ -1243,14 +1321,16 @@ export function evaluateAdvisorSwapPlan(
   const evidence = getCandidateEvidence(
     candidate.pokemon,
     beforeThreats,
-    input.environmentDataset
+    input.environmentDataset,
+    profile
   );
   const removedPokemon = getRemovedPokemon(beforeTeam, removedSlotId);
   const replacedEvidence = removedPokemon
     ? getCandidateEvidence(
         removedPokemon,
         beforeThreats,
-        input.environmentDataset
+        input.environmentDataset,
+        profile
       )
     : emptyCandidateEvidence();
   const evidenceGain = subtractCandidateEvidence(
@@ -1288,8 +1368,11 @@ export function evaluateAdvisorSwapPlan(
     afterMetrics.offenseCoverageCount - beforeMetrics.offenseCoverageCount +
     (afterMetrics.threatAnswerSlotCount -
       beforeMetrics.threatAnswerSlotCount);
-  const speedRoleImprovement =
-    afterMetrics.roles.fast - beforeMetrics.roles.fast;
+  const speedRoleImprovement = getAdvisorProfileSpeedRoleImprovement(
+    beforeMetrics.roles,
+    afterMetrics.roles,
+    profile
+  );
   const physicalWallImprovement =
     afterMetrics.roles.physicalWall - beforeMetrics.roles.physicalWall;
   const specialWallImprovement =
@@ -1302,7 +1385,8 @@ export function evaluateAdvisorSwapPlan(
     beforeMetrics.roles.specialAttacker;
   const lostRoles = collectLostRoles(
     beforeMetrics.roles,
-    afterMetrics.roles
+    afterMetrics.roles,
+    profile
   );
   const uniqueImmunityLosses = getAllTypes()
     .map((type) => type.nameEn)
@@ -1360,7 +1444,8 @@ export function evaluateAdvisorSwapPlan(
     uniqueImmunityLosses,
     uniqueResistanceLosses,
     threatAnswerLosses,
-    newMajorWeaknesses
+    newMajorWeaknesses,
+    profile
   );
   const megaCountBefore = countMegaForms(beforeTeam);
   const megaCountAfter = countMegaForms(afterTeam);
@@ -1390,7 +1475,8 @@ export function evaluateAdvisorSwapPlan(
     afterMetrics,
     evidence,
     evidenceGain,
-    improvements: notes.improvements
+    improvements: notes.improvements,
+    profile
   });
   const recommendationRoles = getRecommendationRoles({
     issueReduction,
@@ -1400,7 +1486,8 @@ export function evaluateAdvisorSwapPlan(
     speedRoleImprovement,
     stableCheckCount: evidenceGain.stableCheckCount,
     popularMoveCoverageCount: evidenceGain.popularMoveCoverageCount,
-    outspeedThreatCount: evidenceGain.outspeedThreatCount
+    profileSpeedAdvantageCount:
+      evidenceGain.profileSpeedAdvantageCount
   });
   const meaningfulImprovement =
     issueReduction > 0 ||
@@ -1431,7 +1518,7 @@ export function evaluateAdvisorSwapPlan(
       evidenceGain.popularMoveCoverageCount > 0,
     speed:
       speedRoleImprovement > 0 ||
-      (evidenceGain.outspeedThreatCount > 0 &&
+      (evidenceGain.profileSpeedAdvantageCount > 0 &&
         evidenceGain.popularMoveCoverageCount > 0),
     typeSpecific:
       consistencyReduction > 0 ||
@@ -1505,7 +1592,8 @@ export function evaluateAdvisorSwapPlan(
       physicalThreatCheckCount: evidence.physicalThreatCheckCount,
       specialThreatCheckCount: evidence.specialThreatCheckCount,
       popularMoveCoverageCount: evidence.popularMoveCoverageCount,
-      outspeedThreatCount: evidence.outspeedThreatCount,
+      profileSpeedAdvantageCount:
+        evidence.profileSpeedAdvantageCount,
       physicalWallImprovement,
       specialWallImprovement,
       physicalAttackerImprovement,
@@ -1542,7 +1630,8 @@ function comparePlansForCategory(
 function getCandidateProxyScore(
   category: Exclude<AdvisorRecommendationCategory, "typeSpecific">,
   candidate: TeamAdvisorCandidate,
-  environmentBySlug: Map<string, ThreatEnvironmentDataset["pokemon"][number]>
+  environmentBySlug: Map<string, ThreatEnvironmentDataset["pokemon"][number]>,
+  profile: TeamProfile
 ): number {
   const stats = candidate.pokemon.baseStats;
   const environment = environmentBySlug.get(candidate.pokemon.slug);
@@ -1575,8 +1664,12 @@ function getCandidateProxyScore(
     );
   }
   if (category === "speed") {
+    const profileSpeedValue =
+      profile === "trick-room"
+        ? Math.max(0, 100 - (stats?.speed ?? 100)) / 3
+        : (stats?.speed ?? 0) / 4;
     return (
-      (stats?.speed ?? 0) / 4 +
+      profileSpeedValue +
       candidate.metrics.threatResponsePoints * 2 +
       candidate.metrics.offensePoints * 2 +
       candidate.metrics.rolePoints
@@ -1588,6 +1681,7 @@ function getCandidateProxyScore(
 function preselectSimulationCandidates(
   input: AdvisorSwapSimulationInput
 ): TeamAdvisorCandidate[] {
+  const profile = input.profile ?? "standard";
   const environmentBySlug = new Map(
     input.environmentDataset?.pokemon.map((entry) => [entry.slug, entry]) ?? []
   );
@@ -1605,8 +1699,8 @@ function preselectSimulationCandidates(
     [...pool]
       .sort(
         (left, right) =>
-          getCandidateProxyScore(category, right, environmentBySlug) -
-            getCandidateProxyScore(category, left, environmentBySlug) ||
+          getCandidateProxyScore(category, right, environmentBySlug, profile) -
+            getCandidateProxyScore(category, left, environmentBySlug, profile) ||
           left.pokemon.id - right.pokemon.id
       )
       .slice(0, ADVISOR_RECOMMENDATION_RULES.preselectPerCategory)

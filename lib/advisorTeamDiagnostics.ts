@@ -11,8 +11,11 @@ import {
   getTypeLabel
 } from "@/lib/typeChart";
 import type { TeamSlot, TeamSummary, TypeName } from "@/types/pokemon";
-
-export type AdvisorEvaluationProfile = "standard";
+import {
+  isProfileSpeedAdvantage,
+  TEAM_PROFILE_CONFIG,
+  type TeamProfile
+} from "@/lib/teamProfile";
 
 export type AdvisorDiagnosticItem = {
   id: string;
@@ -29,7 +32,7 @@ export type AdvisorDiagnosticCategory = {
 };
 
 export type AdvisorTeamDiagnostics = {
-  profile: AdvisorEvaluationProfile;
+  profile: TeamProfile;
   categories: AdvisorDiagnosticCategory[];
 };
 
@@ -37,7 +40,7 @@ type AdvisorTeamDiagnosticsInput = {
   team: TeamSlot[];
   summary: TeamSummary;
   threats: ThreatPokemonAnalysis[];
-  profile?: AdvisorEvaluationProfile;
+  profile?: TeamProfile;
 };
 
 function getStatMembers(team: TeamSlot[]) {
@@ -198,72 +201,105 @@ function getOffenseCategory(
 
 function getThreatSpeedCounts(
   team: TeamSlot[],
-  threats: ThreatPokemonAnalysis[]
-): { canMoveFirst: number; broadlyOutsped: number } {
+  threats: ThreatPokemonAnalysis[],
+  profile: TeamProfile
+): { teamAdvantage: number; threatAdvantage: number } {
   const speeds = getStatMembers(team).map(
     (pokemon) => pokemon.baseStats!.speed
   );
-  if (!speeds.length) return { canMoveFirst: 0, broadlyOutsped: 0 };
-  const canMoveFirst = threats.filter((threat) => {
+  if (!speeds.length) return { teamAdvantage: 0, threatAdvantage: 0 };
+  const teamAdvantage = threats.filter((threat) => {
     const threatSpeed = threat.pokemon.baseStats?.speed;
     return (
       typeof threatSpeed === "number" &&
-      speeds.some((speed) => speed > threatSpeed)
+      speeds.some((speed) =>
+        isProfileSpeedAdvantage(speed, threatSpeed, profile)
+      )
     );
   }).length;
-  const broadlyOutsped = threats.filter((threat) => {
+  const threatAdvantage = threats.filter((threat) => {
     const threatSpeed = threat.pokemon.baseStats?.speed;
     if (typeof threatSpeed !== "number") return false;
-    const slowerMembers = speeds.filter((speed) => speed < threatSpeed).length;
-    return slowerMembers >= Math.max(1, speeds.length - 1);
+    const disadvantagedMembers = speeds.filter((speed) =>
+      isProfileSpeedAdvantage(threatSpeed, speed, profile)
+    ).length;
+    return disadvantagedMembers >= Math.max(1, speeds.length - 1);
   }).length;
-  return { canMoveFirst, broadlyOutsped };
+  return { teamAdvantage, threatAdvantage };
 }
 
 function getSpeedCategory(
   team: TeamSlot[],
   roles: AdvisorRoleCounts,
-  threats: ThreatPokemonAnalysis[]
+  threats: ThreatPokemonAnalysis[],
+  profile: TeamProfile
 ): AdvisorDiagnosticCategory {
-  const speed = getThreatSpeedCounts(team, threats);
+  const speed = getThreatSpeedCounts(team, threats, profile);
   const memberCount = getStatMembers(team).length;
+  const isTrickRoom = profile === "trick-room";
+  const roleItems: AdvisorDiagnosticItem[] = isTrickRoom
+    ? [
+        {
+          id: "slow",
+          label: "トリル向け低速枠（S69以下）",
+          value: `${roles.slow}体`,
+          tone: roles.slow ? "positive" : "attention"
+        },
+        {
+          id: "medium-speed",
+          label: "中速枠（S70〜99）",
+          value: `${roles.mediumSpeed}体`,
+          tone: "neutral"
+        },
+        {
+          id: "fast",
+          label: "高速枠（S100以上）",
+          value: `${roles.fast}体`,
+          tone: "neutral"
+        }
+      ]
+    : [
+        {
+          id: "fast",
+          label: "高速枠（S100以上）",
+          value: `${roles.fast}体`,
+          tone: roles.fast ? "positive" : "attention"
+        },
+        {
+          id: "medium-speed",
+          label: "中速枠（S70〜99）",
+          value: `${roles.mediumSpeed}体`,
+          tone: "neutral"
+        },
+        {
+          id: "slow",
+          label: "低速枠（S69以下）",
+          value: `${roles.slow}体`,
+          tone: "neutral"
+        }
+      ];
   return {
     id: "speed",
     title: "素早さ",
     summary:
-      roles.fast > 0
-        ? `すばやさ100以上の高速枠が${roles.fast}体います。`
-        : "すばやさ100以上の高速枠がいません。",
+      `${TEAM_PROFILE_CONFIG[profile].speedRoleLabel}が${
+        isTrickRoom ? roles.slow : roles.fast
+      }体います。素早さ種族値を基準にした概算です。`,
     items: [
-      {
-        id: "fast",
-        label: "高速枠（S100以上）",
-        value: `${roles.fast}体`,
-        tone: roles.fast ? "positive" : "attention"
-      },
-      {
-        id: "medium-speed",
-        label: "中速枠（S70〜99）",
-        value: `${roles.mediumSpeed}体`,
-        tone: "neutral"
-      },
-      {
-        id: "slow",
-        label: "低速枠（S69以下）",
-        value: `${roles.slow}体`,
-        tone: "neutral"
-      },
+      ...roleItems,
       {
         id: "move-first-threats",
-        label: "先手を取れる要警戒TOP5",
-        value: `${speed.canMoveFirst}体`,
-        tone: speed.canMoveFirst ? "positive" : "attention"
+        label: isTrickRoom
+          ? "要警戒TOP5のうち、トリル下で先に動きやすい相手"
+          : "要警戒TOP5のうち、先手を取りやすい相手",
+        value: `${speed.teamAdvantage}体`,
+        tone: speed.teamAdvantage ? "positive" : "attention"
       },
       {
         id: "broadly-outsped",
-        label: `${memberCount}体中${Math.max(0, memberCount - 1)}体以上より速い要警戒相手`,
-        value: `${speed.broadlyOutsped}体`,
-        tone: speed.broadlyOutsped ? "attention" : "positive"
+        label: `${memberCount}体中${Math.max(0, memberCount - 1)}体以上より${isTrickRoom ? "遅い" : "速い"}要警戒相手`,
+        value: `${speed.threatAdvantage}体`,
+        tone: speed.threatAdvantage ? "attention" : "positive"
       }
     ]
   };
@@ -345,7 +381,7 @@ export function getAdvisorTeamDiagnostics({
     categories: [
       getDefenseCategory(summary, roles),
       getOffenseCategory(summary, roles, threats),
-      getSpeedCategory(team, roles, threats),
+      getSpeedCategory(team, roles, threats, profile),
       getTypeCategory(team, summary)
     ]
   };

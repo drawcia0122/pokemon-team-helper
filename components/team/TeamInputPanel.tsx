@@ -21,6 +21,10 @@ import {
   type TeamSlotWithoutId
 } from "@/lib/teamSlotLayout";
 import { isTeamSlotAllowed } from "@/lib/teamUi";
+import {
+  TEAM_PROFILE_CONFIG,
+  type TeamProfile
+} from "@/lib/teamProfile";
 import { getAllPokemon, getPokemonBySlug, getTypeLabel } from "@/lib/typeChart";
 import type { PokemonEntry, TeamSlot, TypeEntry, TypeName } from "@/types/pokemon";
 import styles from "./TeamWorkspace.module.css";
@@ -30,12 +34,16 @@ const SUGGESTION_LIMIT = 12;
 export function TeamInputPanel({
   team,
   onChange,
+  profile,
+  onProfileChange,
   availablePokemon,
   pokemonInputOptions,
   allTypes
 }: {
   team: TeamSlot[];
   onChange: (team: TeamSlot[]) => void;
+  profile: TeamProfile;
+  onProfileChange: (profile: TeamProfile) => void;
   availablePokemon: PokemonEntry[];
   pokemonInputOptions: PokemonEntry[];
   allTypes: TypeEntry[];
@@ -58,7 +66,27 @@ export function TeamInputPanel({
           <h2 id="team-input-heading">パーティを入力する</h2>
           <p>6枠から直接ポケモンを検索できます。2体以上で分析を表示します。</p>
         </div>
-        <strong className={styles.slotCount}>{team.length}<span> / 6体</span></strong>
+        <div className={styles.inputHeadingActions}>
+          <label className={styles.teamProfileControl}>
+            <span>構築プロファイル</span>
+            <select
+              value={profile}
+              onChange={(event) =>
+                onProfileChange(event.target.value as TeamProfile)
+              }
+            >
+              {(Object.keys(TEAM_PROFILE_CONFIG) as TeamProfile[]).map(
+                (value) => (
+                  <option key={value} value={value}>
+                    {TEAM_PROFILE_CONFIG[value].label}
+                  </option>
+                )
+              )}
+            </select>
+            <small>素早さ種族値を基準にした概算です。</small>
+          </label>
+          <strong className={styles.slotCount}>{team.length}<span> / 6体</span></strong>
+        </div>
       </div>
 
       <div className={styles.teamGrid}>

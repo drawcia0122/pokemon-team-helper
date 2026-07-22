@@ -5,6 +5,10 @@ import type {
   TeamSlot,
   TeamSummary
 } from "@/types/pokemon";
+import {
+  TEAM_SPEED_THRESHOLDS,
+  type TeamProfile
+} from "@/lib/teamProfile";
 
 export type TeamDiagnosticItem = {
   id: string;
@@ -73,7 +77,8 @@ function withoutPriority(
 export function getTeamDiagnostics(
   team: TeamSlot[],
   summary: TeamSummary,
-  availablePokemon: PokemonEntry[]
+  availablePokemon: PokemonEntry[],
+  profile: TeamProfile = "standard"
 ): TeamDiagnostics {
   const pokemonMembers = team
     .filter(
@@ -123,6 +128,13 @@ export function getTeamDiagnostics(
         Math.max(stats.attack, stats.specialAttack) >= HIGH_STAT_THRESHOLD
       );
     }).length;
+    const slowAttackerCount = statMembers.filter(({ pokemon }) => {
+      const stats = pokemon.baseStats!;
+      return (
+        stats.speed <= TEAM_SPEED_THRESHOLDS.slowMaximum &&
+        Math.max(stats.attack, stats.specialAttack) >= HIGH_STAT_THRESHOLD
+      );
+    }).length;
     const physicalAttackerCount = statMembers.filter(
       ({ pokemon }) => pokemon.baseStats!.attack >= HIGH_STAT_THRESHOLD
     ).length;
@@ -147,11 +159,19 @@ export function getTeamDiagnostics(
         priority: 64
       });
     }
-    if (fastAttackerCount >= majority) {
+    if (profile === "standard" && fastAttackerCount >= majority) {
       strengths.push({
         id: "fast-attackers",
         title: "高速アタッカーが多いです",
         reason: `攻撃系種族値とすばやさがともに${HIGH_STAT_THRESHOLD}以上のポケモンが${formatRatio(fastAttackerCount, statCount)}います。`,
+        priority: 76
+      });
+    }
+    if (profile === "trick-room" && slowAttackerCount >= majority) {
+      strengths.push({
+        id: "trick-room-attackers",
+        title: "トリックルーム向けの攻撃役が多いです",
+        reason: `攻撃系種族値${HIGH_STAT_THRESHOLD}以上かつ、すばやさ${TEAM_SPEED_THRESHOLDS.slowMaximum}以下のポケモンが${formatRatio(slowAttackerCount, statCount)}います。`,
         priority: 76
       });
     }
@@ -172,11 +192,25 @@ export function getTeamDiagnostics(
       });
     }
 
-    if (fastAttackerCount <= Math.floor(statCount / 4)) {
+    if (
+      profile === "standard" &&
+      fastAttackerCount <= Math.floor(statCount / 4)
+    ) {
       cautions.push({
         id: "low-speed",
         title: "全体的に素早さが低めです",
         reason: `攻撃系種族値とすばやさがともに${HIGH_STAT_THRESHOLD}以上のポケモンは${formatRatio(fastAttackerCount, statCount)}です。`,
+        priority: 90
+      });
+    }
+    if (
+      profile === "trick-room" &&
+      slowAttackerCount <= Math.floor(statCount / 4)
+    ) {
+      cautions.push({
+        id: "low-trick-room",
+        title: "トリックルーム向けの低速枠が不足しています",
+        reason: `攻撃系種族値${HIGH_STAT_THRESHOLD}以上かつ、すばやさ${TEAM_SPEED_THRESHOLDS.slowMaximum}以下のポケモンは${formatRatio(slowAttackerCount, statCount)}です。`,
         priority: 90
       });
     }

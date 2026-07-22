@@ -41,6 +41,11 @@ import {
   serializeTeam,
   TEAM_STORAGE_KEY
 } from "@/lib/teamStorage";
+import {
+  resolveStoredTeamProfile,
+  TEAM_PROFILE_STORAGE_KEY,
+  type TeamProfile
+} from "@/lib/teamProfile";
 import { getAllTypes, summarizeTeam } from "@/lib/typeChart";
 import type { TeamSlot } from "@/types/pokemon";
 import type { ThreatEnvironmentCatalog } from "@/types/environmentThreat";
@@ -48,6 +53,7 @@ import styles from "./page.module.css";
 
 export default function HomePage() {
   const [seasonId, setSeasonId] = useState(() => getLatestSeasonId());
+  const [teamProfile, setTeamProfile] = useState<TeamProfile>("standard");
   const [team, setTeam] = useState<TeamSlot[]>([]);
   const [articleImport, setArticleImport] = useState<ArticleImportResult>({ status: "idle" });
   const [importNotice, setImportNotice] = useState<string | null>(null);
@@ -71,8 +77,8 @@ export default function HomePage() {
   );
   const summary = useMemo(() => summarizeTeam(team), [team]);
   const diagnostics = useMemo(
-    () => getTeamDiagnostics(team, summary, availablePokemon),
-    [availablePokemon, summary, team]
+    () => getTeamDiagnostics(team, summary, availablePokemon, teamProfile),
+    [availablePokemon, summary, team, teamProfile]
   );
   const threatEnvironmentDataset = useMemo(
     () =>
@@ -88,9 +94,11 @@ export default function HomePage() {
         team,
         summary,
         availablePokemon,
-        threatEnvironmentDataset
+        threatEnvironmentDataset,
+        5,
+        teamProfile
       ),
-    [availablePokemon, summary, team, threatEnvironmentDataset]
+    [availablePokemon, summary, team, teamProfile, threatEnvironmentDataset]
   );
   const advisorThreatPokemon = useMemo(
     () =>
@@ -98,9 +106,11 @@ export default function HomePage() {
         team,
         summary,
         availablePokemon,
-        threatEnvironmentDataset
+        threatEnvironmentDataset,
+        5,
+        teamProfile
       ),
-    [availablePokemon, summary, team, threatEnvironmentDataset]
+    [availablePokemon, summary, team, teamProfile, threatEnvironmentDataset]
   );
   const advisor = useMemo(
     () =>
@@ -110,13 +120,15 @@ export default function HomePage() {
         diagnostics,
         threats: advisorThreatPokemon,
         availablePokemon,
-        environmentDataset: threatEnvironmentDataset
+        environmentDataset: threatEnvironmentDataset,
+        profile: teamProfile
       }),
     [
       availablePokemon,
       diagnostics,
       summary,
       team,
+      teamProfile,
       advisorThreatPokemon,
       threatEnvironmentDataset
     ]
@@ -127,18 +139,20 @@ export default function HomePage() {
         team,
         advisor,
         availablePokemon,
-        environmentDataset: threatEnvironmentDataset
+        environmentDataset: threatEnvironmentDataset,
+        profile: teamProfile
       }),
-    [advisor, availablePokemon, team, threatEnvironmentDataset]
+    [advisor, availablePokemon, team, teamProfile, threatEnvironmentDataset]
   );
   const advisorTeamDiagnostics = useMemo(
     () =>
       getAdvisorTeamDiagnostics({
         team,
         summary,
-        threats: advisorThreatPokemon
+        threats: advisorThreatPokemon,
+        profile: teamProfile
       }),
-    [advisorThreatPokemon, summary, team]
+    [advisorThreatPokemon, summary, team, teamProfile]
   );
 
   useEffect(() => {
@@ -168,8 +182,12 @@ export default function HomePage() {
   useEffect(() => {
     const savedSeasonId = window.localStorage.getItem(SEASON_STORAGE_KEY);
     const savedTeam = window.localStorage.getItem(TEAM_STORAGE_KEY);
+    const savedTeamProfile = window.localStorage.getItem(
+      TEAM_PROFILE_STORAGE_KEY
+    );
 
     setSeasonId(resolveStoredSeasonId(savedSeasonId));
+    setTeamProfile(resolveStoredTeamProfile(savedTeamProfile));
 
     if (savedTeam) {
       try {
@@ -205,7 +223,8 @@ export default function HomePage() {
       resolveStoredSeasonId(seasonId)
     );
     window.localStorage.setItem(TEAM_STORAGE_KEY, serializeTeam(team));
-  }, [isRestored, seasonId, team]);
+    window.localStorage.setItem(TEAM_PROFILE_STORAGE_KEY, teamProfile);
+  }, [isRestored, seasonId, team, teamProfile]);
 
   function removeImportArticleParameter() {
     const url = new URL(window.location.href);
@@ -343,6 +362,8 @@ export default function HomePage() {
         <TeamInputPanel
           team={team}
           onChange={setTeam}
+          profile={teamProfile}
+          onProfileChange={setTeamProfile}
           availablePokemon={availablePokemon}
           pokemonInputOptions={pokemonInputOptions}
           allTypes={allTypes}
@@ -363,6 +384,7 @@ export default function HomePage() {
           advisor={advisor}
           simulation={advisorSwapSimulation}
           teamDiagnostics={advisorTeamDiagnostics}
+          profile={teamProfile}
           canAnalyze={summary.members.length >= 2}
         />
         {summary.members.length >= 2 ? (

@@ -15,6 +15,11 @@ import {
   getPokemonBySlug,
   getTypeLabel
 } from "@/lib/typeChart";
+import {
+  isProfileSpeedAdvantage,
+  TEAM_SPEED_THRESHOLDS,
+  type TeamProfile
+} from "@/lib/teamProfile";
 import type {
   ThreatEnvironmentDataset,
   ThreatEnvironmentPokemon
@@ -99,6 +104,7 @@ export type TeamAdvisorInput = {
   threats: ThreatPokemonAnalysis[];
   availablePokemon: PokemonEntry[];
   environmentDataset: ThreatEnvironmentDataset | null;
+  profile?: TeamProfile;
 };
 
 type RankedReason = {
@@ -130,6 +136,14 @@ function getRoleIssue(
         id,
         kind: "speed",
         title: "高速アタッカーへの対策が不足しています",
+        reason,
+        priority: 90
+      };
+    case "low-trick-room":
+      return {
+        id,
+        kind: "speed",
+        title: "トリックルーム向けの低速枠が不足しています",
         reason,
         priority: 90
       };
@@ -183,7 +197,8 @@ function scoreIssueResponses(
   issues: TeamAdvisorIssue[],
   environment: ThreatEnvironmentPokemon | undefined,
   reasons: RankedReason[],
-  addressedIssueIds: Set<string>
+  addressedIssueIds: Set<string>,
+  profile: TeamProfile
 ): { issueResolutionPoints: number; rolePoints: number } {
   let issueResolutionPoints = 0;
   let rolePoints = 0;
@@ -268,14 +283,19 @@ function scoreIssueResponses(
     }
     if (
       issue.kind === "speed" &&
-      stats.speed >= HIGH_STAT_THRESHOLD &&
+      (profile === "trick-room"
+        ? stats.speed <= TEAM_SPEED_THRESHOLDS.slowMaximum
+        : stats.speed >= HIGH_STAT_THRESHOLD) &&
       Math.max(stats.attack, stats.specialAttack) >= HIGH_STAT_THRESHOLD
     ) {
       rolePoints += ADVISOR_WEIGHTS.fastAttacker;
       addressedIssueIds.add(issue.id);
       addReason(reasons, {
         id: "role-fast-attacker",
-        text: "高速アタッカーを追加できます。",
+        text:
+          profile === "trick-room"
+            ? "トリックルーム向けの低速攻撃役を追加できます。"
+            : "高速アタッカーを追加できます。",
         points: ADVISOR_WEIGHTS.fastAttacker,
         order: 32
       });
@@ -303,7 +323,8 @@ function scoreThreatResponses(
   threats: ThreatPokemonAnalysis[],
   environment: ThreatEnvironmentPokemon | undefined,
   environmentBySlug: Map<string, ThreatEnvironmentPokemon>,
-  reasons: RankedReason[]
+  reasons: RankedReason[],
+  profile: TeamProfile
 ): number {
   let points = 0;
   const stats = pokemon.baseStats;
@@ -444,13 +465,20 @@ function scoreThreatResponses(
       appliesPressure &&
       stats &&
       threat.pokemon.baseStats &&
-      stats.speed > threat.pokemon.baseStats.speed &&
+      isProfileSpeedAdvantage(
+        stats.speed,
+        threat.pokemon.baseStats.speed,
+        profile
+      ) &&
       Math.max(stats.attack, stats.specialAttack) >= HIGH_STAT_THRESHOLD
     ) {
       points += ADVISOR_WEIGHTS.threatSpeedPressure;
       addReason(reasons, {
         id: `threat-speed-${threat.pokemon.speciesId}`,
-        text: `${threat.pokemon.nameJa}より素早く、先に圧力をかけやすいです。`,
+        text:
+          profile === "trick-room"
+            ? `${threat.pokemon.nameJa}より遅く、トリックルーム下で先に圧力をかけやすいです。`
+            : `${threat.pokemon.nameJa}より素早く、先に圧力をかけやすいです。`,
         points: ADVISOR_WEIGHTS.threatSpeedPressure,
         order: 24
       });
@@ -531,7 +559,8 @@ function scoreCandidate(
   threats: ThreatPokemonAnalysis[],
   summary: TeamSummary,
   environment: ThreatEnvironmentPokemon | undefined,
-  environmentBySlug: Map<string, ThreatEnvironmentPokemon>
+  environmentBySlug: Map<string, ThreatEnvironmentPokemon>,
+  profile: TeamProfile
 ): TeamAdvisorCandidate | null {
   const reasons: RankedReason[] = [];
   const addressedIssueIds = new Set<string>();
@@ -540,14 +569,16 @@ function scoreCandidate(
     issues,
     environment,
     reasons,
-    addressedIssueIds
+    addressedIssueIds,
+    profile
   );
   const threatResponsePoints = scoreThreatResponses(
     pokemon,
     threats,
     environment,
     environmentBySlug,
-    reasons
+    reasons,
+    profile
   );
   const offensePoints = scoreOffenseGaps(pokemon, summary, reasons);
   const environmentUsagePoints = scoreEnvironmentUsage(environment?.usageRate);
@@ -611,7 +642,8 @@ export function getTeamAdvisorAnalysis({
   diagnostics,
   threats,
   availablePokemon,
-  environmentDataset
+  environmentDataset,
+  profile = "standard"
 }: TeamAdvisorInput): TeamAdvisorAnalysis {
   if (summary.members.length < 2) {
     return {
@@ -648,7 +680,8 @@ export function getTeamAdvisorAnalysis({
       threats,
       summary,
       environmentBySlug.get(pokemon.slug),
-      environmentBySlug
+      environmentBySlug,
+      profile
     );
     if (!candidate) continue;
     candidatePool.push(candidate);

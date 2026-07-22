@@ -457,7 +457,7 @@ assert(
     sectionSource.includes("現在の課題") &&
     sectionSource.includes("改善候補と入れ替え案") &&
     sectionSource.includes("推薦カテゴリ") &&
-    sectionSource.includes("ADVISOR_CATEGORY_LABELS") &&
+    sectionSource.includes("getAdvisorCategoryLabels") &&
     sectionSource.includes("チーム詳細診断") &&
     sectionSource.includes("要警戒TOP5平均") &&
     sectionSource.includes("おすすめ理由") &&

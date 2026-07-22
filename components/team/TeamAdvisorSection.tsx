@@ -7,12 +7,13 @@ import type {
   AdvisorSwapPlan,
   AdvisorSwapSimulation
 } from "@/lib/advisorSwapSimulator";
-import { ADVISOR_CATEGORY_LABELS } from "@/lib/advisorSwapSimulator";
+import { getAdvisorCategoryLabels } from "@/lib/advisorSwapSimulator";
 import type {
   AdvisorDiagnosticCategory,
   AdvisorTeamDiagnostics
 } from "@/lib/advisorTeamDiagnostics";
 import type { TeamAdvisorAnalysis } from "@/lib/teamAdvisor";
+import type { TeamProfile } from "@/lib/teamProfile";
 import { getTypeLabel } from "@/lib/typeChart";
 import type { TypeName } from "@/types/pokemon";
 import styles from "./TeamWorkspace.module.css";
@@ -22,13 +23,15 @@ type TeamAdvisorSectionProps = {
   simulation: AdvisorSwapSimulation;
   teamDiagnostics: AdvisorTeamDiagnostics;
   canAnalyze: boolean;
+  profile: TeamProfile;
 };
 
 export function TeamAdvisorSection({
   advisor,
   simulation,
   teamDiagnostics,
-  canAnalyze
+  canAnalyze,
+  profile
 }: TeamAdvisorSectionProps) {
   return (
     <section
@@ -50,6 +53,7 @@ export function TeamAdvisorSection({
         <AdvisorRecommendations
           simulation={simulation}
           canAnalyze={canAnalyze}
+          profile={profile}
         />
         <AdvisorTeamDiagnosticsPanel
           diagnostics={teamDiagnostics}
@@ -118,10 +122,12 @@ function AdvisorIssues({
 
 function AdvisorRecommendations({
   simulation,
-  canAnalyze
+  canAnalyze,
+  profile
 }: {
   simulation: AdvisorSwapSimulation;
   canAnalyze: boolean;
+  profile: TeamProfile;
 }) {
   const [category, setCategory] =
     useState<AdvisorRecommendationCategory>("overall");
@@ -144,6 +150,7 @@ function AdvisorRecommendations({
         ? simulation.typePlans[selectedType] ?? []
         : []
       : simulation.plansByCategory[category];
+  const categoryLabels = getAdvisorCategoryLabels(profile);
 
   return (
     <section
@@ -165,10 +172,10 @@ function AdvisorRecommendations({
                 )
               }
             >
-              {(Object.keys(ADVISOR_CATEGORY_LABELS) as AdvisorRecommendationCategory[]).map(
+              {(Object.keys(categoryLabels) as AdvisorRecommendationCategory[]).map(
                 (value) => (
                   <option key={value} value={value}>
-                    {ADVISOR_CATEGORY_LABELS[value]}
+                    {categoryLabels[value]}
                   </option>
                 )
               )}
@@ -201,6 +208,7 @@ function AdvisorRecommendations({
                 <AdvisorRecommendationCard
                   plan={plan}
                   category={category}
+                  profile={profile}
                 />
               </li>
             ))}
@@ -231,16 +239,19 @@ function formatThreatDelta(plan: AdvisorSwapPlan): string {
 
 function AdvisorRecommendationCard({
   plan,
-  category
+  category,
+  profile
 }: {
   plan: AdvisorSwapPlan;
   category: AdvisorRecommendationCategory;
+  profile: TeamProfile;
 }) {
   const candidate = plan.candidate;
+  const categoryLabel = getAdvisorCategoryLabels(profile)[category];
   return (
     <article className={styles.advisorCandidateCard}>
       <span className={styles.advisorCategoryBadge}>
-        {ADVISOR_CATEGORY_LABELS[category]}
+        {categoryLabel}
       </span>
       <div className={styles.advisorCandidateHeading}>
         <PokemonVisual
