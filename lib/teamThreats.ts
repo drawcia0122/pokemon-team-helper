@@ -30,6 +30,7 @@ export const THREAT_WEIGHTS = {
 } as const;
 
 export const POPULAR_MOVE_MIN_SHARE = 0.2;
+export const MIN_THREAT_USAGE_RATE = 0.001;
 
 export type ThreatPokemonEnvironment = {
   source: "Pokemon Showdown";
@@ -435,6 +436,10 @@ export function getThreatPokemonAnalysis(
 
   for (const pokemon of availablePokemon) {
     if (!isThreatPokemonCandidate(pokemon)) continue;
+    const environment = environmentBySlug.get(pokemon.slug);
+    if (!environment || environment.usageRate < MIN_THREAT_USAGE_RATE) {
+      continue;
+    }
     const result = scoreThreatPokemon(
       pokemon,
       summary,

@@ -7,10 +7,15 @@ import { getAvailablePokemonBySeason } from "@/lib/regulations";
 import {
   getThreatPokemonAnalysis,
   isThreatPokemonCandidate,
+  MIN_THREAT_USAGE_RATE,
   POPULAR_MOVE_MIN_SHARE,
   THREAT_WEIGHTS
 } from "@/lib/teamThreats";
 import { summarizeTeam } from "@/lib/typeChart";
+import type {
+  ThreatEnvironmentDataset,
+  ThreatEnvironmentPokemon
+} from "@/types/environmentThreat";
 import type { PokemonEntry, TeamSlot } from "@/types/pokemon";
 
 function assert(condition: unknown, message: string): asserts condition {
@@ -43,7 +48,18 @@ const environmentDataset = findThreatEnvironmentDataset(
 );
 assert(environmentDataset, "M-Bの要警戒診断用環境snapshotがありません");
 const seasonThreatCandidates = seasonPokemon.filter(isThreatPokemonCandidate);
+const environmentBySlug = new Map(
+  environmentDataset.pokemon.map((entry) => [entry.slug, entry])
+);
+const usageEligibleThreatCandidates = seasonThreatCandidates.filter(
+  (pokemon) =>
+    (environmentBySlug.get(pokemon.slug)?.usageRate ?? -1) >=
+    MIN_THREAT_USAGE_RATE
+);
 const inheritedMegaCandidates = seasonThreatCandidates.filter(
+  (pokemon) => pokemon.formKind === "mega"
+);
+const usageEligibleMegaCandidates = usageEligibleThreatCandidates.filter(
   (pokemon) => pokemon.formKind === "mega"
 );
 
@@ -122,7 +138,12 @@ assert(
 const charizardForms = seasonThreatCandidates.filter(
   (pokemon) => pokemon.speciesId === 6
 );
-const charizardFormScores = charizardForms.map((pokemon) => ({
+const usageEligibleCharizardForms = charizardForms.filter(
+  (pokemon) =>
+    (environmentBySlug.get(pokemon.slug)?.usageRate ?? -1) >=
+    MIN_THREAT_USAGE_RATE
+);
+const charizardFormScores = usageEligibleCharizardForms.map((pokemon) => ({
   pokemon,
   result: analyze(iceWeakTeam, [pokemon])[0]
 }));
@@ -131,7 +152,13 @@ const highestCharizardScore = Math.max(
   ...charizardFormScores.map(({ result }) => result?.score ?? -1)
 );
 assert(
-  charizardFormScores.length === 3 &&
+  charizardFormScores.length === 2 &&
+    !usageEligibleCharizardForms.some(
+      (pokemon) => pokemon.slug === "charizard"
+    ) &&
+    ["charizard-mega-x", "charizard-mega-y"].every((slug) =>
+      usageEligibleCharizardForms.some((pokemon) => pokemon.slug === slug)
+    ) &&
     charizardFormScores.every(({ result }) => result) &&
     groupedCharizardThreat?.score === highestCharizardScore &&
     new Set(
@@ -139,7 +166,55 @@ assert(
         (threat) => threat.pokemon.speciesId
       )
     ).size === 1,
-  "メガX・メガYを個別評価し、species内の最高スコア1フォームへ集約できません"
+  "使用率基準通過後のメガX・メガYを個別評価し、species内の最高スコア1フォームへ集約できません"
+);
+
+function environmentEntry(
+  slug: string,
+  usageRate: number,
+  usageRank: number
+): ThreatEnvironmentPokemon {
+  return {
+    slug,
+    usageRank,
+    usageRate,
+    offenseProfile: {
+      physicalShare: 0,
+      specialShare: 0,
+      neutralShare: 1
+    },
+    moves: [],
+    abilities: [],
+    teammates: [],
+    checksAndCounters: []
+  };
+}
+
+const boundaryPokemon = ["charizard", "garchomp", "venusaur"].map(
+  (slug) => seasonThreatCandidates.find((pokemon) => pokemon.slug === slug)!
+);
+assert(
+  boundaryPokemon.every(Boolean),
+  "境界値テストに必要な使用可能ポケモンがありません"
+);
+const boundaryDataset: ThreatEnvironmentDataset = {
+  ...environmentDataset,
+  snapshotId: "usage-boundary-test",
+  pokemon: [
+    environmentEntry("charizard", 0.001, 1),
+    environmentEntry("garchomp", 0.00099, 2)
+  ]
+};
+const boundaryThreats = analyze(
+  iceWeakTeam,
+  boundaryPokemon,
+  boundaryDataset
+);
+assert(
+  boundaryThreats.length === 1 &&
+    boundaryThreats[0].pokemon.slug === "charizard" &&
+    boundaryThreats[0].environment?.usageRate === 0.001,
+  "使用率0.1%ちょうどを含め、0.099%と使用率不明を除外できません"
 );
 
 const charizardThreats = analyze([slot("slot-1", "charizard")]);
@@ -173,6 +248,14 @@ assert(
           six[index - 1].pokemon.speciesId <= threat.pokemon.speciesId)
     ),
   "6体パーティのスコア降順・同点図鑑番号順が不正です"
+);
+assert(
+  six.every(
+    (threat) =>
+      threat.environment !== null &&
+      threat.environment.usageRate >= MIN_THREAT_USAGE_RATE
+  ),
+  "使用率0.1%未満または使用率不明の候補がTOP5へ混入しました"
 );
 assert(
   new Set(six.map((threat) => threat.pokemon.speciesId)).size === six.length,
@@ -217,6 +300,7 @@ assert(
   Object.values(THREAT_WEIGHTS).reduce((sum, value) => sum + value, 0) === 100 &&
     THREAT_WEIGHTS.usage === 8 &&
     THREAT_WEIGHTS.popularMoves === 10 &&
+    MIN_THREAT_USAGE_RATE === 0.001 &&
     POPULAR_MOVE_MIN_SHARE === 0.2,
   "脅威スコアの重み定義が意図せず変更されました"
 );
@@ -242,17 +326,14 @@ assert(
   "teammatesまたはChecks and Countersがスコアへ混入しました"
 );
 
-const typeOnlyFroslass = analyze(
+const missingUsageThreats = analyze(
   iceWeakTeam,
   [allPokemon.find((entry) => entry.slug === "froslass-mega")!],
   null
-)[0];
+);
 assert(
-  typeOnlyFroslass &&
-    typeOnlyFroslass.environment === null &&
-    typeOnlyFroslass.metrics.usagePoints === 0 &&
-    typeOnlyFroslass.metrics.popularMovePoints === 0,
-  "snapshotなしで従来のタイプ・種族値診断へフォールバックできません"
+  missingUsageThreats.length === 0,
+  "使用率データなしのフォームを要警戒候補から除外できません"
 );
 
 const panelSource = readFileSync(
@@ -266,6 +347,7 @@ const styleSource = readFileSync(
 assert(
   panelSource.includes("要警戒ポケモン") &&
     panelSource.includes("Pokemon Showdown環境統計") &&
+    panelSource.includes("環境使用率0.1%以上") &&
     panelSource.includes("環境使用率") &&
     panelSource.includes("主流型") &&
     panelSource.includes("主な特性") &&
@@ -285,5 +367,5 @@ assert(
 );
 
 console.log(
-  `[ok] タイプ・種族値・環境統計・採用技・フォームpolicy・継承メガ${inheritedMegaCandidates.length}件による要警戒ポケモンを検証しました`
+  `[ok] 要警戒候補を使用率で${seasonThreatCandidates.length}件→${usageEligibleThreatCandidates.length}件（メガ${inheritedMegaCandidates.length}件→${usageEligibleMegaCandidates.length}件）へ絞り込みました`
 );

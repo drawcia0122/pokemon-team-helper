@@ -249,7 +249,9 @@ Pokémon Championsの使用率ではありません。`/environment`で使用率
 `data/environment/localization/ja.json`を使い、Showdown内部IDを画面へ出しません。
 構築補助の要警戒診断では、最新のシングル・cutoff 1760 snapshotから
 使用率、採用率20%以上の攻撃技、主な特性、味方、Checks and Countersだけを
-軽量JSONへ書き出します。20MB級の元snapshotはブラウザへ送りません。
+軽量JSONへ書き出します。候補は各フォーム自身の使用率が0.1%以上のものに限定し、
+使用率が不明なフォームや0.1%未満のフォームはスコア計算前に除外します。
+通常フォームの使用率をメガフォームへ継承しません。20MB級の元snapshotはブラウザへ送りません。
 
 ```bash
 # fixtureによる正規化・検証・安全な書き込みテスト

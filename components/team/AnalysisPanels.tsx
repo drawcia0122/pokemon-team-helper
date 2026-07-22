@@ -173,6 +173,7 @@ export function AnalysisSummary({
           <strong id="threat-pokemon-heading">要警戒ポケモン</strong>
           <span>
             タイプ相性・種族値・Pokemon Showdown環境統計による参考診断です。
+            環境使用率0.1%以上のポケモンを対象にしています。
           </span>
         </div>
         {threatPokemon.length ? (
