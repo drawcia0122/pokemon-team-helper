@@ -18,6 +18,7 @@ import {
   type ArticleImportResult
 } from "@/lib/articleImport";
 import { getPokemonCandidateScores, getTypeCandidateScores } from "@/lib/scoring";
+import { findThreatEnvironmentDataset } from "@/lib/environmentThreatData";
 import { getTeamDiagnostics } from "@/lib/teamDiagnostics";
 import { getThreatPokemonAnalysis } from "@/lib/teamThreats";
 import {
@@ -39,6 +40,7 @@ import {
 } from "@/lib/teamStorage";
 import { getAllTypes, summarizeTeam } from "@/lib/typeChart";
 import type { PokemonCandidateScore, TeamSlot, TypeCandidateScore } from "@/types/pokemon";
+import type { ThreatEnvironmentCatalog } from "@/types/environmentThreat";
 import styles from "./page.module.css";
 
 export default function HomePage() {
@@ -51,6 +53,8 @@ export default function HomePage() {
   const [preserveImportedTeam, setPreserveImportedTeam] = useState(false);
   const [isRestored, setIsRestored] = useState(false);
   const [isRestoreConfirmationOpen, setIsRestoreConfirmationOpen] = useState(false);
+  const [threatEnvironmentCatalog, setThreatEnvironmentCatalog] =
+    useState<ThreatEnvironmentCatalog | null>(null);
 
   const allTypes = useMemo(() => getAllTypes(), []);
   const seasonOptions = useMemo(() => getSeasonOptions(), []);
@@ -68,15 +72,53 @@ export default function HomePage() {
     () => getTeamDiagnostics(team, summary, availablePokemon),
     [availablePokemon, summary, team]
   );
+  const threatEnvironmentDataset = useMemo(
+    () =>
+      findThreatEnvironmentDataset(
+        threatEnvironmentCatalog,
+        seasonMeta.regulationId
+      ),
+    [seasonMeta.regulationId, threatEnvironmentCatalog]
+  );
   const threatPokemon = useMemo(
-    () => getThreatPokemonAnalysis(team, summary, availablePokemon),
-    [availablePokemon, summary, team]
+    () =>
+      getThreatPokemonAnalysis(
+        team,
+        summary,
+        availablePokemon,
+        threatEnvironmentDataset
+      ),
+    [availablePokemon, summary, team, threatEnvironmentDataset]
   );
   const typeCandidates = useMemo(() => getTypeCandidateScores(team), [team]);
   const pokemonCandidates = useMemo(
     () => getPokemonCandidateScores(team, availablePokemon),
     [team, availablePokemon]
   );
+
+  useEffect(() => {
+    let active = true;
+    void fetch("environment-data/_threats.json", { cache: "force-cache" })
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json() as Promise<ThreatEnvironmentCatalog>;
+      })
+      .then((catalog) => {
+        if (
+          active &&
+          catalog.schemaVersion === 1 &&
+          Array.isArray(catalog.datasets)
+        ) {
+          setThreatEnvironmentCatalog(catalog);
+        }
+      })
+      .catch(() => {
+        if (active) setThreatEnvironmentCatalog(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     const savedSeasonId = window.localStorage.getItem(SEASON_STORAGE_KEY);

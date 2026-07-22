@@ -93,9 +93,21 @@ assert(
   "環境詳細JSONの件数またはサイズが不正です"
 );
 const environmentDetailFiles = walkFiles(path.join(outDir, "environment-data")).filter(
-  (file) => file.endsWith(".json") && path.basename(file) !== "_manifest.json"
+  (file) =>
+    file.endsWith(".json") &&
+    !["_manifest.json", "_threats.json"].includes(path.basename(file))
 );
 assert(environmentDetailFiles.length === 100, "環境詳細JSONが100件ではありません");
+const environmentThreatPath = path.join(outDir, "environment-data", "_threats.json");
+const environmentThreatSource = readFileSync(environmentThreatPath, "utf8");
+assert(
+  statSync(environmentThreatPath).size < 400_000 &&
+    environmentThreatSource.includes('"name":"ふぶき"') &&
+    environmentThreatSource.includes('"name":"ゆきふらし"') &&
+    !environmentThreatSource.includes("rawWeight") &&
+    !environmentThreatSource.includes('"name":"blizzard"'),
+  "要警戒診断用の軽量・日本語環境JSONが不正です"
+);
 let environmentDetailSource = "";
 for (const file of environmentDetailFiles) {
   const source = readFileSync(file, "utf8");

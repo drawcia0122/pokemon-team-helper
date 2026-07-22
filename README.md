@@ -247,6 +247,9 @@ Pokémon Championsの使用率ではありません。`/environment`で使用率
 定期更新はまだ実装していません。
 技・持ち物・特性・性格は固定版のPokéAPI日本語データから生成した
 `data/environment/localization/ja.json`を使い、Showdown内部IDを画面へ出しません。
+構築補助の要警戒診断では、最新のシングル・cutoff 1760 snapshotから
+使用率、採用率20%以上の攻撃技、主な特性、味方、Checks and Countersだけを
+軽量JSONへ書き出します。20MB級の元snapshotはブラウザへ送りません。
 
 ```bash
 # fixtureによる正規化・検証・安全な書き込みテスト

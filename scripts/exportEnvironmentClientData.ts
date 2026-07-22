@@ -1,6 +1,10 @@
 import { mkdir, mkdtemp, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { getEnvironmentDetailExports, getEnvironmentRankingCatalog } from "@/lib/environmentData.server";
+import {
+  getEnvironmentDetailExports,
+  getEnvironmentRankingCatalog,
+  getThreatEnvironmentCatalog
+} from "@/lib/environmentData.server";
 
 async function main() {
   const rootDir = process.cwd();
@@ -23,6 +27,13 @@ async function main() {
       await writeFile(outputPath, json, "utf8");
     }
     const catalog = getEnvironmentRankingCatalog();
+    const threatCatalog = getThreatEnvironmentCatalog();
+    const threatJson = `${JSON.stringify(threatCatalog)}\n`;
+    await writeFile(
+      path.join(temporaryDir, "_threats.json"),
+      threatJson,
+      "utf8"
+    );
     const manifest = {
       schemaVersion: 1,
       generatedFrom: catalog.datasets.map((dataset) => ({
@@ -31,7 +42,8 @@ async function main() {
         detailCount: dataset.ranking.length
       })),
       detailFileCount: exports.length,
-      detailBytes
+      detailBytes,
+      threatBytes: Buffer.byteLength(threatJson)
     };
     await writeFile(
       path.join(temporaryDir, "_manifest.json"),
@@ -41,7 +53,7 @@ async function main() {
     await rm(outputDir, { recursive: true, force: true });
     await rename(temporaryDir, outputDir);
     console.log(
-      `[ok] 環境詳細用JSON ${exports.length}件 / ${detailBytes} bytesを生成しました`
+      `[ok] 環境詳細用JSON ${exports.length}件 / ${detailBytes} bytes・脅威診断${Buffer.byteLength(threatJson)} bytesを生成しました`
     );
   } catch (error) {
     await rm(temporaryDir, { recursive: true, force: true });

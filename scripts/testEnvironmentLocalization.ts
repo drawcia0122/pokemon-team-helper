@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import localizationData from "@/data/environment/localization/ja.json";
+import moveMetadataData from "@/data/environment/moveMetadata.json";
 import overridesData from "@/data/environment/localization/showdown-ja-overrides.json";
 import {
   localizeEnvironmentValue,
@@ -12,12 +13,14 @@ import type {
   EnvironmentLocalizationDictionary,
   EnvironmentLocalizationOverrides
 } from "@/types/environmentLocalization";
+import type { EnvironmentMoveMetadataRegistry } from "@/types/environmentThreat";
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
 }
 
 const dictionary = localizationData as EnvironmentLocalizationDictionary;
+const moveMetadata = moveMetadataData as EnvironmentMoveMetadataRegistry;
 const overrides = overridesData as EnvironmentLocalizationOverrides;
 const expectedCounts: Record<EnvironmentLocalizationCategory, number> = {
   moves: 937,
@@ -28,6 +31,11 @@ const expectedCounts: Record<EnvironmentLocalizationCategory, number> = {
 
 assert(dictionary.schemaVersion === 1 && dictionary.locale === "ja", "辞書schemaが不正です");
 assert(dictionary.fallbackLabel === "未対応", "フォールバック表示が不正です");
+assert(
+  moveMetadata.schemaVersion === 1 &&
+    Object.keys(moveMetadata.moves).length === 919,
+  "技タイプ・物理特殊メタデータが不正です"
+);
 assert(/^[a-f0-9]{16}$/.test(dictionary.dictionaryVersion), "辞書version hashが不正です");
 for (const category of Object.keys(expectedCounts) as EnvironmentLocalizationCategory[]) {
   assert(
@@ -91,6 +99,13 @@ for (const category of Object.keys(observed) as EnvironmentLocalizationCategory[
   }
 }
 assert(unresolved === 0, `snapshotに未対応名称が${unresolved}件あります`);
+const missingMoveMetadata = [...observed.moves].filter(
+  (sourceId) => !moveMetadata.moves[sourceId]
+);
+assert(
+  missingMoveMetadata.length === 0,
+  `snapshotの技メタデータが不足しています: ${missingMoveMetadata.join(",")}`
+);
 
 const originalWarn = console.warn;
 const warnings: string[] = [];
@@ -117,5 +132,5 @@ const observedCounts = Object.fromEntries(
   Object.entries(observed).map(([category, entries]) => [category, entries.size])
 );
 console.log(
-  `[ok] 環境日本語辞書 ${JSON.stringify(expectedCounts)} / snapshot ${JSON.stringify(observedCounts)} / 未対応0件 / override ${JSON.stringify(overrideCounts)}`
+  `[ok] 環境日本語辞書 ${JSON.stringify(expectedCounts)} / snapshot ${JSON.stringify(observedCounts)} / 技メタデータ919件 / 未対応0件 / override ${JSON.stringify(overrideCounts)}`
 );

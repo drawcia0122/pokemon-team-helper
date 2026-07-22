@@ -50,6 +50,19 @@ content hashと日本語辞書hash別の軽量JSONへ分割し、クリックさ
 snapshotまたは辞書が変わるとURLも変わり、古い表示名のcacheを再利用しません。
 snapshot本体、`rawWeight`、TOP10以降の分布はブラウザへ送信しません。
 
+構築補助の要警戒診断には`environment-data/_threats.json`を使用します。
+ルールごとに最新のシングル・cutoff 1760を優先し、存在しない場合だけcutoff 0へ
+フォールバックします。各ポケモンは使用率、能力配分から集約した物理／特殊型の比率、
+上位8技、主な特性1件、味方3件、
+Checks and Counters 3件だけを保持します。元snapshotの`rawWeight`は含めません。
+採用技のタイプと物理・特殊・変化分類は、固定版PokéAPIから生成した
+`data/environment/moveMetadata.json`を完全一致で参照します。
+
+要警戒スコアはタイプ相性と種族値を最大80点、環境補正を最大20点として扱います。
+環境補正は使用率最大8点、採用率20%以上の有効技最大10点、主流の物理・特殊型2点です。
+使用率だけで順位が決まらないよう上限を設け、teammatesとChecks and Countersは
+表示だけに使用してスコアへ加えません。
+
 ### 日本語表示辞書
 
 技、持ち物、特性、性格はShowdownの内部IDを画面に直接表示せず、

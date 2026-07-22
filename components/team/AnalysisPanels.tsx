@@ -10,6 +10,24 @@ import { getTypeLabel } from "@/lib/typeChart";
 import type { TeamSummary } from "@/types/pokemon";
 import styles from "./TeamWorkspace.module.css";
 
+function formatPercent(value: number): string {
+  const percentage = value * 100;
+  return `${percentage < 0.1 && percentage > 0 ? percentage.toFixed(2) : percentage.toFixed(1)}%`;
+}
+
+function formatOffenseProfile(
+  threat: ThreatPokemonAnalysis
+): string | null {
+  const profile = threat.environment?.offenseProfile;
+  const damageClass = threat.metrics.dominantDamageClass;
+  if (!profile || (damageClass !== "physical" && damageClass !== "special")) {
+    return null;
+  }
+  const share =
+    damageClass === "physical" ? profile.physicalShare : profile.specialShare;
+  return `主流型: ${damageClass === "physical" ? "物理" : "特殊"} ${formatPercent(share)}`;
+}
+
 export function AnalysisSummary({
   summary,
   slotCount,
@@ -153,7 +171,9 @@ export function AnalysisSummary({
       >
         <div className={styles.threatsHeading}>
           <strong id="threat-pokemon-heading">要警戒ポケモン</strong>
-          <span>タイプ相性と種族値をもとにした参考診断です。</span>
+          <span>
+            タイプ相性・種族値・Pokemon Showdown環境統計による参考診断です。
+          </span>
         </div>
         {threatPokemon.length ? (
           <ol className={styles.threatList}>
@@ -173,6 +193,11 @@ export function AnalysisSummary({
                     <span>
                       {threat.pokemon.types.map(getTypeLabel).join(" / ")}
                     </span>
+                    <small className={styles.threatUsage}>
+                      {threat.environment
+                        ? `環境使用率 ${formatPercent(threat.environment.usageRate)}・${threat.environment.usageRank}位`
+                        : "環境統計なし"}
+                    </small>
                   </div>
                   <div className={styles.threatScore}>
                     <span>脅威スコア</span>
@@ -184,6 +209,28 @@ export function AnalysisSummary({
                     <li key={reason}>{reason}</li>
                   ))}
                 </ul>
+                {threat.environment ? (
+                  <div className={styles.threatEnvironmentDetails}>
+                    {formatOffenseProfile(threat) ? (
+                      <span>{formatOffenseProfile(threat)}</span>
+                    ) : null}
+                    {threat.environment.topAbility ? (
+                      <span>
+                        主な特性: {threat.environment.topAbility.name} {formatPercent(threat.environment.topAbility.share)}
+                      </span>
+                    ) : null}
+                    {threat.environment.teammates.length ? (
+                      <span>
+                        相性の良い味方: {threat.environment.teammates.map((entry) => entry.name).join(" / ")}
+                      </span>
+                    ) : null}
+                    {threat.environment.checksAndCounters.length ? (
+                      <span>
+                        苦手な相手: {threat.environment.checksAndCounters.map((entry) => entry.name).join(" / ")}
+                      </span>
+                    ) : null}
+                  </div>
+                ) : null}
               </li>
             ))}
           </ol>

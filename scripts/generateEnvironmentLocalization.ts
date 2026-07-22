@@ -7,12 +7,21 @@ import type {
   EnvironmentLocalizationDictionary,
   EnvironmentLocalizationOverrides
 } from "@/types/environmentLocalization";
+import type {
+  EnvironmentMoveDamageClass,
+  EnvironmentMoveMetadataRegistry
+} from "@/types/environmentThreat";
+import type { TypeName } from "@/types/pokemon";
 
 const POKEAPI_COMMIT = "f34ebd36c4328bad7fa406b276a24f72000a801d";
 const POKEAPI_RAW_BASE = `https://raw.githubusercontent.com/PokeAPI/pokeapi/${POKEAPI_COMMIT}/data/v2/csv`;
 const OUTPUT_PATH = path.join(
   process.cwd(),
   "data/environment/localization/ja.json"
+);
+const MOVE_METADATA_OUTPUT_PATH = path.join(
+  process.cwd(),
+  "data/environment/moveMetadata.json"
 );
 const JAPANESE_LANGUAGE_ID = "1";
 
@@ -138,6 +147,55 @@ function sortEntries(entries: Record<string, string>): Record<string, string> {
   return Object.fromEntries(Object.entries(entries).sort(([left], [right]) => left.localeCompare(right)));
 }
 
+const pokeApiTypes: Record<string, TypeName> = {
+  "1": "normal",
+  "2": "fighting",
+  "3": "flying",
+  "4": "poison",
+  "5": "ground",
+  "6": "rock",
+  "7": "bug",
+  "8": "ghost",
+  "9": "steel",
+  "10": "fire",
+  "11": "water",
+  "12": "grass",
+  "13": "electric",
+  "14": "psychic",
+  "15": "ice",
+  "16": "dragon",
+  "17": "dark",
+  "18": "fairy"
+};
+
+const pokeApiDamageClasses: Record<string, EnvironmentMoveDamageClass> = {
+  "1": "status",
+  "2": "physical",
+  "3": "special"
+};
+
+async function buildMoveMetadata(): Promise<EnvironmentMoveMetadataRegistry> {
+  const moves = await fetchCsv("moves.csv");
+  const entries: EnvironmentMoveMetadataRegistry["moves"] = {};
+  for (const move of moves) {
+    const sourceId = toShowdownId(move.identifier);
+    const type = pokeApiTypes[move.type_id];
+    const damageClass = pokeApiDamageClasses[move.damage_class_id];
+    if (!sourceId || !type || !damageClass) continue;
+    entries[sourceId] = { type, damageClass };
+  }
+  return {
+    schemaVersion: 1,
+    source: {
+      repository: "https://github.com/PokeAPI/pokeapi",
+      commit: POKEAPI_COMMIT
+    },
+    moves: Object.fromEntries(
+      Object.entries(entries).sort(([left], [right]) => left.localeCompare(right))
+    )
+  };
+}
+
 async function main(): Promise<void> {
   const overrides = overridesData as EnvironmentLocalizationOverrides;
   const categoryEntries = await Promise.all(
@@ -162,15 +220,23 @@ async function main(): Promise<void> {
     },
     categories: Object.fromEntries(categoryEntries) as EnvironmentLocalizationDictionary["categories"]
   };
+  const moveMetadata = await buildMoveMetadata();
   await mkdir(path.dirname(OUTPUT_PATH), { recursive: true });
   await writeFile(OUTPUT_PATH, `${JSON.stringify(dictionary, null, 2)}\n`, "utf8");
+  await writeFile(
+    MOVE_METADATA_OUTPUT_PATH,
+    `${JSON.stringify(moveMetadata, null, 2)}\n`,
+    "utf8"
+  );
   const counts = Object.fromEntries(
     Object.entries(dictionary.categories).map(([category, entries]) => [
       category,
       Object.keys(entries).length
     ])
   );
-  console.log(`[ok] 環境データ日本語辞書を生成しました: ${JSON.stringify(counts)}`);
+  console.log(
+    `[ok] 環境データ日本語辞書を生成しました: ${JSON.stringify(counts)} / 技メタデータ${Object.keys(moveMetadata.moves).length}件`
+  );
 }
 
 main().catch((error: unknown) => {

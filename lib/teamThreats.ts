@@ -5,24 +5,50 @@ import {
   getTypeLabel
 } from "@/lib/typeChart";
 import type {
+  ThreatEnvironmentAbility,
+  ThreatEnvironmentDataset,
+  ThreatEnvironmentMove,
+  ThreatEnvironmentPokemon,
+  ThreatEnvironmentRelation
+} from "@/types/environmentThreat";
+import type {
   PokemonEntry,
   TeamSlot,
   TeamSummary,
   TypeName
 } from "@/types/pokemon";
 
-export const THREAT_SCORE_WEIGHTS = {
-  attackCoverage: 45,
-  defensivePressure: 20,
-  speed: 15,
-  attackingStat: 12,
-  typeGap: 18
+export const THREAT_WEIGHTS = {
+  attackCoverage: 35,
+  defensivePressure: 15,
+  speed: 10,
+  offense: 8,
+  typeGap: 12,
+  usage: 8,
+  popularMoves: 10,
+  popularSet: 2
 } as const;
+
+export const POPULAR_MOVE_MIN_SHARE = 0.2;
+
+export type ThreatPokemonEnvironment = {
+  source: "Pokemon Showdown";
+  period: string;
+  battleFormat: ThreatEnvironmentDataset["battleFormat"];
+  ratingCutoff: number;
+  usageRank: number;
+  usageRate: number;
+  offenseProfile: ThreatEnvironmentPokemon["offenseProfile"];
+  topAbility: ThreatEnvironmentAbility | null;
+  teammates: ThreatEnvironmentRelation[];
+  checksAndCounters: ThreatEnvironmentRelation[];
+};
 
 export type ThreatPokemonAnalysis = {
   pokemon: PokemonEntry;
   score: number;
   reasons: string[];
+  environment: ThreatPokemonEnvironment | null;
   metrics: {
     superEffectiveTargetCount: number;
     quadEffectiveTargetCount: number;
@@ -31,6 +57,16 @@ export type ThreatPokemonAnalysis = {
     speedDifference: number | null;
     maxAttackingStat: number | null;
     matchedTypeGaps: TypeName[];
+    usagePoints: number;
+    popularMovePoints: number;
+    popularSetPoints: number;
+    dominantDamageClass: "physical" | "special" | "mixed" | null;
+    scoredPopularMoves: Array<{
+      move: ThreatEnvironmentMove;
+      targetCount: number;
+      quadTargetCount: number;
+      points: number;
+    }>;
   };
 };
 
@@ -72,11 +108,108 @@ function getTeamAverageSpeed(team: TeamSlot[]): number | null {
   );
 }
 
+function getDominantDamageClass(
+  environment: ThreatEnvironmentPokemon
+): "physical" | "special" | "mixed" | null {
+  const { physicalShare, specialShare } = environment.offenseProfile;
+  if (physicalShare >= 0.35 && physicalShare >= specialShare * 1.5) {
+    return "physical";
+  }
+  if (specialShare >= 0.35 && specialShare >= physicalShare * 1.5) {
+    return "special";
+  }
+  const moves = environment.moves;
+  const damagingMoves = moves.filter(
+    (move) =>
+      move.damageClass !== "status" && move.share >= POPULAR_MOVE_MIN_SHARE
+  );
+  if (damagingMoves.length === 0) return null;
+  const physicalMoveShare = damagingMoves
+    .filter((move) => move.damageClass === "physical")
+    .reduce((total, move) => total + move.share, 0);
+  const specialMoveShare = damagingMoves
+    .filter((move) => move.damageClass === "special")
+    .reduce((total, move) => total + move.share, 0);
+  if (physicalMoveShare >= specialMoveShare * 1.5) return "physical";
+  if (specialMoveShare >= physicalMoveShare * 1.5) return "special";
+  return "mixed";
+}
+
+function scorePopularMoves(
+  environment: ThreatEnvironmentPokemon | undefined,
+  summary: TeamSummary
+): {
+  points: number;
+  setPoints: number;
+  dominantDamageClass: "physical" | "special" | "mixed" | null;
+  scoredMoves: ThreatPokemonAnalysis["metrics"]["scoredPopularMoves"];
+} {
+  if (!environment || summary.members.length === 0) {
+    return {
+      points: 0,
+      setPoints: 0,
+      dominantDamageClass: null,
+      scoredMoves: []
+    };
+  }
+
+  const dominantDamageClass = getDominantDamageClass(environment);
+  const popularMoves = environment.moves.filter(
+    (move) =>
+      move.damageClass !== "status" &&
+      move.share >= POPULAR_MOVE_MIN_SHARE &&
+      (dominantDamageClass === "mixed" ||
+        dominantDamageClass === null ||
+        move.damageClass === dominantDamageClass)
+  );
+  const scoredMoves = popularMoves
+    .map((move) => {
+      let targetCount = 0;
+      let quadTargetCount = 0;
+      for (const member of summary.members) {
+        const multiplier = getMultiplier(move.type, member.types);
+        if (multiplier > 1) targetCount += 1;
+        if (multiplier >= 4) quadTargetCount += 1;
+      }
+      const targetRatio = targetCount / summary.members.length;
+      const quadRatio = quadTargetCount / summary.members.length;
+      const points = move.share *
+        (targetRatio * THREAT_WEIGHTS.popularMoves + quadRatio * 2);
+      return { move, targetCount, quadTargetCount, points };
+    })
+    .filter((entry) => entry.targetCount > 0)
+    .sort(
+      (left, right) =>
+        right.points - left.points || right.move.share - left.move.share
+    );
+  const points = Math.min(
+    THREAT_WEIGHTS.popularMoves,
+    Math.round(scoredMoves.reduce((total, entry) => total + entry.points, 0))
+  );
+  const setPoints =
+    scoredMoves.length > 0 &&
+    (dominantDamageClass === "physical" || dominantDamageClass === "special")
+      ? THREAT_WEIGHTS.popularSet
+      : 0;
+
+  return { points, setPoints, dominantDamageClass, scoredMoves };
+}
+
+function scoreUsage(usageRate: number | undefined): number {
+  if (!usageRate || usageRate <= 0) return 0;
+  return Math.min(
+    THREAT_WEIGHTS.usage,
+    Math.round(Math.sqrt(Math.min(usageRate, 0.5) / 0.5) * THREAT_WEIGHTS.usage)
+  );
+}
+
 function scoreThreatPokemon(
   pokemon: PokemonEntry,
   summary: TeamSummary,
   teamAverageSpeed: number | null,
-  typeGaps: TypeName[]
+  typeGaps: TypeName[],
+  environmentDataset: ThreatEnvironmentDataset | null,
+  environmentBySlug: Map<string, ThreatEnvironmentPokemon>
 ): ThreatPokemonAnalysis {
   const memberCount = summary.members.length;
   let superEffectiveTargetCount = 0;
@@ -111,52 +244,85 @@ function scoreThreatPokemon(
 
   const attackCoveragePoints = memberCount
     ? Math.round(
-        (superEffectiveTargetCount / memberCount) * 40 +
-          (quadEffectiveTargetCount / memberCount) * 5
+        (superEffectiveTargetCount / memberCount) * 31 +
+          (quadEffectiveTargetCount / memberCount) * 4
       )
     : 0;
   const defensivePressurePoints =
     teamAnswerCount === 0
-      ? THREAT_SCORE_WEIGHTS.defensivePressure
+      ? THREAT_WEIGHTS.defensivePressure
       : teamAnswerCount === 1
-        ? 12
+        ? 9
         : teamAnswerCount === 2
-          ? 6
+          ? 4
           : 0;
   const speedPoints =
     speedDifference === null
       ? 0
       : speedDifference >= 40
-        ? THREAT_SCORE_WEIGHTS.speed
+        ? THREAT_WEIGHTS.speed
         : speedDifference >= 20
-          ? 10
+          ? 7
           : speedDifference >= 10
-            ? 5
+            ? 4
             : 0;
   const attackingStatPoints =
     maxAttackingStat === null
       ? 0
       : maxAttackingStat >= 150
-        ? THREAT_SCORE_WEIGHTS.attackingStat
+        ? THREAT_WEIGHTS.offense
         : maxAttackingStat >= 130
-          ? 9
+          ? 6
           : maxAttackingStat >= 100
-            ? 5
+            ? 3
             : 0;
   const typeGapPoints = Math.min(
-    THREAT_SCORE_WEIGHTS.typeGap,
-    matchedTypeGaps.length * 12
+    THREAT_WEIGHTS.typeGap,
+    matchedTypeGaps.length * 10
   );
+  const environmentSource = environmentBySlug.get(pokemon.slug);
+  const usagePoints = scoreUsage(environmentSource?.usageRate);
+  const popularMoves = scorePopularMoves(environmentSource, summary);
   const score = Math.min(
     100,
     attackCoveragePoints +
       defensivePressurePoints +
       speedPoints +
       attackingStatPoints +
-      typeGapPoints
+      typeGapPoints +
+      usagePoints +
+      popularMoves.points +
+      popularMoves.setPoints
   );
   const reasons: ScoredReason[] = [];
 
+  matchedTypeGaps.forEach((type, index) => {
+    reasons.push({
+      id: `type-gap-${type}`,
+      text: `${getTypeLabel(type)}が一貫しています。`,
+      points: typeGapPoints,
+      order: 1 + index
+    });
+  });
+  popularMoves.scoredMoves.slice(0, 2).forEach((entry, index) => {
+    const quadNote = entry.quadTargetCount
+      ? `（うち${entry.quadTargetCount}体は4倍弱点）`
+      : "";
+    reasons.push({
+      id: `popular-move-${entry.move.id}`,
+      text: `採用率${Math.round(entry.move.share * 100)}%の${entry.move.name}が${entry.targetCount}体へ抜群です${quadNote}。`,
+      points: entry.points,
+      order: 10 + index
+    });
+  });
+  if (speedPoints > 0 && stats && speedDifference !== null) {
+    reasons.push({
+      id: "speed",
+      text: `すばやさ${stats.speed}で、パーティ平均を${speedDifference}上回ります。`,
+      points: speedPoints,
+      order: 20
+    });
+  }
   if (attackCoveragePoints > 0) {
     const quadNote = quadEffectiveTargetCount
       ? `（うち${quadEffectiveTargetCount}体は4倍弱点）`
@@ -165,17 +331,9 @@ function scoreThreatPokemon(
       id: "attack-coverage",
       text: `${superEffectiveTargetCount}体へタイプ一致で抜群を取れます${quadNote}。`,
       points: attackCoveragePoints,
-      order: 1
+      order: 30
     });
   }
-  matchedTypeGaps.forEach((type, index) => {
-    reasons.push({
-      id: `type-gap-${type}`,
-      text: `${getTypeLabel(type)}が一貫しています。`,
-      points: typeGapPoints,
-      order: 2 + index
-    });
-  });
   if (defensivePressurePoints > 0) {
     reasons.push({
       id: "defensive-pressure",
@@ -184,15 +342,7 @@ function scoreThreatPokemon(
           ? "こちらが抜群を取れる一致タイプがありません。"
           : `こちらが抜群を取れるのは${teamAnswerCount}枠だけです。`,
       points: defensivePressurePoints,
-      order: 4
-    });
-  }
-  if (speedPoints > 0 && stats && speedDifference !== null) {
-    reasons.push({
-      id: "speed",
-      text: `すばやさ${stats.speed}で、パーティ平均を${speedDifference}上回ります。`,
-      points: speedPoints,
-      order: 5
+      order: 40
     });
   }
   if (attackingStatPoints > 0 && stats && maxAttackingStat !== null) {
@@ -201,7 +351,15 @@ function scoreThreatPokemon(
       id: "attacking-stat",
       text: `${label}${maxAttackingStat}で攻撃性能が高めです。`,
       points: attackingStatPoints,
-      order: 6
+      order: 50
+    });
+  }
+  if (popularMoves.setPoints > 0 && popularMoves.dominantDamageClass) {
+    reasons.push({
+      id: "popular-set",
+      text: `${popularMoves.dominantDamageClass === "physical" ? "物理" : "特殊"}技中心の型が多いです。`,
+      points: popularMoves.setPoints,
+      order: 60
     });
   }
 
@@ -209,9 +367,25 @@ function scoreThreatPokemon(
     pokemon,
     score,
     reasons: reasons
-      .sort((a, b) => b.points - a.points || a.order - b.order)
-      .slice(0, 3)
+      .filter((reason) => reason.points > 0)
+      .sort((a, b) => a.order - b.order || b.points - a.points)
+      .slice(0, 4)
       .map((reason) => reason.text),
+    environment:
+      environmentSource && environmentDataset
+        ? {
+            source: environmentDataset.source,
+            period: environmentDataset.period,
+            battleFormat: environmentDataset.battleFormat,
+            ratingCutoff: environmentDataset.ratingCutoff,
+            usageRank: environmentSource.usageRank,
+            usageRate: environmentSource.usageRate,
+            offenseProfile: environmentSource.offenseProfile,
+            topAbility: environmentSource.abilities[0] ?? null,
+            teammates: environmentSource.teammates,
+            checksAndCounters: environmentSource.checksAndCounters
+          }
+        : null,
     metrics: {
       superEffectiveTargetCount,
       quadEffectiveTargetCount,
@@ -219,7 +393,12 @@ function scoreThreatPokemon(
       teamAverageSpeed,
       speedDifference,
       maxAttackingStat,
-      matchedTypeGaps
+      matchedTypeGaps,
+      usagePoints,
+      popularMovePoints: popularMoves.points,
+      popularSetPoints: popularMoves.setPoints,
+      dominantDamageClass: popularMoves.dominantDamageClass,
+      scoredPopularMoves: popularMoves.scoredMoves
     }
   };
 }
@@ -240,6 +419,7 @@ export function getThreatPokemonAnalysis(
   team: TeamSlot[],
   summary: TeamSummary,
   availablePokemon: PokemonEntry[],
+  environmentDataset: ThreatEnvironmentDataset | null = null,
   limit = 5
 ): ThreatPokemonAnalysis[] {
   if (summary.members.length === 0 || limit <= 0) return [];
@@ -247,6 +427,9 @@ export function getThreatPokemonAnalysis(
   const teamAverageSpeed = getTeamAverageSpeed(team);
   const typeGaps = getTeamTypeGapRows(summary).map(
     (row) => row.attackType
+  );
+  const environmentBySlug = new Map(
+    environmentDataset?.pokemon.map((entry) => [entry.slug, entry]) ?? []
   );
   const bestBySpecies = new Map<number, ThreatPokemonAnalysis>();
 
@@ -256,7 +439,9 @@ export function getThreatPokemonAnalysis(
       pokemon,
       summary,
       teamAverageSpeed,
-      typeGaps
+      typeGaps,
+      environmentDataset,
+      environmentBySlug
     );
     const current = bestBySpecies.get(pokemon.speciesId);
     if (

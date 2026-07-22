@@ -1,11 +1,14 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import pokemonData from "@/data/pokemon.json";
+import { getThreatEnvironmentCatalog } from "@/lib/environmentData.server";
+import { findThreatEnvironmentDataset } from "@/lib/environmentThreatData";
 import { getAvailablePokemonBySeason } from "@/lib/regulations";
 import {
   getThreatPokemonAnalysis,
   isThreatPokemonCandidate,
-  THREAT_SCORE_WEIGHTS
+  POPULAR_MOVE_MIN_SHARE,
+  THREAT_WEIGHTS
 } from "@/lib/teamThreats";
 import { summarizeTeam } from "@/lib/typeChart";
 import type { PokemonEntry, TeamSlot } from "@/types/pokemon";
@@ -18,12 +21,27 @@ function slot(id: string, pokemonSlug: string): TeamSlot {
   return { id, mode: "pokemon", pokemonSlug };
 }
 
-function analyze(team: TeamSlot[], available = seasonPokemon) {
-  return getThreatPokemonAnalysis(team, summarizeTeam(team), available);
+function analyze(
+  team: TeamSlot[],
+  available = seasonPokemon,
+  environment = environmentDataset
+) {
+  return getThreatPokemonAnalysis(
+    team,
+    summarizeTeam(team),
+    available,
+    environment
+  );
 }
 
 const allPokemon = pokemonData as PokemonEntry[];
 const seasonPokemon = getAvailablePokemonBySeason("season-m4");
+const environmentCatalog = getThreatEnvironmentCatalog();
+const environmentDataset = findThreatEnvironmentDataset(
+  environmentCatalog,
+  "M-B"
+);
+assert(environmentDataset, "M-Bの要警戒診断用環境snapshotがありません");
 const seasonThreatCandidates = seasonPokemon.filter(isThreatPokemonCandidate);
 const inheritedMegaCandidates = seasonThreatCandidates.filter(
   (pokemon) => pokemon.formKind === "mega"
@@ -54,7 +72,7 @@ assert(
     one.every(
       (threat) =>
         threat.reasons.length >= 1 &&
-        threat.reasons.length <= 3 &&
+        threat.reasons.length <= 4 &&
         threat.score >= 0 &&
         threat.score <= 100
     ),
@@ -82,10 +100,23 @@ assert(
   megaFroslassThreat?.pokemon.types.join(",") === "ice,ghost" &&
     megaFroslassThreat.pokemon.baseStats?.specialAttack === 140 &&
     megaFroslassThreat.pokemon.baseStats.speed === 120 &&
+    megaFroslassThreat.environment?.usageRank === 107 &&
+    megaFroslassThreat.environment.offenseProfile.specialShare > 0.98 &&
+    megaFroslassThreat.environment.topAbility?.name === "ゆきふらし" &&
+    megaFroslassThreat.metrics.dominantDamageClass === "special" &&
+    megaFroslassThreat.metrics.popularMovePoints > 0 &&
     megaFroslassThreat.reasons.some((reason) =>
       reason.includes("こおりが一貫")
+    ) &&
+    megaFroslassThreat.reasons.some(
+      (reason) => reason.includes("採用率100%のふぶき")
     ),
-  "氷が一貫する例で使用可能なメガユキメノコが評価されません"
+  "氷が一貫する例でメガユキメノコの環境統計・採用技を評価できません"
+);
+assert(
+  megaFroslassThreat.environment.usageRate < 0.01 &&
+    iceThreats.indexOf(megaFroslassThreat) < 5,
+  "使用率が低くても極端に刺さる候補を残せません"
 );
 
 const charizardForms = seasonThreatCandidates.filter(
@@ -183,9 +214,45 @@ assert(
   "現在のルールで使用不可のポケモンが候補に混入しました"
 );
 assert(
-  Object.values(THREAT_SCORE_WEIGHTS).reduce((sum, value) => sum + value, 0) === 110 &&
-    THREAT_SCORE_WEIGHTS.attackCoverage === 45,
+  Object.values(THREAT_WEIGHTS).reduce((sum, value) => sum + value, 0) === 100 &&
+    THREAT_WEIGHTS.usage === 8 &&
+    THREAT_WEIGHTS.popularMoves === 10 &&
+    POPULAR_MOVE_MIN_SHARE === 0.2,
   "脅威スコアの重み定義が意図せず変更されました"
+);
+
+const withoutRelations = {
+  ...environmentDataset,
+  pokemon: environmentDataset.pokemon.map((entry) => ({
+    ...entry,
+    teammates: [],
+    checksAndCounters: []
+  }))
+};
+assert(
+  JSON.stringify(
+    analyze(iceWeakTeam).map((entry) => [entry.pokemon.slug, entry.score])
+  ) ===
+    JSON.stringify(
+      analyze(iceWeakTeam, seasonPokemon, withoutRelations).map((entry) => [
+        entry.pokemon.slug,
+        entry.score
+      ])
+    ),
+  "teammatesまたはChecks and Countersがスコアへ混入しました"
+);
+
+const typeOnlyFroslass = analyze(
+  iceWeakTeam,
+  [allPokemon.find((entry) => entry.slug === "froslass-mega")!],
+  null
+)[0];
+assert(
+  typeOnlyFroslass &&
+    typeOnlyFroslass.environment === null &&
+    typeOnlyFroslass.metrics.usagePoints === 0 &&
+    typeOnlyFroslass.metrics.popularMovePoints === 0,
+  "snapshotなしで従来のタイプ・種族値診断へフォールバックできません"
 );
 
 const panelSource = readFileSync(
@@ -198,7 +265,12 @@ const styleSource = readFileSync(
 );
 assert(
   panelSource.includes("要警戒ポケモン") &&
-    panelSource.includes("タイプ相性と種族値をもとにした参考診断です。") &&
+    panelSource.includes("Pokemon Showdown環境統計") &&
+    panelSource.includes("環境使用率") &&
+    panelSource.includes("主流型") &&
+    panelSource.includes("主な特性") &&
+    panelSource.includes("相性の良い味方") &&
+    panelSource.includes("苦手な相手") &&
     panelSource.includes("threat.reasons.map") &&
     panelSource.includes("threat.score") &&
     panelSource.includes("slug={threat.pokemon.slug}") &&
@@ -213,5 +285,5 @@ assert(
 );
 
 console.log(
-  `[ok] タイプ・種族値・フォームpolicy・継承メガ${inheritedMegaCandidates.length}件による要警戒ポケモンを検証しました`
+  `[ok] タイプ・種族値・環境統計・採用技・フォームpolicy・継承メガ${inheritedMegaCandidates.length}件による要警戒ポケモンを検証しました`
 );

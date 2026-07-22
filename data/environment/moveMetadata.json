@@ -1,0 +1,3685 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "repository": "https://github.com/PokeAPI/pokeapi",
+    "commit": "f34ebd36c4328bad7fa406b276a24f72000a801d"
+  },
+  "moves": {
+    "10000000voltthunderbolt": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "absorb": {
+      "type": "grass",
+      "damageClass": "special"
+    },
+    "accelerock": {
+      "type": "rock",
+      "damageClass": "physical"
+    },
+    "acid": {
+      "type": "poison",
+      "damageClass": "special"
+    },
+    "acidarmor": {
+      "type": "poison",
+      "damageClass": "status"
+    },
+    "aciddownpourphysical": {
+      "type": "poison",
+      "damageClass": "physical"
+    },
+    "aciddownpourspecial": {
+      "type": "poison",
+      "damageClass": "special"
+    },
+    "acidspray": {
+      "type": "poison",
+      "damageClass": "special"
+    },
+    "acrobatics": {
+      "type": "flying",
+      "damageClass": "physical"
+    },
+    "acupressure": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "aerialace": {
+      "type": "flying",
+      "damageClass": "physical"
+    },
+    "aeroblast": {
+      "type": "flying",
+      "damageClass": "special"
+    },
+    "afteryou": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "agility": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "aircutter": {
+      "type": "flying",
+      "damageClass": "special"
+    },
+    "airslash": {
+      "type": "flying",
+      "damageClass": "special"
+    },
+    "alloutpummelingphysical": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "alloutpummelingspecial": {
+      "type": "fighting",
+      "damageClass": "special"
+    },
+    "alluringvoice": {
+      "type": "fairy",
+      "damageClass": "special"
+    },
+    "allyswitch": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "amnesia": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "anchorshot": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "ancientpower": {
+      "type": "rock",
+      "damageClass": "special"
+    },
+    "appleacid": {
+      "type": "grass",
+      "damageClass": "special"
+    },
+    "aquacutter": {
+      "type": "water",
+      "damageClass": "physical"
+    },
+    "aquajet": {
+      "type": "water",
+      "damageClass": "physical"
+    },
+    "aquaring": {
+      "type": "water",
+      "damageClass": "status"
+    },
+    "aquastep": {
+      "type": "water",
+      "damageClass": "physical"
+    },
+    "aquatail": {
+      "type": "water",
+      "damageClass": "physical"
+    },
+    "armorcannon": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "armthrust": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "aromatherapy": {
+      "type": "grass",
+      "damageClass": "status"
+    },
+    "aromaticmist": {
+      "type": "fairy",
+      "damageClass": "status"
+    },
+    "assist": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "assurance": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "astonish": {
+      "type": "ghost",
+      "damageClass": "physical"
+    },
+    "astralbarrage": {
+      "type": "ghost",
+      "damageClass": "special"
+    },
+    "attackorder": {
+      "type": "bug",
+      "damageClass": "physical"
+    },
+    "attract": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "aurasphere": {
+      "type": "fighting",
+      "damageClass": "special"
+    },
+    "aurawheel": {
+      "type": "electric",
+      "damageClass": "physical"
+    },
+    "aurorabeam": {
+      "type": "ice",
+      "damageClass": "special"
+    },
+    "auroraveil": {
+      "type": "ice",
+      "damageClass": "status"
+    },
+    "autotomize": {
+      "type": "steel",
+      "damageClass": "status"
+    },
+    "avalanche": {
+      "type": "ice",
+      "damageClass": "physical"
+    },
+    "axekick": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "babydolleyes": {
+      "type": "fairy",
+      "damageClass": "status"
+    },
+    "baddybad": {
+      "type": "dark",
+      "damageClass": "special"
+    },
+    "banefulbunker": {
+      "type": "poison",
+      "damageClass": "status"
+    },
+    "barbbarrage": {
+      "type": "poison",
+      "damageClass": "physical"
+    },
+    "barrage": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "barrier": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "batonpass": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "beakblast": {
+      "type": "flying",
+      "damageClass": "physical"
+    },
+    "beatup": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "behemothbash": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "behemothblade": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "belch": {
+      "type": "poison",
+      "damageClass": "special"
+    },
+    "bellydrum": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "bestow": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "bide": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "bind": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "bite": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "bitterblade": {
+      "type": "fire",
+      "damageClass": "physical"
+    },
+    "bittermalice": {
+      "type": "ghost",
+      "damageClass": "special"
+    },
+    "blackholeeclipsephysical": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "blackholeeclipsespecial": {
+      "type": "dark",
+      "damageClass": "special"
+    },
+    "blastburn": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "blazekick": {
+      "type": "fire",
+      "damageClass": "physical"
+    },
+    "blazingtorque": {
+      "type": "fire",
+      "damageClass": "physical"
+    },
+    "bleakwindstorm": {
+      "type": "flying",
+      "damageClass": "special"
+    },
+    "blizzard": {
+      "type": "ice",
+      "damageClass": "special"
+    },
+    "block": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "bloodmoon": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "bloomdoomphysical": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "bloomdoomspecial": {
+      "type": "grass",
+      "damageClass": "special"
+    },
+    "blueflare": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "bodypress": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "bodyslam": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "boltbeak": {
+      "type": "electric",
+      "damageClass": "physical"
+    },
+    "boltstrike": {
+      "type": "electric",
+      "damageClass": "physical"
+    },
+    "boneclub": {
+      "type": "ground",
+      "damageClass": "physical"
+    },
+    "bonemerang": {
+      "type": "ground",
+      "damageClass": "physical"
+    },
+    "bonerush": {
+      "type": "ground",
+      "damageClass": "physical"
+    },
+    "boomburst": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "bounce": {
+      "type": "flying",
+      "damageClass": "physical"
+    },
+    "bouncybubble": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "branchpoke": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "bravebird": {
+      "type": "flying",
+      "damageClass": "physical"
+    },
+    "breakingswipe": {
+      "type": "dragon",
+      "damageClass": "physical"
+    },
+    "breakneckblitzphysical": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "breakneckblitzspecial": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "brickbreak": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "brine": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "brutalswing": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "bubble": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "bubblebeam": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "bugbite": {
+      "type": "bug",
+      "damageClass": "physical"
+    },
+    "bugbuzz": {
+      "type": "bug",
+      "damageClass": "special"
+    },
+    "bulkup": {
+      "type": "fighting",
+      "damageClass": "status"
+    },
+    "bulldoze": {
+      "type": "ground",
+      "damageClass": "physical"
+    },
+    "bulletpunch": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "bulletseed": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "burningbulwark": {
+      "type": "fire",
+      "damageClass": "status"
+    },
+    "burningjealousy": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "burnup": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "buzzybuzz": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "calmmind": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "camouflage": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "captivate": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "catastropika": {
+      "type": "electric",
+      "damageClass": "physical"
+    },
+    "ceaselessedge": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "celebrate": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "charge": {
+      "type": "electric",
+      "damageClass": "status"
+    },
+    "chargebeam": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "charm": {
+      "type": "fairy",
+      "damageClass": "status"
+    },
+    "chatter": {
+      "type": "flying",
+      "damageClass": "special"
+    },
+    "chillingwater": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "chillyreception": {
+      "type": "ice",
+      "damageClass": "status"
+    },
+    "chipaway": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "chloroblast": {
+      "type": "grass",
+      "damageClass": "special"
+    },
+    "circlethrow": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "clamp": {
+      "type": "water",
+      "damageClass": "physical"
+    },
+    "clangingscales": {
+      "type": "dragon",
+      "damageClass": "special"
+    },
+    "clangoroussoul": {
+      "type": "dragon",
+      "damageClass": "status"
+    },
+    "clangoroussoulblaze": {
+      "type": "dragon",
+      "damageClass": "special"
+    },
+    "clearsmog": {
+      "type": "poison",
+      "damageClass": "special"
+    },
+    "closecombat": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "coaching": {
+      "type": "fighting",
+      "damageClass": "status"
+    },
+    "coil": {
+      "type": "poison",
+      "damageClass": "status"
+    },
+    "collisioncourse": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "combattorque": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "cometpunch": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "comeuppance": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "confide": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "confuseray": {
+      "type": "ghost",
+      "damageClass": "status"
+    },
+    "confusion": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "constrict": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "continentalcrushphysical": {
+      "type": "rock",
+      "damageClass": "physical"
+    },
+    "continentalcrushspecial": {
+      "type": "rock",
+      "damageClass": "special"
+    },
+    "conversion": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "conversion2": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "copycat": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "coreenforcer": {
+      "type": "dragon",
+      "damageClass": "special"
+    },
+    "corkscrewcrashphysical": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "corkscrewcrashspecial": {
+      "type": "steel",
+      "damageClass": "special"
+    },
+    "corrosivegas": {
+      "type": "poison",
+      "damageClass": "status"
+    },
+    "cosmicpower": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "cottonguard": {
+      "type": "grass",
+      "damageClass": "status"
+    },
+    "cottonspore": {
+      "type": "grass",
+      "damageClass": "status"
+    },
+    "counter": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "courtchange": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "covet": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "crabhammer": {
+      "type": "water",
+      "damageClass": "physical"
+    },
+    "craftyshield": {
+      "type": "fairy",
+      "damageClass": "status"
+    },
+    "crosschop": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "crosspoison": {
+      "type": "poison",
+      "damageClass": "physical"
+    },
+    "crunch": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "crushclaw": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "crushgrip": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "curse": {
+      "type": "ghost",
+      "damageClass": "status"
+    },
+    "cut": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "darkestlariat": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "darkpulse": {
+      "type": "dark",
+      "damageClass": "special"
+    },
+    "darkvoid": {
+      "type": "dark",
+      "damageClass": "status"
+    },
+    "dazzlinggleam": {
+      "type": "fairy",
+      "damageClass": "special"
+    },
+    "decorate": {
+      "type": "fairy",
+      "damageClass": "status"
+    },
+    "defendorder": {
+      "type": "bug",
+      "damageClass": "status"
+    },
+    "defensecurl": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "defog": {
+      "type": "flying",
+      "damageClass": "status"
+    },
+    "destinybond": {
+      "type": "ghost",
+      "damageClass": "status"
+    },
+    "detect": {
+      "type": "fighting",
+      "damageClass": "status"
+    },
+    "devastatingdrakephysical": {
+      "type": "dragon",
+      "damageClass": "physical"
+    },
+    "devastatingdrakespecial": {
+      "type": "dragon",
+      "damageClass": "special"
+    },
+    "diamondstorm": {
+      "type": "rock",
+      "damageClass": "physical"
+    },
+    "dig": {
+      "type": "ground",
+      "damageClass": "physical"
+    },
+    "direclaw": {
+      "type": "poison",
+      "damageClass": "physical"
+    },
+    "disable": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "disarmingvoice": {
+      "type": "fairy",
+      "damageClass": "special"
+    },
+    "discharge": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "dive": {
+      "type": "water",
+      "damageClass": "physical"
+    },
+    "dizzypunch": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "doodle": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "doomdesire": {
+      "type": "steel",
+      "damageClass": "special"
+    },
+    "doubleedge": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "doublehit": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "doubleironbash": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "doublekick": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "doubleshock": {
+      "type": "electric",
+      "damageClass": "physical"
+    },
+    "doubleslap": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "doubleteam": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "dracometeor": {
+      "type": "dragon",
+      "damageClass": "special"
+    },
+    "dragonascent": {
+      "type": "flying",
+      "damageClass": "physical"
+    },
+    "dragonbreath": {
+      "type": "dragon",
+      "damageClass": "special"
+    },
+    "dragoncheer": {
+      "type": "dragon",
+      "damageClass": "status"
+    },
+    "dragonclaw": {
+      "type": "dragon",
+      "damageClass": "physical"
+    },
+    "dragondance": {
+      "type": "dragon",
+      "damageClass": "status"
+    },
+    "dragondarts": {
+      "type": "dragon",
+      "damageClass": "physical"
+    },
+    "dragonenergy": {
+      "type": "dragon",
+      "damageClass": "special"
+    },
+    "dragonhammer": {
+      "type": "dragon",
+      "damageClass": "physical"
+    },
+    "dragonpulse": {
+      "type": "dragon",
+      "damageClass": "special"
+    },
+    "dragonrage": {
+      "type": "dragon",
+      "damageClass": "special"
+    },
+    "dragonrush": {
+      "type": "dragon",
+      "damageClass": "physical"
+    },
+    "dragontail": {
+      "type": "dragon",
+      "damageClass": "physical"
+    },
+    "drainingkiss": {
+      "type": "fairy",
+      "damageClass": "special"
+    },
+    "drainpunch": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "dreameater": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "drillpeck": {
+      "type": "flying",
+      "damageClass": "physical"
+    },
+    "drillrun": {
+      "type": "ground",
+      "damageClass": "physical"
+    },
+    "drumbeating": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "dualchop": {
+      "type": "dragon",
+      "damageClass": "physical"
+    },
+    "dualwingbeat": {
+      "type": "flying",
+      "damageClass": "physical"
+    },
+    "dynamaxcannon": {
+      "type": "dragon",
+      "damageClass": "special"
+    },
+    "dynamicpunch": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "earthpower": {
+      "type": "ground",
+      "damageClass": "special"
+    },
+    "earthquake": {
+      "type": "ground",
+      "damageClass": "physical"
+    },
+    "echoedvoice": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "eerieimpulse": {
+      "type": "electric",
+      "damageClass": "status"
+    },
+    "eeriespell": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "eggbomb": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "electricterrain": {
+      "type": "electric",
+      "damageClass": "status"
+    },
+    "electrify": {
+      "type": "electric",
+      "damageClass": "status"
+    },
+    "electroball": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "electrodrift": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "electroshot": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "electroweb": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "embargo": {
+      "type": "dark",
+      "damageClass": "status"
+    },
+    "ember": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "encore": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "endeavor": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "endure": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "energyball": {
+      "type": "grass",
+      "damageClass": "special"
+    },
+    "entrainment": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "eruption": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "esperwing": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "eternabeam": {
+      "type": "dragon",
+      "damageClass": "special"
+    },
+    "expandingforce": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "explosion": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "extrasensory": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "extremeevoboost": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "extremespeed": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "facade": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "fairylock": {
+      "type": "fairy",
+      "damageClass": "status"
+    },
+    "fairywind": {
+      "type": "fairy",
+      "damageClass": "special"
+    },
+    "fakeout": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "faketears": {
+      "type": "dark",
+      "damageClass": "status"
+    },
+    "falsesurrender": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "falseswipe": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "featherdance": {
+      "type": "flying",
+      "damageClass": "status"
+    },
+    "feint": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "feintattack": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "fellstinger": {
+      "type": "bug",
+      "damageClass": "physical"
+    },
+    "ficklebeam": {
+      "type": "dragon",
+      "damageClass": "special"
+    },
+    "fierydance": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "fierywrath": {
+      "type": "dark",
+      "damageClass": "special"
+    },
+    "filletaway": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "finalgambit": {
+      "type": "fighting",
+      "damageClass": "special"
+    },
+    "fireblast": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "firefang": {
+      "type": "fire",
+      "damageClass": "physical"
+    },
+    "firelash": {
+      "type": "fire",
+      "damageClass": "physical"
+    },
+    "firepledge": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "firepunch": {
+      "type": "fire",
+      "damageClass": "physical"
+    },
+    "firespin": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "firstimpression": {
+      "type": "bug",
+      "damageClass": "physical"
+    },
+    "fishiousrend": {
+      "type": "water",
+      "damageClass": "physical"
+    },
+    "fissure": {
+      "type": "ground",
+      "damageClass": "physical"
+    },
+    "flail": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "flameburst": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "flamecharge": {
+      "type": "fire",
+      "damageClass": "physical"
+    },
+    "flamethrower": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "flamewheel": {
+      "type": "fire",
+      "damageClass": "physical"
+    },
+    "flareblitz": {
+      "type": "fire",
+      "damageClass": "physical"
+    },
+    "flash": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "flashcannon": {
+      "type": "steel",
+      "damageClass": "special"
+    },
+    "flatter": {
+      "type": "dark",
+      "damageClass": "status"
+    },
+    "fleurcannon": {
+      "type": "fairy",
+      "damageClass": "special"
+    },
+    "fling": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "flipturn": {
+      "type": "water",
+      "damageClass": "physical"
+    },
+    "floatyfall": {
+      "type": "flying",
+      "damageClass": "physical"
+    },
+    "floralhealing": {
+      "type": "fairy",
+      "damageClass": "status"
+    },
+    "flowershield": {
+      "type": "fairy",
+      "damageClass": "status"
+    },
+    "flowertrick": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "fly": {
+      "type": "flying",
+      "damageClass": "physical"
+    },
+    "flyingpress": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "focusblast": {
+      "type": "fighting",
+      "damageClass": "special"
+    },
+    "focusenergy": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "focuspunch": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "followme": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "forcepalm": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "foresight": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "forestscurse": {
+      "type": "grass",
+      "damageClass": "status"
+    },
+    "foulplay": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "freezedry": {
+      "type": "ice",
+      "damageClass": "special"
+    },
+    "freezeshock": {
+      "type": "ice",
+      "damageClass": "physical"
+    },
+    "freezingglare": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "freezyfrost": {
+      "type": "ice",
+      "damageClass": "special"
+    },
+    "frenzyplant": {
+      "type": "grass",
+      "damageClass": "special"
+    },
+    "frostbreath": {
+      "type": "ice",
+      "damageClass": "special"
+    },
+    "frustration": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "furyattack": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "furycutter": {
+      "type": "bug",
+      "damageClass": "physical"
+    },
+    "furyswipes": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "fusionbolt": {
+      "type": "electric",
+      "damageClass": "physical"
+    },
+    "fusionflare": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "futuresight": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "gastroacid": {
+      "type": "poison",
+      "damageClass": "status"
+    },
+    "geargrind": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "gearup": {
+      "type": "steel",
+      "damageClass": "status"
+    },
+    "genesissupernova": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "geomancy": {
+      "type": "fairy",
+      "damageClass": "status"
+    },
+    "gigadrain": {
+      "type": "grass",
+      "damageClass": "special"
+    },
+    "gigaimpact": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "gigatonhammer": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "gigavolthavocphysical": {
+      "type": "electric",
+      "damageClass": "physical"
+    },
+    "gigavolthavocspecial": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "glaciallance": {
+      "type": "ice",
+      "damageClass": "physical"
+    },
+    "glaciate": {
+      "type": "ice",
+      "damageClass": "special"
+    },
+    "glaiverush": {
+      "type": "dragon",
+      "damageClass": "physical"
+    },
+    "glare": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "glitzyglow": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "grassknot": {
+      "type": "grass",
+      "damageClass": "special"
+    },
+    "grasspledge": {
+      "type": "grass",
+      "damageClass": "special"
+    },
+    "grasswhistle": {
+      "type": "grass",
+      "damageClass": "status"
+    },
+    "grassyglide": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "grassyterrain": {
+      "type": "grass",
+      "damageClass": "status"
+    },
+    "gravapple": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "gravity": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "growl": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "growth": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "grudge": {
+      "type": "ghost",
+      "damageClass": "status"
+    },
+    "guardianofalola": {
+      "type": "fairy",
+      "damageClass": "special"
+    },
+    "guardsplit": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "guardswap": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "guillotine": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "gunkshot": {
+      "type": "poison",
+      "damageClass": "physical"
+    },
+    "gust": {
+      "type": "flying",
+      "damageClass": "special"
+    },
+    "gyroball": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "hail": {
+      "type": "ice",
+      "damageClass": "status"
+    },
+    "hammerarm": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "happyhour": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "harden": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "hardpress": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "haze": {
+      "type": "ice",
+      "damageClass": "status"
+    },
+    "headbutt": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "headcharge": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "headlongrush": {
+      "type": "ground",
+      "damageClass": "physical"
+    },
+    "headsmash": {
+      "type": "rock",
+      "damageClass": "physical"
+    },
+    "healbell": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "healblock": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "healingwish": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "healorder": {
+      "type": "bug",
+      "damageClass": "status"
+    },
+    "healpulse": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "heartstamp": {
+      "type": "psychic",
+      "damageClass": "physical"
+    },
+    "heartswap": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "heatcrash": {
+      "type": "fire",
+      "damageClass": "physical"
+    },
+    "heatwave": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "heavyslam": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "helpinghand": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "hex": {
+      "type": "ghost",
+      "damageClass": "special"
+    },
+    "hiddenpower": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "highhorsepower": {
+      "type": "ground",
+      "damageClass": "physical"
+    },
+    "highjumpkick": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "holdback": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "holdhands": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "honeclaws": {
+      "type": "dark",
+      "damageClass": "status"
+    },
+    "hornattack": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "horndrill": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "hornleech": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "howl": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "hurricane": {
+      "type": "flying",
+      "damageClass": "special"
+    },
+    "hydrocannon": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "hydropump": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "hydrosteam": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "hydrovortexphysical": {
+      "type": "water",
+      "damageClass": "physical"
+    },
+    "hydrovortexspecial": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "hyperbeam": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "hyperdrill": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "hyperfang": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "hyperspacefury": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "hyperspacehole": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "hypervoice": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "hypnosis": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "iceball": {
+      "type": "ice",
+      "damageClass": "physical"
+    },
+    "icebeam": {
+      "type": "ice",
+      "damageClass": "special"
+    },
+    "iceburn": {
+      "type": "ice",
+      "damageClass": "special"
+    },
+    "icefang": {
+      "type": "ice",
+      "damageClass": "physical"
+    },
+    "icehammer": {
+      "type": "ice",
+      "damageClass": "physical"
+    },
+    "icepunch": {
+      "type": "ice",
+      "damageClass": "physical"
+    },
+    "iceshard": {
+      "type": "ice",
+      "damageClass": "physical"
+    },
+    "icespinner": {
+      "type": "ice",
+      "damageClass": "physical"
+    },
+    "iciclecrash": {
+      "type": "ice",
+      "damageClass": "physical"
+    },
+    "iciclespear": {
+      "type": "ice",
+      "damageClass": "physical"
+    },
+    "icywind": {
+      "type": "ice",
+      "damageClass": "special"
+    },
+    "imprison": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "incinerate": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "infernalparade": {
+      "type": "ghost",
+      "damageClass": "special"
+    },
+    "inferno": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "infernooverdrivephysical": {
+      "type": "fire",
+      "damageClass": "physical"
+    },
+    "infernooverdrivespecial": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "infestation": {
+      "type": "bug",
+      "damageClass": "special"
+    },
+    "ingrain": {
+      "type": "grass",
+      "damageClass": "status"
+    },
+    "instruct": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "iondeluge": {
+      "type": "electric",
+      "damageClass": "status"
+    },
+    "irondefense": {
+      "type": "steel",
+      "damageClass": "status"
+    },
+    "ironhead": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "irontail": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "ivycudgel": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "jawlock": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "jetpunch": {
+      "type": "water",
+      "damageClass": "physical"
+    },
+    "judgment": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "jumpkick": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "junglehealing": {
+      "type": "grass",
+      "damageClass": "status"
+    },
+    "karatechop": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "kinesis": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "kingsshield": {
+      "type": "steel",
+      "damageClass": "status"
+    },
+    "knockoff": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "kowtowcleave": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "landswrath": {
+      "type": "ground",
+      "damageClass": "physical"
+    },
+    "laserfocus": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "lashout": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "lastresort": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "lastrespects": {
+      "type": "ghost",
+      "damageClass": "physical"
+    },
+    "lavaplume": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "leafage": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "leafblade": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "leafstorm": {
+      "type": "grass",
+      "damageClass": "special"
+    },
+    "leaftornado": {
+      "type": "grass",
+      "damageClass": "special"
+    },
+    "leechlife": {
+      "type": "bug",
+      "damageClass": "physical"
+    },
+    "leechseed": {
+      "type": "grass",
+      "damageClass": "status"
+    },
+    "leer": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "letssnuggleforever": {
+      "type": "fairy",
+      "damageClass": "physical"
+    },
+    "lick": {
+      "type": "ghost",
+      "damageClass": "physical"
+    },
+    "lifedew": {
+      "type": "water",
+      "damageClass": "status"
+    },
+    "lightofruin": {
+      "type": "fairy",
+      "damageClass": "special"
+    },
+    "lightscreen": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "lightthatburnsthesky": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "liquidation": {
+      "type": "water",
+      "damageClass": "physical"
+    },
+    "lockon": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "lovelykiss": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "lowkick": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "lowsweep": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "luckychant": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "luminacrash": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "lunarblessing": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "lunardance": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "lunge": {
+      "type": "bug",
+      "damageClass": "physical"
+    },
+    "lusterpurge": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "machpunch": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "magicalleaf": {
+      "type": "grass",
+      "damageClass": "special"
+    },
+    "magicaltorque": {
+      "type": "fairy",
+      "damageClass": "physical"
+    },
+    "magiccoat": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "magicpowder": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "magicroom": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "magmastorm": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "magnetbomb": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "magneticflux": {
+      "type": "electric",
+      "damageClass": "status"
+    },
+    "magnetrise": {
+      "type": "electric",
+      "damageClass": "status"
+    },
+    "magnitude": {
+      "type": "ground",
+      "damageClass": "physical"
+    },
+    "makeitrain": {
+      "type": "steel",
+      "damageClass": "special"
+    },
+    "maliciousmoonsault": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "malignantchain": {
+      "type": "poison",
+      "damageClass": "special"
+    },
+    "matblock": {
+      "type": "fighting",
+      "damageClass": "status"
+    },
+    "matchagotcha": {
+      "type": "grass",
+      "damageClass": "special"
+    },
+    "maxairstream": {
+      "type": "flying",
+      "damageClass": "physical"
+    },
+    "maxdarkness": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "maxflare": {
+      "type": "fire",
+      "damageClass": "physical"
+    },
+    "maxflutterby": {
+      "type": "bug",
+      "damageClass": "physical"
+    },
+    "maxgeyser": {
+      "type": "water",
+      "damageClass": "physical"
+    },
+    "maxguard": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "maxhailstorm": {
+      "type": "ice",
+      "damageClass": "physical"
+    },
+    "maxknuckle": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "maxlightning": {
+      "type": "electric",
+      "damageClass": "physical"
+    },
+    "maxmindstorm": {
+      "type": "psychic",
+      "damageClass": "physical"
+    },
+    "maxooze": {
+      "type": "poison",
+      "damageClass": "physical"
+    },
+    "maxovergrowth": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "maxphantasm": {
+      "type": "ghost",
+      "damageClass": "physical"
+    },
+    "maxquake": {
+      "type": "ground",
+      "damageClass": "physical"
+    },
+    "maxrockfall": {
+      "type": "rock",
+      "damageClass": "physical"
+    },
+    "maxstarfall": {
+      "type": "fairy",
+      "damageClass": "physical"
+    },
+    "maxsteelspike": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "maxstrike": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "maxwyrmwind": {
+      "type": "dragon",
+      "damageClass": "physical"
+    },
+    "meanlook": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "meditate": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "mefirst": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "megadrain": {
+      "type": "grass",
+      "damageClass": "special"
+    },
+    "megahorn": {
+      "type": "bug",
+      "damageClass": "physical"
+    },
+    "megakick": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "megapunch": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "memento": {
+      "type": "dark",
+      "damageClass": "status"
+    },
+    "menacingmoonrazemaelstrom": {
+      "type": "ghost",
+      "damageClass": "special"
+    },
+    "metalburst": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "metalclaw": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "metalsound": {
+      "type": "steel",
+      "damageClass": "status"
+    },
+    "meteorassault": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "meteorbeam": {
+      "type": "rock",
+      "damageClass": "special"
+    },
+    "meteormash": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "metronome": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "mightycleave": {
+      "type": "rock",
+      "damageClass": "physical"
+    },
+    "milkdrink": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "mimic": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "mindblown": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "mindreader": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "minimize": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "miracleeye": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "mirrorcoat": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "mirrormove": {
+      "type": "flying",
+      "damageClass": "status"
+    },
+    "mirrorshot": {
+      "type": "steel",
+      "damageClass": "special"
+    },
+    "mist": {
+      "type": "ice",
+      "damageClass": "status"
+    },
+    "mistball": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "mistyexplosion": {
+      "type": "fairy",
+      "damageClass": "special"
+    },
+    "mistyterrain": {
+      "type": "fairy",
+      "damageClass": "status"
+    },
+    "moonblast": {
+      "type": "fairy",
+      "damageClass": "special"
+    },
+    "moongeistbeam": {
+      "type": "ghost",
+      "damageClass": "special"
+    },
+    "moonlight": {
+      "type": "fairy",
+      "damageClass": "status"
+    },
+    "morningsun": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "mortalspin": {
+      "type": "poison",
+      "damageClass": "physical"
+    },
+    "mountaingale": {
+      "type": "ice",
+      "damageClass": "physical"
+    },
+    "mudbomb": {
+      "type": "ground",
+      "damageClass": "special"
+    },
+    "muddywater": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "mudshot": {
+      "type": "ground",
+      "damageClass": "special"
+    },
+    "mudslap": {
+      "type": "ground",
+      "damageClass": "special"
+    },
+    "mudsport": {
+      "type": "ground",
+      "damageClass": "status"
+    },
+    "multiattack": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "mysticalfire": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "mysticalpower": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "nastyplot": {
+      "type": "dark",
+      "damageClass": "status"
+    },
+    "naturalgift": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "naturepower": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "naturesmadness": {
+      "type": "fairy",
+      "damageClass": "special"
+    },
+    "needlearm": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "neverendingnightmarephysical": {
+      "type": "ghost",
+      "damageClass": "physical"
+    },
+    "neverendingnightmarespecial": {
+      "type": "ghost",
+      "damageClass": "special"
+    },
+    "nightdaze": {
+      "type": "dark",
+      "damageClass": "special"
+    },
+    "nightmare": {
+      "type": "ghost",
+      "damageClass": "status"
+    },
+    "nightshade": {
+      "type": "ghost",
+      "damageClass": "special"
+    },
+    "nightslash": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "nobleroar": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "noretreat": {
+      "type": "fighting",
+      "damageClass": "status"
+    },
+    "noxioustorque": {
+      "type": "poison",
+      "damageClass": "physical"
+    },
+    "nuzzle": {
+      "type": "electric",
+      "damageClass": "physical"
+    },
+    "oblivionwing": {
+      "type": "flying",
+      "damageClass": "special"
+    },
+    "obstruct": {
+      "type": "dark",
+      "damageClass": "status"
+    },
+    "oceanicoperetta": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "octazooka": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "octolock": {
+      "type": "fighting",
+      "damageClass": "status"
+    },
+    "odorsleuth": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "ominouswind": {
+      "type": "ghost",
+      "damageClass": "special"
+    },
+    "orderup": {
+      "type": "dragon",
+      "damageClass": "physical"
+    },
+    "originpulse": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "outrage": {
+      "type": "dragon",
+      "damageClass": "physical"
+    },
+    "overdrive": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "overheat": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "painsplit": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "paraboliccharge": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "partingshot": {
+      "type": "dark",
+      "damageClass": "status"
+    },
+    "payback": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "payday": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "peck": {
+      "type": "flying",
+      "damageClass": "physical"
+    },
+    "perishsong": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "petalblizzard": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "petaldance": {
+      "type": "grass",
+      "damageClass": "special"
+    },
+    "phantomforce": {
+      "type": "ghost",
+      "damageClass": "physical"
+    },
+    "photongeyser": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "pikapapow": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "pinmissile": {
+      "type": "bug",
+      "damageClass": "physical"
+    },
+    "plasmafists": {
+      "type": "electric",
+      "damageClass": "physical"
+    },
+    "playnice": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "playrough": {
+      "type": "fairy",
+      "damageClass": "physical"
+    },
+    "pluck": {
+      "type": "flying",
+      "damageClass": "physical"
+    },
+    "poisonfang": {
+      "type": "poison",
+      "damageClass": "physical"
+    },
+    "poisongas": {
+      "type": "poison",
+      "damageClass": "status"
+    },
+    "poisonjab": {
+      "type": "poison",
+      "damageClass": "physical"
+    },
+    "poisonpowder": {
+      "type": "poison",
+      "damageClass": "status"
+    },
+    "poisonsting": {
+      "type": "poison",
+      "damageClass": "physical"
+    },
+    "poisontail": {
+      "type": "poison",
+      "damageClass": "physical"
+    },
+    "pollenpuff": {
+      "type": "bug",
+      "damageClass": "special"
+    },
+    "poltergeist": {
+      "type": "ghost",
+      "damageClass": "physical"
+    },
+    "populationbomb": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "pounce": {
+      "type": "bug",
+      "damageClass": "physical"
+    },
+    "pound": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "powder": {
+      "type": "bug",
+      "damageClass": "status"
+    },
+    "powdersnow": {
+      "type": "ice",
+      "damageClass": "special"
+    },
+    "powergem": {
+      "type": "rock",
+      "damageClass": "special"
+    },
+    "powershift": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "powersplit": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "powerswap": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "powertrick": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "powertrip": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "poweruppunch": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "powerwhip": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "precipiceblades": {
+      "type": "ground",
+      "damageClass": "physical"
+    },
+    "present": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "prismaticlaser": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "protect": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "psybeam": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "psyblade": {
+      "type": "psychic",
+      "damageClass": "physical"
+    },
+    "psychic": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "psychicfangs": {
+      "type": "psychic",
+      "damageClass": "physical"
+    },
+    "psychicnoise": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "psychicterrain": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "psychoboost": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "psychocut": {
+      "type": "psychic",
+      "damageClass": "physical"
+    },
+    "psychoshift": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "psychup": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "psyshieldbash": {
+      "type": "psychic",
+      "damageClass": "physical"
+    },
+    "psyshock": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "psystrike": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "psywave": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "pulverizingpancake": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "punishment": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "purify": {
+      "type": "poison",
+      "damageClass": "status"
+    },
+    "pursuit": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "pyroball": {
+      "type": "fire",
+      "damageClass": "physical"
+    },
+    "quash": {
+      "type": "dark",
+      "damageClass": "status"
+    },
+    "quickattack": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "quickguard": {
+      "type": "fighting",
+      "damageClass": "status"
+    },
+    "quiverdance": {
+      "type": "bug",
+      "damageClass": "status"
+    },
+    "rage": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "ragefist": {
+      "type": "ghost",
+      "damageClass": "physical"
+    },
+    "ragepowder": {
+      "type": "bug",
+      "damageClass": "status"
+    },
+    "ragingbull": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "ragingfury": {
+      "type": "fire",
+      "damageClass": "physical"
+    },
+    "raindance": {
+      "type": "water",
+      "damageClass": "status"
+    },
+    "rapidspin": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "razorleaf": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "razorshell": {
+      "type": "water",
+      "damageClass": "physical"
+    },
+    "razorwind": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "recover": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "recycle": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "reflect": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "reflecttype": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "refresh": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "relicsong": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "rest": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "retaliate": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "return": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "revelationdance": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "revenge": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "reversal": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "revivalblessing": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "risingvoltage": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "roar": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "roaroftime": {
+      "type": "dragon",
+      "damageClass": "special"
+    },
+    "rockblast": {
+      "type": "rock",
+      "damageClass": "physical"
+    },
+    "rockclimb": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "rockpolish": {
+      "type": "rock",
+      "damageClass": "status"
+    },
+    "rockslide": {
+      "type": "rock",
+      "damageClass": "physical"
+    },
+    "rocksmash": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "rockthrow": {
+      "type": "rock",
+      "damageClass": "physical"
+    },
+    "rocktomb": {
+      "type": "rock",
+      "damageClass": "physical"
+    },
+    "rockwrecker": {
+      "type": "rock",
+      "damageClass": "physical"
+    },
+    "roleplay": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "rollingkick": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "rollout": {
+      "type": "rock",
+      "damageClass": "physical"
+    },
+    "roost": {
+      "type": "flying",
+      "damageClass": "status"
+    },
+    "rototiller": {
+      "type": "ground",
+      "damageClass": "status"
+    },
+    "round": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "ruination": {
+      "type": "dark",
+      "damageClass": "special"
+    },
+    "sacredfire": {
+      "type": "fire",
+      "damageClass": "physical"
+    },
+    "sacredsword": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "safeguard": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "saltcure": {
+      "type": "rock",
+      "damageClass": "physical"
+    },
+    "sandattack": {
+      "type": "ground",
+      "damageClass": "status"
+    },
+    "sandsearstorm": {
+      "type": "ground",
+      "damageClass": "special"
+    },
+    "sandstorm": {
+      "type": "rock",
+      "damageClass": "status"
+    },
+    "sandtomb": {
+      "type": "ground",
+      "damageClass": "physical"
+    },
+    "sappyseed": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "savagespinoutphysical": {
+      "type": "bug",
+      "damageClass": "physical"
+    },
+    "savagespinoutspecial": {
+      "type": "bug",
+      "damageClass": "special"
+    },
+    "scald": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "scaleshot": {
+      "type": "dragon",
+      "damageClass": "physical"
+    },
+    "scaryface": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "scorchingsands": {
+      "type": "ground",
+      "damageClass": "special"
+    },
+    "scratch": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "screech": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "searingshot": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "searingsunrazesmash": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "secretpower": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "secretsword": {
+      "type": "fighting",
+      "damageClass": "special"
+    },
+    "seedbomb": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "seedflare": {
+      "type": "grass",
+      "damageClass": "special"
+    },
+    "seismictoss": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "selfdestruct": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "shadowball": {
+      "type": "ghost",
+      "damageClass": "special"
+    },
+    "shadowbone": {
+      "type": "ghost",
+      "damageClass": "physical"
+    },
+    "shadowclaw": {
+      "type": "ghost",
+      "damageClass": "physical"
+    },
+    "shadowforce": {
+      "type": "ghost",
+      "damageClass": "physical"
+    },
+    "shadowpunch": {
+      "type": "ghost",
+      "damageClass": "physical"
+    },
+    "shadowsneak": {
+      "type": "ghost",
+      "damageClass": "physical"
+    },
+    "sharpen": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "shatteredpsychephysical": {
+      "type": "psychic",
+      "damageClass": "physical"
+    },
+    "shatteredpsychespecial": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "shedtail": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "sheercold": {
+      "type": "ice",
+      "damageClass": "special"
+    },
+    "shellsidearm": {
+      "type": "poison",
+      "damageClass": "special"
+    },
+    "shellsmash": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "shelltrap": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "shelter": {
+      "type": "steel",
+      "damageClass": "status"
+    },
+    "shiftgear": {
+      "type": "steel",
+      "damageClass": "status"
+    },
+    "shockwave": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "shoreup": {
+      "type": "ground",
+      "damageClass": "status"
+    },
+    "signalbeam": {
+      "type": "bug",
+      "damageClass": "special"
+    },
+    "silktrap": {
+      "type": "bug",
+      "damageClass": "status"
+    },
+    "silverwind": {
+      "type": "bug",
+      "damageClass": "special"
+    },
+    "simplebeam": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "sing": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "sinisterarrowraid": {
+      "type": "ghost",
+      "damageClass": "physical"
+    },
+    "sizzlyslide": {
+      "type": "fire",
+      "damageClass": "physical"
+    },
+    "sketch": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "skillswap": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "skittersmack": {
+      "type": "bug",
+      "damageClass": "physical"
+    },
+    "skullbash": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "skyattack": {
+      "type": "flying",
+      "damageClass": "physical"
+    },
+    "skydrop": {
+      "type": "flying",
+      "damageClass": "physical"
+    },
+    "skyuppercut": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "slackoff": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "slam": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "slash": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "sleeppowder": {
+      "type": "grass",
+      "damageClass": "status"
+    },
+    "sleeptalk": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "sludge": {
+      "type": "poison",
+      "damageClass": "special"
+    },
+    "sludgebomb": {
+      "type": "poison",
+      "damageClass": "special"
+    },
+    "sludgewave": {
+      "type": "poison",
+      "damageClass": "special"
+    },
+    "smackdown": {
+      "type": "rock",
+      "damageClass": "physical"
+    },
+    "smartstrike": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "smellingsalts": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "smog": {
+      "type": "poison",
+      "damageClass": "special"
+    },
+    "smokescreen": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "snaptrap": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "snarl": {
+      "type": "dark",
+      "damageClass": "special"
+    },
+    "snatch": {
+      "type": "dark",
+      "damageClass": "status"
+    },
+    "snipeshot": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "snore": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "snowscape": {
+      "type": "ice",
+      "damageClass": "status"
+    },
+    "soak": {
+      "type": "water",
+      "damageClass": "status"
+    },
+    "softboiled": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "solarbeam": {
+      "type": "grass",
+      "damageClass": "special"
+    },
+    "solarblade": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "sonicboom": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "soulstealing7starstrike": {
+      "type": "ghost",
+      "damageClass": "physical"
+    },
+    "spacialrend": {
+      "type": "dragon",
+      "damageClass": "special"
+    },
+    "spark": {
+      "type": "electric",
+      "damageClass": "physical"
+    },
+    "sparklingaria": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "sparklyswirl": {
+      "type": "fairy",
+      "damageClass": "special"
+    },
+    "spectralthief": {
+      "type": "ghost",
+      "damageClass": "physical"
+    },
+    "speedswap": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "spicyextract": {
+      "type": "grass",
+      "damageClass": "status"
+    },
+    "spiderweb": {
+      "type": "bug",
+      "damageClass": "status"
+    },
+    "spikecannon": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "spikes": {
+      "type": "ground",
+      "damageClass": "status"
+    },
+    "spikyshield": {
+      "type": "grass",
+      "damageClass": "status"
+    },
+    "spinout": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "spiritbreak": {
+      "type": "fairy",
+      "damageClass": "physical"
+    },
+    "spiritshackle": {
+      "type": "ghost",
+      "damageClass": "physical"
+    },
+    "spite": {
+      "type": "ghost",
+      "damageClass": "status"
+    },
+    "spitup": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "splash": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "splinteredstormshards": {
+      "type": "rock",
+      "damageClass": "physical"
+    },
+    "splishysplash": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "spore": {
+      "type": "grass",
+      "damageClass": "status"
+    },
+    "spotlight": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "springtidestorm": {
+      "type": "fairy",
+      "damageClass": "special"
+    },
+    "stealthrock": {
+      "type": "rock",
+      "damageClass": "status"
+    },
+    "steameruption": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "steamroller": {
+      "type": "bug",
+      "damageClass": "physical"
+    },
+    "steelbeam": {
+      "type": "steel",
+      "damageClass": "special"
+    },
+    "steelroller": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "steelwing": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "stickyweb": {
+      "type": "bug",
+      "damageClass": "status"
+    },
+    "stockpile": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "stokedsparksurfer": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "stomp": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "stompingtantrum": {
+      "type": "ground",
+      "damageClass": "physical"
+    },
+    "stoneaxe": {
+      "type": "rock",
+      "damageClass": "physical"
+    },
+    "stoneedge": {
+      "type": "rock",
+      "damageClass": "physical"
+    },
+    "storedpower": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "stormthrow": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "strangesteam": {
+      "type": "fairy",
+      "damageClass": "special"
+    },
+    "strength": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "strengthsap": {
+      "type": "grass",
+      "damageClass": "status"
+    },
+    "stringshot": {
+      "type": "bug",
+      "damageClass": "status"
+    },
+    "struggle": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "strugglebug": {
+      "type": "bug",
+      "damageClass": "special"
+    },
+    "stuffcheeks": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "stunspore": {
+      "type": "grass",
+      "damageClass": "status"
+    },
+    "submission": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "substitute": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "subzeroslammerphysical": {
+      "type": "ice",
+      "damageClass": "physical"
+    },
+    "subzeroslammerspecial": {
+      "type": "ice",
+      "damageClass": "special"
+    },
+    "suckerpunch": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "sunnyday": {
+      "type": "fire",
+      "damageClass": "status"
+    },
+    "sunsteelstrike": {
+      "type": "steel",
+      "damageClass": "physical"
+    },
+    "supercellslam": {
+      "type": "electric",
+      "damageClass": "physical"
+    },
+    "superfang": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "superpower": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "supersonic": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "supersonicskystrikephysical": {
+      "type": "flying",
+      "damageClass": "physical"
+    },
+    "supersonicskystrikespecial": {
+      "type": "flying",
+      "damageClass": "special"
+    },
+    "surf": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "surgingstrikes": {
+      "type": "water",
+      "damageClass": "physical"
+    },
+    "swagger": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "swallow": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "sweetkiss": {
+      "type": "fairy",
+      "damageClass": "status"
+    },
+    "sweetscent": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "swift": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "switcheroo": {
+      "type": "dark",
+      "damageClass": "status"
+    },
+    "swordsdance": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "synchronoise": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "synthesis": {
+      "type": "grass",
+      "damageClass": "status"
+    },
+    "syrupbomb": {
+      "type": "grass",
+      "damageClass": "special"
+    },
+    "tachyoncutter": {
+      "type": "steel",
+      "damageClass": "special"
+    },
+    "tackle": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "tailglow": {
+      "type": "bug",
+      "damageClass": "status"
+    },
+    "tailslap": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "tailwhip": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "tailwind": {
+      "type": "flying",
+      "damageClass": "status"
+    },
+    "takedown": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "takeheart": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "tarshot": {
+      "type": "rock",
+      "damageClass": "status"
+    },
+    "taunt": {
+      "type": "dark",
+      "damageClass": "status"
+    },
+    "tearfullook": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "teatime": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "technoblast": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "tectonicragephysical": {
+      "type": "ground",
+      "damageClass": "physical"
+    },
+    "tectonicragespecial": {
+      "type": "ground",
+      "damageClass": "special"
+    },
+    "teeterdance": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "telekinesis": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "teleport": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "temperflare": {
+      "type": "fire",
+      "damageClass": "physical"
+    },
+    "terablast": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "terastarstorm": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "terrainpulse": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "thief": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "thousandarrows": {
+      "type": "ground",
+      "damageClass": "physical"
+    },
+    "thousandwaves": {
+      "type": "ground",
+      "damageClass": "physical"
+    },
+    "thrash": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "throatchop": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "thunder": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "thunderbolt": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "thundercage": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "thunderclap": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "thunderfang": {
+      "type": "electric",
+      "damageClass": "physical"
+    },
+    "thunderouskick": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "thunderpunch": {
+      "type": "electric",
+      "damageClass": "physical"
+    },
+    "thundershock": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "thunderwave": {
+      "type": "electric",
+      "damageClass": "status"
+    },
+    "tickle": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "tidyup": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "topsyturvy": {
+      "type": "dark",
+      "damageClass": "status"
+    },
+    "torchsong": {
+      "type": "fire",
+      "damageClass": "special"
+    },
+    "torment": {
+      "type": "dark",
+      "damageClass": "status"
+    },
+    "toxic": {
+      "type": "poison",
+      "damageClass": "status"
+    },
+    "toxicspikes": {
+      "type": "poison",
+      "damageClass": "status"
+    },
+    "toxicthread": {
+      "type": "poison",
+      "damageClass": "status"
+    },
+    "trailblaze": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "transform": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "triattack": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "trick": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "trickortreat": {
+      "type": "ghost",
+      "damageClass": "status"
+    },
+    "trickroom": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "triplearrows": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "tripleaxel": {
+      "type": "ice",
+      "damageClass": "physical"
+    },
+    "tripledive": {
+      "type": "water",
+      "damageClass": "physical"
+    },
+    "triplekick": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "tropkick": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "trumpcard": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "twinbeam": {
+      "type": "psychic",
+      "damageClass": "special"
+    },
+    "twineedle": {
+      "type": "bug",
+      "damageClass": "physical"
+    },
+    "twinkletacklephysical": {
+      "type": "fairy",
+      "damageClass": "physical"
+    },
+    "twinkletacklespecial": {
+      "type": "fairy",
+      "damageClass": "special"
+    },
+    "twister": {
+      "type": "dragon",
+      "damageClass": "special"
+    },
+    "upperhand": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "uproar": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "uturn": {
+      "type": "bug",
+      "damageClass": "physical"
+    },
+    "vacuumwave": {
+      "type": "fighting",
+      "damageClass": "special"
+    },
+    "vcreate": {
+      "type": "fire",
+      "damageClass": "physical"
+    },
+    "veeveevolley": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "venomdrench": {
+      "type": "poison",
+      "damageClass": "status"
+    },
+    "venoshock": {
+      "type": "poison",
+      "damageClass": "special"
+    },
+    "vicegrip": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "victorydance": {
+      "type": "fighting",
+      "damageClass": "status"
+    },
+    "vinewhip": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "vitalthrow": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "voltswitch": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "volttackle": {
+      "type": "electric",
+      "damageClass": "physical"
+    },
+    "wakeupslap": {
+      "type": "fighting",
+      "damageClass": "physical"
+    },
+    "waterfall": {
+      "type": "water",
+      "damageClass": "physical"
+    },
+    "watergun": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "waterpledge": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "waterpulse": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "watershuriken": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "watersport": {
+      "type": "water",
+      "damageClass": "status"
+    },
+    "waterspout": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "wavecrash": {
+      "type": "water",
+      "damageClass": "physical"
+    },
+    "weatherball": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "whirlpool": {
+      "type": "water",
+      "damageClass": "special"
+    },
+    "whirlwind": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "wickedblow": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "wickedtorque": {
+      "type": "dark",
+      "damageClass": "physical"
+    },
+    "wideguard": {
+      "type": "rock",
+      "damageClass": "status"
+    },
+    "wildboltstorm": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "wildcharge": {
+      "type": "electric",
+      "damageClass": "physical"
+    },
+    "willowisp": {
+      "type": "fire",
+      "damageClass": "status"
+    },
+    "wingattack": {
+      "type": "flying",
+      "damageClass": "physical"
+    },
+    "wish": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "withdraw": {
+      "type": "water",
+      "damageClass": "status"
+    },
+    "wonderroom": {
+      "type": "psychic",
+      "damageClass": "status"
+    },
+    "woodhammer": {
+      "type": "grass",
+      "damageClass": "physical"
+    },
+    "workup": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "worryseed": {
+      "type": "grass",
+      "damageClass": "status"
+    },
+    "wrap": {
+      "type": "normal",
+      "damageClass": "physical"
+    },
+    "wringout": {
+      "type": "normal",
+      "damageClass": "special"
+    },
+    "xscissor": {
+      "type": "bug",
+      "damageClass": "physical"
+    },
+    "yawn": {
+      "type": "normal",
+      "damageClass": "status"
+    },
+    "zapcannon": {
+      "type": "electric",
+      "damageClass": "special"
+    },
+    "zenheadbutt": {
+      "type": "psychic",
+      "damageClass": "physical"
+    },
+    "zingzap": {
+      "type": "electric",
+      "damageClass": "physical"
+    },
+    "zippyzap": {
+      "type": "electric",
+      "damageClass": "physical"
+    }
+  }
+}

@@ -3,6 +3,7 @@ import path from "node:path";
 import formatRegistryData from "@/data/environment/formatRegistry.json";
 import indexData from "@/data/environment/index.json";
 import localizationData from "@/data/environment/localization/ja.json";
+import moveMetadataData from "@/data/environment/moveMetadata.json";
 import pokemonData from "@/data/pokemon.json";
 import { findLatestEnvironmentSnapshotReference } from "@/lib/environmentData";
 import {
@@ -23,11 +24,17 @@ import type {
   EnvironmentRankingCatalogDto,
   EnvironmentSelection
 } from "@/types/environmentUi";
+import { buildThreatEnvironmentDataset } from "@/lib/environmentThreatData";
+import type {
+  EnvironmentMoveMetadataRegistry,
+  ThreatEnvironmentCatalog
+} from "@/types/environmentThreat";
 
 const registry = formatRegistryData as EnvironmentFormatRegistry;
 const index = indexData as EnvironmentSnapshotIndex;
 const pokemon = pokemonData as PokemonEntry[];
 const localization = localizationData as EnvironmentLocalizationDictionary;
+const moveMetadata = moveMetadataData as EnvironmentMoveMetadataRegistry;
 const snapshotCache = new Map<string, EnvironmentSnapshot>();
 
 function assertSnapshotPath(relativePath: string): void {
@@ -136,4 +143,33 @@ export function getEnvironmentDetailExports(): EnvironmentDetailExport[] {
         : [];
     });
   });
+}
+
+export function getThreatEnvironmentCatalog(): ThreatEnvironmentCatalog {
+  const selectedReferences = registry.formats
+    .filter((format) => format.enabled)
+    .flatMap((format) => {
+      const preferred = findLatestEnvironmentSnapshotReference(index, {
+        sourceFormatId: format.sourceFormatId,
+        ratingCutoff: 1760
+      });
+      const fallback = findLatestEnvironmentSnapshotReference(index, {
+        sourceFormatId: format.sourceFormatId,
+        ratingCutoff: 0
+      });
+      const selected = preferred ?? fallback;
+      return selected ? [selected] : [];
+    });
+
+  return {
+    schemaVersion: 1,
+    datasets: selectedReferences.map((reference) =>
+      buildThreatEnvironmentDataset(
+        readEnvironmentSnapshot(reference),
+        pokemon,
+        localization,
+        moveMetadata
+      )
+    )
+  };
 }

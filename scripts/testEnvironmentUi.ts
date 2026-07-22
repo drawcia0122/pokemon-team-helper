@@ -1,7 +1,11 @@
 import { readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import localizationData from "@/data/environment/localization/ja.json";
-import { getEnvironmentDetailExports, getEnvironmentRankingCatalog } from "@/lib/environmentData.server";
+import {
+  getEnvironmentDetailExports,
+  getEnvironmentRankingCatalog,
+  getThreatEnvironmentCatalog
+} from "@/lib/environmentData.server";
 import { findEnvironmentRankingDataset } from "@/lib/environmentPresentation";
 import type { EnvironmentLocalizationDictionary } from "@/types/environmentLocalization";
 
@@ -10,8 +14,25 @@ function assert(condition: unknown, message: string): asserts condition {
 }
 
 const catalog = getEnvironmentRankingCatalog();
+const threatCatalog = getThreatEnvironmentCatalog();
 const localization = localizationData as EnvironmentLocalizationDictionary;
 assert(catalog.datasets.length === 2, "公開snapshotが2件ではありません");
+assert(
+  threatCatalog.datasets.length === 1 &&
+    threatCatalog.datasets[0].regulationId === "M-B" &&
+    threatCatalog.datasets[0].battleFormat === "single" &&
+    threatCatalog.datasets[0].ratingCutoff === 1760,
+  "要警戒診断用に最新のシングル・cutoff 1760を選択できません"
+);
+const threatCatalogJson = JSON.stringify(threatCatalog);
+assert(
+  Buffer.byteLength(threatCatalogJson) < 400_000 &&
+    !threatCatalogJson.includes("rawWeight") &&
+    !threatCatalogJson.includes('"name":"icebeam"') &&
+    threatCatalogJson.includes('"name":"ふぶき"') &&
+    threatCatalogJson.includes('"name":"ゆきふらし"'),
+  "要警戒診断DTOが大きすぎるか、日本語化・軽量化できていません"
+);
 assert(catalog.datasets.every((dataset) => dataset.ranking.length === 50), "ランキングがTOP50ではありません");
 assert(
   findEnvironmentRankingDataset(catalog.datasets, {
