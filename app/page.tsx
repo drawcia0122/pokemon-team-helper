@@ -5,6 +5,7 @@ import { ArticleImportPanel } from "@/components/ArticleImportPanel";
 import { SiteNavigation } from "@/components/navigation/SiteNavigation";
 import { AnalysisSummary, OffensiveCoveragePanel } from "@/components/team/AnalysisPanels";
 import { RecommendationPanel } from "@/components/team/RecommendationPanel";
+import { PokemonStatsPanel } from "@/components/team/PokemonStatsPanel";
 import { SeasonBar } from "@/components/team/SeasonBar";
 import { TeamDetails } from "@/components/team/TeamDetails";
 import { TeamInputPanel } from "@/components/team/TeamInputPanel";
@@ -280,6 +281,8 @@ export default function HomePage() {
           pokemonInputOptions={pokemonInputOptions}
           allTypes={allTypes}
         />
+
+        <PokemonStatsPanel team={team} />
 
         <AnalysisSummary
           summary={summary}

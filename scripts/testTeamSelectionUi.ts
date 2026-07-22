@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { resolveSelectedPokemonSlotId } from "@/lib/pokemonBaseStats";
 import {
   addTeamSlotToFirstEmpty,
   clearTeamSlotAtPosition,
@@ -70,10 +71,35 @@ assert(
   "既存localStorageの配列順を復元できません"
 );
 
+const selectionTeam: TeamSlot[] = [
+  { id: "slot-1", mode: "pokemon", pokemonSlug: "charizard" },
+  { id: "slot-3", mode: "pokemon", pokemonSlug: "rotom-wash" },
+  { id: "slot-5", mode: "pokemon", pokemonSlug: "garchomp" }
+];
+assert(
+  resolveSelectedPokemonSlotId(selectionTeam, "slot-3") === "slot-3",
+  "表示中のポケモン枠を維持できません"
+);
+assert(
+  resolveSelectedPokemonSlotId(
+    selectionTeam.filter((slot) => slot.id !== "slot-3"),
+    "slot-3"
+  ) === "slot-5",
+  "表示中の枠を削除した後に次の選択済み枠へ移動できません"
+);
+assert(
+  resolveSelectedPokemonSlotId([], "slot-3") === null,
+  "全枠空欄で種族値表示対象を解除できません"
+);
+
 const root = process.cwd();
 const pageSource = readFileSync(path.join(root, "app/page.tsx"), "utf8");
 const inputSource = readFileSync(
   path.join(root, "components/team/TeamInputPanel.tsx"),
+  "utf8"
+);
+const statsSource = readFileSync(
+  path.join(root, "components/team/PokemonStatsPanel.tsx"),
   "utf8"
 );
 assert(
@@ -99,5 +125,12 @@ assert(
     inputSource.includes("slotStatsTotal"),
   "カード操作の簡略化またはカード内種族値表示が未完了です"
 );
+assert(
+  pageSource.includes("<PokemonStatsPanel team={team} />") &&
+    statsSource.includes('aria-label="種族値を表示するポケモン"') &&
+    statsSource.includes("setPreferredSlotId(option.slotId)") &&
+    statsSource.includes("resolveSelectedPokemonSlotId"),
+  "種族値詳細パネルの枠切り替えまたは削除追従が不足しています"
+);
 
-console.log("[ok] 6枠固定表示・統合combobox・カード内種族値表示を検証しました");
+console.log("[ok] 6枠固定表示・統合combobox・カード内数値・レーダー切り替えを検証しました");

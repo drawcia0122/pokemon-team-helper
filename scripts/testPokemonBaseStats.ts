@@ -1,9 +1,12 @@
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import pokemonData from "@/data/pokemon.json";
 import {
   getPokemonBaseStatTotal,
+  getRadarPoint,
+  getRadarPolygonPoints,
   isPokemonBaseStats,
+  POKEMON_BASE_STAT_CHART_MAX,
   POKEMON_BASE_STAT_DEFINITIONS
 } from "@/lib/pokemonBaseStats";
 import type { PokemonEntry } from "@/types/pokemon";
@@ -88,6 +91,28 @@ assert(
     "HP,A,B,C,D,S",
   "カード用の種族値ラベルが不正です"
 );
+assert(
+  Math.max(
+    ...pokemon.flatMap((entry) =>
+      entry.baseStats ? Object.values(entry.baseStats) : []
+    )
+  ) === POKEMON_BASE_STAT_CHART_MAX,
+  "全ポケモン共通のレーダーチャート最大値が不正です"
+);
+const maximumPoint = getRadarPoint(0, POKEMON_BASE_STAT_CHART_MAX);
+const minimumPoint = getRadarPoint(0, 0);
+assert(
+  maximumPoint.x === 100 && maximumPoint.y === 22,
+  "最大値のレーダー座標が不正です"
+);
+assert(
+  minimumPoint.x === 100 && minimumPoint.y === 100,
+  "0のレーダー座標が不正です"
+);
+assert(
+  getRadarPolygonPoints([1, 2, 3, 4, 5, 6]).split(" ").length === 6,
+  "6項目のレーダーポリゴンを生成できません"
+);
 
 const root = process.cwd();
 const generatorSource = readFileSync(
@@ -96,6 +121,10 @@ const generatorSource = readFileSync(
 );
 const inputSource = readFileSync(
   path.join(root, "components/team/TeamInputPanel.tsx"),
+  "utf8"
+);
+const panelSource = readFileSync(
+  path.join(root, "components/team/PokemonStatsPanel.tsx"),
   "utf8"
 );
 const styleSource = readFileSync(
@@ -115,13 +144,20 @@ assert(
     inputSource.includes("slotStatsTotal") &&
     inputSource.includes("getPokemonBaseStatTotal") &&
     styleSource.includes("grid-template-columns: repeat(3,minmax(0,1fr))") &&
-    !styleSource.includes(".radarChart") &&
     !inputSource.includes("種族値を見る") &&
-    !inputSource.includes("種族値を表示中") &&
-    !existsSync(path.join(root, "components/team/PokemonStatsPanel.tsx")),
-  "カード内数値表示、フォールバック、またはレーダーUI削除が不足しています"
+    !inputSource.includes("種族値を表示中"),
+  "TASK019のカード内数値表示またはフォールバックを維持できません"
+);
+assert(
+  panelSource.includes('role="img"') &&
+    panelSource.includes('aria-label="種族値を表示するポケモン"') &&
+    panelSource.includes("POKEMON_BASE_STAT_CHART_MAX") &&
+    panelSource.includes("resolveSelectedPokemonSlotId") &&
+    !panelSource.includes("<dl") &&
+    styleSource.includes(".radarChart"),
+  "詳細パネルのレーダーチャートまたは6枠切り替えが不足しています"
 );
 
 console.log(
-  `[ok] 種族値 ${pokemon.length}件・通常/特殊フォーム・極端値・カード内表示を検証しました`
+  `[ok] 種族値 ${pokemon.length}件・カード内数値・最大255のレーダー表示を検証しました`
 );
