@@ -17,7 +17,8 @@ import {
   selectTeamForRestoreAction,
   type ArticleImportResult
 } from "@/lib/articleImport";
-import { getPokemonCandidateScores, getTypeCandidateScores } from "@/lib/scoring";
+import { getAdvisorSwapSimulation } from "@/lib/advisorSwapSimulator";
+import { getAdvisorTeamDiagnostics } from "@/lib/advisorTeamDiagnostics";
 import { getTeamAdvisorAnalysis } from "@/lib/teamAdvisor";
 import { findThreatEnvironmentDataset } from "@/lib/environmentThreatData";
 import { getTeamDiagnostics } from "@/lib/teamDiagnostics";
@@ -29,8 +30,6 @@ import {
   getSeasonOptions,
   resolveStoredSeasonId
 } from "@/lib/regulations";
-import type { CandidateSelection } from "@/lib/teamUi";
-import { addTeamSlotToFirstEmpty } from "@/lib/teamSlotLayout";
 import {
   ARTICLE_IMPORT_BACKUP_KEY,
   parseStoredTeam,
@@ -40,14 +39,13 @@ import {
   TEAM_STORAGE_KEY
 } from "@/lib/teamStorage";
 import { getAllTypes, summarizeTeam } from "@/lib/typeChart";
-import type { PokemonCandidateScore, TeamSlot, TypeCandidateScore } from "@/types/pokemon";
+import type { TeamSlot } from "@/types/pokemon";
 import type { ThreatEnvironmentCatalog } from "@/types/environmentThreat";
 import styles from "./page.module.css";
 
 export default function HomePage() {
   const [seasonId, setSeasonId] = useState(() => getLatestSeasonId());
   const [team, setTeam] = useState<TeamSlot[]>([]);
-  const [selection, setSelection] = useState<CandidateSelection>(null);
   const [articleImport, setArticleImport] = useState<ArticleImportResult>({ status: "idle" });
   const [importNotice, setImportNotice] = useState<string | null>(null);
   const [canRestorePreviousTeam, setCanRestorePreviousTeam] = useState(false);
@@ -110,10 +108,24 @@ export default function HomePage() {
       threatPokemon
     ]
   );
-  const typeCandidates = useMemo(() => getTypeCandidateScores(team), [team]);
-  const pokemonCandidates = useMemo(
-    () => getPokemonCandidateScores(team, availablePokemon),
-    [team, availablePokemon]
+  const advisorSwapSimulation = useMemo(
+    () =>
+      getAdvisorSwapSimulation({
+        team,
+        advisor,
+        availablePokemon,
+        environmentDataset: threatEnvironmentDataset
+      }),
+    [advisor, availablePokemon, team, threatEnvironmentDataset]
+  );
+  const advisorTeamDiagnostics = useMemo(
+    () =>
+      getAdvisorTeamDiagnostics({
+        team,
+        summary,
+        threats: threatPokemon
+      }),
+    [summary, team, threatPokemon]
   );
 
   useEffect(() => {
@@ -181,27 +193,6 @@ export default function HomePage() {
     );
     window.localStorage.setItem(TEAM_STORAGE_KEY, serializeTeam(team));
   }, [isRestored, seasonId, team]);
-
-  useEffect(() => {
-    const topType = typeCandidates[0];
-    if (topType) {
-      setSelection({ kind: "type", value: topType });
-    }
-  }, [seasonId, team, typeCandidates]);
-
-  function addTypeCandidateToTeam(candidate: TypeCandidateScore) {
-    setTeam((current) => addTeamSlotToFirstEmpty(current, {
-      mode: "type",
-      primaryType: candidate.type
-    }));
-  }
-
-  function addPokemonCandidateToTeam(candidate: PokemonCandidateScore) {
-    setTeam((current) => addTeamSlotToFirstEmpty(current, {
-      mode: "pokemon",
-      pokemonSlug: candidate.pokemon.slug
-    }));
-  }
 
   function removeImportArticleParameter() {
     const url = new URL(window.location.href);
@@ -357,13 +348,8 @@ export default function HomePage() {
         ) : null}
         <TeamAdvisorSection
           advisor={advisor}
-          typeCandidates={typeCandidates}
-          pokemonCandidates={pokemonCandidates}
-          selection={selection}
-          onSelect={setSelection}
-          onAddType={addTypeCandidateToTeam}
-          onAddPokemon={addPokemonCandidateToTeam}
-          canAdd={team.length < 6}
+          simulation={advisorSwapSimulation}
+          teamDiagnostics={advisorTeamDiagnostics}
           canAnalyze={summary.members.length >= 2}
         />
         {summary.members.length >= 2 ? (

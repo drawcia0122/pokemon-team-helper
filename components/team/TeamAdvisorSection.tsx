@@ -1,35 +1,28 @@
 import { PokemonVisual } from "@/components/pokemon/PokemonVisual";
 import type { ReactNode } from "react";
 import type {
-  TeamAdvisorAnalysis,
-  TeamAdvisorCandidate
-} from "@/lib/teamAdvisor";
-import { getTopRecommendations, type CandidateSelection } from "@/lib/teamUi";
+  AdvisorSwapPlan,
+  AdvisorSwapSimulation
+} from "@/lib/advisorSwapSimulator";
+import type {
+  AdvisorDiagnosticCategory,
+  AdvisorTeamDiagnostics
+} from "@/lib/advisorTeamDiagnostics";
+import type { TeamAdvisorAnalysis } from "@/lib/teamAdvisor";
 import { getTypeLabel } from "@/lib/typeChart";
-import type { PokemonCandidateScore, TypeCandidateScore } from "@/types/pokemon";
 import styles from "./TeamWorkspace.module.css";
 
 type TeamAdvisorSectionProps = {
   advisor: TeamAdvisorAnalysis;
-  typeCandidates: TypeCandidateScore[];
-  pokemonCandidates: PokemonCandidateScore[];
-  selection: CandidateSelection;
-  onSelect: (selection: Exclude<CandidateSelection, null>) => void;
-  onAddType: (candidate: TypeCandidateScore) => void;
-  onAddPokemon: (candidate: PokemonCandidateScore) => void;
-  canAdd: boolean;
+  simulation: AdvisorSwapSimulation;
+  teamDiagnostics: AdvisorTeamDiagnostics;
   canAnalyze: boolean;
 };
 
 export function TeamAdvisorSection({
   advisor,
-  typeCandidates,
-  pokemonCandidates,
-  selection,
-  onSelect,
-  onAddType,
-  onAddPokemon,
-  canAdd,
+  simulation,
+  teamDiagnostics,
   canAnalyze
 }: TeamAdvisorSectionProps) {
   return (
@@ -42,7 +35,7 @@ export function TeamAdvisorSection({
           <span className={styles.step}>STEP 4</span>
           <h2 id="team-advisor-heading">チームアドバイザー</h2>
           <p>
-            現在の課題、改善候補、追加前後の詳しい変化を一か所で確認できます。
+            現在の課題を確認し、追加・入れ替え後の変化を比べて改善案を検討できます。
           </p>
         </div>
       </div>
@@ -50,28 +43,17 @@ export function TeamAdvisorSection({
       <div className={styles.advisorSectionStack}>
         <AdvisorIssues advisor={advisor} canAnalyze={canAnalyze} />
         <AdvisorRecommendations
-          advisor={advisor}
-          pokemonCandidates={pokemonCandidates}
-          onSelect={onSelect}
-          onAddPokemon={onAddPokemon}
-          canAdd={canAdd}
+          simulation={simulation}
           canAnalyze={canAnalyze}
         />
-        <AdvisorDetails
-          advisor={advisor}
-          typeCandidates={typeCandidates}
-          pokemonCandidates={pokemonCandidates}
-          selection={selection}
-          onSelect={onSelect}
-          onAddType={onAddType}
-          onAddPokemon={onAddPokemon}
-          canAdd={canAdd}
+        <AdvisorTeamDiagnosticsPanel
+          diagnostics={teamDiagnostics}
           canAnalyze={canAnalyze}
         />
       </div>
 
       <p className={styles.advisorNote}>
-        タイプ相性・種族値・Pokemon Showdown環境統計を使った参考提案です。技の効果、持ち物、テラスタイプは考慮していません。
+        タイプ相性・種族値・Pokemon Showdown環境統計を使った参考シミュレーションです。技の効果、持ち物、テラスタイプは考慮していません。
       </p>
     </section>
   );
@@ -130,70 +112,55 @@ function AdvisorIssues({
 }
 
 function AdvisorRecommendations({
-  advisor,
-  pokemonCandidates,
-  onSelect,
-  onAddPokemon,
-  canAdd,
+  simulation,
   canAnalyze
 }: {
-  advisor: TeamAdvisorAnalysis;
-  pokemonCandidates: PokemonCandidateScore[];
-  onSelect: TeamAdvisorSectionProps["onSelect"];
-  onAddPokemon: TeamAdvisorSectionProps["onAddPokemon"];
-  canAdd: boolean;
+  simulation: AdvisorSwapSimulation;
   canAnalyze: boolean;
 }) {
-  const scoreBySlug = new Map(
-    pokemonCandidates.map((candidate) => [candidate.pokemon.slug, candidate])
-  );
-
   return (
     <section
       className={styles.advisorContentBlock}
       aria-labelledby="advisor-candidates-heading"
     >
       <AdvisorBlockHeading number={2} id="advisor-candidates-heading">
-        改善候補
+        改善候補と入れ替え案
       </AdvisorBlockHeading>
-      {advisor.candidates.length ? (
-        <ol className={styles.advisorCandidateGrid}>
-          {advisor.candidates.map((candidate) => (
-            <li key={candidate.pokemon.slug}>
-              <AdvisorRecommendationCard
-                candidate={candidate}
-                scoreCandidate={scoreBySlug.get(candidate.pokemon.slug)}
-                onSelect={onSelect}
-                onAddPokemon={onAddPokemon}
-                canAdd={canAdd}
-              />
-            </li>
-          ))}
-        </ol>
+      {simulation.plans.length ? (
+        <>
+          <ol className={styles.advisorCandidateGrid}>
+            {simulation.plans.map((plan) => (
+              <li key={plan.candidate.pokemon.speciesId}>
+                <AdvisorRecommendationCard plan={plan} />
+              </li>
+            ))}
+          </ol>
+          <p className={styles.advisorSimulationMeta}>
+            {simulation.evaluatedPatternCount}通りを比較し、要警戒TOP5を
+            {simulation.recomputedThreatAnalysisCount}回再抽出しました。
+          </p>
+        </>
       ) : (
         <p className={styles.advisorEmpty} role="status">
           {canAnalyze
-            ? "現在の条件では、優先して提案する改善候補はありません。"
-            : "課題を分析すると改善候補を表示します。"}
+            ? "明確に改善する入れ替え案は見つかりませんでした。"
+            : "2体以上入力すると追加・入れ替え案を比較します。"}
         </p>
       )}
     </section>
   );
 }
 
-function AdvisorRecommendationCard({
-  candidate,
-  scoreCandidate,
-  onSelect,
-  onAddPokemon,
-  canAdd
-}: {
-  candidate: TeamAdvisorCandidate;
-  scoreCandidate: PokemonCandidateScore | undefined;
-  onSelect: TeamAdvisorSectionProps["onSelect"];
-  onAddPokemon: TeamAdvisorSectionProps["onAddPokemon"];
-  canAdd: boolean;
-}) {
+function formatThreatDelta(plan: AdvisorSwapPlan): string {
+  if (plan.threatAverageDelta === null) return "環境データ待ち";
+  if (plan.threatAverageDelta === 0) return "±0";
+  return plan.threatAverageDelta > 0
+    ? `+${plan.threatAverageDelta}`
+    : `${plan.threatAverageDelta}`;
+}
+
+function AdvisorRecommendationCard({ plan }: { plan: AdvisorSwapPlan }) {
+  const candidate = plan.candidate;
   return (
     <article className={styles.advisorCandidateCard}>
       <div className={styles.advisorCandidateHeading}>
@@ -205,15 +172,12 @@ function AdvisorRecommendationCard({
           size="large"
         />
         <div className={styles.advisorCandidateIdentity}>
-          <span className={styles.advisorRatingLabel}>評価</span>
+          <span className={styles.advisorRatingLabel}>改善量</span>
           <span
-            className={styles.advisorStars}
-            aria-label={`おすすめ度 5段階中${candidate.rating}`}
+            className={styles.advisorImprovementScore}
+            aria-label={`総合改善量 ${plan.improvementScore}`}
           >
-            <span aria-hidden="true">
-              {"★".repeat(candidate.rating)}
-              {"☆".repeat(5 - candidate.rating)}
-            </span>
+            +{plan.improvementScore}
           </span>
           <strong>{candidate.pokemon.nameJa}</strong>
           <small>
@@ -221,284 +185,149 @@ function AdvisorRecommendationCard({
           </small>
         </div>
       </div>
-      <h4>改善理由</h4>
-      <ul className={styles.advisorReasons}>
-        {candidate.reasons.map((reason) => (
-          <li key={reason}>{reason}</li>
-        ))}
-      </ul>
-      {scoreCandidate ? (
-        <div className={styles.advisorCandidateActions}>
-          <button
-            type="button"
-            className={styles.advisorCompareAction}
-            onClick={() =>
-              onSelect({ kind: "pokemon", value: scoreCandidate })
-            }
-          >
-            追加前後を比較
-          </button>
-          <button
-            type="button"
-            className={styles.addCandidate}
-            disabled={!canAdd}
-            onClick={() => onAddPokemon(scoreCandidate)}
-          >
-            {canAdd ? "このポケモンを追加" : "6体登録済み"}
-          </button>
+
+      <div className={styles.advisorSwapSummary}>
+        <div>
+          <span>推奨する変更</span>
+          <strong>
+            {plan.action.kind === "add"
+              ? "空き枠へ追加"
+              : `${plan.action.removedLabel}を抜いて採用`}
+          </strong>
         </div>
-      ) : null}
+        <div>
+          <span>要警戒TOP5平均</span>
+          {plan.beforeThreatAverage !== null &&
+          plan.afterThreatAverage !== null ? (
+            <strong>
+              {plan.beforeThreatAverage} → {plan.afterThreatAverage}
+              <small
+                className={
+                  plan.threatAverageDelta !== null &&
+                  plan.threatAverageDelta <= 0
+                    ? styles.advisorDeltaGood
+                    : styles.advisorDeltaBad
+                }
+              >
+                （{formatThreatDelta(plan)}）
+              </small>
+            </strong>
+          ) : (
+            <strong>環境データの読み込み待ち</strong>
+          )}
+        </div>
+      </div>
+
+      <div className={styles.advisorChangeGrid}>
+        <AdvisorChangeList
+          title="改善点"
+          items={plan.improvements}
+          tone="improve"
+          empty="明確な改善点はありません。"
+        />
+        <AdvisorChangeList
+          title="注意点"
+          items={plan.cautions}
+          tone="caution"
+          empty="大きな注意点はありません。"
+        />
+      </div>
     </article>
   );
 }
 
-function AdvisorDetails({
-  advisor,
-  typeCandidates,
-  pokemonCandidates,
-  selection,
-  onSelect,
-  onAddType,
-  onAddPokemon,
-  canAdd,
-  canAnalyze
-}: TeamAdvisorSectionProps) {
-  const advisorSpeciesIds = new Set(
-    advisor.candidates.map((candidate) => candidate.pokemon.speciesId)
+function AdvisorChangeList({
+  title,
+  items,
+  tone,
+  empty
+}: {
+  title: string;
+  items: string[];
+  tone: "improve" | "caution";
+  empty: string;
+}) {
+  return (
+    <div
+      className={`${styles.advisorChangeList} ${
+        tone === "improve"
+          ? styles.advisorChangeImprove
+          : styles.advisorChangeCaution
+      }`}
+    >
+      <h4>{title}</h4>
+      {items.length ? (
+        <ul>
+          {items.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      ) : (
+        <p>{empty}</p>
+      )}
+    </div>
   );
-  const detailPokemonCandidates = pokemonCandidates.filter(
-    (candidate) => !advisorSpeciesIds.has(candidate.pokemon.speciesId)
-  );
-  const topPokemon = getTopRecommendations(detailPokemonCandidates);
-  const topTypes = getTopRecommendations(typeCandidates);
-  const remainingPokemon = detailPokemonCandidates.slice(3, 10);
+}
 
+function AdvisorTeamDiagnosticsPanel({
+  diagnostics,
+  canAnalyze
+}: {
+  diagnostics: AdvisorTeamDiagnostics;
+  canAnalyze: boolean;
+}) {
   return (
     <section
       className={styles.advisorContentBlock}
       aria-labelledby="advisor-details-heading"
     >
       <AdvisorBlockHeading number={3} id="advisor-details-heading">
-        詳細診断
+        チーム詳細診断
       </AdvisorBlockHeading>
       <p className={styles.advisorDetailsIntro}>
-        従来の補完スコアと、候補を追加した場合の改善点・注意点を確認できます。
+        現在のチームを防御・攻撃・素早さ・タイプ補完の4分野で確認します。
       </p>
-
       {!canAnalyze ? (
         <p className={styles.advisorEmpty} role="status">
-          2体以上入力すると補完スコアと追加前後の比較を表示します。
+          2体以上入力するとチーム全体の状態を表示します。
         </p>
       ) : (
-        <>
-          <div className={styles.typeRecommendations}>
-            <strong>補完しやすいタイプ</strong>
-            <div>
-              {topTypes.map((candidate) => (
-                <button
-                  type="button"
-                  aria-pressed={
-                    selection?.kind === "type" &&
-                    selection.value.type === candidate.type
-                  }
-                  key={candidate.type}
-                  onClick={() =>
-                    onSelect({ kind: "type", value: candidate })
-                  }
-                >
-                  {candidate.typeJa}
-                  <small>score {candidate.score}</small>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.recommendationLayout}>
-            <div>
-              <strong className={styles.detailCandidateLabel}>
-                補完スコア候補
-              </strong>
-              <p className={styles.detailCandidateNote}>
-                上の改善候補と同じspeciesは重複表示していません。
-              </p>
-              {topPokemon.length ? (
-                <div className={styles.topCandidates}>
-                  {topPokemon.map((candidate, index) => {
-                    const selected =
-                      selection?.kind === "pokemon" &&
-                      selection.value.pokemon.slug === candidate.pokemon.slug;
-                    return (
-                      <article
-                        className={`${styles.recommendationCard} ${selected ? styles.selectedCandidate : ""}`}
-                        key={candidate.pokemon.slug}
-                      >
-                        <button
-                          type="button"
-                          className={styles.candidateSelect}
-                          onClick={() =>
-                            onSelect({ kind: "pokemon", value: candidate })
-                          }
-                        >
-                          <span className={styles.rank}>#{index + 1}</span>
-                          <PokemonVisual
-                            appearance="plain"
-                            name={candidate.pokemon.nameJa}
-                            slug={candidate.pokemon.slug}
-                            pokemonId={candidate.pokemon.id}
-                            size="large"
-                          />
-                          <span className={styles.candidateIdentity}>
-                            <strong>{candidate.pokemon.nameJa}</strong>
-                            <small>
-                              {candidate.pokemon.types
-                                .map(getTypeLabel)
-                                .join(" / ")}
-                            </small>
-                          </span>
-                          <strong className={styles.score}>
-                            {candidate.score}
-                            <small>score</small>
-                          </strong>
-                        </button>
-                        <ul>
-                          {candidate.reasons.slice(0, 3).map((reason) => (
-                            <li key={reason}>{reason}</li>
-                          ))}
-                        </ul>
-                        <div className={styles.candidateSignals}>
-                          <span className={styles.improve}>
-                            改善 {candidate.delta.improvedTypes.length}
-                          </span>
-                          <span
-                            className={
-                              candidate.delta.worsenedTypes.length
-                                ? styles.worsen
-                                : styles.neutralSignal
-                            }
-                          >
-                            新たな弱点 {candidate.delta.worsenedTypes.length}
-                          </span>
-                          <span>
-                            攻撃範囲 +{candidate.delta.newSuperEffectiveTargets}
-                          </span>
-                          <span>使用可能</span>
-                        </div>
-                        <button
-                          type="button"
-                          className={styles.addCandidate}
-                          disabled={!canAdd}
-                          onClick={() => onAddPokemon(candidate)}
-                        >
-                          {canAdd ? "このポケモンを追加" : "6体登録済み"}
-                        </button>
-                      </article>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className={styles.advisorEmpty}>
-                  重複しない補完スコア候補はありません。
-                </p>
-              )}
-            </div>
-
-            <CandidateDifference
-              selection={selection}
-              onAddType={onAddType}
-              canAdd={canAdd}
-            />
-          </div>
-
-          {remainingPokemon.length ? (
-            <details className={styles.rankingDetails}>
-              <summary>4位以下と詳細スコアを見る</summary>
-              <div className={styles.compactRanking}>
-                {remainingPokemon.map((candidate, index) => (
-                  <button
-                    type="button"
-                    key={candidate.pokemon.slug}
-                    onClick={() =>
-                      onSelect({ kind: "pokemon", value: candidate })
-                    }
-                  >
-                    <span>{index + 4}位</span>
-                    <strong>{candidate.pokemon.nameJa}</strong>
-                    <small>
-                      {candidate.pokemon.types.map(getTypeLabel).join(" / ")}
-                    </small>
-                    <b>{candidate.score}</b>
-                  </button>
-                ))}
-              </div>
-            </details>
-          ) : null}
-        </>
+        <div className={styles.advisorDiagnosticsGrid}>
+          {diagnostics.categories.map((category) => (
+            <AdvisorDiagnosticCard key={category.id} category={category} />
+          ))}
+        </div>
       )}
     </section>
   );
 }
 
-function CandidateDifference({
-  selection,
-  onAddType,
-  canAdd
+function AdvisorDiagnosticCard({
+  category
 }: {
-  selection: CandidateSelection;
-  onAddType: (candidate: TypeCandidateScore) => void;
-  canAdd: boolean;
+  category: AdvisorDiagnosticCategory;
 }) {
-  if (!selection) {
-    return (
-      <aside className={styles.comparisonPanel}>
-        <strong>候補を選択してください</strong>
-        <p>改善と悪化をここで比較します。</p>
-      </aside>
-    );
-  }
-
-  const delta = selection.value.delta;
-  const label =
-    selection.kind === "type"
-      ? `${selection.value.typeJa}タイプ`
-      : selection.value.pokemon.nameJa;
-
   return (
-    <aside className={styles.comparisonPanel} aria-live="polite">
-      <span>追加前後の比較</span>
-      <h3>{label}</h3>
-      <div className={styles.deltaGrid}>
-        <div className={styles.improvementBox}>
-          <strong>改善</strong>
-          <p>改善するタイプ {delta.improvedTypes.length}</p>
-          <p>4倍弱点減少 {Math.max(0, delta.severeWeakReduction)}</p>
-          <p>耐性増加 {Math.max(0, delta.resistIncrease)}</p>
-          <p>攻撃範囲 +{delta.newSuperEffectiveTargets}</p>
-          <small>
-            {delta.improvedTypes.slice(0, 4).map(getTypeLabel).join("、") ||
-              "目立つ改善なし"}
-          </small>
-        </div>
-        <div className={styles.worseningBox}>
-          <strong>注意</strong>
-          <p>新たに重くなる {delta.worsenedTypes.length}タイプ</p>
-          <p>増える弱点枠 {Math.max(0, -delta.weakReduction)}</p>
-          <p>新しい4倍弱点 {delta.newSevereWeaknessCount}</p>
-          <small>
-            {delta.worsenedTypes.slice(0, 4).map(getTypeLabel).join("、") ||
-              "大きな悪化なし"}
-          </small>
-        </div>
-      </div>
-      {selection.kind === "type" ? (
-        <button
-          type="button"
-          className={styles.addCandidate}
-          disabled={!canAdd}
-          onClick={() => onAddType(selection.value)}
-        >
-          {canAdd ? "このタイプを追加" : "6体登録済み"}
-        </button>
-      ) : null}
-    </aside>
+    <article className={styles.advisorDiagnosticCard}>
+      <h4>{category.title}</h4>
+      <p>{category.summary}</p>
+      <dl>
+        {category.items.map((item) => (
+          <div
+            key={item.id}
+            className={
+              item.tone === "attention"
+                ? styles.advisorDiagnosticAttention
+                : item.tone === "positive"
+                  ? styles.advisorDiagnosticPositive
+                  : undefined
+            }
+          >
+            <dt>{item.label}</dt>
+            <dd>{item.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </article>
   );
 }

@@ -171,7 +171,7 @@
 .advisorContentBlock { min-width: 0; padding: clamp(15px,2vw,20px); border: 1px solid #cfddd3; border-radius: 14px; background: rgba(255,255,255,.94); }
 .advisorBlockHeading { display: flex; align-items: center; gap: 9px; margin: 0 0 14px; color: #214d34; font-size: 1rem; }
 .advisorBlockHeading > span { display: grid; width: 25px; height: 25px; flex: 0 0 25px; place-items: center; border-radius: 50%; background: #26754b; color: #fff; font-size: .68rem; }
-.advisorIssueList,.advisorCandidateGrid,.advisorReasons { margin: 0; padding: 0; list-style: none; }
+.advisorIssueList,.advisorCandidateGrid { margin: 0; padding: 0; list-style: none; }
 .advisorIssueList { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
 .advisorIssueList li { display: grid; min-width: 0; gap: 4px; padding: 13px 14px; border-left: 4px solid #d29b29; border-radius: 9px; background: #fff8e8; }
 .advisorIssueList strong { overflow-wrap: anywhere; color: #5d481b; font-size: .82rem; line-height: 1.45; }
@@ -185,17 +185,40 @@
 .advisorCandidateIdentity strong { grid-column: 1/-1; overflow-wrap: anywhere; color: #1d4930; font-size: .94rem; line-height: 1.4; }
 .advisorCandidateIdentity small { grid-column: 1/-1; color: #68776e; font-size: .68rem; line-height: 1.4; white-space: normal; }
 .advisorRatingLabel { color: #68766d; font-size: .62rem; font-weight: 850; }
-.advisorStars { color: #c78c16; font-size: .76rem; letter-spacing: .02em; }
-.advisorCandidateCard h4 { margin: 13px 0 6px; color: #405c49; font-size: .72rem; }
-.advisorReasons { display: grid; flex: 1; gap: 5px; }
-.advisorReasons li { position: relative; overflow-wrap: anywhere; padding-left: 11px; color: #52645a; font-size: .72rem; line-height: 1.55; }
-.advisorReasons li::before { position: absolute; top: 0; left: 0; color: #2b7b50; content: "•"; }
-.advisorCandidateActions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 13px; }
-.advisorCompareAction { min-height: 38px; padding: 7px 9px; border: 1px solid #9fbda9; border-radius: 8px; background: #fff; color: #286040; cursor: pointer; font-size: .7rem; font-weight: 850; }
+.advisorImprovementScore { justify-self: start; color: #187044; font-size: .88rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.advisorSwapSummary { display: grid; gap: 7px; margin-top: 13px; }
+.advisorSwapSummary > div { display: grid; min-width: 0; gap: 2px; padding: 9px 10px; border-radius: 8px; background: #edf6ef; }
+.advisorSwapSummary span { color: #63736a; font-size: .61rem; font-weight: 850; }
+.advisorSwapSummary strong { overflow-wrap: anywhere; color: #1f5034; font-size: .78rem; line-height: 1.45; }
+.advisorSwapSummary small { margin-left: 4px; font-size: .68rem; }
+.advisorDeltaGood { color: #167044; }
+.advisorDeltaBad { color: #a34f2f; }
+.advisorChangeGrid { display: grid; grid-template-columns: 1fr 1fr; flex: 1; gap: 8px; margin-top: 10px; }
+.advisorChangeList { min-width: 0; padding: 9px 10px; border-radius: 8px; }
+.advisorChangeImprove { background: #edf7f0; }
+.advisorChangeCaution { background: #fff7e8; }
+.advisorChangeList h4 { margin: 0 0 6px; color: #405c49; font-size: .7rem; }
+.advisorChangeList ul { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.advisorChangeList li { position: relative; overflow-wrap: anywhere; padding-left: 10px; color: #52645a; font-size: .66rem; line-height: 1.5; }
+.advisorChangeList li::before { position: absolute; top: 0; left: 0; content: "•"; }
+.advisorChangeImprove li::before { color: #25804e; }
+.advisorChangeCaution li::before { color: #b37714; }
+.advisorChangeList p { margin: 0; color: #68766e; font-size: .65rem; line-height: 1.5; }
+.advisorSimulationMeta { margin: 10px 2px 0; color: #728079; font-size: .63rem; line-height: 1.5; }
 .advisorEmpty { margin: 0; padding: 12px 13px; border-radius: 8px; background: #f3f7f4; color: #66736b; font-size: .76rem; line-height: 1.55; }
 .advisorDetailsIntro { max-width: 72ch; margin: -5px 0 14px; color: #64736a; font-size: .75rem; line-height: 1.6; }
-.detailCandidateLabel { display: block; margin-bottom: 2px; color: #315a40; font-size: .78rem; }
-.detailCandidateNote { margin: 0 0 9px; color: #718078; font-size: .65rem; line-height: 1.45; }
+.advisorDiagnosticsGrid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.advisorDiagnosticCard { min-width: 0; padding: 14px; border: 1px solid #d3e0d7; border-radius: 11px; background: #f9fcfa; }
+.advisorDiagnosticCard h4 { margin: 0 0 4px; color: #244f37; font-size: .86rem; }
+.advisorDiagnosticCard > p { min-height: 2.8em; margin: 0 0 10px; overflow-wrap: anywhere; color: #617168; font-size: .7rem; line-height: 1.5; }
+.advisorDiagnosticCard dl { display: grid; gap: 5px; margin: 0; }
+.advisorDiagnosticCard dl > div { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; align-items: start; padding: 6px 7px; border-radius: 6px; background: #f0f5f2; }
+.advisorDiagnosticCard dt { overflow-wrap: anywhere; color: #53655a; font-size: .66rem; line-height: 1.4; }
+.advisorDiagnosticCard dd { margin: 0; color: #334d3d; font-size: .68rem; font-weight: 900; line-height: 1.4; text-align: right; }
+.advisorDiagnosticCard .advisorDiagnosticAttention { background: #fff4dc; }
+.advisorDiagnosticCard .advisorDiagnosticAttention dd { color: #8a5a0e; }
+.advisorDiagnosticCard .advisorDiagnosticPositive { background: #e9f5ed; }
+.advisorDiagnosticCard .advisorDiagnosticPositive dd { color: #1b6d43; }
 .advisorNote { max-width: 90ch; margin: 12px 2px 0; color: #718078; font-size: .66rem; line-height: 1.5; }
 
 .offenseSection { background: #fbfdfc; }
@@ -211,46 +234,6 @@
 .typePills small { opacity: .75; }
 .typePills p { margin: 0; color: #64736a; font-size: .78rem; }
 .offenseNote { margin: 12px 0 0; color: #64736a; font-size: .76rem; line-height: 1.55; }
-
-.typeRecommendations { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 11px 13px; border-radius: 10px; background: #eff7f1; }
-.typeRecommendations > strong { flex: 0 0 auto; color: #315a40; font-size: .78rem; }
-.typeRecommendations > div { display: flex; flex-wrap: wrap; gap: 6px; }
-.typeRecommendations button { display: inline-flex; align-items: center; gap: 5px; min-height: 34px; padding: 6px 10px; border: 1px solid #b7d0bf; border-radius: 999px; background: #fff; color: #285d3d; cursor: pointer; font-weight: 850; }
-.typeRecommendations button[aria-pressed="true"] { border-color: #176f42; background: #176f42; color: #fff; }
-.typeRecommendations small { font-size: .6rem; opacity: .75; }
-.recommendationLayout { display: grid; grid-template-columns: minmax(0,1.45fr) minmax(270px,.55fr); gap: 14px; align-items: start; }
-.topCandidates { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
-.recommendationCard { display: flex; min-width: 0; flex-direction: column; padding: 12px; border: 1px solid #cbdcd0; border-radius: 12px; background: #fbfdfb; }
-.selectedCandidate { border-color: #248253; box-shadow: 0 0 0 3px rgba(36,130,83,.12); }
-.candidateSelect { display: grid; grid-template-columns: auto auto minmax(0,1fr) auto; align-items: center; gap: 7px; width: 100%; padding: 0; border: 0; background: transparent; color: inherit; cursor: pointer; text-align: left; }
-.rank { align-self: start; color: #a66b09; font-size: .68rem; font-weight: 900; }
-.candidateIdentity { display: grid; min-width: 0; gap: 2px; }
-.candidateIdentity strong { overflow-wrap: anywhere; color: #183c29; line-height: 1.3; }
-.candidateIdentity small { color: #66756c; font-size: .65rem; }
-.score { display: grid; justify-items: center; color: #176b42; font-size: 1.05rem; }
-.score small { color: #6d7971; font-size: .55rem; }
-.recommendationCard ul { flex: 1; margin: 10px 0; padding-left: 18px; color: #54665b; font-size: .7rem; line-height: 1.55; }
-.candidateSignals { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 9px; }
-.candidateSignals span { padding: 4px 6px; border-radius: 6px; background: #edf3ef; color: #52685b; font-size: .6rem; font-weight: 800; }
-.candidateSignals .improve { background: #e2f2e7; color: #236944; }
-.candidateSignals .worsen { background: #fff0d0; color: #7b560c; }
-.addCandidate { width: 100%; min-height: 38px; padding: 7px 9px; font-size: .72rem; }
-.comparisonPanel { min-width: 0; padding: 15px; border: 1px solid #c9d9ce; border-radius: 12px; background: #f5faf7; }
-.comparisonPanel > span { color: #237048; font-size: .68rem; font-weight: 900; letter-spacing: .08em; }
-.comparisonPanel h3 { margin: 4px 0 12px; color: #173f2a; }
-.comparisonPanel > p { color: #627269; font-size: .8rem; }
-.deltaGrid { display: grid; gap: 8px; margin-bottom: 10px; }
-.improvementBox,.worseningBox { padding: 10px; border-radius: 9px; }
-.improvementBox { background: #e6f4ea; color: #225f3d; }
-.worseningBox { background: #fff3d5; color: #75510b; }
-.deltaGrid strong { display: block; margin-bottom: 6px; }
-.deltaGrid p { margin: 2px 0; font-size: .72rem; }
-.deltaGrid small { display: block; margin-top: 6px; line-height: 1.45; }
-.rankingDetails,.detailPanel { margin-top: 14px; border: 1px solid #cbdad0; border-radius: 10px; background: #fbfdfb; }
-.rankingDetails summary,.detailPanel > summary { min-height: 44px; padding: 12px 14px; color: #315a40; cursor: pointer; font-weight: 850; }
-.compactRanking { display: grid; padding: 0 12px 12px; }
-.compactRanking button { display: grid; grid-template-columns: 44px minmax(120px,1fr) minmax(120px,1fr) 40px; gap: 8px; align-items: center; padding: 9px; border: 0; border-top: 1px solid #e0e9e3; background: transparent; color: #45594c; cursor: pointer; text-align: left; }
-.compactRanking small { color: #718078; }
 
 .detailsSection { background: #f9fbfa; }
 .detailPanel { margin-top: 8px; background: #fff; }
@@ -270,19 +253,18 @@
 .offenseDetailGrid > div { display: grid; padding: 8px; border-radius: 7px; background: #f1f6f3; }
 .offenseDetailGrid span { color: #68776e; font-size: .7rem; }
 
-.modeTabs button:focus-visible,.comboboxList button:focus-visible,.statsTabs button:focus-visible,.removeButton:focus-visible,.primaryButton:focus-visible,.secondaryButton:focus-visible,.textButton:focus-visible,.typeRecommendations button:focus-visible,.candidateSelect:focus-visible,.advisorCompareAction:focus-visible,.addCandidate:focus-visible,.compactRanking button:focus-visible,.inlineDetails summary:focus-visible,.rankingDetails summary:focus-visible,.detailPanel summary:focus-visible { outline: 3px solid rgba(22,115,72,.28); outline-offset: 2px; }
+.modeTabs button:focus-visible,.comboboxList button:focus-visible,.statsTabs button:focus-visible,.removeButton:focus-visible,.primaryButton:focus-visible,.secondaryButton:focus-visible,.textButton:focus-visible,.inlineDetails summary:focus-visible,.detailPanel summary:focus-visible { outline: 3px solid rgba(22,115,72,.28); outline-offset: 2px; }
 
 @media (max-width:1100px) {
   .seasonBar { grid-template-columns: 1fr 1fr; }
   .inlineDetails { grid-column: 1/-1; }
   .inlineDetails > div { left: 0; right: auto; }
-  .recommendationLayout { grid-template-columns: 1fr; }
 }
 @media (max-width:900px) {
   .teamGrid { grid-template-columns: repeat(2,minmax(0,1fr)); }
-  .topCandidates { grid-template-columns: 1fr; }
   .threatList { grid-template-columns: repeat(3,minmax(0,1fr)); }
   .advisorIssueList,.advisorCandidateGrid { grid-template-columns: 1fr; }
+  .advisorDiagnosticsGrid { grid-template-columns: 1fr; }
 }
 @media (max-width:640px) {
   .seasonBar { grid-template-columns: 1fr; gap: 10px; padding: 13px; }
@@ -349,18 +331,12 @@
   .advisorIssueList li { padding: 10px 11px; }
   .advisorCandidateCard { min-height: 0; padding: 12px; }
   .advisorCandidateHeading > span:first-child { width: 58px; height: 58px; }
-  .advisorCandidateActions { grid-template-columns: 1fr; }
+  .advisorChangeGrid { grid-template-columns: 1fr; }
+  .advisorDiagnosticCard { padding: 11px; }
   .offenseGrid > div { padding: 10px; }
   .offenseGrid h3 { margin-bottom: 6px; }
   .offenseGrid .typePills { gap: 4px; }
   .offenseGrid .typePills span { padding: 4px 6px; }
-  .typeRecommendations { align-items: flex-start; flex-direction: column; }
-  .typeRecommendations > div { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); width: 100%; }
-  .typeRecommendations button { justify-content: center; min-width: 0; padding-inline: 5px; }
-  .typeRecommendations small { display: none; }
-  .candidateSelect { grid-template-columns: auto auto minmax(0,1fr) auto; }
-  .compactRanking button { grid-template-columns: 36px minmax(0,1fr) 36px; }
-  .compactRanking small { display: none; }
   .memberDetail summary { align-items: flex-start; flex-direction: column; }
   .memberMatchups { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .offenseDetailGrid { grid-template-columns: repeat(2,minmax(0,1fr)); }

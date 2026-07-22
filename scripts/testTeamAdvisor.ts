@@ -352,19 +352,22 @@ assert(
   sectionSource.includes("STEP 4") &&
     sectionSource.includes("チームアドバイザー") &&
     sectionSource.includes("現在の課題") &&
-    sectionSource.includes("改善候補") &&
-    sectionSource.includes("詳細診断") &&
-    sectionSource.includes("改善理由") &&
-    sectionSource.includes("おすすめ度 5段階中") &&
+    sectionSource.includes("改善候補と入れ替え案") &&
+    sectionSource.includes("チーム詳細診断") &&
+    sectionSource.includes("要警戒TOP5平均") &&
+    sectionSource.includes("改善点") &&
+    sectionSource.includes("注意点") &&
     sectionSource.includes("function AdvisorIssues") &&
     sectionSource.includes("function AdvisorRecommendations") &&
-    sectionSource.includes("function AdvisorDetails") &&
+    sectionSource.includes("function AdvisorTeamDiagnosticsPanel") &&
     sectionSource.includes("function AdvisorRecommendationCard") &&
-    sectionSource.includes("candidate.reasons.map"),
-  "STEP 4統合Advisorの3ブロック・候補・理由・拡張構造が不足しています"
+    sectionSource.includes("function AdvisorDiagnosticCard"),
+  "STEP 4の課題・入れ替え案・4分野詳細診断が不足しています"
 );
 assert(
   pageSource.includes("getTeamAdvisorAnalysis") &&
+    pageSource.includes("getAdvisorSwapSimulation") &&
+    pageSource.includes("getAdvisorTeamDiagnostics") &&
     pageSource.includes("<TeamAdvisorSection") &&
     pageSource.indexOf("<TeamAdvisorSection") >
       pageSource.indexOf("<OffensiveCoveragePanel") &&
@@ -386,6 +389,8 @@ assert(
       ".advisorIssueList,.advisorCandidateGrid { grid-template-columns: minmax(0,1fr);"
     ) &&
     styleSource.includes(".advisorCandidateGrid > li { min-width: 0;") &&
+    styleSource.includes(".advisorDiagnosticsGrid") &&
+    styleSource.includes(".advisorChangeGrid") &&
     styleSource.includes("overflow-wrap: anywhere;") &&
     !styleSource.includes(".advisorCandidateGrid { display: flex;") &&
     !sectionSource.includes("ThreatPokemon") &&
@@ -394,14 +399,12 @@ assert(
   "Advisor候補のPC 3列・モバイル縦積み、長文折返し、総合評価削除が不十分です"
 );
 assert(
-  sectionSource.includes("advisorSpeciesIds") &&
-    sectionSource.includes(
-      "!advisorSpeciesIds.has(candidate.pokemon.speciesId)"
-    ) &&
-    sectionSource.includes("補完しやすいタイプ") &&
-    sectionSource.includes("追加前後の比較") &&
-    sectionSource.includes("4位以下と詳細スコアを見る"),
-  "従来STEP 4の詳細診断移行またはAdvisor候補との重複除外が不十分です"
+  !sectionSource.includes("補完スコア候補") &&
+    !sectionSource.includes("追加前後の比較") &&
+    !sectionSource.includes("4位以下と詳細スコアを見る") &&
+    !pageSource.includes("getPokemonCandidateScores") &&
+    !pageSource.includes("getTypeCandidateScores"),
+  "旧STEP 4の重複ランキングまたは根拠の薄い比較UIが残っています"
 );
 
 console.log(
