@@ -39,6 +39,13 @@ const allHtml = [indexHtml, buildsHtml, newsHtml, environmentHtml].join("\n");
 const normalNextConfig = createNextConfig(false);
 const pagesNextConfig = createNextConfig(true);
 
+assert(
+  indexHtml.includes("チームアドバイザー") &&
+    indexHtml.includes("現在の課題") &&
+    indexHtml.includes("改善候補"),
+  "GitHub Pages成果物へチームアドバイザーを出力できません"
+);
+
 for (const route of ["", "builds/", "news/", "environment/"]) {
   assert(
     allHtml.includes(`href="${basePath}/${route}"`),

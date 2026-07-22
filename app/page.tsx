@@ -8,6 +8,7 @@ import { RecommendationPanel } from "@/components/team/RecommendationPanel";
 import { PokemonStatsPanel } from "@/components/team/PokemonStatsPanel";
 import { SeasonBar } from "@/components/team/SeasonBar";
 import { TeamDetails } from "@/components/team/TeamDetails";
+import { TeamAdvisorPanel } from "@/components/team/TeamAdvisorPanel";
 import { TeamInputPanel } from "@/components/team/TeamInputPanel";
 import {
   mergeImportedPokemonOptions,
@@ -18,6 +19,7 @@ import {
   type ArticleImportResult
 } from "@/lib/articleImport";
 import { getPokemonCandidateScores, getTypeCandidateScores } from "@/lib/scoring";
+import { getTeamAdvisorAnalysis } from "@/lib/teamAdvisor";
 import { findThreatEnvironmentDataset } from "@/lib/environmentThreatData";
 import { getTeamDiagnostics } from "@/lib/teamDiagnostics";
 import { getThreatPokemonAnalysis } from "@/lib/teamThreats";
@@ -89,6 +91,25 @@ export default function HomePage() {
         threatEnvironmentDataset
       ),
     [availablePokemon, summary, team, threatEnvironmentDataset]
+  );
+  const advisor = useMemo(
+    () =>
+      getTeamAdvisorAnalysis({
+        team,
+        summary,
+        diagnostics,
+        threats: threatPokemon,
+        availablePokemon,
+        environmentDataset: threatEnvironmentDataset
+      }),
+    [
+      availablePokemon,
+      diagnostics,
+      summary,
+      team,
+      threatEnvironmentDataset,
+      threatPokemon
+    ]
   );
   const typeCandidates = useMemo(() => getTypeCandidateScores(team), [team]);
   const pokemonCandidates = useMemo(
@@ -332,6 +353,7 @@ export default function HomePage() {
           diagnostics={diagnostics}
           threatPokemon={threatPokemon}
         />
+        <TeamAdvisorPanel advisor={advisor} />
         {summary.members.length >= 2 ? (
           <>
             <OffensiveCoveragePanel summary={summary} />
