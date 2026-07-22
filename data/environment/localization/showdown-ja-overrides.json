@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "locale": "ja",
+  "note": "PokéAPIの固定commitに未収録のPokémon Champions項目とShowdownのsentinelだけを明示管理する。推測変換には使用しない。",
+  "categories": {
+    "items": {
+      "barbaracite": "ガメノデスナイト",
+      "chandelurite": "シャンデラナイト",
+      "chesnaughtite": "ブリガロナイト",
+      "chimechite": "チリーンナイト",
+      "clefablite": "ピクシナイト",
+      "crabominite": "ケケンカニナイト",
+      "delphoxite": "マフォクシナイト",
+      "dragalgite": "ドラミドナイト",
+      "dragoninite": "カイリュナイト",
+      "drampanite": "ジジーロナイト",
+      "eelektrossite": "シビルドナイト",
+      "emboarite": "エンブオナイト",
+      "excadrite": "ドリュウズナイト",
+      "falinksite": "タイレーツナイト",
+      "feraligite": "オーダイルナイト",
+      "floettite": "フラエッテナイト",
+      "froslassite": "ユキメノコナイト",
+      "glimmoranite": "キラフロルナイト",
+      "golurkite": "ゴルーグナイト",
+      "greninjite": "ゲッコウガナイト",
+      "hawluchanite": "ルチャブルナイト",
+      "malamarite": "カラマネナイト",
+      "meganiumite": "メガニウムナイト",
+      "pyroarite": "カエンジシナイト",
+      "raichunitex": "ライチュウナイトＸ",
+      "raichunitey": "ライチュウナイトＹ",
+      "scolipite": "ペンドラナイト",
+      "scovillainite": "スコヴィラナイト",
+      "scraftinite": "ズルズキナイト",
+      "skarmorite": "エアームドナイト",
+      "staraptite": "ムクホークナイト",
+      "starminite": "スターミナイト",
+      "victreebelite": "ウツボットナイト"
+    },
+    "abilities": {
+      "eelevate": "うなぎのぼり",
+      "firemane": "ほのおのたてがみ",
+      "noability": "特性なし"
+    }
+  }
+}

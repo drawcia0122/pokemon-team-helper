@@ -46,8 +46,29 @@ Next.jsのbuild時にサーバー側で行い、全20MB前後の統計をclient 
 
 `/environment`はServer Componentのbuild時に最新snapshotを読み、ランキング
 TOP50だけをClient Componentへ渡します。詳細は`environment:export`が
-content hash別の軽量JSONへ分割し、クリックされた1体分だけを取得します。
+content hashと日本語辞書hash別の軽量JSONへ分割し、クリックされた1体分だけを取得します。
+snapshotまたは辞書が変わるとURLも変わり、古い表示名のcacheを再利用しません。
 snapshot本体、`rawWeight`、TOP10以降の分布はブラウザへ送信しません。
+
+### 日本語表示辞書
+
+技、持ち物、特性、性格はShowdownの内部IDを画面に直接表示せず、
+`data/environment/localization/ja.json`の静的辞書をServer側で適用します。
+
+- 生成元はPokéAPIリポジトリの固定commitにある日本語ゲーム名称CSVです。
+- PokéAPIのidentifierをShowdownと同じ小文字・英数字IDにする処理は生成時だけ行います。
+- 実行時は完全一致でのみ検索し、前方一致や推測変換は行いません。
+- PokéAPI固定commitに未収録のChampions追加項目は
+  `data/environment/localization/showdown-ja-overrides.json`で明示管理します。
+- 辞書にないIDは「未対応」と表示し、`environment-localization` warningを1回出力します。
+- 辞書内容はブラウザへ送らず、軽量detail JSONに日本語表示名だけを保存します。
+
+辞書の更新は、取得元commitとoverrideをレビューした上で次を実行します。
+
+```bash
+npm run environment:localization:generate
+npm run test:environment-localization
+```
 
 各snapshotは次を保持します。
 

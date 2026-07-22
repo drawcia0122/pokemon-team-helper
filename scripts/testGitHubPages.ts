@@ -96,11 +96,24 @@ const environmentDetailFiles = walkFiles(path.join(outDir, "environment-data")).
   (file) => file.endsWith(".json") && path.basename(file) !== "_manifest.json"
 );
 assert(environmentDetailFiles.length === 100, "環境詳細JSONが100件ではありません");
+let environmentDetailSource = "";
 for (const file of environmentDetailFiles) {
   const source = readFileSync(file, "utf8");
+  environmentDetailSource += source;
   assert(!source.includes("rawWeight"), `環境詳細JSONにrawWeightが混入しています: ${file}`);
   assert(statSync(file).size < 40_000, `環境詳細JSONが大きすぎます: ${file}`);
 }
+assert(
+  environmentDetailSource.includes('"name":"じしん"') &&
+    environmentDetailSource.includes('"name":"きあいのタスキ"') &&
+    environmentDetailSource.includes('"name":"さめはだ"') &&
+    environmentDetailSource.includes('"natureName":"ようき"') &&
+    !environmentDetailSource.includes('"name":"earthquake"') &&
+    !environmentDetailSource.includes('"name":"focussash"') &&
+    !environmentDetailSource.includes('"name":"roughskin"') &&
+    !environmentDetailSource.includes('"natureName":"Jolly"'),
+  "Pages用環境詳細を日本語化できません"
+);
 
 assert(
   normalNextConfig.output === undefined &&

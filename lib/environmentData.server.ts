@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import formatRegistryData from "@/data/environment/formatRegistry.json";
 import indexData from "@/data/environment/index.json";
+import localizationData from "@/data/environment/localization/ja.json";
 import pokemonData from "@/data/pokemon.json";
 import { findLatestEnvironmentSnapshotReference } from "@/lib/environmentData";
 import {
@@ -16,6 +17,7 @@ import type {
   EnvironmentSnapshotIndexEntry
 } from "@/types/environmentData";
 import type { PokemonEntry } from "@/types/pokemon";
+import type { EnvironmentLocalizationDictionary } from "@/types/environmentLocalization";
 import type {
   EnvironmentPokemonDetailDto,
   EnvironmentRankingCatalogDto,
@@ -25,6 +27,7 @@ import type {
 const registry = formatRegistryData as EnvironmentFormatRegistry;
 const index = indexData as EnvironmentSnapshotIndex;
 const pokemon = pokemonData as PokemonEntry[];
+const localization = localizationData as EnvironmentLocalizationDictionary;
 const snapshotCache = new Map<string, EnvironmentSnapshot>();
 
 function assertSnapshotPath(relativePath: string): void {
@@ -91,7 +94,11 @@ function defaultSelection(
 
 export function getEnvironmentRankingCatalog(): EnvironmentRankingCatalogDto {
   const datasets = availableReferences().map((reference) =>
-    buildEnvironmentRankingDataset(readEnvironmentSnapshot(reference), pokemon)
+    buildEnvironmentRankingDataset(
+      readEnvironmentSnapshot(reference),
+      pokemon,
+      localization.dictionaryVersion
+    )
   );
   return {
     source: "Pokemon Showdown",
@@ -109,9 +116,23 @@ export function getEnvironmentDetailExports(): EnvironmentDetailExport[] {
   return availableReferences().flatMap((reference) => {
     const snapshot = readEnvironmentSnapshot(reference);
     return snapshot.pokemon.slice(0, 50).flatMap((entry) => {
-      const detail = buildEnvironmentPokemonDetail(snapshot, entry.slug, pokemon);
+      const detail = buildEnvironmentPokemonDetail(
+        snapshot,
+        entry.slug,
+        pokemon,
+        localization
+      );
       return detail
-        ? [{ relativePath: environmentDetailRelativePath(snapshot, entry.slug), detail }]
+        ? [
+            {
+              relativePath: environmentDetailRelativePath(
+                snapshot,
+                entry.slug,
+                localization.dictionaryVersion
+              ),
+              detail
+            }
+          ]
         : [];
     });
   });

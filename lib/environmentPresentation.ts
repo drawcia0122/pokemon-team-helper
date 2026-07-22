@@ -1,6 +1,11 @@
 import type { EnvironmentSnapshot } from "@/types/environmentData";
 import { findEnvironmentPokemon } from "@/lib/environmentData";
+import { localizeEnvironmentValue } from "@/lib/environmentLocalization";
 import type { PokemonEntry } from "@/types/pokemon";
+import type {
+  EnvironmentLocalizationCategory,
+  EnvironmentLocalizationDictionary
+} from "@/types/environmentLocalization";
 import type {
   EnvironmentPokemonDetailDto,
   EnvironmentRankingDatasetDto,
@@ -16,21 +21,24 @@ function pokemonBySlug(pokemon: PokemonEntry[]): Map<string, PokemonEntry> {
 
 export function environmentDetailRelativePath(
   snapshot: EnvironmentSnapshot,
-  slug: string
+  slug: string,
+  localizationVersion: string
 ): string {
-  return `environment-data/${snapshot.contentHash.slice(0, 16)}/${slug}.json`;
+  return `environment-data/${snapshot.contentHash.slice(0, 16)}-${localizationVersion}/${slug}.json`;
 }
 
 export function environmentDetailFetchUrl(
   snapshot: EnvironmentSnapshot,
-  slug: string
+  slug: string,
+  localizationVersion: string
 ): string {
-  return `../${environmentDetailRelativePath(snapshot, slug)}`;
+  return `../${environmentDetailRelativePath(snapshot, slug, localizationVersion)}`;
 }
 
 export function buildEnvironmentRankingDataset(
   snapshot: EnvironmentSnapshot,
-  pokemon: PokemonEntry[]
+  pokemon: PokemonEntry[],
+  localizationVersion: string
 ): EnvironmentRankingDatasetDto {
   const lookup = pokemonBySlug(pokemon);
   const ranking = snapshot.pokemon.slice(0, RANKING_LIMIT).map((entry) => {
@@ -42,7 +50,7 @@ export function buildEnvironmentRankingDataset(
       name: definition.nameJa,
       pokemonId: definition.id,
       usageRate: entry.usage.rate,
-      detailUrl: environmentDetailFetchUrl(snapshot, entry.slug)
+      detailUrl: environmentDetailFetchUrl(snapshot, entry.slug, localizationVersion)
     };
   });
   return {
@@ -62,17 +70,21 @@ export function buildEnvironmentRankingDataset(
 export function buildEnvironmentPokemonDetail(
   snapshot: EnvironmentSnapshot,
   slug: string,
-  pokemon: PokemonEntry[]
+  pokemon: PokemonEntry[],
+  localization: EnvironmentLocalizationDictionary
 ): EnvironmentPokemonDetailDto | null {
   const source = findEnvironmentPokemon(snapshot, slug);
   if (!source) return null;
   const lookup = pokemonBySlug(pokemon);
   const definition = lookup.get(source.slug);
   if (!definition) return null;
-  const distributions = (values: typeof source.moves) =>
+  const distributions = (
+    category: EnvironmentLocalizationCategory,
+    values: typeof source.moves
+  ) =>
     values.slice(0, DETAIL_DISTRIBUTION_LIMIT).map((entry) => ({
       id: entry.id,
-      name: entry.sourceName,
+      name: localizeEnvironmentValue(localization, category, entry.id).name,
       rate: entry.share
     }));
   const relations = (values: typeof source.teammates) =>
@@ -93,12 +105,12 @@ export function buildEnvironmentPokemonDetail(
     pokemonId: definition.id,
     rank: source.usage.rank,
     usageRate: source.usage.rate,
-    moves: distributions(source.moves),
-    items: distributions(source.items),
-    abilities: distributions(source.abilities),
+    moves: distributions("moves", source.moves),
+    items: distributions("items", source.items),
+    abilities: distributions("abilities", source.abilities),
     statSpreads: source.statSpreads.slice(0, DETAIL_DISTRIBUTION_LIMIT).map((entry) => ({
       natureId: entry.natureId,
-      natureName: entry.natureSourceName,
+      natureName: localizeEnvironmentValue(localization, "natures", entry.natureId).name,
       investmentSystem: entry.investmentSystem,
       values: entry.values,
       rate: entry.share
