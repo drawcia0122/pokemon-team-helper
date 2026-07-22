@@ -8,6 +8,39 @@ export const TEAM_SPEED_THRESHOLDS = {
   slowMaximum: 69
 } as const;
 
+export const TRICK_ROOM_RECOMMENDATION_CONFIG = {
+  lowSpeedThreshold: TEAM_SPEED_THRESHOLDS.slowMaximum,
+  fullBonusUntil: 0,
+  reducedBonusUntil: 2,
+  noBonusFrom: 4,
+  lowSpeedBonusMultipliers: [1, 0.65, 0.3, 0.1, 0] as const,
+  maxSlowRoleRecommendations: 2,
+  maxSlowOutsideTrickRoomCategory: 3,
+  adoptedMoveMinimumShare: 0.1,
+  priorityMoveIds: [
+    "suckerpunch",
+    "extremespeed",
+    "bulletpunch",
+    "aquajet",
+    "machpunch",
+    "iceshard",
+    "shadowsneak"
+  ] as const
+} as const;
+
+export function getTrickRoomLowSpeedBonusMultiplier(
+  currentSlowCount: number
+): number {
+  const index = Math.max(
+    0,
+    Math.min(
+      Math.floor(currentSlowCount),
+      TRICK_ROOM_RECOMMENDATION_CONFIG.lowSpeedBonusMultipliers.length - 1
+    )
+  );
+  return TRICK_ROOM_RECOMMENDATION_CONFIG.lowSpeedBonusMultipliers[index];
+}
+
 export const TEAM_PROFILE_CONFIG: Record<
   TeamProfile,
   {

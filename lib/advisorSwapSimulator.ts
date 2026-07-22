@@ -35,10 +35,12 @@ import type {
 } from "@/types/pokemon";
 import {
   getProfileSpeedRoleCount,
+  getTrickRoomLowSpeedBonusMultiplier,
   isProfileSpeedAdvantage,
   PROFILE_SPEED_WEIGHTS,
   TEAM_PROFILE_CONFIG,
   TEAM_SPEED_THRESHOLDS,
+  TRICK_ROOM_RECOMMENDATION_CONFIG,
   type TeamProfile
 } from "@/lib/teamProfile";
 
@@ -130,6 +132,15 @@ export type AdvisorRecommendationRole =
   | "offensive"
   | "speed"
   | "type-coverage";
+
+export type AdvisorProfileRole =
+  | "trickRoomSetter"
+  | "slowAttacker"
+  | "midSpeedFlexible"
+  | "fastFallback"
+  | "priorityUser"
+  | "defensiveSupport"
+  | "typeCoverage";
 
 export const ADVISOR_CATEGORY_LABELS: Record<
   AdvisorRecommendationCategory,
@@ -241,6 +252,11 @@ export type AdvisorSwapPlanMetrics = {
   specialThreatCheckCount: number;
   popularMoveCoverageCount: number;
   profileSpeedAdvantageCount: number;
+  standardSpeedAdvantageCount: number;
+  priorityMoveShare: number;
+  priorityMoveName: string | null;
+  trickRoomMoveShare: number;
+  trickRoomMoveName: string | null;
   physicalWallImprovement: number;
   specialWallImprovement: number;
   physicalAttackerImprovement: number;
@@ -271,6 +287,7 @@ export type AdvisorSwapPlan = {
   categoryReasons: Record<AdvisorRecommendationCategory, string[]>;
   recommendationRoles: AdvisorRecommendationRole[];
   selectedOverallRole: AdvisorRecommendationRole | null;
+  profileRoles: AdvisorProfileRole[];
   improvements: string[];
   cautions: string[];
   lostRoles: string[];
@@ -311,6 +328,11 @@ type AdvisorCandidateEvidence = {
   specialThreatCheckCount: number;
   popularMoveCoverageCount: number;
   profileSpeedAdvantageCount: number;
+  standardSpeedAdvantageCount: number;
+  priorityMoveShare: number;
+  priorityMoveName: string | null;
+  trickRoomMoveShare: number;
+  trickRoomMoveName: string | null;
   recoveryMoveShare: number;
   defensiveAbilityShare: number;
   mainstreamPhysicalShare: number;
@@ -330,6 +352,11 @@ function emptyCandidateEvidence(): AdvisorCandidateEvidence {
     specialThreatCheckCount: 0,
     popularMoveCoverageCount: 0,
     profileSpeedAdvantageCount: 0,
+    standardSpeedAdvantageCount: 0,
+    priorityMoveShare: 0,
+    priorityMoveName: null,
+    trickRoomMoveShare: 0,
+    trickRoomMoveName: null,
     recoveryMoveShare: 0,
     defensiveAbilityShare: 0,
     mainstreamPhysicalShare: 0,
@@ -360,6 +387,20 @@ function subtractCandidateEvidence(
     profileSpeedAdvantageCount:
       candidate.profileSpeedAdvantageCount -
       replaced.profileSpeedAdvantageCount,
+    standardSpeedAdvantageCount:
+      candidate.standardSpeedAdvantageCount -
+      replaced.standardSpeedAdvantageCount,
+    priorityMoveShare: candidate.priorityMoveShare - replaced.priorityMoveShare,
+    priorityMoveName:
+      candidate.priorityMoveShare > replaced.priorityMoveShare
+        ? candidate.priorityMoveName
+        : null,
+    trickRoomMoveShare:
+      candidate.trickRoomMoveShare - replaced.trickRoomMoveShare,
+    trickRoomMoveName:
+      candidate.trickRoomMoveShare > replaced.trickRoomMoveShare
+        ? candidate.trickRoomMoveName
+        : null,
     recoveryMoveShare: candidate.recoveryMoveShare - replaced.recoveryMoveShare,
     defensiveAbilityShare:
       candidate.defensiveAbilityShare - replaced.defensiveAbilityShare,
@@ -401,8 +442,12 @@ function getCandidateEvidence(
   let specialThreatCheckCount = 0;
   let popularMoveCoverageCount = 0;
   let profileSpeedAdvantageCount = 0;
+  let standardSpeedAdvantageCount = 0;
   const defensiveReasons: Array<{ text: string; share: number }> = [];
   const offensiveReasons: Array<{ text: string; share: number }> = [];
+  const candidateMoves = getEnvironmentAttackingMoves(
+    candidateEnvironment?.moves
+  );
 
   for (const threat of threats.slice(0, 5)) {
     const threatEnvironment = environmentBySlug.get(threat.pokemon.slug);
@@ -478,9 +523,6 @@ function getCandidateEvidence(
       specialThreatCheckCount += 1;
     }
 
-    const candidateMoves = getEnvironmentAttackingMoves(
-      candidateEnvironment?.moves
-    );
     const bestEffectiveMove = candidateMoves
       .map((move) => ({
         move,
@@ -516,6 +558,13 @@ function getCandidateEvidence(
     ) {
       profileSpeedAdvantageCount += 1;
     }
+    if (
+      candidate.baseStats &&
+      threat.pokemon.baseStats &&
+      candidate.baseStats.speed > threat.pokemon.baseStats.speed
+    ) {
+      standardSpeedAdvantageCount += 1;
+    }
   }
 
   const recoveryMove = (candidateEnvironment?.moves ?? [])
@@ -533,6 +582,25 @@ function getCandidateEvidence(
         ability.share >= THREAT_MOVE_THRESHOLDS.secondary
     )
     .sort((left, right) => right.share - left.share)[0];
+  const priorityMove = (candidateEnvironment?.moves ?? [])
+    .filter(
+      (move) =>
+        TRICK_ROOM_RECOMMENDATION_CONFIG.priorityMoveIds.includes(
+          move.id as (typeof TRICK_ROOM_RECOMMENDATION_CONFIG.priorityMoveIds)[number]
+        ) &&
+        move.damageClass !== "status" &&
+        move.share >=
+          TRICK_ROOM_RECOMMENDATION_CONFIG.adoptedMoveMinimumShare
+    )
+    .sort((left, right) => right.share - left.share)[0];
+  const trickRoomMove = (candidateEnvironment?.moves ?? [])
+    .filter(
+      (move) =>
+        move.id === "trickroom" &&
+        move.share >=
+          TRICK_ROOM_RECOMMENDATION_CONFIG.adoptedMoveMinimumShare
+    )
+    .sort((left, right) => right.share - left.share)[0];
 
   return {
     threatMoveImmunityCount,
@@ -542,6 +610,11 @@ function getCandidateEvidence(
     specialThreatCheckCount,
     popularMoveCoverageCount,
     profileSpeedAdvantageCount,
+    standardSpeedAdvantageCount,
+    priorityMoveShare: priorityMove?.share ?? 0,
+    priorityMoveName: priorityMove?.name ?? null,
+    trickRoomMoveShare: trickRoomMove?.share ?? 0,
+    trickRoomMoveName: trickRoomMove?.name ?? null,
     recoveryMoveShare: recoveryMove?.share ?? 0,
     defensiveAbilityShare:
       stableCheckCount > 0 ? defensiveAbility?.share ?? 0 : 0,
@@ -769,15 +842,22 @@ export function getAdvisorProfileSpeedRoleImprovement(
     gainWeight: number,
     lossWeight: number
   ) => delta >= 0 ? delta * gainWeight : delta * lossWeight;
-  return weightedDelta(
+  const fastImprovement = weightedDelta(
     fastDelta,
     weights.fastRoleGain,
     weights.fastRoleLoss
-  ) + weightedDelta(
+  );
+  const slowGainWeight =
+    profile === "trick-room" && slowDelta > 0
+      ? weights.slowRoleGain *
+        getTrickRoomLowSpeedBonusMultiplier(before.slow)
+      : weights.slowRoleGain;
+  const slowImprovement = weightedDelta(
     slowDelta,
-    weights.slowRoleGain,
+    slowGainWeight,
     weights.slowRoleLoss
   );
+  return fastImprovement + slowImprovement;
 }
 
 function uniqueThreatAnswerLosses(
@@ -824,7 +904,8 @@ function buildPlanNotes(
   uniqueResistanceLosses: TypeName[],
   threatAnswerLosses: string[],
   newMajorWeaknesses: TypeName[],
-  profile: TeamProfile
+  profile: TeamProfile,
+  includeProfileSpeedRole: boolean
 ): { improvements: string[]; cautions: string[] } {
   const improvements: Note[] = [];
   const cautions: Note[] = [];
@@ -903,7 +984,10 @@ function buildPlanNotes(
     after.roles,
     profile
   );
-  if (afterProfileSpeedRoles > beforeProfileSpeedRoles) {
+  if (
+    includeProfileSpeedRole &&
+    afterProfileSpeedRoles > beforeProfileSpeedRoles
+  ) {
     addNote(improvements, {
       id: "profile-speed-role",
       text: formatCountChange(
@@ -1026,7 +1110,8 @@ function getCategoryScores({
   uniqueImmunityLossCount,
   uniqueResistanceLossCount,
   newMajorWeaknessCount,
-  evidence
+  evidence,
+  profile
 }: {
   improvementScore: number;
   threatReduction: number;
@@ -1044,6 +1129,7 @@ function getCategoryScores({
   uniqueResistanceLossCount: number;
   newMajorWeaknessCount: number;
   evidence: AdvisorCandidateEvidence;
+  profile: TeamProfile;
 }): Record<AdvisorRecommendationCategory, number> {
   const defensiveLosses =
     lostRoleCount + uniqueImmunityLossCount + uniqueResistanceLossCount;
@@ -1056,6 +1142,11 @@ function getCategoryScores({
   const offensive = ADVISOR_CATEGORY_WEIGHTS.offensive;
   const speed = ADVISOR_CATEGORY_WEIGHTS.speed;
   const typeSpecific = ADVISOR_CATEGORY_WEIGHTS.typeSpecific;
+  const standardFallbackSupport =
+    profile === "trick-room"
+      ? evidence.standardSpeedAdvantageCount * 1.5 +
+        evidence.priorityMoveShare * 8
+      : Math.max(0, speedRoleImprovement) * offensive.speedSupport;
 
   return {
     overall: improvementScore,
@@ -1080,7 +1171,7 @@ function getCategoryScores({
         evidence.popularMoveCoverageCount *
           offensive.popularMoveCoverage +
         mainstreamAttackerRoleGain * offensive.attackerRoleGap +
-        Math.max(0, speedRoleImprovement) * offensive.speedSupport -
+        standardFallbackSupport -
         defensiveLosses * offensive.defensiveLossPenalty -
         newMajorWeaknessCount * offensive.newWeaknessPenalty
     ),
@@ -1146,6 +1237,157 @@ function getRecommendationRoles(
     roles.unshift("balanced");
   }
   return roles.length ? uniqueText(roles) as AdvisorRecommendationRole[] : ["balanced"];
+}
+
+function getAdvisorProfileRoles({
+  pokemon,
+  evidence,
+  consistencyReduction,
+  defensiveImprovement,
+  offensiveImprovement
+}: {
+  pokemon: PokemonEntry;
+  evidence: AdvisorCandidateEvidence;
+  consistencyReduction: number;
+  defensiveImprovement: number;
+  offensiveImprovement: number;
+}): AdvisorProfileRole[] {
+  const roles: AdvisorProfileRole[] = [];
+  const speed = pokemon.baseStats?.speed;
+  const hasAdoptedAttack =
+    evidence.popularMoveCoverageCount > 0 ||
+    evidence.priorityMoveShare > 0;
+  const hasAttackingStats =
+    Math.max(
+      pokemon.baseStats?.attack ?? 0,
+      pokemon.baseStats?.specialAttack ?? 0
+    ) >= ATTACKER_STAT_THRESHOLD;
+
+  if (evidence.trickRoomMoveShare > 0) roles.push("trickRoomSetter");
+  if (evidence.priorityMoveShare > 0) roles.push("priorityUser");
+  if (
+    speed !== undefined &&
+    speed <= TRICK_ROOM_RECOMMENDATION_CONFIG.lowSpeedThreshold &&
+    hasAdoptedAttack &&
+    hasAttackingStats
+  ) {
+    roles.push("slowAttacker");
+  }
+  if (
+    speed !== undefined &&
+    speed >= TEAM_SPEED_THRESHOLDS.mediumMinimum &&
+    speed < TEAM_SPEED_THRESHOLDS.fastMinimum &&
+    hasAdoptedAttack
+  ) {
+    roles.push("midSpeedFlexible");
+  }
+  if (
+    speed !== undefined &&
+    speed >= TEAM_SPEED_THRESHOLDS.fastMinimum &&
+    hasAdoptedAttack
+  ) {
+    roles.push("fastFallback");
+  }
+  if (
+    evidence.stableCheckCount > 0 ||
+    evidence.recoveryMoveShare > 0 ||
+    evidence.defensiveAbilityShare > 0
+  ) {
+    roles.push("defensiveSupport");
+  }
+  if (
+    consistencyReduction > 0 ||
+    defensiveImprovement > 0 ||
+    offensiveImprovement > 0
+  ) {
+    roles.push("typeCoverage");
+  }
+  return uniqueText(roles) as AdvisorProfileRole[];
+}
+
+const PROFILE_ROLE_LOSS_LABELS: Partial<
+  Record<AdvisorProfileRole, string>
+> = {
+  trickRoomSetter: "唯一のトリックルーム始動役",
+  priorityUser: "唯一の先制技役",
+  fastFallback: "唯一の通常時の高速保険",
+  defensiveSupport: "唯一の耐久・サポート役"
+};
+
+function getTeamProfileRoleCounts(
+  team: TeamSlot[],
+  environmentDataset: ThreatEnvironmentDataset | null
+): Map<AdvisorProfileRole, number> {
+  const counts = new Map<AdvisorProfileRole, number>();
+  const environmentBySlug = new Map(
+    environmentDataset?.pokemon.map((entry) => [entry.slug, entry]) ?? []
+  );
+  for (const pokemon of getPokemonMembers(team)) {
+    const environment = environmentBySlug.get(pokemon.slug);
+    const adoptedMoves = environment?.moves.filter(
+      (move) =>
+        move.share >=
+        TRICK_ROOM_RECOMMENDATION_CONFIG.adoptedMoveMinimumShare
+    ) ?? [];
+    const priorityMove = adoptedMoves.find(
+      (move) =>
+        move.damageClass !== "status" &&
+        TRICK_ROOM_RECOMMENDATION_CONFIG.priorityMoveIds.includes(
+          move.id as (typeof TRICK_ROOM_RECOMMENDATION_CONFIG.priorityMoveIds)[number]
+        )
+    );
+    const trickRoomMove = adoptedMoves.find(
+      (move) => move.id === "trickroom"
+    );
+    const evidence = {
+      ...emptyCandidateEvidence(),
+      popularMoveCoverageCount: adoptedMoves.some(
+        (move) => move.damageClass !== "status"
+      )
+        ? 1
+        : 0,
+      priorityMoveShare: priorityMove?.share ?? 0,
+      priorityMoveName: priorityMove?.name ?? null,
+      trickRoomMoveShare: trickRoomMove?.share ?? 0,
+      trickRoomMoveName: trickRoomMove?.name ?? null,
+      recoveryMoveShare:
+        adoptedMoves.find(
+          (move) =>
+            move.damageClass === "status" && RECOVERY_MOVE_IDS.has(move.id)
+        )?.share ?? 0,
+      defensiveAbilityShare:
+        environment?.abilities.find((ability) =>
+          DEFENSIVE_ABILITY_IDS.has(ability.id)
+        )?.share ?? 0
+    };
+    const roles = getAdvisorProfileRoles({
+      pokemon,
+      evidence,
+      consistencyReduction: 0,
+      defensiveImprovement: 0,
+      offensiveImprovement: 0
+    });
+    for (const role of roles) {
+      counts.set(role, (counts.get(role) ?? 0) + 1);
+    }
+  }
+  return counts;
+}
+
+function collectLostProfileRoles(
+  before: Map<AdvisorProfileRole, number>,
+  after: Map<AdvisorProfileRole, number>,
+  profile: TeamProfile
+): string[] {
+  if (profile !== "trick-room") return [];
+  return Object.entries(PROFILE_ROLE_LOSS_LABELS).flatMap(
+    ([role, label]) =>
+      (before.get(role as AdvisorProfileRole) ?? 0) === 1 &&
+      (after.get(role as AdvisorProfileRole) ?? 0) === 0 &&
+      label
+        ? [label]
+        : []
+  );
 }
 
 function takeRecommendationReasons(
@@ -1223,6 +1465,23 @@ function buildCategoryReasons({
       ? `要警戒TOP5のうち${evidence.profileSpeedAdvantageCount}体より遅く、トリックルーム下で先に動きやすいです。`
       : `要警戒TOP5のうち${evidence.profileSpeedAdvantageCount}体より速く、先に動きやすいです。`
     : null;
+  const priorityReason =
+    profile === "trick-room" &&
+    evidenceGain.priorityMoveShare > 0 &&
+    evidence.priorityMoveName
+      ? `トリックルーム外でも${evidence.priorityMoveName}（採用率${Math.round(evidence.priorityMoveShare * 100)}%）で先制できます。`
+      : null;
+  const fallbackSpeedReason =
+    profile === "trick-room" &&
+    evidenceGain.standardSpeedAdvantageCount > 0
+      ? `通常時は要警戒TOP5のうち${evidence.standardSpeedAdvantageCount}体より速く動けます。`
+      : null;
+  const trickRoomSetterReason =
+    profile === "trick-room" &&
+    evidenceGain.trickRoomMoveShare > 0 &&
+    evidence.trickRoomMoveName
+      ? `${evidence.trickRoomMoveName}の環境採用率が${Math.round(evidence.trickRoomMoveShare * 100)}%です。`
+      : null;
   const defensiveMoveReasons =
     evidenceGain.threatMoveImmunityCount > 0 ||
     evidenceGain.threatMoveResistanceCount > 0
@@ -1250,11 +1509,23 @@ function buildCategoryReasons({
       improvements
     ),
     offensive: takeRecommendationReasons(
-      [...offensiveMoveReasons, offenseReason, attackerReason],
+      [
+        ...offensiveMoveReasons,
+        offenseReason,
+        priorityReason,
+        fallbackSpeedReason,
+        attackerReason
+      ],
       improvements
     ),
     speed: takeRecommendationReasons(
-      [speedReason, ...offensiveMoveReasons, attackerReason],
+      [
+        speedReason,
+        trickRoomSetterReason,
+        priorityReason,
+        ...offensiveMoveReasons,
+        attackerReason
+      ],
       improvements
     ),
     typeSpecific: takeRecommendationReasons(improvements, [])
@@ -1368,7 +1639,7 @@ export function evaluateAdvisorSwapPlan(
     afterMetrics.offenseCoverageCount - beforeMetrics.offenseCoverageCount +
     (afterMetrics.threatAnswerSlotCount -
       beforeMetrics.threatAnswerSlotCount);
-  const speedRoleImprovement = getAdvisorProfileSpeedRoleImprovement(
+  const rawSpeedRoleImprovement = getAdvisorProfileSpeedRoleImprovement(
     beforeMetrics.roles,
     afterMetrics.roles,
     profile
@@ -1382,12 +1653,38 @@ export function evaluateAdvisorSwapPlan(
     beforeMetrics.roles.physicalAttacker;
   const specialAttackerImprovement =
     afterMetrics.roles.specialAttacker -
-    beforeMetrics.roles.specialAttacker;
-  const lostRoles = collectLostRoles(
-    beforeMetrics.roles,
-    afterMetrics.roles,
-    profile
-  );
+      beforeMetrics.roles.specialAttacker;
+  const hasPracticalTrickRoomValue =
+    evidenceGain.popularMoveCoverageCount > 0 ||
+    evidenceGain.stableCheckCount > 0 ||
+    evidenceGain.recoveryMoveShare > 0 ||
+    evidenceGain.defensiveAbilityShare > 0 ||
+    threatReduction > 0 ||
+    issueReduction > 0 ||
+    defensiveImprovement > 0 ||
+    offensiveImprovement > 0;
+  const speedRoleImprovement =
+    profile === "trick-room" &&
+    rawSpeedRoleImprovement > 0 &&
+    !hasPracticalTrickRoomValue
+      ? 0
+      : rawSpeedRoleImprovement;
+  const overallSpeedRoleImprovement =
+    profile === "trick-room" ? 0 : speedRoleImprovement;
+  const lostRoles = uniqueText([
+    ...collectLostRoles(beforeMetrics.roles, afterMetrics.roles, profile),
+    ...collectLostProfileRoles(
+      getTeamProfileRoleCounts(
+        beforeTeam,
+        input.environmentDataset
+      ),
+      getTeamProfileRoleCounts(
+        afterTeam,
+        input.environmentDataset
+      ),
+      profile
+    )
+  ]);
   const uniqueImmunityLosses = getAllTypes()
     .map((type) => type.nameEn)
     .filter(
@@ -1423,7 +1720,8 @@ export function evaluateAdvisorSwapPlan(
       consistencyReduction * ADVISOR_SWAP_WEIGHTS.consistencyReduction +
       defensiveImprovement * ADVISOR_SWAP_WEIGHTS.defensiveImprovement +
       offensiveImprovement * ADVISOR_SWAP_WEIGHTS.offensiveImprovement +
-      speedRoleImprovement * ADVISOR_SWAP_WEIGHTS.speedRoleImprovement -
+      overallSpeedRoleImprovement *
+        ADVISOR_SWAP_WEIGHTS.speedRoleImprovement -
       lostRoles.length * ADVISOR_SWAP_WEIGHTS.roleLossPenalty -
       uniqueImmunityLosses.length *
         ADVISOR_SWAP_WEIGHTS.uniqueImmunityLossPenalty -
@@ -1445,7 +1743,8 @@ export function evaluateAdvisorSwapPlan(
     uniqueResistanceLosses,
     threatAnswerLosses,
     newMajorWeaknesses,
-    profile
+    profile,
+    profile !== "trick-room"
   );
   const megaCountBefore = countMegaForms(beforeTeam);
   const megaCountAfter = countMegaForms(afterTeam);
@@ -1468,7 +1767,8 @@ export function evaluateAdvisorSwapPlan(
     uniqueImmunityLossCount: uniqueImmunityLosses.length,
     uniqueResistanceLossCount: uniqueResistanceLosses.length,
     newMajorWeaknessCount: newMajorWeaknesses.length,
-    evidence: evidenceGain
+    evidence: evidenceGain,
+    profile
   });
   const categoryReasons = buildCategoryReasons({
     beforeMetrics,
@@ -1489,12 +1789,21 @@ export function evaluateAdvisorSwapPlan(
     profileSpeedAdvantageCount:
       evidenceGain.profileSpeedAdvantageCount
   });
-  const meaningfulImprovement =
+  const profileRoles = getAdvisorProfileRoles({
+    pokemon: candidate.pokemon,
+    evidence,
+    consistencyReduction,
+    defensiveImprovement,
+    offensiveImprovement
+  });
+  const meaningfulNonSpeedImprovement =
     issueReduction > 0 ||
     threatReduction >= 2 ||
     defensiveImprovement >= 2 ||
-    offensiveImprovement >= 2 ||
-    speedRoleImprovement > 0;
+    offensiveImprovement >= 2;
+  const meaningfulImprovement =
+    meaningfulNonSpeedImprovement ||
+    (profile !== "trick-room" && speedRoleImprovement > 0);
   const sharedRecommendationGate =
     megaLimitPassed &&
     newMajorWeaknesses.length === 0 &&
@@ -1517,9 +1826,14 @@ export function evaluateAdvisorSwapPlan(
       specialAttackerImprovement > 0 ||
       evidenceGain.popularMoveCoverageCount > 0,
     speed:
-      speedRoleImprovement > 0 ||
-      (evidenceGain.profileSpeedAdvantageCount > 0 &&
-        evidenceGain.popularMoveCoverageCount > 0),
+      profile === "trick-room"
+        ? (speedRoleImprovement > 0 && hasPracticalTrickRoomValue) ||
+          (evidenceGain.profileSpeedAdvantageCount > 0 &&
+            (evidenceGain.popularMoveCoverageCount > 0 ||
+              evidenceGain.stableCheckCount > 0))
+        : speedRoleImprovement > 0 ||
+          (evidenceGain.profileSpeedAdvantageCount > 0 &&
+            evidenceGain.popularMoveCoverageCount > 0),
     typeSpecific:
       consistencyReduction > 0 ||
       defensiveImprovement > 0 ||
@@ -1570,6 +1884,7 @@ export function evaluateAdvisorSwapPlan(
     categoryReasons,
     recommendationRoles,
     selectedOverallRole: null,
+    profileRoles,
     improvements: notes.improvements,
     cautions: notes.cautions,
     lostRoles,
@@ -1594,6 +1909,12 @@ export function evaluateAdvisorSwapPlan(
       popularMoveCoverageCount: evidence.popularMoveCoverageCount,
       profileSpeedAdvantageCount:
         evidence.profileSpeedAdvantageCount,
+      standardSpeedAdvantageCount:
+        evidence.standardSpeedAdvantageCount,
+      priorityMoveShare: evidence.priorityMoveShare,
+      priorityMoveName: evidence.priorityMoveName,
+      trickRoomMoveShare: evidence.trickRoomMoveShare,
+      trickRoomMoveName: evidence.trickRoomMoveName,
       physicalWallImprovement,
       specialWallImprovement,
       physicalAttackerImprovement,
@@ -1631,7 +1952,8 @@ function getCandidateProxyScore(
   category: Exclude<AdvisorRecommendationCategory, "typeSpecific">,
   candidate: TeamAdvisorCandidate,
   environmentBySlug: Map<string, ThreatEnvironmentDataset["pokemon"][number]>,
-  profile: TeamProfile
+  profile: TeamProfile,
+  currentSlowCount: number
 ): number {
   const stats = candidate.pokemon.baseStats;
   const environment = environmentBySlug.get(candidate.pokemon.slug);
@@ -1666,7 +1988,8 @@ function getCandidateProxyScore(
   if (category === "speed") {
     const profileSpeedValue =
       profile === "trick-room"
-        ? Math.max(0, 100 - (stats?.speed ?? 100)) / 3
+        ? (Math.max(0, 100 - (stats?.speed ?? 100)) / 3) *
+          getTrickRoomLowSpeedBonusMultiplier(currentSlowCount)
         : (stats?.speed ?? 0) / 4;
     return (
       profileSpeedValue +
@@ -1690,6 +2013,7 @@ function preselectSimulationCandidates(
       ? input.advisor.candidatePool
       : input.advisor.candidates;
   const selected = new Map<string, TeamAdvisorCandidate>();
+  const currentSlowCount = getAdvisorRoleCounts(input.team).slow;
   for (const category of [
     "overall",
     "defensive",
@@ -1699,8 +2023,20 @@ function preselectSimulationCandidates(
     [...pool]
       .sort(
         (left, right) =>
-          getCandidateProxyScore(category, right, environmentBySlug, profile) -
-            getCandidateProxyScore(category, left, environmentBySlug, profile) ||
+          getCandidateProxyScore(
+            category,
+            right,
+            environmentBySlug,
+            profile,
+            currentSlowCount
+          ) -
+            getCandidateProxyScore(
+              category,
+              left,
+              environmentBySlug,
+              profile,
+              currentSlowCount
+            ) ||
           left.pokemon.id - right.pokemon.id
       )
       .slice(0, ADVISOR_RECOMMENDATION_RULES.preselectPerCategory)
@@ -1741,13 +2077,22 @@ function isMegaPlan(plan: AdvisorSwapPlan): boolean {
   return plan.candidate.pokemon.formKind === "mega";
 }
 
+function isSlowRecommendation(plan: AdvisorSwapPlan): boolean {
+  return (
+    (plan.candidate.pokemon.baseStats?.speed ?? Number.POSITIVE_INFINITY) <=
+    TRICK_ROOM_RECOMMENDATION_CONFIG.lowSpeedThreshold
+  );
+}
+
 function selectCategoryPlans(
   plans: AdvisorSwapPlan[],
   category: AdvisorRecommendationCategory,
-  type?: TypeName
+  type?: TypeName,
+  profile: TeamProfile = "standard"
 ): AdvisorSwapPlan[] {
   const selected: AdvisorSwapPlan[] = [];
   let megaCount = 0;
+  let slowCount = 0;
   for (const plan of getBestPlansBySpecies(plans, category, type)) {
     if (
       isMegaPlan(plan) &&
@@ -1755,14 +2100,27 @@ function selectCategoryPlans(
     ) {
       continue;
     }
+    if (
+      profile === "trick-room" &&
+      category !== "speed" &&
+      isSlowRecommendation(plan) &&
+      slowCount >=
+        TRICK_ROOM_RECOMMENDATION_CONFIG.maxSlowOutsideTrickRoomCategory
+    ) {
+      continue;
+    }
     selected.push(plan);
     if (isMegaPlan(plan)) megaCount += 1;
+    if (isSlowRecommendation(plan)) slowCount += 1;
     if (selected.length >= ADVISOR_RECOMMENDATION_RULES.maxPerCategory) break;
   }
   return selected;
 }
 
-function selectDiverseOverallPlans(plans: AdvisorSwapPlan[]): AdvisorSwapPlan[] {
+function selectDiverseOverallPlans(
+  plans: AdvisorSwapPlan[],
+  profile: TeamProfile
+): AdvisorSwapPlan[] {
   const ranked = getBestPlansBySpecies(plans, "overall");
   const topScore = ranked[0]?.categoryScores.overall ?? 0;
   const qualified = ranked.filter(
@@ -1772,7 +2130,9 @@ function selectDiverseOverallPlans(plans: AdvisorSwapPlan[]): AdvisorSwapPlan[] 
   );
   const selected: AdvisorSwapPlan[] = [];
   const roleCounts = new Map<AdvisorRecommendationRole, number>();
+  const profileRoleCounts = new Map<AdvisorProfileRole, number>();
   let megaCount = 0;
+  let slowCount = 0;
 
   for (const plan of qualified) {
     const role = [...plan.recommendationRoles]
@@ -1788,6 +2148,36 @@ function selectDiverseOverallPlans(plans: AdvisorSwapPlan[]): AdvisorSwapPlan[] 
       );
     if (!role) continue;
     if (
+      profile === "trick-room" &&
+      isSlowRecommendation(plan) &&
+      slowCount >=
+        TRICK_ROOM_RECOMMENDATION_CONFIG.maxSlowRoleRecommendations
+    ) {
+      continue;
+    }
+    const profileRole =
+      profile === "trick-room"
+        ? [...plan.profileRoles]
+            .sort(
+              (left, right) =>
+                (profileRoleCounts.get(left) ?? 0) -
+                  (profileRoleCounts.get(right) ?? 0) ||
+                left.localeCompare(right)
+            )
+            .find(
+              (candidateRole) =>
+                (profileRoleCounts.get(candidateRole) ?? 0) <
+                ADVISOR_RECOMMENDATION_RULES.maxSameRole
+            ) ?? null
+        : null;
+    if (
+      profile === "trick-room" &&
+      plan.profileRoles.length > 0 &&
+      !profileRole
+    ) {
+      continue;
+    }
+    if (
       isMegaPlan(plan) &&
       megaCount >= ADVISOR_RECOMMENDATION_RULES.maxMegaInOverall
     ) {
@@ -1795,14 +2185,22 @@ function selectDiverseOverallPlans(plans: AdvisorSwapPlan[]): AdvisorSwapPlan[] 
     }
     selected.push({ ...plan, selectedOverallRole: role });
     roleCounts.set(role, (roleCounts.get(role) ?? 0) + 1);
+    if (profileRole) {
+      profileRoleCounts.set(
+        profileRole,
+        (profileRoleCounts.get(profileRole) ?? 0) + 1
+      );
+    }
     if (isMegaPlan(plan)) megaCount += 1;
+    if (isSlowRecommendation(plan)) slowCount += 1;
     if (selected.length >= ADVISOR_RECOMMENDATION_RULES.maxPerCategory) break;
   }
   return selected;
 }
 
 function getTypePlanGroups(
-  plans: AdvisorSwapPlan[]
+  plans: AdvisorSwapPlan[],
+  profile: TeamProfile
 ): {
   typePlans: Partial<Record<TypeName, AdvisorSwapPlan[]>>;
   typeOptions: Array<{ type: TypeName; label: string }>;
@@ -1811,7 +2209,8 @@ function getTypePlanGroups(
     const typePlans = selectCategoryPlans(
       plans,
       "typeSpecific",
-      entry.nameEn
+      entry.nameEn,
+      profile
     );
     if (!typePlans.length) return [];
     return [{ type: entry.nameEn, label: entry.nameJa, plans: typePlans }];
@@ -1884,14 +2283,15 @@ export function getAdvisorSwapSimulation(
       evaluateAdvisorSwapPlan(input, candidate, removedSlotId)
     )
   );
-  const overallPlans = selectDiverseOverallPlans(allPlans);
+  const profile = input.profile ?? "standard";
+  const overallPlans = selectDiverseOverallPlans(allPlans, profile);
   const plansByCategory = {
     overall: overallPlans,
-    defensive: selectCategoryPlans(allPlans, "defensive"),
-    offensive: selectCategoryPlans(allPlans, "offensive"),
-    speed: selectCategoryPlans(allPlans, "speed")
+    defensive: selectCategoryPlans(allPlans, "defensive", undefined, profile),
+    offensive: selectCategoryPlans(allPlans, "offensive", undefined, profile),
+    speed: selectCategoryPlans(allPlans, "speed", undefined, profile)
   };
-  const typeGroups = getTypePlanGroups(allPlans);
+  const typeGroups = getTypePlanGroups(allPlans, profile);
   return {
     plans: overallPlans,
     plansByCategory,
