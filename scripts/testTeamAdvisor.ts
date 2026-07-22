@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { getThreatEnvironmentCatalog } from "@/lib/environmentData.server";
 import { findThreatEnvironmentDataset } from "@/lib/environmentThreatData";
@@ -200,8 +200,8 @@ const sixTeam = [
 ];
 const six = advise(sixTeam);
 assert(
-  six.issues.length <= 3 && six.candidates.length <= 3,
-  "6体パーティで課題または改善候補が最大3件を超えました"
+  six.issues.length === 0 && six.candidates.length <= 3,
+  "偏りの少ない6体パーティを課題0件と判定できません"
 );
 
 const fireTypeTeam: TeamSlot[] = [
@@ -336,8 +336,8 @@ assert(
   "複合タイプ数または全耐性数を構造的に加点しています"
 );
 
-const panelSource = readFileSync(
-  path.join(process.cwd(), "components/team/TeamAdvisorPanel.tsx"),
+const sectionSource = readFileSync(
+  path.join(process.cwd(), "components/team/TeamAdvisorSection.tsx"),
   "utf8"
 );
 const pageSource = readFileSync(
@@ -349,36 +349,59 @@ const styleSource = readFileSync(
   "utf8"
 );
 assert(
-  panelSource.includes("チームアドバイザー") &&
-    panelSource.includes("総合評価") &&
-    panelSource.includes("現在の課題") &&
-    panelSource.includes("改善候補") &&
-    panelSource.includes("改善理由") &&
-    panelSource.includes("おすすめ度 5段階中") &&
-    panelSource.includes("PokemonVisual") &&
-    panelSource.includes("candidate.reasons.map"),
-  "Advisorカードの見出し・候補・理由・アクセシビリティが不足しています"
+  sectionSource.includes("STEP 4") &&
+    sectionSource.includes("チームアドバイザー") &&
+    sectionSource.includes("現在の課題") &&
+    sectionSource.includes("改善候補") &&
+    sectionSource.includes("詳細診断") &&
+    sectionSource.includes("改善理由") &&
+    sectionSource.includes("おすすめ度 5段階中") &&
+    sectionSource.includes("function AdvisorIssues") &&
+    sectionSource.includes("function AdvisorRecommendations") &&
+    sectionSource.includes("function AdvisorDetails") &&
+    sectionSource.includes("function AdvisorRecommendationCard") &&
+    sectionSource.includes("candidate.reasons.map"),
+  "STEP 4統合Advisorの3ブロック・候補・理由・拡張構造が不足しています"
 );
 assert(
   pageSource.includes("getTeamAdvisorAnalysis") &&
-    pageSource.includes("<TeamAdvisorPanel advisor={advisor} />") &&
-    pageSource.indexOf("<TeamAdvisorPanel advisor={advisor} />") >
-      pageSource.indexOf("<AnalysisSummary"),
-  "AdvisorEngineまたは独立カードを既存分析直後へ統合できません"
+    pageSource.includes("<TeamAdvisorSection") &&
+    pageSource.indexOf("<TeamAdvisorSection") >
+      pageSource.indexOf("<OffensiveCoveragePanel") &&
+    !pageSource.includes("<TeamAdvisorPanel") &&
+    !pageSource.includes("<RecommendationPanel") &&
+    !existsSync(
+      path.join(process.cwd(), "components/team/TeamAdvisorPanel.tsx")
+    ) &&
+    !existsSync(
+      path.join(process.cwd(), "components/team/RecommendationPanel.tsx")
+    ),
+  "STEP 4とAdvisorが1セクションへ統合されず、旧カードが残っています"
 );
 assert(
   styleSource.includes(
     ".advisorCandidateGrid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr));"
   ) &&
     styleSource.includes(
-      ".advisorCandidateGrid { display: flex; gap: 6px; overflow-x: auto;"
-    ) &&
-    styleSource.includes(
-      ".advisorCandidateGrid > li { flex: 0 0 min(76vw,250px);"
+      ".advisorIssueList,.advisorCandidateGrid { grid-template-columns: minmax(0,1fr);"
     ) &&
     styleSource.includes(".advisorCandidateGrid > li { min-width: 0;") &&
-    !panelSource.includes("ThreatPokemon"),
-  "Advisorのモバイル横スワイプ化、ページの横はみ出し防止、要警戒からの独立が不十分です"
+    styleSource.includes("overflow-wrap: anywhere;") &&
+    !styleSource.includes(".advisorCandidateGrid { display: flex;") &&
+    !sectionSource.includes("ThreatPokemon") &&
+    !sectionSource.includes("総合評価") &&
+    !sectionSource.includes("初版の暫定評価"),
+  "Advisor候補のPC 3列・モバイル縦積み、長文折返し、総合評価削除が不十分です"
+);
+assert(
+  sectionSource.includes("advisorSpeciesIds") &&
+    sectionSource.includes(
+      "!advisorSpeciesIds.has(candidate.pokemon.speciesId)"
+    ) &&
+    sectionSource.includes("補完しやすいタイプ") &&
+    sectionSource.includes("追加前後の比較") &&
+    sectionSource.includes("4位以下と詳細スコアを見る"),
+  "従来STEP 4の詳細診断移行またはAdvisor候補との重複除外が不十分です"
 );
 
 console.log(

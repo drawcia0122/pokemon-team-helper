@@ -4,11 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import { ArticleImportPanel } from "@/components/ArticleImportPanel";
 import { SiteNavigation } from "@/components/navigation/SiteNavigation";
 import { AnalysisSummary, OffensiveCoveragePanel } from "@/components/team/AnalysisPanels";
-import { RecommendationPanel } from "@/components/team/RecommendationPanel";
 import { PokemonStatsPanel } from "@/components/team/PokemonStatsPanel";
 import { SeasonBar } from "@/components/team/SeasonBar";
 import { TeamDetails } from "@/components/team/TeamDetails";
-import { TeamAdvisorPanel } from "@/components/team/TeamAdvisorPanel";
+import { TeamAdvisorSection } from "@/components/team/TeamAdvisorSection";
 import { TeamInputPanel } from "@/components/team/TeamInputPanel";
 import {
   mergeImportedPokemonOptions,
@@ -353,21 +352,22 @@ export default function HomePage() {
           diagnostics={diagnostics}
           threatPokemon={threatPokemon}
         />
-        <TeamAdvisorPanel advisor={advisor} />
         {summary.members.length >= 2 ? (
-          <>
-            <OffensiveCoveragePanel summary={summary} />
-            <RecommendationPanel
-              typeCandidates={typeCandidates}
-              pokemonCandidates={pokemonCandidates}
-              selection={selection}
-              onSelect={setSelection}
-              onAddType={addTypeCandidateToTeam}
-              onAddPokemon={addPokemonCandidateToTeam}
-              canAdd={team.length < 6}
-            />
-            <TeamDetails summary={summary} />
-          </>
+          <OffensiveCoveragePanel summary={summary} />
+        ) : null}
+        <TeamAdvisorSection
+          advisor={advisor}
+          typeCandidates={typeCandidates}
+          pokemonCandidates={pokemonCandidates}
+          selection={selection}
+          onSelect={setSelection}
+          onAddType={addTypeCandidateToTeam}
+          onAddPokemon={addPokemonCandidateToTeam}
+          canAdd={team.length < 6}
+          canAnalyze={summary.members.length >= 2}
+        />
+        {summary.members.length >= 2 ? (
+          <TeamDetails summary={summary} />
         ) : null}
       </div>
     </main>

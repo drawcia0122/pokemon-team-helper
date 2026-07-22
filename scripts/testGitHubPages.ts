@@ -42,8 +42,11 @@ const pagesNextConfig = createNextConfig(true);
 assert(
   indexHtml.includes("チームアドバイザー") &&
     indexHtml.includes("現在の課題") &&
-    indexHtml.includes("改善候補"),
-  "GitHub Pages成果物へチームアドバイザーを出力できません"
+    indexHtml.includes("改善候補") &&
+    indexHtml.includes("詳細診断") &&
+    !indexHtml.includes("総合評価") &&
+    !indexHtml.includes("初版の暫定評価"),
+  "GitHub Pages成果物へ統合後のSTEP 4チームアドバイザーを出力できません"
 );
 
 for (const route of ["", "builds/", "news/", "environment/"]) {
