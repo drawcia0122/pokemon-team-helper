@@ -50,9 +50,12 @@ const THREAT_FORM_KINDS = new Set([
 ]);
 
 export function isThreatPokemonCandidate(pokemon: PokemonEntry): boolean {
+  const isSelectableMega =
+    pokemon.formKind === "mega" && pokemon.formSelection === "team";
+
   return (
     pokemon.formSelection === "team" &&
-    !pokemon.isBattleOnly &&
+    (!pokemon.isBattleOnly || isSelectableMega) &&
     THREAT_FORM_KINDS.has(pokemon.formKind)
   );
 }
