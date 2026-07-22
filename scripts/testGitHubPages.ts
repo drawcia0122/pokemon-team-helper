@@ -34,11 +34,12 @@ function walkFiles(directory: string): string[] {
 const indexHtml = readOutput("index.html");
 const buildsHtml = readOutput("builds/index.html");
 const newsHtml = readOutput("news/index.html");
-const allHtml = [indexHtml, buildsHtml, newsHtml].join("\n");
+const environmentHtml = readOutput("environment/index.html");
+const allHtml = [indexHtml, buildsHtml, newsHtml, environmentHtml].join("\n");
 const normalNextConfig = createNextConfig(false);
 const pagesNextConfig = createNextConfig(true);
 
-for (const route of ["", "builds/", "news/"]) {
+for (const route of ["", "builds/", "news/", "environment/"]) {
   assert(
     allHtml.includes(`href="${basePath}/${route}"`),
     `内部ナビゲーションへbasePathを付与できません: ${route || "/"}`
@@ -75,6 +76,31 @@ assert(
     !allHtml.includes(`${basePath}/https://`),
   "外部URLへbasePathを誤って付与しました"
 );
+
+assert(
+  environmentHtml.includes("公式Pokemon HOMEの統計ではありません") &&
+    environmentHtml.includes("環境使用率ランキング") &&
+    !environmentHtml.includes("rawWeight"),
+  "環境ページの非公式表記または軽量化が不正です"
+);
+const environmentManifest = JSON.parse(readOutput("environment-data/_manifest.json")) as {
+  detailFileCount: number;
+  detailBytes: number;
+};
+assert(
+  environmentManifest.detailFileCount === 100 &&
+    environmentManifest.detailBytes < 2_000_000,
+  "環境詳細JSONの件数またはサイズが不正です"
+);
+const environmentDetailFiles = walkFiles(path.join(outDir, "environment-data")).filter(
+  (file) => file.endsWith(".json") && path.basename(file) !== "_manifest.json"
+);
+assert(environmentDetailFiles.length === 100, "環境詳細JSONが100件ではありません");
+for (const file of environmentDetailFiles) {
+  const source = readFileSync(file, "utf8");
+  assert(!source.includes("rawWeight"), `環境詳細JSONにrawWeightが混入しています: ${file}`);
+  assert(statSync(file).size < 40_000, `環境詳細JSONが大きすぎます: ${file}`);
+}
 
 assert(
   normalNextConfig.output === undefined &&

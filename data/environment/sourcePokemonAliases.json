@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "source": "pokemon-showdown",
+  "aliases": {
+    "Aegislash": "aegislash-shield",
+    "Basculegion": "basculegion-male",
+    "Basculegion-F": "basculegion-female",
+    "Gourgeist": "gourgeist-average",
+    "Indeedee-F": "indeedee-female",
+    "Indeedee": "indeedee-male",
+    "Lycanroc": "lycanroc-midday",
+    "Maushold": "maushold-family-of-four",
+    "Meowstic-F": "meowstic-female",
+    "Meowstic": "meowstic-male",
+    "Mimikyu": "mimikyu-disguised",
+    "Morpeko": "morpeko-full-belly",
+    "Palafin": "palafin-zero",
+    "Pyroar": "pyroar-male",
+    "Tauros-Paldea-Aqua": "tauros-paldea-aqua-breed",
+    "Tauros-Paldea-Blaze": "tauros-paldea-blaze-breed",
+    "Tauros-Paldea-Combat": "tauros-paldea-combat-breed",
+    "Urshifu-Rapid-Strike": "urshifu-rapid-strike"
+  }
+}

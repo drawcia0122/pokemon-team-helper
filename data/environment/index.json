@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "snapshots": [
+    {
+      "snapshotId": "pokemon-showdown:2026-06:gen9championsbssregmb:0",
+      "source": "pokemon-showdown",
+      "period": "2026-06",
+      "regulationId": "M-B",
+      "battleFormat": "single",
+      "sourceFormatId": "gen9championsbssregmb",
+      "ratingCutoff": 0,
+      "status": "available",
+      "path": "data/environment/snapshots/pokemon-showdown/2026-06/gen9championsbssregmb-0.json",
+      "retrievedAt": "2026-07-22T06:22:38.698Z",
+      "contentHash": "369b269f4c21b54573eb78556680ca084cb6b4fcbf57124c56ada207e0fecd74"
+    },
+    {
+      "snapshotId": "pokemon-showdown:2026-06:gen9championsbssregmb:1760",
+      "source": "pokemon-showdown",
+      "period": "2026-06",
+      "regulationId": "M-B",
+      "battleFormat": "single",
+      "sourceFormatId": "gen9championsbssregmb",
+      "ratingCutoff": 1760,
+      "status": "available",
+      "path": "data/environment/snapshots/pokemon-showdown/2026-06/gen9championsbssregmb-1760.json",
+      "retrievedAt": "2026-07-22T06:22:44.450Z",
+      "contentHash": "b86c9c0e618cd0c03b44a1e0047b50e64d57c95e17d65a9bbf139e8af2085a2b"
+    }
+  ],
+  "latest": [
+    {
+      "sourceFormatId": "gen9championsbssregmb",
+      "ratingCutoff": 0,
+      "snapshotId": "pokemon-showdown:2026-06:gen9championsbssregmb:0",
+      "path": "data/environment/snapshots/pokemon-showdown/2026-06/gen9championsbssregmb-0.json"
+    },
+    {
+      "sourceFormatId": "gen9championsbssregmb",
+      "ratingCutoff": 1760,
+      "snapshotId": "pokemon-showdown:2026-06:gen9championsbssregmb:1760",
+      "path": "data/environment/snapshots/pokemon-showdown/2026-06/gen9championsbssregmb-1760.json"
+    }
+  ]
+}

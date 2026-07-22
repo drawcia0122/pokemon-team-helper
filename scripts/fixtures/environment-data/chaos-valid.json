@@ -1,0 +1,58 @@
+{
+  "info": {
+    "metagame": "gen9championsbssregmb",
+    "cutoff": 0,
+    "cutoff deviation": 0,
+    "team type": null,
+    "number of battles": 100
+  },
+  "data": {
+    "Garchomp": {
+      "Raw count": 100,
+      "usage": 0.5,
+      "Abilities": { "roughskin": 90, "sandveil": 10 },
+      "Items": { "focussash": 60, "choicescarf": 40 },
+      "Spreads": { "Jolly:2/32/0/0/0/32": 70, "Adamant:2/32/0/0/0/32": 30 },
+      "Moves": { "Earthquake": 95, "Dragon Claw": 60, "Protect": 20 },
+      "Tera Types": { "nothing": 100 },
+      "Teammates": { "Charizard-Mega-X": 30, "Indeedee-F": 10, "Unknown Partner": 5 },
+      "Checks and Counters": {
+        "Charizard-Mega-X": { "n": 20, "p": 0.75, "d": 0.1 },
+        "Unknown Counter": { "n": 4, "p": 0.5, "d": 0.2 }
+      }
+    },
+    "Charizard-Mega-X": {
+      "Raw count": 80,
+      "usage": 0.4,
+      "Abilities": { "toughclaws": 80 },
+      "Items": { "nothing": 80 },
+      "Spreads": { "Jolly:0/32/2/0/0/32": 80 },
+      "Moves": { "Flare Blitz": 70, "Dragon Claw": 65 },
+      "Tera Types": { "nothing": 80 },
+      "Teammates": { "Garchomp": 30 },
+      "Checks and Counters": { "Garchomp": { "n": 10, "p": 0.6, "d": 0.15 } }
+    },
+    "Indeedee-F": {
+      "Raw count": 20,
+      "usage": 0.1,
+      "Abilities": { "psychicsurge": 20 },
+      "Items": { "psychicseed": 20 },
+      "Spreads": { "Bold:32/0/32/0/2/0": 20 },
+      "Moves": { "Follow Me": 20, "Helping Hand": 18 },
+      "Tera Types": { "nothing": 20 },
+      "Teammates": {},
+      "Checks and Counters": {}
+    },
+    "MissingNo": {
+      "Raw count": 1,
+      "usage": 0.001,
+      "Abilities": { "unknown": 1 },
+      "Items": { "nothing": 1 },
+      "Spreads": { "Hardy:0/0/0/0/0/0": 1 },
+      "Moves": { "Tackle": 1 },
+      "Tera Types": { "nothing": 1 },
+      "Teammates": {},
+      "Checks and Counters": {}
+    }
+  }
+}

@@ -1,0 +1,67 @@
+.explorer { display: grid; gap: 16px; }
+.controls { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; padding: 16px; border: 1px solid #c8ded0; border-radius: 16px; background: #fff; box-shadow: 0 12px 34px rgba(24,82,51,.06); }
+.controls label { display: grid; gap: 6px; color: #496154; font-size: .76rem; font-weight: 800; }
+.controls select { width: 100%; min-width: 0; padding: 10px 34px 10px 11px; border: 1px solid #b7d2c0; border-radius: 9px; background: #f8fcf9; color: #173c28; font: inherit; font-size: .9rem; }
+.controls select:focus-visible,.rankingList button:focus-visible { outline: 3px solid rgba(22,129,77,.34); outline-offset: 2px; }
+.sourceSummary { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; padding: 11px 14px; border-radius: 12px; background: #eaf6ed; color: #3d5c49; font-size: .78rem; }
+.sourceSummary strong { color: #155e37; }
+.sourceSummary span { padding-left: 8px; border-left: 1px solid #a9cab4; }
+.columns { display: grid; grid-template-columns: minmax(350px,.8fr) minmax(0,1.2fr); align-items: start; gap: 18px; }
+.rankingPanel,.detailPanel { min-width: 0; border: 1px solid #c8ded0; border-radius: 18px; background: #fff; box-shadow: 0 16px 40px rgba(24,82,51,.07); }
+.rankingPanel { overflow: hidden; }
+.panelHeading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 17px 18px 13px; border-bottom: 1px solid #deebe1; }
+.panelHeading p { margin: 0 0 3px; color: #238153; font-size: .64rem; font-weight: 900; letter-spacing: .12em; }
+.panelHeading h2 { margin: 0; color: #174f32; font-size: 1rem; }
+.panelHeading > span { flex: 0 0 auto; color: #587063; font-size: .72rem; font-weight: 800; }
+.rankingList { max-height: 700px; margin: 0; padding: 0; overflow-y: auto; list-style: none; scrollbar-gutter: stable; }
+.rankingList li + li { border-top: 1px solid #edf3ef; }
+.rankingList button { display: grid; grid-template-columns: 34px 38px minmax(0,1fr) auto; align-items: center; gap: 9px; width: 100%; padding: 9px 14px; border: 0; background: transparent; color: #253f31; text-align: left; cursor: pointer; }
+.rankingList button:hover { background: #f1f9f3; }
+.rankingList button[aria-pressed="true"] { background: #dff2e5; box-shadow: inset 4px 0 #21824f; }
+.rank { color: #6d7f74; font-size: .77rem; font-weight: 900; text-align: center; }
+.pokemonName { overflow: hidden; font-size: .84rem; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+.rankingList button > strong { color: #11683c; font-size: .88rem; font-variant-numeric: tabular-nums; }
+.detailPanel { position: sticky; top: 16px; min-height: 270px; overflow: hidden; }
+.detailPlaceholder,.loading { display: grid; place-content: center; min-height: 270px; margin: 0; padding: 30px; color: #63766b; text-align: center; }
+.detailPlaceholder strong { color: #29573d; font-size: 1.05rem; }
+.detailPlaceholder p { max-width: 430px; margin: 8px auto 0; font-size: .82rem; line-height: 1.7; }
+.detailContent { padding: 20px; }
+.detailHeader { display: grid; grid-template-columns: 72px minmax(0,1fr) auto; align-items: center; gap: 14px; padding-bottom: 18px; border-bottom: 1px solid #deebe1; }
+.detailHeader p { margin: 0 0 3px; color: #6a7c71; font-size: .72rem; font-weight: 800; }
+.detailHeader h2 { margin: 0; color: #174f32; font-size: clamp(1.2rem,2.4vw,1.65rem); }
+.usageValue { color: #0d7440; font-size: clamp(1.3rem,3vw,2rem); font-variant-numeric: tabular-nums; }
+.detailSections { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; padding-top: 18px; }
+.detailSections section { min-width: 0; }
+.detailSections h3 { margin: 0 0 8px; color: #28533a; font-size: .85rem; }
+.wideSection { grid-column: 1 / -1; }
+.detailList { margin: 0; padding: 0; list-style: none; counter-reset: detail-rank; }
+.detailList li { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 9px; min-height: 29px; padding: 5px 0; border-bottom: 1px solid #edf3ef; counter-increment: detail-rank; color: #3d5145; font-size: .76rem; }
+.detailList li > span { display: grid; grid-template-columns: 22px minmax(0,1fr); align-items: center; min-width: 0; }
+.detailList li > span::before { content: counter(detail-rank); color: #839088; font-size: .66rem; font-weight: 800; text-align: center; }
+.detailList li > strong { color: #17643c; font-size: .72rem; font-variant-numeric: tabular-nums; }
+.spreadList li > span { grid-template-columns: 22px minmax(0,1fr); }
+.spreadList li > span b,.spreadList li > span small { grid-column: 2; }
+.spreadList li > span b { font-size: .75rem; }
+.spreadList li > span small { overflow-wrap: anywhere; color: #6b7d72; font-size: .66rem; line-height: 1.45; }
+.emptyList { margin: 0; padding: 10px; border-radius: 8px; background: #f5f8f6; color: #748278; font-size: .72rem; line-height: 1.55; }
+.noData { padding: 38px 20px; border: 1px dashed #afc9b7; border-radius: 17px; background: #fff; color: #687a70; text-align: center; }
+.noData strong { color: #315b42; font-size: 1.05rem; }
+.noData p { margin: 7px 0 0; font-size: .82rem; }
+@media (max-width:800px) {
+  .columns { grid-template-columns: 1fr; }
+  .detailPanel { position: static; }
+  .rankingList { max-height: 460px; }
+}
+@media (max-width:520px) {
+  .controls { grid-template-columns: 1fr; gap: 9px; padding: 13px; }
+  .sourceSummary { gap: 6px; font-size: .7rem; }
+  .rankingPanel,.detailPanel { border-radius: 14px; }
+  .panelHeading { padding: 14px 13px 11px; }
+  .rankingList button { grid-template-columns: 27px 36px minmax(0,1fr) auto; gap: 7px; padding: 8px 9px; }
+  .pokemonName { font-size: .78rem; }
+  .detailContent { padding: 15px 13px; }
+  .detailHeader { grid-template-columns: 64px minmax(0,1fr); gap: 10px; }
+  .detailHeader > strong { grid-column: 2; font-size: 1.4rem; }
+  .detailSections { grid-template-columns: 1fr; gap: 15px; }
+  .wideSection { grid-column: auto; }
+}

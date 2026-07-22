@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "source": "pokemon-showdown",
+  "allowedHost": "www.smogon.com",
+  "allowedCutoffs": [0, 1760],
+  "formats": [
+    {
+      "sourceFormatId": "gen9championsbssregma",
+      "gameId": "pokemon-champions",
+      "regulationId": "M-A",
+      "battleFormat": "single",
+      "investmentSystem": "stat-points",
+      "enabled": true
+    },
+    {
+      "sourceFormatId": "gen9championsbssregmb",
+      "gameId": "pokemon-champions",
+      "regulationId": "M-B",
+      "battleFormat": "single",
+      "investmentSystem": "stat-points",
+      "enabled": true
+    },
+    {
+      "sourceFormatId": "gen9championsvgc2026regma",
+      "gameId": "pokemon-champions",
+      "regulationId": "M-A",
+      "battleFormat": "double",
+      "investmentSystem": "stat-points",
+      "enabled": true
+    },
+    {
+      "sourceFormatId": "gen9championsvgc2026regmb",
+      "gameId": "pokemon-champions",
+      "regulationId": "M-B",
+      "battleFormat": "double",
+      "investmentSystem": "stat-points",
+      "enabled": true
+    }
+  ],
+  "sourcePolicies": [
+    {
+      "source": "pokemon-home",
+      "automationAllowed": false,
+      "reason": "no-public-api-and-terms-restrict-reverse-engineering-and-redistribution"
+    }
+  ]
+}

@@ -238,6 +238,31 @@ npm run test:content-collection
 [docs/POKEMON_CONTENT_COLLECTION.md](/Users/drawcia0122/Codex/Pokémon/docs/POKEMON_CONTENT_COLLECTION.md)
 に記載しています。
 
+## Pokemon Showdown環境データ
+
+Pokemon Showdownの対戦をSmogonが集計した月次`chaos` JSONを、format・cutoffごとの
+静的snapshotへ正規化する基盤があります。この統計は公式Pokémon HOMEまたは
+Pokémon Championsの使用率ではありません。`/environment`で使用率TOP50と、
+技、持ち物、特性、能力配分、味方、苦手な相手の軽量表示を確認できます。
+定期更新はまだ実装していません。
+
+```bash
+# fixtureによる正規化・検証・安全な書き込みテスト
+npm run test:environment
+
+# 書き込まずに2026年6月M-Bシングル上位統計を確認
+npm run environment:collect -- \
+  --period 2026-06 \
+  --format gen9championsbssregmb \
+  --cutoff 1760 \
+  --dry-run
+```
+
+Pokemon HOMEは公開APIと再利用許可を確認できないため、policyにより自動通信を禁止して
+います。対象format、保存形式、alias、ライセンス、商用利用時の確認事項は
+[docs/ENVIRONMENT_DATA.md](/Users/drawcia0122/Codex/Pokémon/docs/ENVIRONMENT_DATA.md)
+を参照してください。
+
 ## 追加した改善点
 
 - ポケモン選択欄に検索入力を追加
