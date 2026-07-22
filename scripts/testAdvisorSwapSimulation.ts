@@ -15,7 +15,7 @@ import {
   type TeamAdvisorCandidate
 } from "@/lib/teamAdvisor";
 import { getTeamDiagnostics } from "@/lib/teamDiagnostics";
-import { getThreatPokemonAnalysis } from "@/lib/teamThreats";
+import { getAdvisorCompatibleThreatAnalysis } from "@/lib/teamThreats";
 import { getPokemonBySlug, summarizeTeam } from "@/lib/typeChart";
 import type { ThreatEnvironmentDataset } from "@/types/environmentThreat";
 import type { PokemonEntry, TeamSlot } from "@/types/pokemon";
@@ -39,7 +39,7 @@ function analyze(
 ) {
   const summary = summarizeTeam(team);
   const diagnostics = getTeamDiagnostics(team, summary, availablePokemon);
-  const threats = getThreatPokemonAnalysis(
+  const threats = getAdvisorCompatibleThreatAnalysis(
     team,
     summary,
     availablePokemon,
@@ -311,6 +311,10 @@ const sectionSource = readFileSync(
   path.join(process.cwd(), "components/team/TeamAdvisorSection.tsx"),
   "utf8"
 );
+const simulatorSource = readFileSync(
+  path.join(process.cwd(), "lib/advisorSwapSimulator.ts"),
+  "utf8"
+);
 const styleSource = readFileSync(
   path.join(process.cwd(), "components/team/TeamWorkspace.module.css"),
   "utf8"
@@ -326,7 +330,9 @@ assert(
     !sectionSource.includes("この案を試す") &&
     styleSource.includes(".advisorDiagnosticsGrid") &&
     styleSource.includes(".advisorChangeGrid") &&
-    !styleSource.includes(".advisorCandidateGrid { display: flex;"),
+    !styleSource.includes(".advisorCandidateGrid { display: flex;") &&
+    simulatorSource.includes("getAdvisorCompatibleThreatAnalysis") &&
+    !simulatorSource.includes("getThreatPokemonAnalysis("),
   "新しい入れ替えUI・4分野診断、または旧重複表示の整理が不十分です"
 );
 

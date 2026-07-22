@@ -10,7 +10,7 @@ import {
 } from "@/lib/teamAdvisor";
 import { getTeamDiagnostics } from "@/lib/teamDiagnostics";
 import {
-  getThreatPokemonAnalysis,
+  getAdvisorCompatibleThreatAnalysis,
   isThreatPokemonCandidate
 } from "@/lib/teamThreats";
 import { getPokemonBySlug, summarizeTeam } from "@/lib/typeChart";
@@ -37,7 +37,7 @@ function advise(
   const summary = summarizeTeam(team);
   const diagnostics = getTeamDiagnostics(team, summary, availablePokemon);
   const threats = includeThreats
-    ? getThreatPokemonAnalysis(
+    ? getAdvisorCompatibleThreatAnalysis(
         team,
         summary,
         availablePokemon,
@@ -366,6 +366,8 @@ assert(
 );
 assert(
   pageSource.includes("getTeamAdvisorAnalysis") &&
+    pageSource.includes("getAdvisorCompatibleThreatAnalysis") &&
+    pageSource.includes("threats: advisorThreatPokemon") &&
     pageSource.includes("getAdvisorSwapSimulation") &&
     pageSource.includes("getAdvisorTeamDiagnostics") &&
     pageSource.includes("<TeamAdvisorSection") &&

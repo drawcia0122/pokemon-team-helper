@@ -19,7 +19,26 @@ import type {
 } from "@/types/pokemon";
 
 export const THREAT_WEIGHTS = {
-  attackCoverage: 35,
+  attackCoverage: 28,
+  quadCoverage: 4,
+  defensivePressure: 13,
+  speed: 9,
+  offense: 7,
+  typeGap: 11,
+  usage: 20,
+  popularMoves: 6,
+  popularSet: 2
+} as const;
+
+type ThreatScoringWeights = {
+  [Key in keyof typeof THREAT_WEIGHTS]: number;
+};
+
+// STEP 4の入れ替え比較はTASK030時点の基準値を前提とするため、
+// 要警戒一覧の再調整を影響させない互換プロファイルとして保持する。
+const ADVISOR_COMPATIBLE_THREAT_WEIGHTS: ThreatScoringWeights = {
+  attackCoverage: 31,
+  quadCoverage: 4,
   defensivePressure: 15,
   speed: 10,
   offense: 8,
@@ -27,7 +46,18 @@ export const THREAT_WEIGHTS = {
   usage: 8,
   popularMoves: 10,
   popularSet: 2
-} as const;
+};
+
+export const THREAT_USAGE_SCORE_CURVE = [
+  { usageRate: 0.001, points: 0 },
+  { usageRate: 0.003, points: 2 },
+  { usageRate: 0.005, points: 4 },
+  { usageRate: 0.01, points: 7 },
+  { usageRate: 0.03, points: 11 },
+  { usageRate: 0.05, points: 14 },
+  { usageRate: 0.1, points: 18 },
+  { usageRate: 0.2, points: 20 }
+] as const;
 
 export const POPULAR_MOVE_MIN_SHARE = 0.2;
 export const MIN_THREAT_USAGE_RATE = 0.001;
@@ -58,9 +88,11 @@ export type ThreatPokemonAnalysis = {
     speedDifference: number | null;
     maxAttackingStat: number | null;
     matchedTypeGaps: TypeName[];
+    baseMatchupPoints: number;
     usagePoints: number;
     popularMovePoints: number;
     popularSetPoints: number;
+    environmentPoints: number;
     dominantDamageClass: "physical" | "special" | "mixed" | null;
     scoredPopularMoves: Array<{
       move: ThreatEnvironmentMove;
@@ -138,7 +170,8 @@ function getDominantDamageClass(
 
 function scorePopularMoves(
   environment: ThreatEnvironmentPokemon | undefined,
-  summary: TeamSummary
+  summary: TeamSummary,
+  weights: ThreatScoringWeights
 ): {
   points: number;
   setPoints: number;
@@ -175,7 +208,8 @@ function scorePopularMoves(
       const targetRatio = targetCount / summary.members.length;
       const quadRatio = quadTargetCount / summary.members.length;
       const points = move.share *
-        (targetRatio * THREAT_WEIGHTS.popularMoves + quadRatio * 2);
+        (targetRatio * weights.popularMoves +
+          quadRatio * weights.popularMoves * 0.2);
       return { move, targetCount, quadTargetCount, points };
     })
     .filter((entry) => entry.targetCount > 0)
@@ -184,23 +218,55 @@ function scorePopularMoves(
         right.points - left.points || right.move.share - left.move.share
     );
   const points = Math.min(
-    THREAT_WEIGHTS.popularMoves,
+    weights.popularMoves,
     Math.round(scoredMoves.reduce((total, entry) => total + entry.points, 0))
   );
   const setPoints =
     scoredMoves.length > 0 &&
     (dominantDamageClass === "physical" || dominantDamageClass === "special")
-      ? THREAT_WEIGHTS.popularSet
+      ? weights.popularSet
       : 0;
 
   return { points, setPoints, dominantDamageClass, scoredMoves };
 }
 
-function scoreUsage(usageRate: number | undefined): number {
+export function scoreThreatUsageRate(
+  usageRate: number | undefined
+): number {
+  if (
+    typeof usageRate !== "number" ||
+    !Number.isFinite(usageRate) ||
+    usageRate <= THREAT_USAGE_SCORE_CURVE[0].usageRate
+  ) {
+    return 0;
+  }
+
+  for (let index = 1; index < THREAT_USAGE_SCORE_CURVE.length; index += 1) {
+    const upper = THREAT_USAGE_SCORE_CURVE[index];
+    if (usageRate > upper.usageRate) continue;
+    const lower = THREAT_USAGE_SCORE_CURVE[index - 1];
+    const progress =
+      (usageRate - lower.usageRate) /
+      (upper.usageRate - lower.usageRate);
+    return Math.min(
+      THREAT_WEIGHTS.usage,
+      Math.round(lower.points + (upper.points - lower.points) * progress)
+    );
+  }
+
+  return THREAT_WEIGHTS.usage;
+}
+
+function scoreAdvisorCompatibleUsageRate(
+  usageRate: number | undefined
+): number {
   if (!usageRate || usageRate <= 0) return 0;
   return Math.min(
-    THREAT_WEIGHTS.usage,
-    Math.round(Math.sqrt(Math.min(usageRate, 0.5) / 0.5) * THREAT_WEIGHTS.usage)
+    ADVISOR_COMPATIBLE_THREAT_WEIGHTS.usage,
+    Math.round(
+      Math.sqrt(Math.min(usageRate, 0.5) / 0.5) *
+        ADVISOR_COMPATIBLE_THREAT_WEIGHTS.usage
+    )
   );
 }
 
@@ -210,7 +276,9 @@ function scoreThreatPokemon(
   teamAverageSpeed: number | null,
   typeGaps: TypeName[],
   environmentDataset: ThreatEnvironmentDataset | null,
-  environmentBySlug: Map<string, ThreatEnvironmentPokemon>
+  environmentBySlug: Map<string, ThreatEnvironmentPokemon>,
+  weights: ThreatScoringWeights,
+  scoreUsage: (usageRate: number | undefined) => number
 ): ThreatPokemonAnalysis {
   const memberCount = summary.members.length;
   let superEffectiveTargetCount = 0;
@@ -245,55 +313,59 @@ function scoreThreatPokemon(
 
   const attackCoveragePoints = memberCount
     ? Math.round(
-        (superEffectiveTargetCount / memberCount) * 31 +
-          (quadEffectiveTargetCount / memberCount) * 4
+        (superEffectiveTargetCount / memberCount) *
+          weights.attackCoverage +
+          (quadEffectiveTargetCount / memberCount) *
+            weights.quadCoverage
       )
     : 0;
   const defensivePressurePoints =
     teamAnswerCount === 0
-      ? THREAT_WEIGHTS.defensivePressure
+      ? weights.defensivePressure
       : teamAnswerCount === 1
-        ? 9
+        ? Math.round(weights.defensivePressure * 0.6)
         : teamAnswerCount === 2
-          ? 4
+          ? Math.round(weights.defensivePressure * (4 / 15))
           : 0;
   const speedPoints =
     speedDifference === null
       ? 0
       : speedDifference >= 40
-        ? THREAT_WEIGHTS.speed
+        ? weights.speed
         : speedDifference >= 20
-          ? 7
+          ? Math.round(weights.speed * 0.7)
           : speedDifference >= 10
-            ? 4
+            ? Math.round(weights.speed * 0.4)
             : 0;
   const attackingStatPoints =
     maxAttackingStat === null
       ? 0
       : maxAttackingStat >= 150
-        ? THREAT_WEIGHTS.offense
+        ? weights.offense
         : maxAttackingStat >= 130
-          ? 6
+          ? Math.round(weights.offense * 0.75)
           : maxAttackingStat >= 100
-            ? 3
+            ? Math.round(weights.offense * 0.375)
             : 0;
   const typeGapPoints = Math.min(
-    THREAT_WEIGHTS.typeGap,
-    matchedTypeGaps.length * 10
+    weights.typeGap,
+    matchedTypeGaps.length *
+      Math.round(weights.typeGap * (10 / 12))
   );
   const environmentSource = environmentBySlug.get(pokemon.slug);
   const usagePoints = scoreUsage(environmentSource?.usageRate);
-  const popularMoves = scorePopularMoves(environmentSource, summary);
+  const popularMoves = scorePopularMoves(environmentSource, summary, weights);
+  const baseMatchupPoints =
+    attackCoveragePoints +
+    defensivePressurePoints +
+    speedPoints +
+    attackingStatPoints +
+    typeGapPoints;
+  const environmentPoints =
+    usagePoints + popularMoves.points + popularMoves.setPoints;
   const score = Math.min(
     100,
-    attackCoveragePoints +
-      defensivePressurePoints +
-      speedPoints +
-      attackingStatPoints +
-      typeGapPoints +
-      usagePoints +
-      popularMoves.points +
-      popularMoves.setPoints
+    baseMatchupPoints + environmentPoints
   );
   const reasons: ScoredReason[] = [];
 
@@ -395,9 +467,11 @@ function scoreThreatPokemon(
       speedDifference,
       maxAttackingStat,
       matchedTypeGaps,
+      baseMatchupPoints,
       usagePoints,
       popularMovePoints: popularMoves.points,
       popularSetPoints: popularMoves.setPoints,
+      environmentPoints,
       dominantDamageClass: popularMoves.dominantDamageClass,
       scoredPopularMoves: popularMoves.scoredMoves
     }
@@ -423,6 +497,48 @@ export function getThreatPokemonAnalysis(
   environmentDataset: ThreatEnvironmentDataset | null = null,
   limit = 5
 ): ThreatPokemonAnalysis[] {
+  return getThreatPokemonAnalysisWithScoring(
+    team,
+    summary,
+    availablePokemon,
+    environmentDataset,
+    limit,
+    THREAT_WEIGHTS,
+    scoreThreatUsageRate
+  );
+}
+
+/**
+ * TASK031の要警戒順位調整をSTEP 4の提案値へ波及させないための互換経路。
+ * 新規UIの要警戒一覧では使用しない。
+ */
+export function getAdvisorCompatibleThreatAnalysis(
+  team: TeamSlot[],
+  summary: TeamSummary,
+  availablePokemon: PokemonEntry[],
+  environmentDataset: ThreatEnvironmentDataset | null = null,
+  limit = 5
+): ThreatPokemonAnalysis[] {
+  return getThreatPokemonAnalysisWithScoring(
+    team,
+    summary,
+    availablePokemon,
+    environmentDataset,
+    limit,
+    ADVISOR_COMPATIBLE_THREAT_WEIGHTS,
+    scoreAdvisorCompatibleUsageRate
+  );
+}
+
+function getThreatPokemonAnalysisWithScoring(
+  team: TeamSlot[],
+  summary: TeamSummary,
+  availablePokemon: PokemonEntry[],
+  environmentDataset: ThreatEnvironmentDataset | null,
+  limit: number,
+  weights: ThreatScoringWeights,
+  scoreUsage: (usageRate: number | undefined) => number
+): ThreatPokemonAnalysis[] {
   if (summary.members.length === 0 || limit <= 0) return [];
 
   const teamAverageSpeed = getTeamAverageSpeed(team);
@@ -446,7 +562,9 @@ export function getThreatPokemonAnalysis(
       teamAverageSpeed,
       typeGaps,
       environmentDataset,
-      environmentBySlug
+      environmentBySlug,
+      weights,
+      scoreUsage
     );
     const current = bestBySpecies.get(pokemon.speciesId);
     if (

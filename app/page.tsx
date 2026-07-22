@@ -22,7 +22,10 @@ import { getAdvisorTeamDiagnostics } from "@/lib/advisorTeamDiagnostics";
 import { getTeamAdvisorAnalysis } from "@/lib/teamAdvisor";
 import { findThreatEnvironmentDataset } from "@/lib/environmentThreatData";
 import { getTeamDiagnostics } from "@/lib/teamDiagnostics";
-import { getThreatPokemonAnalysis } from "@/lib/teamThreats";
+import {
+  getAdvisorCompatibleThreatAnalysis,
+  getThreatPokemonAnalysis
+} from "@/lib/teamThreats";
 import {
   getAvailablePokemonBySeason,
   getLatestSeasonId,
@@ -89,13 +92,23 @@ export default function HomePage() {
       ),
     [availablePokemon, summary, team, threatEnvironmentDataset]
   );
+  const advisorThreatPokemon = useMemo(
+    () =>
+      getAdvisorCompatibleThreatAnalysis(
+        team,
+        summary,
+        availablePokemon,
+        threatEnvironmentDataset
+      ),
+    [availablePokemon, summary, team, threatEnvironmentDataset]
+  );
   const advisor = useMemo(
     () =>
       getTeamAdvisorAnalysis({
         team,
         summary,
         diagnostics,
-        threats: threatPokemon,
+        threats: advisorThreatPokemon,
         availablePokemon,
         environmentDataset: threatEnvironmentDataset
       }),
@@ -104,8 +117,8 @@ export default function HomePage() {
       diagnostics,
       summary,
       team,
-      threatEnvironmentDataset,
-      threatPokemon
+      advisorThreatPokemon,
+      threatEnvironmentDataset
     ]
   );
   const advisorSwapSimulation = useMemo(
@@ -123,9 +136,9 @@ export default function HomePage() {
       getAdvisorTeamDiagnostics({
         team,
         summary,
-        threats: threatPokemon
+        threats: advisorThreatPokemon
       }),
-    [summary, team, threatPokemon]
+    [advisorThreatPokemon, summary, team]
   );
 
   useEffect(() => {

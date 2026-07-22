@@ -9,7 +9,7 @@ import {
   getTeamTypeGapRows
 } from "@/lib/teamDiagnostics";
 import {
-  getThreatPokemonAnalysis,
+  getAdvisorCompatibleThreatAnalysis,
   type ThreatPokemonAnalysis
 } from "@/lib/teamThreats";
 import {
@@ -545,13 +545,13 @@ export function evaluateAdvisorSwapPlan(
     beforeDiagnostics
   );
   const afterIssues = getTeamAdvisorIssues(afterSummary, afterDiagnostics);
-  const beforeThreats = getThreatPokemonAnalysis(
+  const beforeThreats = getAdvisorCompatibleThreatAnalysis(
     beforeTeam,
     beforeSummary,
     input.availablePokemon,
     input.environmentDataset
   );
-  const afterThreats = getThreatPokemonAnalysis(
+  const afterThreats = getAdvisorCompatibleThreatAnalysis(
     afterTeam,
     afterSummary,
     input.availablePokemon,
