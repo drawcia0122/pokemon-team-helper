@@ -1,5 +1,6 @@
 import { getTeamTypeGapRows, type TeamDiagnostics } from "@/lib/teamDiagnostics";
 import {
+  describeAbilityAdjustedMoveEffectiveness,
   evaluateMoveAgainstPokemon,
   getEnvironmentAttackingMoves,
   THREAT_MOVE_THRESHOLDS
@@ -207,19 +208,19 @@ function scoreIssueResponses(
       issueResolutionPoints -= Math.round(
         evaluation.weaknessProbability * ADVISOR_WEIGHTS.issueTypeWeakPenalty
       );
-      const immunity = evaluation.relevantAbilities.find(
-        (effect) => effect.kind === "immunity"
-      );
+      const abilityReason = describeAbilityAdjustedMoveEffectiveness({
+        evaluation,
+        moveName: `${getTypeLabel(issue.type)}技`,
+        defenderName: pokemon.nameJa
+      });
       if (evaluation.immunityProbability >= 0.5) {
-        text = immunity
-          ? `${getTypeLabel(issue.type)}を${immunity.abilityName}で無効化できます。`
-          : `${getTypeLabel(issue.type)}を無効化できます。`;
+        text = abilityReason ?? `${getTypeLabel(issue.type)}技を無効化できます。`;
       } else if (evaluation.quarterResistanceProbability >= 0.5) {
-        text = `${getTypeLabel(issue.type)}を1/4以下で受けられます。`;
+        text = abilityReason ?? `${getTypeLabel(issue.type)}技を1/4以下で受けられます。`;
       } else if (evaluation.resistanceProbability >= 0.5) {
-        text = `${getTypeLabel(issue.type)}を半減できます。`;
-      } else if (immunity && evaluation.immunityProbability > 0) {
-        text = `${immunity.abilityName}型（採用率${Math.round(immunity.probability * 100)}%）なら${getTypeLabel(issue.type)}を無効化できます。`;
+        text = abilityReason ?? `${getTypeLabel(issue.type)}技を半減できます。`;
+      } else if (evaluation.immunityProbability > 0 && abilityReason) {
+        text = abilityReason;
       }
       if (points > 0 && text) {
         issueResolutionPoints += points;
@@ -365,13 +366,13 @@ function scoreThreatResponses(
         )[0];
       if (bestDefensiveAnswer) {
         const { move, evaluation } = bestDefensiveAnswer;
-        const immunity = evaluation.relevantAbilities.find(
-          (effect) => effect.kind === "immunity"
-        );
         const text =
-          evaluation.immunityProbability >= 0.5 && immunity
-            ? `${threat.pokemon.nameJa}の${move.name}（採用率${Math.round(move.share * 100)}%）を${immunity.abilityName}で無効化しやすいです。`
-            : `${threat.pokemon.nameJa}の${move.name}（採用率${Math.round(move.share * 100)}%）を半減以下で受けられます。`;
+          describeAbilityAdjustedMoveEffectiveness({
+            evaluation,
+            moveName: `${threat.pokemon.nameJa}の${move.name}（採用率${Math.round(move.share * 100)}%）`,
+            defenderName: pokemon.nameJa
+          }) ??
+          `${threat.pokemon.nameJa}の${move.name}（採用率${Math.round(move.share * 100)}%）を半減以下で受けられます。`;
         addReason(reasons, {
           id: `threat-defense-${threat.pokemon.speciesId}-${move.id}`,
           text,
@@ -413,9 +414,16 @@ function scoreThreatResponses(
       );
       points += movePoints;
       appliesPressure = true;
+      const abilityReason = describeAbilityAdjustedMoveEffectiveness({
+        evaluation: popularEffectiveMove.evaluation,
+        moveName: `採用率${Math.round(popularEffectiveMove.move.share * 100)}%の${popularEffectiveMove.move.name}`,
+        defenderName: threat.pokemon.nameJa
+      });
       addReason(reasons, {
         id: `threat-offense-${threat.pokemon.speciesId}`,
-        text: `採用率${Math.round(popularEffectiveMove.move.share * 100)}%の${popularEffectiveMove.move.name}で${threat.pokemon.nameJa}へ抜群を狙えます。`,
+        text:
+          abilityReason ??
+          `採用率${Math.round(popularEffectiveMove.move.share * 100)}%の${popularEffectiveMove.move.name}で${threat.pokemon.nameJa}へ抜群を狙えます。`,
         points: movePoints,
         order: 22
       });

@@ -380,6 +380,19 @@ assert(
     ),
   "かたやぶり型のじしんで、ふゆうを無視できません"
 );
+assert(
+  moldBreakerThreat.reasons.some(
+    (reason) =>
+      reason.includes("かたやぶりにより") &&
+      reason.includes("ふゆうを無視") &&
+      reason.includes("じしん") &&
+      reason.includes("抜群になります")
+  ) &&
+    !moldBreakerThreat.reasons.some((reason) =>
+      reason.includes("通りません")
+    ),
+  `要警戒のかたやぶり理由が最終倍率と逆です: ${JSON.stringify(moldBreakerThreat.reasons)}`
+);
 const megaGyarados = seasonThreatCandidates.find(
   (pokemon) => pokemon.slug === "gyarados-mega"
 );
@@ -803,8 +816,10 @@ const advisorSource = readFileSync(
 assert(
   threatSource.includes('from "@/lib/battleEffectiveness"') &&
     threatSource.includes("evaluateMoveAgainstPokemon") &&
+    threatSource.includes("describeAbilityAdjustedMoveEffectiveness") &&
     advisorSource.includes('from "@/lib/battleEffectiveness"') &&
-    advisorSource.includes("evaluateMoveAgainstPokemon"),
+    advisorSource.includes("evaluateMoveAgainstPokemon") &&
+    advisorSource.includes("describeAbilityAdjustedMoveEffectiveness"),
   "要警戒とAdvisorが共通の実採用技・特性判定を利用していません"
 );
 assert(

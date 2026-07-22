@@ -158,7 +158,9 @@ assert(
 assert(
   iceAdvisor.candidates.some((candidate) =>
     candidate.reasons.some(
-      (reason) => reason.includes("こおりを半減") || reason.includes("こおりを1/4")
+      (reason) =>
+        reason.includes("こおり技を半減") ||
+        reason.includes("こおり技を1/4")
     )
   ) &&
     iceAdvisor.candidates.some(
@@ -273,12 +275,17 @@ const levitateAnswer = moveAbilityAdvisor.candidates[0];
 assert(
   levitateAnswer?.pokemon.slug === levitateAnswerPokemon.slug &&
     levitateAnswer.reasons.some(
-      (reason) => reason.includes("じしん") && reason.includes("ふゆう")
+      (reason) =>
+        reason ===
+        "ふゆう回答はふゆうでじめん脅威のじしん（採用率82%）を無効化できます。"
     ) &&
     levitateAnswer.reasons.some((reason) =>
       reason.includes("ハイドロポンプ")
     ) &&
-    !levitateAnswer.reasons.some((reason) => reason.includes("つるぎのまい")),
+    !levitateAnswer.reasons.some(
+      (reason) =>
+        reason.includes("つるぎのまい") || reason.includes("通りません")
+    ),
   `Advisorの受け先理由が実採用攻撃技・特性判定へ切り替わっていません: ${JSON.stringify(levitateAnswer?.reasons)}`
 );
 

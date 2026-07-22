@@ -41,6 +41,15 @@ export type BattleAbilityEffect = {
   probability: number;
 };
 
+export type BattleIgnoredAbilityEffect = {
+  attackerAbilityId: string;
+  attackerAbilityName: string;
+  defenderAbilityId: string;
+  defenderAbilityName: string;
+  ignoredKind: "immunity" | "resistance";
+  probability: number;
+};
+
 export type MoveEffectivenessEvaluation = {
   baseMultiplier: number;
   adjustedMultiplier: number;
@@ -55,6 +64,13 @@ export type MoveEffectivenessEvaluation = {
   immunityReason: string | null;
   resistanceReason: string | null;
   relevantAbilities: BattleAbilityEffect[];
+  ignoredDefensiveAbilities: BattleIgnoredAbilityEffect[];
+};
+
+export type DescribeMoveEffectivenessInput = {
+  evaluation: MoveEffectivenessEvaluation;
+  moveName: string;
+  defenderName?: string;
 };
 
 export type EvaluateMoveAgainstPokemonInput = {
@@ -154,6 +170,83 @@ function addAbilityEffect(
   });
 }
 
+function addIgnoredAbilityEffect(
+  effects: Map<string, BattleIgnoredAbilityEffect>,
+  attackerAbility: ThreatEnvironmentAbility,
+  defenderAbility: ThreatEnvironmentAbility,
+  ignoredKind: BattleIgnoredAbilityEffect["ignoredKind"],
+  probability: number
+): void {
+  const key = `${attackerAbility.id}:${defenderAbility.id}:${ignoredKind}`;
+  const current = effects.get(key);
+  effects.set(key, {
+    attackerAbilityId: attackerAbility.id,
+    attackerAbilityName: attackerAbility.name,
+    defenderAbilityId: defenderAbility.id,
+    defenderAbilityName: defenderAbility.name,
+    ignoredKind,
+    probability: clampProbability((current?.probability ?? 0) + probability)
+  });
+}
+
+function formatAbilityShare(probability: number): string {
+  return probability < 0.999
+    ? `型（採用率${Math.round(probability * 100)}%）`
+    : "";
+}
+
+function getFinalOutcomePhrase(multiplier: number): string {
+  if (multiplier === 0) return "無効化できます";
+  if (multiplier <= 0.5) return "半減できます";
+  if (multiplier < 1) return "軽減できます";
+  if (multiplier >= 2) return "抜群になります";
+  return "有効になります";
+}
+
+/**
+ * 特性が最終倍率へ影響したときだけ、攻撃側・防御側の主体が分かる理由文を返す。
+ * 文言は必ずbaseMultiplierではなくexpectedMultiplierの最終判定から選ぶ。
+ */
+export function describeAbilityAdjustedMoveEffectiveness({
+  evaluation,
+  moveName,
+  defenderName
+}: DescribeMoveEffectivenessInput): string | null {
+  const defenderSubject = defenderName ? `${defenderName}は` : "防御側は";
+  const defenderTarget = defenderName ? `${defenderName}に` : "";
+  const finalOutcome = getFinalOutcomePhrase(evaluation.expectedMultiplier);
+  const ignored = evaluation.ignoredDefensiveAbilities[0];
+
+  if (ignored) {
+    const attackerAbility = `${ignored.attackerAbilityName}${formatAbilityShare(ignored.probability)}`;
+    if (evaluation.expectedMultiplier >= 1) {
+      return `${attackerAbility}により、${ignored.defenderAbilityName}を無視して${moveName}が${defenderTarget}${finalOutcome}。`;
+    }
+    return `${attackerAbility}により${ignored.defenderAbilityName}を無視しますが、${defenderSubject}${moveName}を${finalOutcome}。`;
+  }
+
+  const immunity = evaluation.relevantAbilities.find(
+    (effect) => effect.kind === "immunity"
+  );
+  if (immunity) {
+    const ability = `${immunity.abilityName}${formatAbilityShare(immunity.probability)}`;
+    if (evaluation.expectedMultiplier === 0) {
+      return `${defenderSubject}${ability}で${moveName}を${finalOutcome}。`;
+    }
+    return `${defenderSubject}${ability}なら${moveName}を無効化でき、採用率を加味すると${finalOutcome}。`;
+  }
+
+  const resistance = evaluation.relevantAbilities.find(
+    (effect) => effect.kind === "resistance"
+  );
+  if (resistance) {
+    const ability = `${resistance.abilityName}${formatAbilityShare(resistance.probability)}`;
+    return `${defenderSubject}${ability}により${moveName}を${finalOutcome}。`;
+  }
+
+  return null;
+}
+
 export function isResolvedDamagingMove(
   move: Pick<ThreatEnvironmentMove, "id" | "name" | "damageClass">
 ): boolean {
@@ -192,6 +285,7 @@ export function evaluateMoveAgainstPokemon({
   const attackerScenarios = toAbilityScenarios(attackerAbilityUsage);
   const defenderScenarios = toAbilityScenarios(defenderAbilityUsage);
   const effects = new Map<string, BattleAbilityEffect>();
+  const ignoredEffects = new Map<string, BattleIgnoredAbilityEffect>();
   let expectedMultiplier = 0;
   let immunityProbability = 0;
   let resistanceProbability = 0;
@@ -248,6 +342,13 @@ export function evaluateMoveAgainstPokemon({
           "bypass",
           probability
         );
+        addIgnoredAbilityEffect(
+          ignoredEffects,
+          attackerScenario.ability,
+          defenderScenario.ability,
+          withoutBypass.kind,
+          probability
+        );
       }
     }
   }
@@ -256,6 +357,12 @@ export function evaluateMoveAgainstPokemon({
     (left, right) =>
       right.probability - left.probability ||
       left.abilityId.localeCompare(right.abilityId)
+  );
+  const ignoredDefensiveAbilities = [...ignoredEffects.values()].sort(
+    (left, right) =>
+      right.probability - left.probability ||
+      left.attackerAbilityId.localeCompare(right.attackerAbilityId) ||
+      left.defenderAbilityId.localeCompare(right.defenderAbilityId)
   );
   const immunityEffect = relevantAbilities.find(
     (effect) => effect.kind === "immunity"
@@ -289,7 +396,8 @@ export function evaluateMoveAgainstPokemon({
       : expectedMultiplier > 0 && expectedMultiplier <= 0.5
         ? "タイプ相性で半減以下"
         : null,
-    relevantAbilities
+    relevantAbilities,
+    ignoredDefensiveAbilities
   };
 }
 

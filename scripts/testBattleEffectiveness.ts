@@ -1,4 +1,5 @@
 import {
+  describeAbilityAdjustedMoveEffectiveness,
   evaluateMoveAgainstPokemon,
   getAbilityBypassIds,
   getEnvironmentAttackingMoves,
@@ -98,6 +99,84 @@ for (const bypass of [
     `${bypass[1]}の特性無視内訳がありません`
   );
 }
+
+const levitateEvaluation = evaluateMoveAgainstPokemon({
+  move: move("じしん", "ground"),
+  attacker,
+  defender: neutralDefender,
+  defenderAbilityUsage: [ability("levitate", "ふゆう")]
+});
+const levitateReason = describeAbilityAdjustedMoveEffectiveness({
+  evaluation: levitateEvaluation,
+  moveName: "じしん",
+  defenderName: "ロトム"
+});
+assert(
+  levitateReason === "ロトムはふゆうでじしんを無効化できます。" &&
+    levitateEvaluation.expectedMultiplier === 0,
+  `ふゆうの理由文と最終倍率が一致しません: ${levitateReason}`
+);
+
+const moldBreakerEvaluation = evaluateMoveAgainstPokemon({
+  move: move("じしん", "ground"),
+  attacker,
+  defender: neutralDefender,
+  attackerAbilityUsage: [ability("moldbreaker", "かたやぶり")],
+  defenderAbilityUsage: [ability("levitate", "ふゆう")]
+});
+const moldBreakerReason = describeAbilityAdjustedMoveEffectiveness({
+  evaluation: moldBreakerEvaluation,
+  moveName: "じしん",
+  defenderName: "ロトム"
+});
+assert(
+  moldBreakerReason ===
+    "かたやぶりにより、ふゆうを無視してじしんがロトムに有効になります。" &&
+    moldBreakerEvaluation.expectedMultiplier === 1 &&
+    moldBreakerEvaluation.ignoredDefensiveAbilities.some(
+      (entry) =>
+        entry.attackerAbilityId === "moldbreaker" &&
+        entry.defenderAbilityId === "levitate"
+    ),
+  `かたやぶりの理由文と最終倍率が一致しません: ${moldBreakerReason}`
+);
+
+const flashFireEvaluation = evaluateMoveAgainstPokemon({
+  move: move("かえんほうしゃ", "fire"),
+  attacker,
+  defender: neutralDefender,
+  defenderAbilityUsage: [ability("flashfire", "もらいび")]
+});
+const flashFireReason = describeAbilityAdjustedMoveEffectiveness({
+  evaluation: flashFireEvaluation,
+  moveName: "かえんほうしゃ",
+  defenderName: "ヒードラン"
+});
+assert(
+  flashFireReason ===
+    "ヒードランはもらいびでかえんほうしゃを無効化できます。" &&
+    flashFireEvaluation.expectedMultiplier === 0,
+  `もらいびの理由文と最終倍率が一致しません: ${flashFireReason}`
+);
+
+const moldBreakerFlashFireEvaluation = evaluateMoveAgainstPokemon({
+  move: move("かえんほうしゃ", "fire"),
+  attacker,
+  defender: neutralDefender,
+  attackerAbilityUsage: [ability("moldbreaker", "かたやぶり")],
+  defenderAbilityUsage: [ability("flashfire", "もらいび")]
+});
+const moldBreakerFlashFireReason = describeAbilityAdjustedMoveEffectiveness({
+  evaluation: moldBreakerFlashFireEvaluation,
+  moveName: "かえんほうしゃ",
+  defenderName: "ヒードラン"
+});
+assert(
+  moldBreakerFlashFireReason ===
+    "かたやぶりにより、もらいびを無視してかえんほうしゃがヒードランに有効になります。" &&
+    moldBreakerFlashFireEvaluation.expectedMultiplier === 1,
+  `かたやぶり+もらいびの理由文が逆です: ${moldBreakerFlashFireReason}`
+);
 
 const partialLevitate = evaluateMoveAgainstPokemon({
   move: move("earthquake", "ground"),

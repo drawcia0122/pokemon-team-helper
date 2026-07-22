@@ -1,5 +1,6 @@
 import { getTeamTypeGapRows } from "@/lib/teamDiagnostics";
 import {
+  describeAbilityAdjustedMoveEffectiveness,
   evaluateMoveAgainstPokemon,
   getEnvironmentAttackingMoves,
   THREAT_MOVE_THRESHOLDS
@@ -233,14 +234,12 @@ function scorePopularMoves(
         if (evaluation.stableResistanceProbability >= 0.5) {
           stableAnswerCount += 1;
         }
-        evaluation.relevantAbilities.forEach((effect) => {
-          if (effect.probability < 0.5) return;
-          if (effect.kind === "immunity") {
-            abilityNotes.add(`${member.label}は${effect.abilityName}で無効`);
-          } else if (effect.kind === "bypass") {
-            abilityNotes.add(`${effect.abilityName}で防御特性を無視`);
-          }
+        const abilityReason = describeAbilityAdjustedMoveEffectiveness({
+          evaluation,
+          moveName: move.name,
+          defenderName: member.label
         });
+        if (abilityReason) abilityNotes.add(abilityReason);
       }
       const targetRatio = targetCount / summary.members.length;
       const quadRatio = quadTargetCount / summary.members.length;
@@ -547,7 +546,7 @@ function scoreThreatPokemon(
     entry.abilityNotes.slice(0, 1).forEach((note) => {
       reasons.push({
         id: `popular-move-ability-${entry.move.id}`,
-        text: `${note}のため、${entry.move.name}は通りません。`,
+        text: note,
         points: entry.points,
         order: 5 + index
       });
