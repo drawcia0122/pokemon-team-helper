@@ -1,5 +1,6 @@
 import {
   describeAbilityAdjustedMoveEffectiveness,
+  describeMoveEffectiveness,
   evaluateMoveAgainstPokemon,
   getAbilityBypassIds,
   getEnvironmentAttackingMoves,
@@ -201,6 +202,22 @@ assert(
   Math.abs(partialMoldBreaker.immunityProbability - 0.75) < 1e-9 &&
     Math.abs(partialMoldBreaker.expectedMultiplier - 0.5) < 1e-9,
   "かたやぶり採用率25%とふゆうの期待倍率が不正です"
+);
+
+const ordinaryWeakness = evaluateMoveAgainstPokemon({
+  move: move("れいとうビーム", "ice"),
+  attacker,
+  defender: pokemon("garchomp", ["dragon", "ground"])
+});
+assert(
+  describeMoveEffectiveness({
+    evaluation: ordinaryWeakness,
+    moveName: "ユキメノコのれいとうビーム",
+    defenderName: "ガブリアス"
+  }) ===
+    "ユキメノコのれいとうビームはガブリアスに抜群になります。" &&
+    ordinaryWeakness.expectedMultiplier === 4,
+  "通常の抜群理由が最終倍率と一致しません"
 );
 
 const moves = [

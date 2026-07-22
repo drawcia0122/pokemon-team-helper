@@ -89,6 +89,7 @@ export type TeamAdvisorAnalysis = {
   overallLabel: "分析待ち" | "良好" | "要調整" | "改善余地あり";
   issues: TeamAdvisorIssue[];
   candidates: TeamAdvisorCandidate[];
+  candidatePool: TeamAdvisorCandidate[];
 };
 
 export type TeamAdvisorInput = {
@@ -112,6 +113,7 @@ const SPECIAL_BULK_TOTAL = 180;
 const BULK_STAT_MINIMUM = 80;
 const HIGH_STAT_THRESHOLD = 100;
 const MAX_ADVISOR_ITEMS = 3;
+const MAX_ADVISOR_PREVIEW_CANDIDATES = 5;
 
 function getRoleIssue(
   id: string,
@@ -612,7 +614,12 @@ export function getTeamAdvisorAnalysis({
   environmentDataset
 }: TeamAdvisorInput): TeamAdvisorAnalysis {
   if (summary.members.length < 2) {
-    return { overallLabel: "分析待ち", issues: [], candidates: [] };
+    return {
+      overallLabel: "分析待ち",
+      issues: [],
+      candidates: [],
+      candidatePool: []
+    };
   }
 
   const issues = getTeamAdvisorIssues(summary, diagnostics);
@@ -626,7 +633,7 @@ export function getTeamAdvisorAnalysis({
   const environmentBySlug = new Map(
     environmentDataset?.pokemon.map((entry) => [entry.slug, entry]) ?? []
   );
-  const bestBySpecies = new Map<number, TeamAdvisorCandidate>();
+  const candidatePool: TeamAdvisorCandidate[] = [];
 
   for (const pokemon of availablePokemon) {
     if (
@@ -644,15 +651,21 @@ export function getTeamAdvisorAnalysis({
       environmentBySlug
     );
     if (!candidate) continue;
-    const current = bestBySpecies.get(pokemon.speciesId);
+    candidatePool.push(candidate);
+  }
+
+  candidatePool.sort(compareCandidates);
+  const bestBySpecies = new Map<number, TeamAdvisorCandidate>();
+  for (const candidate of candidatePool) {
+    const current = bestBySpecies.get(candidate.pokemon.speciesId);
     if (!current || compareCandidates(candidate, current) < 0) {
-      bestBySpecies.set(pokemon.speciesId, candidate);
+      bestBySpecies.set(candidate.pokemon.speciesId, candidate);
     }
   }
 
   const candidates = [...bestBySpecies.values()]
     .sort(compareCandidates)
-    .slice(0, MAX_ADVISOR_ITEMS);
+    .slice(0, MAX_ADVISOR_PREVIEW_CANDIDATES);
   const overallLabel =
     issues.length === 0
       ? "良好"
@@ -660,7 +673,7 @@ export function getTeamAdvisorAnalysis({
         ? "要調整"
         : "改善余地あり";
 
-  return { overallLabel, issues, candidates };
+  return { overallLabel, issues, candidates, candidatePool };
 }
 
 export const TEAM_ADVISOR_EVALUATED_TYPE_COUNT = getAllTypes().length;

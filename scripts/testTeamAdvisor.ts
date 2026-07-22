@@ -114,14 +114,16 @@ const empty = advise([]);
 assert(
   empty.overallLabel === "分析待ち" &&
     empty.issues.length === 0 &&
-    empty.candidates.length === 0,
+    empty.candidates.length === 0 &&
+    empty.candidatePool.length === 0,
   "空パーティを分析待ちにできません"
 );
 const one = advise([pokemonSlot("slot-1", "charizard")]);
 assert(
   one.overallLabel === "分析待ち" &&
     one.issues.length === 0 &&
-    one.candidates.length === 0,
+    one.candidates.length === 0 &&
+    one.candidatePool.length === 0,
   "1体パーティで確定的なAdvisor提案を表示しました"
 );
 
@@ -133,7 +135,9 @@ const iceWeakTeam = [
 const iceAdvisor = advise(iceWeakTeam);
 assert(
   iceAdvisor.issues.length <= 3 &&
-    iceAdvisor.candidates.length === 3 &&
+    iceAdvisor.candidates.length > 0 &&
+    iceAdvisor.candidates.length <= 5 &&
+    iceAdvisor.candidatePool.length >= iceAdvisor.candidates.length &&
     iceAdvisor.issues.some(
       (issue) =>
         issue.id === "type-gap-ice" &&
@@ -299,7 +303,7 @@ const sixTeam = [
 ];
 const six = advise(sixTeam);
 assert(
-  six.issues.length === 0 && six.candidates.length <= 3,
+  six.issues.length === 0 && six.candidates.length <= 5,
   "偏りの少ない6体パーティを課題0件と判定できません"
 );
 
@@ -452,9 +456,11 @@ assert(
     sectionSource.includes("チームアドバイザー") &&
     sectionSource.includes("現在の課題") &&
     sectionSource.includes("改善候補と入れ替え案") &&
+    sectionSource.includes("推薦カテゴリ") &&
+    sectionSource.includes("ADVISOR_CATEGORY_LABELS") &&
     sectionSource.includes("チーム詳細診断") &&
     sectionSource.includes("要警戒TOP5平均") &&
-    sectionSource.includes("改善点") &&
+    sectionSource.includes("おすすめ理由") &&
     sectionSource.includes("注意点") &&
     sectionSource.includes("実採用攻撃技と特性による相性変化") &&
     sectionSource.includes("function AdvisorIssues") &&

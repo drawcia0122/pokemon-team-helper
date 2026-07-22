@@ -247,6 +247,31 @@ export function describeAbilityAdjustedMoveEffectiveness({
   return null;
 }
 
+/**
+ * 特性の有無にかかわらず、最終倍率から表示用の理由文を生成する。
+ * UIや各分析モジュールが倍率を再判定しないための共通入口。
+ */
+export function describeMoveEffectiveness(
+  input: DescribeMoveEffectivenessInput
+): string {
+  const adjusted = describeAbilityAdjustedMoveEffectiveness(input);
+  if (adjusted) return adjusted;
+
+  const finalOutcome = getFinalOutcomePhrase(
+    input.evaluation.expectedMultiplier
+  );
+  if (input.evaluation.expectedMultiplier >= 1) {
+    const defenderTarget = input.defenderName
+      ? `${input.defenderName}に`
+      : "防御側に";
+    return `${input.moveName}は${defenderTarget}${finalOutcome}。`;
+  }
+  const defenderSubject = input.defenderName
+    ? `${input.defenderName}は`
+    : "防御側は";
+  return `${defenderSubject}${input.moveName}を${finalOutcome}。`;
+}
+
 export function isResolvedDamagingMove(
   move: Pick<ThreatEnvironmentMove, "id" | "name" | "damageClass">
 ): boolean {

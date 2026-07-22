@@ -1,7 +1,10 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import {
+  ADVISOR_CATEGORY_LABELS,
+  ADVISOR_RECOMMENDATION_RULES,
   ADVISOR_SWAP_WEIGHTS,
+  ADVISOR_TEAM_RULES,
   evaluateAdvisorSwapPlan,
   getAdvisorSwapSimulation,
   type AdvisorSwapSimulationInput
@@ -87,6 +90,13 @@ function candidateFor(pokemon: PokemonEntry): TeamAdvisorCandidate {
   };
 }
 
+function displayedPlans(simulation: ReturnType<typeof getAdvisorSwapSimulation>) {
+  return [
+    ...Object.values(simulation.plansByCategory).flat(),
+    ...Object.values(simulation.typePlans).flatMap((plans) => plans ?? [])
+  ];
+}
+
 const availablePokemon = getAvailablePokemonBySeason("season-m4");
 const environmentDataset = findThreatEnvironmentDataset(
   getThreatEnvironmentCatalog(),
@@ -98,12 +108,15 @@ const iceTeam = pokemonTeam(["dragonite", "garchomp", "gliscor"]);
 const iceOriginal = JSON.stringify(iceTeam);
 const ice = analyze(iceTeam);
 assert(
-  ice.advisor.issues.length === 3 && ice.advisor.candidates.length === 3,
-  "課題3件・候補3件の基準パーティを作れません"
+  ice.advisor.issues.length === 3 &&
+    ice.advisor.candidates.length > 0 &&
+    ice.advisor.candidates.length <= ADVISOR_RECOMMENDATION_RULES.maxPerCategory &&
+    ice.advisor.candidatePool.length >= ice.advisor.candidates.length,
+  "課題3件・最大5件の候補を持つ基準パーティを作れません"
 );
 assert(
   ice.simulation.evaluatedPatternCount ===
-    ice.advisor.candidates.length * (iceTeam.length + 1),
+    ice.simulation.candidatePoolCount * (iceTeam.length + 1),
   "3体パーティで空き枠追加と全入れ替えを比較できません"
 );
 assert(
@@ -139,6 +152,114 @@ assert(
     ),
   "改善量0以下の案、または重複した改善点・注意点を表示しました"
 );
+
+const categoryNames = Object.keys(
+  ice.simulation.plansByCategory
+) as Array<keyof typeof ice.simulation.plansByCategory>;
+assert(
+  categoryNames.join(",") === "overall,defensive,offensive,speed" &&
+    Object.keys(ADVISOR_CATEGORY_LABELS).join(",") ===
+      "overall,defensive,offensive,speed,typeSpecific",
+  "5種類の推薦カテゴリを定義できません"
+);
+for (const category of categoryNames) {
+  const plans = ice.simulation.plansByCategory[category];
+  assert(
+    plans.length <= ADVISOR_RECOMMENDATION_RULES.maxPerCategory &&
+      new Set(plans.map((plan) => plan.candidate.pokemon.speciesId)).size ===
+        plans.length &&
+      plans.every(
+        (plan) =>
+          plan.isRecommendationByCategory[category] &&
+          plan.categoryScores[category] > 0 &&
+          plan.categoryReasons[category].length >= 1 &&
+          plan.categoryReasons[category].length <= 3 &&
+          plan.cautions.length <= 2
+      ),
+    `${ADVISOR_CATEGORY_LABELS[category]}の件数・species集約・推薦理由が不正です`
+  );
+  for (const plan of plans) {
+    const alternatives = [
+      null,
+      ...iceTeam.map((slot) => slot.id)
+    ].map((removedSlotId) =>
+      evaluateAdvisorSwapPlan(ice.input, plan.candidate, removedSlotId)
+    );
+    const bestCategoryScore = Math.max(
+      ...alternatives
+        .filter((entry) => entry.isRecommendationByCategory[category])
+        .map((entry) => entry.categoryScores[category])
+    );
+    assert(
+      plan.categoryScores[category] === bestCategoryScore,
+      `${ADVISOR_CATEGORY_LABELS[category]}で候補ごとの最適な追加・入れ替え案を選べていません`
+    );
+  }
+}
+assert(
+  ice.simulation.typeOptions.length > 0 &&
+    ice.simulation.typeOptions.length <=
+      ADVISOR_RECOMMENDATION_RULES.maxTypeOptions &&
+    ice.simulation.typeOptions.every((option) => {
+      const plans = ice.simulation.typePlans[option.type] ?? [];
+      return (
+        plans.length > 0 &&
+        plans.length <= ADVISOR_RECOMMENDATION_RULES.maxPerCategory &&
+        new Set(plans.map((plan) => plan.candidate.pokemon.speciesId)).size ===
+          plans.length &&
+        plans.every(
+          (plan) =>
+            plan.candidate.pokemon.types.includes(option.type) &&
+            plan.isRecommendationByCategory.typeSpecific
+        )
+      );
+    }),
+  "課題改善に関連するタイプ別候補を最大5件で生成できません"
+);
+assert(
+  ice.simulation.plans.filter(
+    (plan) => plan.candidate.pokemon.formKind === "mega"
+  ).length <= ADVISOR_RECOMMENDATION_RULES.maxMegaInOverall &&
+    Math.max(
+      0,
+      ...Array.from(
+        ice.simulation.plans.reduce((counts, plan) => {
+          const role = plan.selectedOverallRole ?? "balanced";
+          counts.set(role, (counts.get(role) ?? 0) + 1);
+          return counts;
+        }, new Map<string, number>()).values()
+      )
+    ) <= ADVISOR_RECOMMENDATION_RULES.maxSameRole,
+  "総合候補のメガ最大2件・同一役割最大2件を守れていません"
+);
+assert(
+  ice.simulation.plansByCategory.defensive.some(
+    (plan) =>
+      (plan.candidate.pokemon.baseStats?.attack ?? 255) < 100 &&
+      plan.metrics.stableCheckCount > 0 &&
+      plan.categoryReasons.defensive.some(
+        (reason) =>
+          reason.includes("採用率") &&
+          (reason.includes("半減") || reason.includes("無効"))
+      )
+  ) &&
+    ice.simulation.plansByCategory.defensive.some(
+      (plan) =>
+        plan.metrics.recoveryMoveShare >= 0.1 &&
+        plan.categoryReasons.defensive.some(
+          (reason) =>
+            reason.includes("採用率") &&
+            reason.includes("継続的な受け役")
+        )
+    ) &&
+    ice.simulation.plansByCategory.defensive.every(
+      (plan) =>
+        plan.metrics.threatMoveImmunityCount +
+          plan.metrics.threatMoveResistanceCount >
+        0
+    ),
+  "攻撃種族値に偏らず、実採用技・回復技による耐久候補を選べていません"
+);
 assert(
   JSON.stringify(iceTeam) === iceOriginal &&
     ice.simulation.plans.every(
@@ -158,7 +279,7 @@ for (const size of [2, 3, 5]) {
   const result = analyze(pokemonTeam(source));
   assert(
     result.simulation.evaluatedPatternCount ===
-      result.advisor.candidates.length * (size + 1),
+      result.simulation.candidatePoolCount * (size + 1),
     `${size}体パーティで空き枠追加と${size}通りの入れ替えを比較できません`
   );
 }
@@ -175,7 +296,7 @@ const six = analyze(sixTeam);
 assert(
   six.advisor.issues.length === 0 &&
     six.simulation.evaluatedPatternCount ===
-      six.advisor.candidates.length * sixTeam.length,
+      six.simulation.candidatePoolCount * sixTeam.length,
   "6体パーティで課題0件または全6入れ替えを比較できません"
 );
 for (const candidate of six.advisor.candidates) {
@@ -200,18 +321,23 @@ const noImprovementInput: AdvisorSwapSimulationInput = {
   advisor: {
     overallLabel: "改善余地あり",
     issues: [],
-    candidates: [candidateFor(neutralPokemon)]
+    candidates: [candidateFor(neutralPokemon)],
+    candidatePool: [candidateFor(neutralPokemon)]
   },
   availablePokemon: [
     ...availablePokemon,
     unchangedSource,
     neutralPokemon
   ],
-  environmentDataset
+  environmentDataset: null
 };
 const noImprovement = getAdvisorSwapSimulation(noImprovementInput);
 assert(
   noImprovement.plans.length === 0 &&
+    Object.values(noImprovement.plansByCategory).every(
+      (plans) => plans.length === 0
+    ) &&
+    noImprovement.typeOptions.length === 0 &&
     noImprovement.evaluatedPatternCount === 6,
   "明確な改善のない案を非表示にできません"
 );
@@ -258,6 +384,11 @@ const duplicateCandidateInput: AdvisorSwapSimulationInput = {
       ...ice.advisor.candidates,
       ice.advisor.candidates[0],
       candidateFor(getPokemonBySlug("dragonite")!)
+    ],
+    candidatePool: [
+      ...ice.advisor.candidatePool,
+      ice.advisor.candidatePool[0],
+      candidateFor(getPokemonBySlug("dragonite")!)
     ]
   }
 };
@@ -275,6 +406,114 @@ const metagrossMega = availablePokemon.find(
   (pokemon) => pokemon.slug === "metagross-mega"
 );
 assert(metagrossMega, "メガメタグロスが使用可能一覧にいません");
+const megaZeroAdd = evaluateAdvisorSwapPlan(
+  ice.input,
+  candidateFor(metagrossMega),
+  null
+);
+assert(
+  megaZeroAdd.metrics.megaCountBefore === 0 &&
+    megaZeroAdd.metrics.megaCountAfter === 1 &&
+    megaZeroAdd.metrics.megaLimitPassed &&
+    displayedPlans(ice.simulation).some(
+      (plan) => plan.candidate.pokemon.formKind === "mega"
+    ) &&
+    displayedPlans(ice.simulation).some(
+      (plan) => plan.candidate.pokemon.formKind !== "mega"
+    ),
+  "メガ0体時にメガと非メガの両方を比較できません"
+);
+const oneMega = analyze(
+  pokemonTeam(["charizard-mega-x", "garchomp", "gliscor"])
+);
+const megaOneAdd = evaluateAdvisorSwapPlan(
+  oneMega.input,
+  candidateFor(metagrossMega),
+  null
+);
+assert(
+  megaOneAdd.metrics.megaCountBefore === 1 &&
+    megaOneAdd.metrics.megaCountAfter === 2 &&
+    megaOneAdd.metrics.megaLimitPassed &&
+    displayedPlans(oneMega.simulation).some(
+      (plan) => plan.candidate.pokemon.formKind === "mega"
+    ) &&
+    displayedPlans(oneMega.simulation).some(
+      (plan) => plan.candidate.pokemon.formKind !== "mega"
+    ),
+  "メガ1体時にメガと非メガの両方を比較できません"
+);
+const twoMegaTeam = pokemonTeam([
+  "charizard-mega-x",
+  "garchomp-mega",
+  "gliscor"
+]);
+const twoMega = analyze(twoMegaTeam);
+const megaTwoAdd = evaluateAdvisorSwapPlan(
+  twoMega.input,
+  candidateFor(metagrossMega),
+  null
+);
+const megaTwoReplaceNonMega = evaluateAdvisorSwapPlan(
+  twoMega.input,
+  candidateFor(metagrossMega),
+  "slot-3"
+);
+const megaTwoReplaceMega = evaluateAdvisorSwapPlan(
+  twoMega.input,
+  candidateFor(metagrossMega),
+  "slot-1"
+);
+assert(
+  ADVISOR_TEAM_RULES.recommendedMegaLimit === 2 &&
+    !megaTwoAdd.metrics.megaLimitPassed &&
+    !megaTwoReplaceNonMega.metrics.megaLimitPassed &&
+    megaTwoReplaceMega.metrics.megaLimitPassed &&
+    megaTwoReplaceMega.metrics.megaCountAfter === 2 &&
+    displayedPlans(twoMega.simulation)
+      .filter((plan) => plan.candidate.pokemon.formKind === "mega")
+      .every(
+        (plan) =>
+          plan.action.kind === "replace" &&
+          plan.metrics.megaCountAfter <=
+            ADVISOR_TEAM_RULES.recommendedMegaLimit &&
+          getPokemonBySlug(
+            plan.beforeTeam.find(
+              (slot) => slot.id === plan.action.removedSlotId
+            )?.mode === "pokemon"
+              ? (plan.beforeTeam.find(
+                  (slot) => slot.id === plan.action.removedSlotId
+                ) as Extract<TeamSlot, { mode: "pokemon" }>).pokemonSlug
+              : ""
+          )?.formKind === "mega"
+      ),
+  "メガ2体時に追加・非メガ入れ替えを拒否し、メガ間の入れ替えだけを許可できません"
+);
+const mawileMega = availablePokemon.find(
+  (pokemon) => pokemon.slug === "mawile-mega"
+);
+assert(mawileMega, "メガクチートが使用可能一覧にいません");
+const threeMega = analyze(
+  pokemonTeam([
+    "charizard-mega-x",
+    "garchomp-mega",
+    "metagross-mega",
+    "gliscor"
+  ])
+);
+const megaThreeReplaceMega = evaluateAdvisorSwapPlan(
+  threeMega.input,
+  candidateFor(mawileMega),
+  "slot-1"
+);
+assert(
+  !megaThreeReplaceMega.metrics.megaLimitPassed &&
+    displayedPlans(threeMega.simulation).length > 0 &&
+    displayedPlans(threeMega.simulation).every(
+      (plan) => plan.candidate.pokemon.formKind !== "mega"
+    ),
+  "メガ3体時に非メガ案を残しつつ、新たなメガ案を除外できません"
+);
 const megaCandidateAnalysis = analyze(iceTeam, [metagrossMega]);
 assert(
   megaCandidateAnalysis.advisor.candidates[0]?.pokemon.slug ===
@@ -282,6 +521,32 @@ assert(
     megaCandidateAnalysis.simulation.plans[0]?.candidate.pokemon.slug ===
       "metagross-mega",
   "現在のルールで使用可能なメガフォームを入れ替え候補から除外しました"
+);
+
+const physicalGap = analyze(
+  pokemonTeam(["blissey", "sylveon", "florges"])
+);
+const steelix = getPokemonBySlug("steelix");
+assert(steelix, "物理耐久検証用のハガネールがいません");
+const physicalWallPlan = evaluateAdvisorSwapPlan(
+  physicalGap.input,
+  candidateFor(steelix),
+  null
+);
+const specialGap = analyze(
+  pokemonTeam(["steelix", "donphan", "hippowdon"])
+);
+const blissey = getPokemonBySlug("blissey");
+assert(blissey, "特殊耐久検証用のハピナスがいません");
+const specialWallPlan = evaluateAdvisorSwapPlan(
+  specialGap.input,
+  candidateFor(blissey),
+  null
+);
+assert(
+  physicalWallPlan.metrics.physicalWallImprovement > 0 &&
+    specialWallPlan.metrics.specialWallImprovement > 0,
+  "物理受け・特殊受け不足を独立した役割変化として評価できません"
 );
 
 const floetteMega = availablePokemon.find(
@@ -331,6 +596,9 @@ assert(
     sectionSource.includes("改善点") &&
     sectionSource.includes("注意点") &&
     sectionSource.includes("チーム詳細診断") &&
+    sectionSource.includes("推薦カテゴリ") &&
+    sectionSource.includes("ADVISOR_CATEGORY_LABELS") &&
+    sectionSource.includes("改善タイプ") &&
     !sectionSource.includes("補完スコア候補") &&
     !sectionSource.includes("4位以下") &&
     !sectionSource.includes("この案を試す") &&
@@ -338,6 +606,10 @@ assert(
     styleSource.includes(".advisorChangeGrid") &&
     !styleSource.includes(".advisorCandidateGrid { display: flex;") &&
     simulatorSource.includes("getAdvisorCompatibleThreatAnalysis") &&
+    simulatorSource.includes("ADVISOR_TEAM_RULES") &&
+    simulatorSource.includes("ADVISOR_CATEGORY_WEIGHTS") &&
+    simulatorSource.indexOf("!plan.isRecommendationByCategory[category]") <
+      simulatorSource.indexOf("const speciesId = plan.candidate.pokemon.speciesId") &&
     !simulatorSource.includes("getThreatPokemonAnalysis("),
   "新しい入れ替えUI・4分野診断、または旧重複表示の整理が不十分です"
 );

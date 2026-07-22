@@ -1,15 +1,20 @@
+"use client";
+
 import { PokemonVisual } from "@/components/pokemon/PokemonVisual";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import type {
+  AdvisorRecommendationCategory,
   AdvisorSwapPlan,
   AdvisorSwapSimulation
 } from "@/lib/advisorSwapSimulator";
+import { ADVISOR_CATEGORY_LABELS } from "@/lib/advisorSwapSimulator";
 import type {
   AdvisorDiagnosticCategory,
   AdvisorTeamDiagnostics
 } from "@/lib/advisorTeamDiagnostics";
 import type { TeamAdvisorAnalysis } from "@/lib/teamAdvisor";
 import { getTypeLabel } from "@/lib/typeChart";
+import type { TypeName } from "@/types/pokemon";
 import styles from "./TeamWorkspace.module.css";
 
 type TeamAdvisorSectionProps = {
@@ -118,6 +123,28 @@ function AdvisorRecommendations({
   simulation: AdvisorSwapSimulation;
   canAnalyze: boolean;
 }) {
+  const [category, setCategory] =
+    useState<AdvisorRecommendationCategory>("overall");
+  const [selectedType, setSelectedType] = useState<TypeName | "">(
+    simulation.typeOptions[0]?.type ?? ""
+  );
+
+  useEffect(() => {
+    if (
+      !selectedType ||
+      !simulation.typeOptions.some((option) => option.type === selectedType)
+    ) {
+      setSelectedType(simulation.typeOptions[0]?.type ?? "");
+    }
+  }, [selectedType, simulation.typeOptions]);
+
+  const plans =
+    category === "typeSpecific"
+      ? selectedType
+        ? simulation.typePlans[selectedType] ?? []
+        : []
+      : simulation.plansByCategory[category];
+
   return (
     <section
       className={styles.advisorContentBlock}
@@ -126,12 +153,55 @@ function AdvisorRecommendations({
       <AdvisorBlockHeading number={2} id="advisor-candidates-heading">
         改善候補と入れ替え案
       </AdvisorBlockHeading>
-      {simulation.plans.length ? (
+      {canAnalyze ? (
+        <div className={styles.advisorCategoryControls}>
+          <label>
+            <span>推薦カテゴリ</span>
+            <select
+              value={category}
+              onChange={(event) =>
+                setCategory(
+                  event.target.value as AdvisorRecommendationCategory
+                )
+              }
+            >
+              {(Object.keys(ADVISOR_CATEGORY_LABELS) as AdvisorRecommendationCategory[]).map(
+                (value) => (
+                  <option key={value} value={value}>
+                    {ADVISOR_CATEGORY_LABELS[value]}
+                  </option>
+                )
+              )}
+            </select>
+          </label>
+          {category === "typeSpecific" && simulation.typeOptions.length ? (
+            <label>
+              <span>改善タイプ</span>
+              <select
+                value={selectedType}
+                onChange={(event) =>
+                  setSelectedType(event.target.value as TypeName)
+                }
+              >
+                {simulation.typeOptions.map((option) => (
+                  <option key={option.type} value={option.type}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+        </div>
+      ) : null}
+      {plans.length ? (
         <>
           <ol className={styles.advisorCandidateGrid}>
-            {simulation.plans.map((plan) => (
+            {plans.map((plan) => (
               <li key={plan.candidate.pokemon.speciesId}>
-                <AdvisorRecommendationCard plan={plan} />
+                <AdvisorRecommendationCard
+                  plan={plan}
+                  category={category}
+                />
               </li>
             ))}
           </ol>
@@ -159,10 +229,19 @@ function formatThreatDelta(plan: AdvisorSwapPlan): string {
     : `${plan.threatAverageDelta}`;
 }
 
-function AdvisorRecommendationCard({ plan }: { plan: AdvisorSwapPlan }) {
+function AdvisorRecommendationCard({
+  plan,
+  category
+}: {
+  plan: AdvisorSwapPlan;
+  category: AdvisorRecommendationCategory;
+}) {
   const candidate = plan.candidate;
   return (
     <article className={styles.advisorCandidateCard}>
+      <span className={styles.advisorCategoryBadge}>
+        {ADVISOR_CATEGORY_LABELS[category]}
+      </span>
       <div className={styles.advisorCandidateHeading}>
         <PokemonVisual
           appearance="plain"
@@ -172,7 +251,7 @@ function AdvisorRecommendationCard({ plan }: { plan: AdvisorSwapPlan }) {
           size="large"
         />
         <div className={styles.advisorCandidateIdentity}>
-          <span className={styles.advisorRatingLabel}>改善量</span>
+          <span className={styles.advisorRatingLabel}>総合改善量</span>
           <span
             className={styles.advisorImprovementScore}
             aria-label={`総合改善量 ${plan.improvementScore}`}
@@ -220,8 +299,8 @@ function AdvisorRecommendationCard({ plan }: { plan: AdvisorSwapPlan }) {
 
       <div className={styles.advisorChangeGrid}>
         <AdvisorChangeList
-          title="改善点"
-          items={plan.improvements}
+          title="おすすめ理由"
+          items={plan.categoryReasons[category]}
           tone="improve"
           empty="明確な改善点はありません。"
         />

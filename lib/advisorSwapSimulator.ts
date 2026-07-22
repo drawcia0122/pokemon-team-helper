@@ -5,6 +5,12 @@ import {
   type TeamAdvisorIssue
 } from "@/lib/teamAdvisor";
 import {
+  describeMoveEffectiveness,
+  evaluateMoveAgainstPokemon,
+  getEnvironmentAttackingMoves,
+  THREAT_MOVE_THRESHOLDS
+} from "@/lib/battleEffectiveness";
+import {
   getTeamDiagnostics,
   getTeamTypeGapRows
 } from "@/lib/teamDiagnostics";
@@ -44,13 +50,133 @@ export const ADVISOR_SWAP_WEIGHTS = {
   usageTieBreaker: 1
 } as const;
 
+export const ADVISOR_TEAM_RULES = {
+  recommendedMegaLimit: 2
+} as const;
+
+export const ADVISOR_RECOMMENDATION_RULES = {
+  maxPerCategory: 5,
+  preselectPerCategory: 8,
+  overallScoreWindow: 30,
+  maxSameRole: 2,
+  maxMegaInOverall: 2,
+  maxTypeOptions: 5
+} as const;
+
+export const ADVISOR_CATEGORY_WEIGHTS = {
+  overall: ADVISOR_SWAP_WEIGHTS,
+  defensive: {
+    threatReduction: 2,
+    issueReduction: 10,
+    defensiveImprovement: 8,
+    threatMoveImmunity: 6,
+    threatMoveResistance: 3,
+    stableCheck: 10,
+    physicalWallGap: 7,
+    specialWallGap: 7,
+    recoveryAccess: 6,
+    defensiveAbility: 3,
+    roleLossPenalty: 14,
+    newWeaknessPenalty: 16
+  },
+  offensive: {
+    threatReduction: 2,
+    issueReduction: 5,
+    offensiveImprovement: 10,
+    popularMoveCoverage: 7,
+    attackerRoleGap: 6,
+    speedSupport: 3,
+    defensiveLossPenalty: 12,
+    newWeaknessPenalty: 15
+  },
+  speed: {
+    threatReduction: 1,
+    issueReduction: 4,
+    outspeedThreat: 8,
+    speedRoleImprovement: 15,
+    popularMoveCoverage: 4,
+    roleLossPenalty: 12,
+    newWeaknessPenalty: 14
+  },
+  typeSpecific: {
+    threatReduction: 2,
+    issueReduction: 8,
+    consistencyReduction: 9,
+    defensiveImprovement: 5,
+    offensiveImprovement: 4,
+    roleLossPenalty: 12,
+    newWeaknessPenalty: 15
+  }
+} as const;
+
+export type AdvisorRecommendationCategory =
+  | "overall"
+  | "defensive"
+  | "offensive"
+  | "speed"
+  | "typeSpecific";
+
+export type AdvisorRecommendationRole =
+  | "balanced"
+  | "defensive"
+  | "offensive"
+  | "speed"
+  | "type-coverage";
+
+export const ADVISOR_CATEGORY_LABELS: Record<
+  AdvisorRecommendationCategory,
+  string
+> = {
+  overall: "総合",
+  defensive: "耐久重視",
+  offensive: "攻撃重視",
+  speed: "素早さ重視",
+  typeSpecific: "タイプ別"
+};
+
 const ATTACKER_STAT_THRESHOLD = 100;
 const FAST_SPEED_THRESHOLD = 100;
 const MID_SPEED_THRESHOLD = 70;
 const BULK_TOTAL_THRESHOLD = 180;
 const BULK_STAT_THRESHOLD = 80;
 const MAX_TEAM_SIZE = 6;
-const MAX_NOTES = 3;
+const MAX_IMPROVEMENT_NOTES = 3;
+const MAX_CAUTION_NOTES = 2;
+
+const RECOVERY_MOVE_IDS = new Set([
+  "recover",
+  "roost",
+  "slackoff",
+  "synthesis",
+  "wish",
+  "strengthsap",
+  "milkdrink",
+  "shoreup",
+  "softboiled",
+  "morningsun"
+]);
+
+const DEFENSIVE_ABILITY_IDS = new Set([
+  "regenerator",
+  "unaware",
+  "sturdy",
+  "magicguard",
+  "poisonheal",
+  "toxicdebris",
+  "levitate",
+  "flashfire",
+  "waterabsorb",
+  "stormdrain",
+  "dryskin",
+  "lightningrod",
+  "motordrive",
+  "thickfat",
+  "heatproof",
+  "waterbubble",
+  "icescales",
+  "wonderguard",
+  "sapsipper"
+]);
 
 export type AdvisorRoleCounts = {
   physicalAttacker: number;
@@ -93,6 +219,24 @@ export type AdvisorSwapPlanMetrics = {
   uniqueThreatAnswerLossCount: number;
   newMajorWeaknessCount: number;
   usageTieBreaker: number;
+  threatMoveImmunityCount: number;
+  threatMoveResistanceCount: number;
+  stableCheckCount: number;
+  physicalThreatCheckCount: number;
+  specialThreatCheckCount: number;
+  popularMoveCoverageCount: number;
+  outspeedThreatCount: number;
+  physicalWallImprovement: number;
+  specialWallImprovement: number;
+  physicalAttackerImprovement: number;
+  specialAttackerImprovement: number;
+  recoveryMoveShare: number;
+  defensiveAbilityShare: number;
+  mainstreamPhysicalShare: number;
+  mainstreamSpecialShare: number;
+  megaCountBefore: number;
+  megaCountAfter: number;
+  megaLimitPassed: boolean;
 };
 
 export type AdvisorSwapPlan = {
@@ -108,15 +252,27 @@ export type AdvisorSwapPlan = {
   afterThreatAverage: number | null;
   threatAverageDelta: number | null;
   improvementScore: number;
+  categoryScores: Record<AdvisorRecommendationCategory, number>;
+  categoryReasons: Record<AdvisorRecommendationCategory, string[]>;
+  recommendationRoles: AdvisorRecommendationRole[];
+  selectedOverallRole: AdvisorRecommendationRole | null;
   improvements: string[];
   cautions: string[];
   lostRoles: string[];
   metrics: AdvisorSwapPlanMetrics;
   isRecommendation: boolean;
+  isRecommendationByCategory: Record<AdvisorRecommendationCategory, boolean>;
 };
 
 export type AdvisorSwapSimulation = {
   plans: AdvisorSwapPlan[];
+  plansByCategory: Record<
+    Exclude<AdvisorRecommendationCategory, "typeSpecific">,
+    AdvisorSwapPlan[]
+  >;
+  typePlans: Partial<Record<TypeName, AdvisorSwapPlan[]>>;
+  typeOptions: Array<{ type: TypeName; label: string }>;
+  candidatePoolCount: number;
   evaluatedPatternCount: number;
   recomputedThreatAnalysisCount: number;
   rejectedPlanCount: number;
@@ -130,6 +286,266 @@ export type AdvisorSwapSimulationInput = {
 };
 
 type Note = { id: string; text: string; priority: number };
+
+type AdvisorCandidateEvidence = {
+  threatMoveImmunityCount: number;
+  threatMoveResistanceCount: number;
+  stableCheckCount: number;
+  physicalThreatCheckCount: number;
+  specialThreatCheckCount: number;
+  popularMoveCoverageCount: number;
+  outspeedThreatCount: number;
+  recoveryMoveShare: number;
+  defensiveAbilityShare: number;
+  mainstreamPhysicalShare: number;
+  mainstreamSpecialShare: number;
+  defensiveReasons: string[];
+  offensiveReasons: string[];
+  recoveryReason: string | null;
+  defensiveAbilityReason: string | null;
+};
+
+function emptyCandidateEvidence(): AdvisorCandidateEvidence {
+  return {
+    threatMoveImmunityCount: 0,
+    threatMoveResistanceCount: 0,
+    stableCheckCount: 0,
+    physicalThreatCheckCount: 0,
+    specialThreatCheckCount: 0,
+    popularMoveCoverageCount: 0,
+    outspeedThreatCount: 0,
+    recoveryMoveShare: 0,
+    defensiveAbilityShare: 0,
+    mainstreamPhysicalShare: 0,
+    mainstreamSpecialShare: 0,
+    defensiveReasons: [],
+    offensiveReasons: [],
+    recoveryReason: null,
+    defensiveAbilityReason: null
+  };
+}
+
+function subtractCandidateEvidence(
+  candidate: AdvisorCandidateEvidence,
+  replaced: AdvisorCandidateEvidence
+): AdvisorCandidateEvidence {
+  return {
+    threatMoveImmunityCount:
+      candidate.threatMoveImmunityCount - replaced.threatMoveImmunityCount,
+    threatMoveResistanceCount:
+      candidate.threatMoveResistanceCount - replaced.threatMoveResistanceCount,
+    stableCheckCount: candidate.stableCheckCount - replaced.stableCheckCount,
+    physicalThreatCheckCount:
+      candidate.physicalThreatCheckCount - replaced.physicalThreatCheckCount,
+    specialThreatCheckCount:
+      candidate.specialThreatCheckCount - replaced.specialThreatCheckCount,
+    popularMoveCoverageCount:
+      candidate.popularMoveCoverageCount - replaced.popularMoveCoverageCount,
+    outspeedThreatCount:
+      candidate.outspeedThreatCount - replaced.outspeedThreatCount,
+    recoveryMoveShare: candidate.recoveryMoveShare - replaced.recoveryMoveShare,
+    defensiveAbilityShare:
+      candidate.defensiveAbilityShare - replaced.defensiveAbilityShare,
+    mainstreamPhysicalShare:
+      candidate.mainstreamPhysicalShare - replaced.mainstreamPhysicalShare,
+    mainstreamSpecialShare:
+      candidate.mainstreamSpecialShare - replaced.mainstreamSpecialShare,
+    defensiveReasons: candidate.defensiveReasons,
+    offensiveReasons: candidate.offensiveReasons,
+    recoveryReason: candidate.recoveryReason,
+    defensiveAbilityReason: candidate.defensiveAbilityReason
+  };
+}
+
+function countMegaForms(team: TeamSlot[]): number {
+  return getPokemonMembers(team).filter(
+    (pokemon) => pokemon.formKind === "mega"
+  ).length;
+}
+
+function uniqueText(items: string[]): string[] {
+  return [...new Set(items)];
+}
+
+function getCandidateEvidence(
+  candidate: PokemonEntry,
+  threats: ThreatPokemonAnalysis[],
+  environmentDataset: ThreatEnvironmentDataset | null
+): AdvisorCandidateEvidence {
+  const environmentBySlug = new Map(
+    environmentDataset?.pokemon.map((entry) => [entry.slug, entry]) ?? []
+  );
+  const candidateEnvironment = environmentBySlug.get(candidate.slug);
+  let threatMoveImmunityCount = 0;
+  let threatMoveResistanceCount = 0;
+  let stableCheckCount = 0;
+  let physicalThreatCheckCount = 0;
+  let specialThreatCheckCount = 0;
+  let popularMoveCoverageCount = 0;
+  let outspeedThreatCount = 0;
+  const defensiveReasons: Array<{ text: string; share: number }> = [];
+  const offensiveReasons: Array<{ text: string; share: number }> = [];
+
+  for (const threat of threats.slice(0, 5)) {
+    const threatEnvironment = environmentBySlug.get(threat.pokemon.slug);
+    const incomingMoves = getEnvironmentAttackingMoves(
+      threatEnvironment?.moves
+    );
+    const incomingEvaluations = incomingMoves.map((move) => ({
+      move,
+      evaluation: evaluateMoveAgainstPokemon({
+        move,
+        attacker: threat.pokemon,
+        defender: candidate,
+        attackerAbilityUsage: threatEnvironment?.abilities,
+        defenderAbilityUsage: candidateEnvironment?.abilities
+      })
+    }));
+
+    for (const { move, evaluation } of incomingEvaluations) {
+      if (evaluation.immunityProbability >= 0.5) {
+        threatMoveImmunityCount += 1;
+        defensiveReasons.push({
+          text: describeMoveEffectiveness({
+            evaluation,
+            moveName: `${threat.pokemon.nameJa}の${move.name}（採用率${Math.round(move.share * 100)}%）`,
+            defenderName: candidate.nameJa
+          }),
+          share: move.share
+        });
+      } else if (evaluation.resistanceProbability >= 0.5) {
+        threatMoveResistanceCount += 1;
+        defensiveReasons.push({
+          text: describeMoveEffectiveness({
+            evaluation,
+            moveName: `${threat.pokemon.nameJa}の${move.name}（採用率${Math.round(move.share * 100)}%）`,
+            defenderName: candidate.nameJa
+          }),
+          share: move.share
+        });
+      }
+    }
+
+    const primaryEvaluations = incomingEvaluations.filter(
+      ({ move }) => move.share >= THREAT_MOVE_THRESHOLDS.primary
+    );
+    if (
+      primaryEvaluations.length > 0 &&
+      primaryEvaluations.every(
+        ({ evaluation }) => evaluation.stableResistanceProbability >= 0.5
+      )
+    ) {
+      stableCheckCount += 1;
+    }
+    const physicalMoves = primaryEvaluations.filter(
+      ({ move }) => move.damageClass === "physical"
+    );
+    if (
+      physicalMoves.length > 0 &&
+      physicalMoves.every(
+        ({ evaluation }) => evaluation.stableResistanceProbability >= 0.5
+      )
+    ) {
+      physicalThreatCheckCount += 1;
+    }
+    const specialMoves = primaryEvaluations.filter(
+      ({ move }) => move.damageClass === "special"
+    );
+    if (
+      specialMoves.length > 0 &&
+      specialMoves.every(
+        ({ evaluation }) => evaluation.stableResistanceProbability >= 0.5
+      )
+    ) {
+      specialThreatCheckCount += 1;
+    }
+
+    const candidateMoves = getEnvironmentAttackingMoves(
+      candidateEnvironment?.moves
+    );
+    const bestEffectiveMove = candidateMoves
+      .map((move) => ({
+        move,
+        evaluation: evaluateMoveAgainstPokemon({
+          move,
+          attacker: candidate,
+          defender: threat.pokemon,
+          attackerAbilityUsage: candidateEnvironment?.abilities,
+          defenderAbilityUsage: threatEnvironment?.abilities
+        })
+      }))
+      .filter(({ evaluation }) => evaluation.weaknessProbability >= 0.5)
+      .sort((left, right) => right.move.share - left.move.share)[0];
+    if (bestEffectiveMove) {
+      popularMoveCoverageCount += 1;
+      offensiveReasons.push({
+        text: describeMoveEffectiveness({
+          evaluation: bestEffectiveMove.evaluation,
+          moveName: `${candidate.nameJa}の${bestEffectiveMove.move.name}（採用率${Math.round(bestEffectiveMove.move.share * 100)}%）`,
+          defenderName: threat.pokemon.nameJa
+        }),
+        share: bestEffectiveMove.move.share
+      });
+    }
+    if (
+      candidate.baseStats &&
+      threat.pokemon.baseStats &&
+      candidate.baseStats.speed > threat.pokemon.baseStats.speed
+    ) {
+      outspeedThreatCount += 1;
+    }
+  }
+
+  const recoveryMove = (candidateEnvironment?.moves ?? [])
+    .filter(
+      (move) =>
+        move.damageClass === "status" &&
+        RECOVERY_MOVE_IDS.has(move.id) &&
+        move.share >= THREAT_MOVE_THRESHOLDS.secondary
+    )
+    .sort((left, right) => right.share - left.share)[0];
+  const defensiveAbility = (candidateEnvironment?.abilities ?? [])
+    .filter(
+      (ability) =>
+        DEFENSIVE_ABILITY_IDS.has(ability.id) &&
+        ability.share >= THREAT_MOVE_THRESHOLDS.secondary
+    )
+    .sort((left, right) => right.share - left.share)[0];
+
+  return {
+    threatMoveImmunityCount,
+    threatMoveResistanceCount,
+    stableCheckCount,
+    physicalThreatCheckCount,
+    specialThreatCheckCount,
+    popularMoveCoverageCount,
+    outspeedThreatCount,
+    recoveryMoveShare: recoveryMove?.share ?? 0,
+    defensiveAbilityShare:
+      stableCheckCount > 0 ? defensiveAbility?.share ?? 0 : 0,
+    mainstreamPhysicalShare:
+      candidateEnvironment?.offenseProfile.physicalShare ?? 0,
+    mainstreamSpecialShare:
+      candidateEnvironment?.offenseProfile.specialShare ?? 0,
+    defensiveReasons: uniqueText(
+      defensiveReasons
+        .sort((left, right) => right.share - left.share)
+        .map((entry) => entry.text)
+    ),
+    offensiveReasons: uniqueText(
+      offensiveReasons
+        .sort((left, right) => right.share - left.share)
+        .map((entry) => entry.text)
+    ),
+    recoveryReason: recoveryMove
+      ? `${recoveryMove.name}の採用率が${Math.round(recoveryMove.share * 100)}%で、継続的な受け役を担えます。`
+      : null,
+    defensiveAbilityReason:
+      stableCheckCount > 0 && defensiveAbility
+        ? `${defensiveAbility.name}の採用率が${Math.round(defensiveAbility.share * 100)}%で、要警戒相手への受け性能に寄与します。`
+        : null
+  };
+}
 
 function cloneTeam(team: TeamSlot[]): TeamSlot[] {
   return team.map((slot) => ({ ...slot }));
@@ -286,6 +702,16 @@ function getRemovedLabel(
   if (removedSlotId === null) return null;
   const slot = team.find((entry) => entry.id === removedSlotId);
   return slot ? resolveTeamSlot(slot)?.label ?? "現在のメンバー" : null;
+}
+
+function getRemovedPokemon(
+  team: TeamSlot[],
+  removedSlotId: string | null
+): PokemonEntry | null {
+  if (removedSlotId === null) return null;
+  const slot = team.find((entry) => entry.id === removedSlotId);
+  if (!slot || slot.mode !== "pokemon") return null;
+  return getPokemonBySlug(slot.pokemonSlug) ?? null;
 }
 
 function collectLostRoles(
@@ -512,12 +938,255 @@ function buildPlanNotes(
   return {
     improvements: improvements
       .sort((a, b) => b.priority - a.priority || a.id.localeCompare(b.id))
-      .slice(0, MAX_NOTES)
+      .slice(0, MAX_IMPROVEMENT_NOTES)
       .map((note) => note.text),
     cautions: cautions
       .sort((a, b) => b.priority - a.priority || a.id.localeCompare(b.id))
-      .slice(0, MAX_NOTES)
+      .slice(0, MAX_CAUTION_NOTES)
       .map((note) => note.text)
+  };
+}
+
+function getCategoryScores({
+  improvementScore,
+  threatReduction,
+  issueReduction,
+  consistencyReduction,
+  defensiveImprovement,
+  offensiveImprovement,
+  speedRoleImprovement,
+  physicalWallImprovement,
+  specialWallImprovement,
+  physicalAttackerImprovement,
+  specialAttackerImprovement,
+  lostRoleCount,
+  uniqueImmunityLossCount,
+  uniqueResistanceLossCount,
+  newMajorWeaknessCount,
+  evidence
+}: {
+  improvementScore: number;
+  threatReduction: number;
+  issueReduction: number;
+  consistencyReduction: number;
+  defensiveImprovement: number;
+  offensiveImprovement: number;
+  speedRoleImprovement: number;
+  physicalWallImprovement: number;
+  specialWallImprovement: number;
+  physicalAttackerImprovement: number;
+  specialAttackerImprovement: number;
+  lostRoleCount: number;
+  uniqueImmunityLossCount: number;
+  uniqueResistanceLossCount: number;
+  newMajorWeaknessCount: number;
+  evidence: AdvisorCandidateEvidence;
+}): Record<AdvisorRecommendationCategory, number> {
+  const defensiveLosses =
+    lostRoleCount + uniqueImmunityLossCount + uniqueResistanceLossCount;
+  const mainstreamAttackerRoleGain =
+    Math.max(0, physicalAttackerImprovement) *
+      Math.max(0, evidence.mainstreamPhysicalShare) +
+    Math.max(0, specialAttackerImprovement) *
+      Math.max(0, evidence.mainstreamSpecialShare);
+  const defensive = ADVISOR_CATEGORY_WEIGHTS.defensive;
+  const offensive = ADVISOR_CATEGORY_WEIGHTS.offensive;
+  const speed = ADVISOR_CATEGORY_WEIGHTS.speed;
+  const typeSpecific = ADVISOR_CATEGORY_WEIGHTS.typeSpecific;
+
+  return {
+    overall: improvementScore,
+    defensive: Math.round(
+      threatReduction * defensive.threatReduction +
+        issueReduction * defensive.issueReduction +
+        defensiveImprovement * defensive.defensiveImprovement +
+        evidence.threatMoveImmunityCount * defensive.threatMoveImmunity +
+        evidence.threatMoveResistanceCount * defensive.threatMoveResistance +
+        evidence.stableCheckCount * defensive.stableCheck +
+        Math.max(0, physicalWallImprovement) * defensive.physicalWallGap +
+        Math.max(0, specialWallImprovement) * defensive.specialWallGap +
+        evidence.recoveryMoveShare * defensive.recoveryAccess +
+        evidence.defensiveAbilityShare * defensive.defensiveAbility -
+        defensiveLosses * defensive.roleLossPenalty -
+        newMajorWeaknessCount * defensive.newWeaknessPenalty
+    ),
+    offensive: Math.round(
+      threatReduction * offensive.threatReduction +
+        issueReduction * offensive.issueReduction +
+        offensiveImprovement * offensive.offensiveImprovement +
+        evidence.popularMoveCoverageCount *
+          offensive.popularMoveCoverage +
+        mainstreamAttackerRoleGain * offensive.attackerRoleGap +
+        Math.max(0, speedRoleImprovement) * offensive.speedSupport -
+        defensiveLosses * offensive.defensiveLossPenalty -
+        newMajorWeaknessCount * offensive.newWeaknessPenalty
+    ),
+    speed: Math.round(
+      threatReduction * speed.threatReduction +
+        issueReduction * speed.issueReduction +
+        evidence.outspeedThreatCount * speed.outspeedThreat +
+        Math.max(0, speedRoleImprovement) *
+          speed.speedRoleImprovement +
+        evidence.popularMoveCoverageCount * speed.popularMoveCoverage -
+        lostRoleCount * speed.roleLossPenalty -
+        newMajorWeaknessCount * speed.newWeaknessPenalty
+    ),
+    typeSpecific: Math.round(
+      threatReduction * typeSpecific.threatReduction +
+        issueReduction * typeSpecific.issueReduction +
+        consistencyReduction * typeSpecific.consistencyReduction +
+        defensiveImprovement * typeSpecific.defensiveImprovement +
+        offensiveImprovement * typeSpecific.offensiveImprovement -
+        defensiveLosses * typeSpecific.roleLossPenalty -
+        newMajorWeaknessCount * typeSpecific.newWeaknessPenalty
+    )
+  };
+}
+
+function getRecommendationRoles(
+  metrics: Pick<
+    AdvisorSwapPlanMetrics,
+    | "issueReduction"
+    | "consistencyReduction"
+    | "defensiveImprovement"
+    | "offensiveImprovement"
+    | "speedRoleImprovement"
+    | "stableCheckCount"
+    | "popularMoveCoverageCount"
+    | "outspeedThreatCount"
+  >
+): AdvisorRecommendationRole[] {
+  const roles: AdvisorRecommendationRole[] = [];
+  if (
+    metrics.defensiveImprovement > 0 ||
+    metrics.stableCheckCount > 0
+  ) {
+    roles.push("defensive");
+  }
+  if (
+    metrics.offensiveImprovement > 0 ||
+    metrics.popularMoveCoverageCount > 0
+  ) {
+    roles.push("offensive");
+  }
+  if (metrics.speedRoleImprovement > 0 || metrics.outspeedThreatCount >= 3) {
+    roles.push("speed");
+  }
+  if (metrics.consistencyReduction > 0 || metrics.defensiveImprovement >= 2) {
+    roles.push("type-coverage");
+  }
+  if (metrics.issueReduction >= 2 || roles.length >= 3) {
+    roles.unshift("balanced");
+  }
+  return roles.length ? uniqueText(roles) as AdvisorRecommendationRole[] : ["balanced"];
+}
+
+function takeRecommendationReasons(
+  preferred: Array<string | null | undefined>,
+  fallback: string[]
+): string[] {
+  return uniqueText([
+    ...preferred.filter((item): item is string => Boolean(item)),
+    ...fallback
+  ]).slice(0, MAX_IMPROVEMENT_NOTES);
+}
+
+function buildCategoryReasons({
+  beforeMetrics,
+  afterMetrics,
+  evidence,
+  evidenceGain,
+  improvements
+}: {
+  beforeMetrics: AdvisorTeamMetrics;
+  afterMetrics: AdvisorTeamMetrics;
+  evidence: AdvisorCandidateEvidence;
+  evidenceGain: AdvisorCandidateEvidence;
+  improvements: string[];
+}): Record<AdvisorRecommendationCategory, string[]> {
+  const physicalWallReason =
+    afterMetrics.roles.physicalWall > beforeMetrics.roles.physicalWall
+      ? formatCountChange(
+          "物理耐久候補",
+          beforeMetrics.roles.physicalWall,
+          afterMetrics.roles.physicalWall
+        )
+      : null;
+  const specialWallReason =
+    afterMetrics.roles.specialWall > beforeMetrics.roles.specialWall
+      ? formatCountChange(
+          "特殊耐久候補",
+          beforeMetrics.roles.specialWall,
+          afterMetrics.roles.specialWall
+        )
+      : null;
+  const attackerReason =
+    afterMetrics.roles.physicalAttacker > beforeMetrics.roles.physicalAttacker
+      ? `${formatCountChange(
+          "物理アタッカー",
+          beforeMetrics.roles.physicalAttacker,
+          afterMetrics.roles.physicalAttacker
+        )}${
+          evidence.mainstreamPhysicalShare > 0
+            ? `（環境の物理型 ${Math.round(evidence.mainstreamPhysicalShare * 100)}%）`
+            : ""
+        }`
+      : afterMetrics.roles.specialAttacker >
+          beforeMetrics.roles.specialAttacker
+        ? `${formatCountChange(
+            "特殊アタッカー",
+            beforeMetrics.roles.specialAttacker,
+            afterMetrics.roles.specialAttacker
+          )}${
+            evidence.mainstreamSpecialShare > 0
+              ? `（環境の特殊型 ${Math.round(evidence.mainstreamSpecialShare * 100)}%）`
+              : ""
+          }`
+        : null;
+  const stableCheckReason = evidenceGain.stableCheckCount > 0
+    ? `要警戒TOP5のうち${evidence.stableCheckCount}体の主要技を半減・無効で受けられます。`
+    : null;
+  const offenseReason = evidenceGain.popularMoveCoverageCount > 0
+    ? `要警戒TOP5のうち${evidence.popularMoveCoverageCount}体へ実採用技で抜群を取れます。`
+    : null;
+  const speedReason = evidenceGain.outspeedThreatCount > 0
+    ? `要警戒TOP5のうち${evidence.outspeedThreatCount}体より先に動けます。`
+    : null;
+  const defensiveMoveReasons =
+    evidenceGain.threatMoveImmunityCount > 0 ||
+    evidenceGain.threatMoveResistanceCount > 0
+      ? evidence.defensiveReasons
+      : [];
+  const offensiveMoveReasons =
+    evidenceGain.popularMoveCoverageCount > 0
+      ? evidence.offensiveReasons
+      : [];
+
+  return {
+    overall: takeRecommendationReasons(improvements, []),
+    defensive: takeRecommendationReasons(
+      [
+        defensiveMoveReasons[0],
+        stableCheckReason,
+        evidenceGain.recoveryMoveShare > 0 ? evidence.recoveryReason : null,
+        evidenceGain.defensiveAbilityShare > 0
+          ? evidence.defensiveAbilityReason
+          : null,
+        physicalWallReason,
+        specialWallReason,
+        ...defensiveMoveReasons.slice(1)
+      ],
+      improvements
+    ),
+    offensive: takeRecommendationReasons(
+      [...offensiveMoveReasons, offenseReason, attackerReason],
+      improvements
+    ),
+    speed: takeRecommendationReasons(
+      [speedReason, ...offensiveMoveReasons, attackerReason],
+      improvements
+    ),
+    typeSpecific: takeRecommendationReasons(improvements, [])
   };
 }
 
@@ -571,6 +1240,23 @@ export function evaluateAdvisorSwapPlan(
   );
   const beforeThreatAverage = averageThreatScore(beforeThreats);
   const afterThreatAverage = averageThreatScore(afterThreats);
+  const evidence = getCandidateEvidence(
+    candidate.pokemon,
+    beforeThreats,
+    input.environmentDataset
+  );
+  const removedPokemon = getRemovedPokemon(beforeTeam, removedSlotId);
+  const replacedEvidence = removedPokemon
+    ? getCandidateEvidence(
+        removedPokemon,
+        beforeThreats,
+        input.environmentDataset
+      )
+    : emptyCandidateEvidence();
+  const evidenceGain = subtractCandidateEvidence(
+    evidence,
+    replacedEvidence
+  );
   const threatReduction =
     beforeThreatAverage !== null && afterThreatAverage !== null
       ? beforeThreatAverage - afterThreatAverage
@@ -604,6 +1290,16 @@ export function evaluateAdvisorSwapPlan(
       beforeMetrics.threatAnswerSlotCount);
   const speedRoleImprovement =
     afterMetrics.roles.fast - beforeMetrics.roles.fast;
+  const physicalWallImprovement =
+    afterMetrics.roles.physicalWall - beforeMetrics.roles.physicalWall;
+  const specialWallImprovement =
+    afterMetrics.roles.specialWall - beforeMetrics.roles.specialWall;
+  const physicalAttackerImprovement =
+    afterMetrics.roles.physicalAttacker -
+    beforeMetrics.roles.physicalAttacker;
+  const specialAttackerImprovement =
+    afterMetrics.roles.specialAttacker -
+    beforeMetrics.roles.specialAttacker;
   const lostRoles = collectLostRoles(
     beforeMetrics.roles,
     afterMetrics.roles
@@ -666,19 +1362,98 @@ export function evaluateAdvisorSwapPlan(
     threatAnswerLosses,
     newMajorWeaknesses
   );
+  const megaCountBefore = countMegaForms(beforeTeam);
+  const megaCountAfter = countMegaForms(afterTeam);
+  const megaLimitPassed =
+    candidate.pokemon.formKind !== "mega" ||
+    megaCountAfter <= ADVISOR_TEAM_RULES.recommendedMegaLimit;
+  const categoryScores = getCategoryScores({
+    improvementScore,
+    threatReduction,
+    issueReduction,
+    consistencyReduction,
+    defensiveImprovement,
+    offensiveImprovement,
+    speedRoleImprovement,
+    physicalWallImprovement,
+    specialWallImprovement,
+    physicalAttackerImprovement,
+    specialAttackerImprovement,
+    lostRoleCount: lostRoles.length,
+    uniqueImmunityLossCount: uniqueImmunityLosses.length,
+    uniqueResistanceLossCount: uniqueResistanceLosses.length,
+    newMajorWeaknessCount: newMajorWeaknesses.length,
+    evidence: evidenceGain
+  });
+  const categoryReasons = buildCategoryReasons({
+    beforeMetrics,
+    afterMetrics,
+    evidence,
+    evidenceGain,
+    improvements: notes.improvements
+  });
+  const recommendationRoles = getRecommendationRoles({
+    issueReduction,
+    consistencyReduction,
+    defensiveImprovement,
+    offensiveImprovement,
+    speedRoleImprovement,
+    stableCheckCount: evidenceGain.stableCheckCount,
+    popularMoveCoverageCount: evidenceGain.popularMoveCoverageCount,
+    outspeedThreatCount: evidenceGain.outspeedThreatCount
+  });
   const meaningfulImprovement =
     issueReduction > 0 ||
     threatReduction >= 2 ||
     defensiveImprovement >= 2 ||
     offensiveImprovement >= 2 ||
     speedRoleImprovement > 0;
+  const sharedRecommendationGate =
+    megaLimitPassed &&
+    newMajorWeaknesses.length === 0 &&
+    !(lostRoles.length >= 2 && improvementScore < 30);
   const isRecommendation =
     improvementScore > 0 &&
-    newMajorWeaknesses.length === 0 &&
+    sharedRecommendationGate &&
     !(threatReduction < 0 && improvementScore < 20) &&
-    !(lostRoles.length >= 2 && improvementScore < 30) &&
     meaningfulImprovement &&
     notes.improvements.length > 0;
+  const categoryMeaning = {
+    overall: meaningfulImprovement,
+    defensive:
+      evidenceGain.stableCheckCount > 0 ||
+      evidenceGain.threatMoveImmunityCount > 0 ||
+      evidenceGain.threatMoveResistanceCount > 0,
+    offensive:
+      offensiveImprovement > 0 ||
+      physicalAttackerImprovement > 0 ||
+      specialAttackerImprovement > 0 ||
+      evidenceGain.popularMoveCoverageCount > 0,
+    speed:
+      speedRoleImprovement > 0 ||
+      (evidenceGain.outspeedThreatCount > 0 &&
+        evidenceGain.popularMoveCoverageCount > 0),
+    typeSpecific:
+      consistencyReduction > 0 ||
+      defensiveImprovement > 0 ||
+      offensiveImprovement > 0
+  } satisfies Record<AdvisorRecommendationCategory, boolean>;
+  const isRecommendationByCategory = Object.fromEntries(
+    (Object.keys(categoryMeaning) as AdvisorRecommendationCategory[]).map(
+      (category) => {
+        if (category === "overall") return [category, isRecommendation];
+        const categoryScore = categoryScores[category];
+        return [
+          category,
+          sharedRecommendationGate &&
+            categoryMeaning[category] &&
+            categoryScore > 0 &&
+            !(threatReduction < 0 && categoryScore < 20) &&
+            categoryReasons[category].length > 0
+        ];
+      }
+    )
+  ) as Record<AdvisorRecommendationCategory, boolean>;
 
   return {
     candidate,
@@ -704,6 +1479,10 @@ export function evaluateAdvisorSwapPlan(
         ? afterThreatAverage - beforeThreatAverage
         : null,
     improvementScore,
+    categoryScores,
+    categoryReasons,
+    recommendationRoles,
+    selectedOverallRole: null,
     improvements: notes.improvements,
     cautions: notes.cautions,
     lostRoles,
@@ -719,33 +1498,273 @@ export function evaluateAdvisorSwapPlan(
       uniqueResistanceLossCount: uniqueResistanceLosses.length,
       uniqueThreatAnswerLossCount: threatAnswerLosses.length,
       newMajorWeaknessCount: newMajorWeaknesses.length,
-      usageTieBreaker
+      usageTieBreaker,
+      threatMoveImmunityCount: evidence.threatMoveImmunityCount,
+      threatMoveResistanceCount: evidence.threatMoveResistanceCount,
+      stableCheckCount: evidence.stableCheckCount,
+      physicalThreatCheckCount: evidence.physicalThreatCheckCount,
+      specialThreatCheckCount: evidence.specialThreatCheckCount,
+      popularMoveCoverageCount: evidence.popularMoveCoverageCount,
+      outspeedThreatCount: evidence.outspeedThreatCount,
+      physicalWallImprovement,
+      specialWallImprovement,
+      physicalAttackerImprovement,
+      specialAttackerImprovement,
+      recoveryMoveShare: evidence.recoveryMoveShare,
+      defensiveAbilityShare: evidence.defensiveAbilityShare,
+      mainstreamPhysicalShare: evidence.mainstreamPhysicalShare,
+      mainstreamSpecialShare: evidence.mainstreamSpecialShare,
+      megaCountBefore,
+      megaCountAfter,
+      megaLimitPassed
     },
-    isRecommendation
+    isRecommendation,
+    isRecommendationByCategory
   };
 }
 
-function comparePlans(left: AdvisorSwapPlan, right: AdvisorSwapPlan): number {
+function comparePlansForCategory(
+  category: AdvisorRecommendationCategory,
+  left: AdvisorSwapPlan,
+  right: AdvisorSwapPlan
+): number {
   return (
+    right.categoryScores[category] - left.categoryScores[category] ||
     right.improvementScore - left.improvementScore ||
     right.metrics.threatReduction - left.metrics.threatReduction ||
     right.metrics.issueReduction - left.metrics.issueReduction ||
     right.metrics.usageTieBreaker - left.metrics.usageTieBreaker ||
-    left.candidate.pokemon.speciesId - right.candidate.pokemon.speciesId
+    left.candidate.pokemon.speciesId - right.candidate.pokemon.speciesId ||
+    left.candidate.pokemon.formOrder - right.candidate.pokemon.formOrder
   );
+}
+
+function getCandidateProxyScore(
+  category: Exclude<AdvisorRecommendationCategory, "typeSpecific">,
+  candidate: TeamAdvisorCandidate,
+  environmentBySlug: Map<string, ThreatEnvironmentDataset["pokemon"][number]>
+): number {
+  const stats = candidate.pokemon.baseStats;
+  const environment = environmentBySlug.get(candidate.pokemon.slug);
+  const recoveryShare = Math.max(
+    0,
+    ...(environment?.moves
+      .filter(
+        (move) =>
+          move.damageClass === "status" && RECOVERY_MOVE_IDS.has(move.id)
+      )
+      .map((move) => move.share) ?? [])
+  );
+  if (category === "defensive") {
+    const physicalBulk = stats ? stats.hp + stats.defense : 0;
+    const specialBulk = stats ? stats.hp + stats.specialDefense : 0;
+    return (
+      candidate.metrics.threatResponsePoints * 4 +
+      candidate.metrics.issueResolutionPoints * 2 +
+      Math.max(0, candidate.metrics.rolePoints) +
+      Math.max(physicalBulk, specialBulk) / 20 +
+      recoveryShare * 12
+    );
+  }
+  if (category === "offensive") {
+    return (
+      candidate.metrics.offensePoints * 4 +
+      candidate.metrics.threatResponsePoints * 2 +
+      Math.max(stats?.attack ?? 0, stats?.specialAttack ?? 0) / 8 +
+      (stats?.speed ?? 0) / 20
+    );
+  }
+  if (category === "speed") {
+    return (
+      (stats?.speed ?? 0) / 4 +
+      candidate.metrics.threatResponsePoints * 2 +
+      candidate.metrics.offensePoints * 2 +
+      candidate.metrics.rolePoints
+    );
+  }
+  return candidate.score;
+}
+
+function preselectSimulationCandidates(
+  input: AdvisorSwapSimulationInput
+): TeamAdvisorCandidate[] {
+  const environmentBySlug = new Map(
+    input.environmentDataset?.pokemon.map((entry) => [entry.slug, entry]) ?? []
+  );
+  const pool =
+    input.advisor.candidatePool.length > 0
+      ? input.advisor.candidatePool
+      : input.advisor.candidates;
+  const selected = new Map<string, TeamAdvisorCandidate>();
+  for (const category of [
+    "overall",
+    "defensive",
+    "offensive",
+    "speed"
+  ] as const) {
+    [...pool]
+      .sort(
+        (left, right) =>
+          getCandidateProxyScore(category, right, environmentBySlug) -
+            getCandidateProxyScore(category, left, environmentBySlug) ||
+          left.pokemon.id - right.pokemon.id
+      )
+      .slice(0, ADVISOR_RECOMMENDATION_RULES.preselectPerCategory)
+      .forEach((candidate) => selected.set(candidate.pokemon.slug, candidate));
+  }
+  input.advisor.candidates.forEach((candidate) =>
+    selected.set(candidate.pokemon.slug, candidate)
+  );
+  return [...selected.values()];
+}
+
+function getBestPlansBySpecies(
+  plans: AdvisorSwapPlan[],
+  category: AdvisorRecommendationCategory,
+  type?: TypeName
+): AdvisorSwapPlan[] {
+  const bestBySpecies = new Map<number, AdvisorSwapPlan>();
+  for (const plan of plans) {
+    if (
+      !plan.isRecommendationByCategory[category] ||
+      plan.categoryScores[category] <= 0 ||
+      (type && !plan.candidate.pokemon.types.includes(type))
+    ) {
+      continue;
+    }
+    const speciesId = plan.candidate.pokemon.speciesId;
+    const current = bestBySpecies.get(speciesId);
+    if (!current || comparePlansForCategory(category, plan, current) < 0) {
+      bestBySpecies.set(speciesId, plan);
+    }
+  }
+  return [...bestBySpecies.values()].sort((left, right) =>
+    comparePlansForCategory(category, left, right)
+  );
+}
+
+function isMegaPlan(plan: AdvisorSwapPlan): boolean {
+  return plan.candidate.pokemon.formKind === "mega";
+}
+
+function selectCategoryPlans(
+  plans: AdvisorSwapPlan[],
+  category: AdvisorRecommendationCategory,
+  type?: TypeName
+): AdvisorSwapPlan[] {
+  const selected: AdvisorSwapPlan[] = [];
+  let megaCount = 0;
+  for (const plan of getBestPlansBySpecies(plans, category, type)) {
+    if (
+      isMegaPlan(plan) &&
+      megaCount >= ADVISOR_RECOMMENDATION_RULES.maxMegaInOverall
+    ) {
+      continue;
+    }
+    selected.push(plan);
+    if (isMegaPlan(plan)) megaCount += 1;
+    if (selected.length >= ADVISOR_RECOMMENDATION_RULES.maxPerCategory) break;
+  }
+  return selected;
+}
+
+function selectDiverseOverallPlans(plans: AdvisorSwapPlan[]): AdvisorSwapPlan[] {
+  const ranked = getBestPlansBySpecies(plans, "overall");
+  const topScore = ranked[0]?.categoryScores.overall ?? 0;
+  const qualified = ranked.filter(
+    (plan) =>
+      plan.categoryScores.overall >=
+      topScore - ADVISOR_RECOMMENDATION_RULES.overallScoreWindow
+  );
+  const selected: AdvisorSwapPlan[] = [];
+  const roleCounts = new Map<AdvisorRecommendationRole, number>();
+  let megaCount = 0;
+
+  for (const plan of qualified) {
+    const role = [...plan.recommendationRoles]
+      .sort(
+        (left, right) =>
+          (roleCounts.get(left) ?? 0) - (roleCounts.get(right) ?? 0) ||
+          left.localeCompare(right)
+      )
+      .find(
+        (candidateRole) =>
+          (roleCounts.get(candidateRole) ?? 0) <
+          ADVISOR_RECOMMENDATION_RULES.maxSameRole
+      );
+    if (!role) continue;
+    if (
+      isMegaPlan(plan) &&
+      megaCount >= ADVISOR_RECOMMENDATION_RULES.maxMegaInOverall
+    ) {
+      continue;
+    }
+    selected.push({ ...plan, selectedOverallRole: role });
+    roleCounts.set(role, (roleCounts.get(role) ?? 0) + 1);
+    if (isMegaPlan(plan)) megaCount += 1;
+    if (selected.length >= ADVISOR_RECOMMENDATION_RULES.maxPerCategory) break;
+  }
+  return selected;
+}
+
+function getTypePlanGroups(
+  plans: AdvisorSwapPlan[]
+): {
+  typePlans: Partial<Record<TypeName, AdvisorSwapPlan[]>>;
+  typeOptions: Array<{ type: TypeName; label: string }>;
+} {
+  const groups = getAllTypes().flatMap((entry) => {
+    const typePlans = selectCategoryPlans(
+      plans,
+      "typeSpecific",
+      entry.nameEn
+    );
+    if (!typePlans.length) return [];
+    return [{ type: entry.nameEn, label: entry.nameJa, plans: typePlans }];
+  });
+  groups.sort(
+    (left, right) =>
+      (right.plans[0]?.categoryScores.typeSpecific ?? 0) -
+        (left.plans[0]?.categoryScores.typeSpecific ?? 0) ||
+      left.type.localeCompare(right.type)
+  );
+  const selectedGroups = groups.slice(
+    0,
+    ADVISOR_RECOMMENDATION_RULES.maxTypeOptions
+  );
+  return {
+    typePlans: Object.fromEntries(
+      selectedGroups.map((group) => [group.type, group.plans])
+    ),
+    typeOptions: selectedGroups.map(({ type, label }) => ({ type, label }))
+  };
+}
+
+function emptySimulation(): AdvisorSwapSimulation {
+  return {
+    plans: [],
+    plansByCategory: {
+      overall: [],
+      defensive: [],
+      offensive: [],
+      speed: []
+    },
+    typePlans: {},
+    typeOptions: [],
+    candidatePoolCount: 0,
+    evaluatedPatternCount: 0,
+    recomputedThreatAnalysisCount: 0,
+    rejectedPlanCount: 0
+  };
 }
 
 export function getAdvisorSwapSimulation(
   input: AdvisorSwapSimulationInput
 ): AdvisorSwapSimulation {
   const summary = summarizeTeam(input.team);
-  if (summary.members.length < 2 || input.advisor.candidates.length === 0) {
-    return {
-      plans: [],
-      evaluatedPatternCount: 0,
-      recomputedThreatAnalysisCount: 0,
-      rejectedPlanCount: 0
-    };
+  const candidatePool = preselectSimulationCandidates(input);
+  if (summary.members.length < 2 || candidatePool.length === 0) {
+    return emptySimulation();
   }
 
   const memberSlotIds = summary.members.map((member) => member.slotId);
@@ -756,13 +1775,14 @@ export function getAdvisorSwapSimulation(
   const teamSpeciesIds = new Set(
     getPokemonMembers(input.team).map((pokemon) => pokemon.speciesId)
   );
-  const seenCandidateSpecies = new Set<number>();
-  const eligibleCandidates = input.advisor.candidates.filter((candidate) => {
+  const seenCandidateSlugs = new Set<string>();
+  const eligibleCandidates = candidatePool.filter((candidate) => {
     const speciesId = candidate.pokemon.speciesId;
-    if (teamSpeciesIds.has(speciesId) || seenCandidateSpecies.has(speciesId)) {
+    const slug = candidate.pokemon.slug;
+    if (teamSpeciesIds.has(speciesId) || seenCandidateSlugs.has(slug)) {
       return false;
     }
-    seenCandidateSpecies.add(speciesId);
+    seenCandidateSlugs.add(slug);
     return true;
   });
   const allPlans = eligibleCandidates.flatMap((candidate) =>
@@ -770,20 +1790,23 @@ export function getAdvisorSwapSimulation(
       evaluateAdvisorSwapPlan(input, candidate, removedSlotId)
     )
   );
-  const bestBySpecies = new Map<number, AdvisorSwapPlan>();
-
-  for (const plan of allPlans.filter((entry) => entry.isRecommendation)) {
-    const current = bestBySpecies.get(plan.candidate.pokemon.speciesId);
-    if (!current || comparePlans(plan, current) < 0) {
-      bestBySpecies.set(plan.candidate.pokemon.speciesId, plan);
-    }
-  }
-
-  const plans = [...bestBySpecies.values()].sort(comparePlans).slice(0, 3);
+  const overallPlans = selectDiverseOverallPlans(allPlans);
+  const plansByCategory = {
+    overall: overallPlans,
+    defensive: selectCategoryPlans(allPlans, "defensive"),
+    offensive: selectCategoryPlans(allPlans, "offensive"),
+    speed: selectCategoryPlans(allPlans, "speed")
+  };
+  const typeGroups = getTypePlanGroups(allPlans);
   return {
-    plans,
+    plans: overallPlans,
+    plansByCategory,
+    typePlans: typeGroups.typePlans,
+    typeOptions: typeGroups.typeOptions,
+    candidatePoolCount: eligibleCandidates.length,
     evaluatedPatternCount: allPlans.length,
     recomputedThreatAnalysisCount: allPlans.length,
-    rejectedPlanCount: allPlans.length - plans.length
+    rejectedPlanCount:
+      allPlans.length - allPlans.filter((plan) => plan.isRecommendation).length
   };
 }
