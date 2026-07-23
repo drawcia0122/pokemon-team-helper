@@ -2339,5 +2339,64 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-07-21T22:38:31.397Z"
+  },
+  {
+    "id": "note-n8ad8eccb5058",
+    "source": "note",
+    "sourceArticleId": "n8ad8eccb5058",
+    "sourceUrl": "https://note.com/advancehacker/n/n8ad8eccb5058",
+    "canonicalUrl": "https://note.com/advancehacker/n/n8ad8eccb5058",
+    "title": "【プレ蒼炎#2優勝】環境データで「通る技タイプ」をClaudeFable5で定量分析したら、バイバニラ+メガガブリアスに辿り着いた話",
+    "authorName": "van",
+    "publishedAt": "2026-07-23T09:39:34.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "優勝",
+    "pokemonSlugs": [],
+    "tags": [
+      "構築記事",
+      "PokemonChampions",
+      "ClaudeFable5",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。優勝。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/296863855/rectangle_large_type_2_d59e4937d758b6672848abe309d464d2.png",
+      "source": "structured-data",
+      "alt": "【プレ蒼炎#2優勝】環境データで「通る技タイプ」をClaudeFable5で定量分析したら、バイバニラ+メガガブリアスに辿り着いた話のサムネイル",
+      "width": 687,
+      "height": 360
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.6,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.425
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-23T10:07:20.637Z",
+    "lastCollectedAt": "2026-07-23T10:07:20.637Z",
+    "contentFingerprint": "175e483c2e2e9449c594310456583ba8ee0474f3ac2e2aed67adfa5a90a9ec98",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-23T10:07:20.637Z"
   }
 ]
