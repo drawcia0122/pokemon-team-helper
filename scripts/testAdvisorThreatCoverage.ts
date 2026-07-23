@@ -119,6 +119,7 @@ const jolteon = pokemon("jolteon");
 const meowscarada = pokemon("meowscarada");
 const scarfCandidate = pokemon("mamoswine");
 const passiveCandidate = pokemon("blissey");
+const greninja = pokemon("greninja");
 
 const threatEntries = [
   environmentEntry({
@@ -208,6 +209,16 @@ const candidateEntries = [
     usageRate: 0.2,
     rank: 4,
     moves: []
+  }),
+  environmentEntry({
+    pokemon: greninja,
+    usageRate: 0.03,
+    rank: 30,
+    moves: [
+      move("darkpulse", "あくのはどう", "dark", "special", 0.78),
+      move("hydropump", "ハイドロポンプ", "water", "special", 0.62),
+      move("mudshot", "マッドショット", "ground", "special", 0.14)
+    ]
   })
 ];
 
@@ -250,6 +261,7 @@ const meowscaradaCoverage = evaluate(meowscarada);
 const scarfCoverage = evaluate(scarfCandidate);
 const passiveCoverage = evaluate(passiveCandidate);
 const unknownCoverage = evaluate(pokemon("corviknight"));
+const greninjaCoverage = evaluate(greninja);
 
 assert(
   steelixCoverage.threatAnswers[0].threatId === "raichu-mega-y" &&
@@ -270,24 +282,30 @@ assert(
   "使用率不明の候補を除外できません"
 );
 assert(
-  meowscaradaCoverage.distinctThreatCount >= 3 &&
+  meowscaradaCoverage.distinctThreatCount >= 2 &&
     meowscaradaCoverage.threatAnswers.some((answer) =>
       answer.counterplayMethods.includes("priority")
     ) &&
     isAdvisorThreatCoverageEligible(meowscaradaCoverage, 1),
-  "異なる方法でTOP5の3体以上へ回答する候補を評価できません"
+  "実採用技と対面条件を満たす複数の回答を評価できません"
 );
 assert(
   scarfCoverage.usageEligibility === "conditional" &&
-    scarfCoverage.distinctThreatCount >= 3 &&
-    isAdvisorThreatCoverageEligible(scarfCoverage, 1) &&
     scarfCoverage.threatAnswers.some((answer) =>
       answer.counterplayMethods.includes("choice-scarf")
     ) &&
-    scarfCoverage.threatAnswers.some((answer) =>
-      answer.counterplayMethods.includes("priority")
-    ),
-  "スカーフ・先制技の実採用率を区別して評価できません"
+    !isAdvisorThreatCoverageEligible(scarfCoverage, 1),
+  "スカーフがあるだけで回答範囲の狭い候補を推薦対象にしました"
+);
+const greninjaRaichu = greninjaCoverage.threatAnswers.find(
+  (answer) => answer.threatId === "raichu-mega-y"
+);
+assert(
+  greninjaRaichu?.answerClass === "CoverageOnly" &&
+    greninjaRaichu.answerStrength === 0 &&
+    !greninjaRaichu.primaryReason &&
+    greninjaCoverage.coverageOnlyThreatCount >= 1,
+  `ゲッコウガからメガライチュウYへの弱点技を対面回答として数えました: ${JSON.stringify({ greninjaRaichu, coverageOnlyThreatCount: greninjaCoverage.coverageOnlyThreatCount })}`
 );
 assert(
   passiveCoverage.candidateUsage === 0.2 &&
@@ -324,7 +342,8 @@ for (const [label, coverage] of [
   ["サンダース", jolteonCoverage],
   ["マスカーニャ", meowscaradaCoverage],
   ["マンムー", scarfCoverage],
-  ["ハピナス", passiveCoverage]
+  ["ハピナス", passiveCoverage],
+  ["ゲッコウガ", greninjaCoverage]
 ] as const) {
   console.log(
     `[fixture] ${label}: usage=${coverage.candidateUsage === null ? "unknown" : `${(coverage.candidateUsage * 100).toFixed(1)}%`} answers=${coverage.distinctThreatCount}/5 weighted=${coverage.weightedThreatCoverage.toFixed(3)} score=${coverage.finalScore} methods=${[...new Set(coverage.threatAnswers.flatMap((answer) => answer.counterplayMethods))].join("+")}`

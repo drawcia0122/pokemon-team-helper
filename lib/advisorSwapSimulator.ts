@@ -50,6 +50,12 @@ import {
   TRICK_ROOM_RECOMMENDATION_CONFIG,
   type TeamProfile
 } from "@/lib/teamProfile";
+import {
+  getAdvisorEvidenceReasons,
+  scoreAdvisorEvidence,
+  type AdvisorEvidence,
+  type AdvisorEvidenceScore
+} from "@/lib/advisorEvidence";
 
 export const ADVISOR_SWAP_WEIGHTS = {
   threatReduction: 2,
@@ -73,8 +79,8 @@ export const ADVISOR_TEAM_RULES = {
 
 export const ADVISOR_RECOMMENDATION_RULES = {
   maxPerCategory: 5,
-  preselectPerCategory: 8,
-  preselectByThreatCoverage: 16,
+  preselectPerCategory: 24,
+  preselectByThreatCoverage: 32,
   overallScoreWindow: 30,
   maxSameRole: 2,
   maxMegaInOverall: 2,
@@ -228,6 +234,7 @@ export type AdvisorTeamMetrics = {
   issueIds: string[];
   consistencyTypes: TypeName[];
   weakCounts: Record<TypeName, number>;
+  quadWeakCounts: Record<TypeName, number>;
   coverCounts: Record<TypeName, number>;
   immunityCounts: Record<TypeName, number>;
   offenseCoverageCount: number;
@@ -297,6 +304,8 @@ export type AdvisorSwapPlan = {
   selectedOverallRole: AdvisorRecommendationRole | null;
   profileRoles: AdvisorProfileRole[];
   threatCoverage: AdvisorThreatCoverage;
+  evidence: AdvisorEvidence[];
+  evidenceScore: AdvisorEvidenceScore;
   improvements: string[];
   cautions: string[];
   lostRoles: string[];
@@ -725,6 +734,7 @@ export function getAdvisorTeamMetrics(
   threats: ThreatPokemonAnalysis[]
 ): AdvisorTeamMetrics {
   const weakCounts = {} as Record<TypeName, number>;
+  const quadWeakCounts = {} as Record<TypeName, number>;
   const coverCounts = {} as Record<TypeName, number>;
   const immunityCounts = {} as Record<TypeName, number>;
   const rowsByType = new Map(
@@ -736,6 +746,7 @@ export function getAdvisorTeamMetrics(
     weakCounts[type.nameEn] = row
       ? row.multiplierMap.weak + row.multiplierMap.quadWeak
       : 0;
+    quadWeakCounts[type.nameEn] = row?.multiplierMap.quadWeak ?? 0;
     coverCounts[type.nameEn] = row
       ? row.multiplierMap.resist +
         row.multiplierMap.doubleResist +
@@ -751,6 +762,7 @@ export function getAdvisorTeamMetrics(
       (row) => row.attackType
     ),
     weakCounts,
+    quadWeakCounts,
     coverCounts,
     immunityCounts,
     offenseCoverageCount: summary.offensiveCoverage.filter(
@@ -1557,7 +1569,7 @@ function buildThreatCoverageReasons(
       .flatMap((answer) => answer.counterplayMethods)
       .filter((method) => method !== "none" && method !== "conditional")
   )].slice(0, 3);
-  const summary = `要警戒TOP5の${coverage.distinctThreatCount}/${coverage.threatAnswers.length}体へ明確な対策方法を持ちます。`;
+  const summary = `交換前後の要警戒候補${coverage.threatAnswers.length}体中${coverage.distinctThreatCount}体へ明確な対策方法を持ちます。`;
   const methodSummary = methods.length
     ? `主な対策方法: ${methods.map(getAdvisorCounterplayMethodLabel).join("・")}`
     : null;
@@ -1588,6 +1600,418 @@ function buildThreatCoverageCautions(
       `${threat?.pokemon.nameJa ?? slug}への明確な回答にはなりません。`
     );
   });
+}
+
+function mergeThreatUnion(
+  beforeThreats: ThreatPokemonAnalysis[],
+  afterThreats: ThreatPokemonAnalysis[]
+): ThreatPokemonAnalysis[] {
+  const bySlug = new Map<string, ThreatPokemonAnalysis>();
+  for (const threat of [...beforeThreats, ...afterThreats]) {
+    const current = bySlug.get(threat.pokemon.slug);
+    if (!current || threat.score > current.score) {
+      bySlug.set(threat.pokemon.slug, threat);
+    }
+  }
+  return [...bySlug.values()].sort(
+    (left, right) =>
+      right.score - left.score ||
+      (right.environment?.usageRate ?? 0) -
+        (left.environment?.usageRate ?? 0) ||
+      left.pokemon.id - right.pokemon.id
+  );
+}
+
+function maxThreatScore(threats: ThreatPokemonAnalysis[]): number {
+  return threats.reduce((maximum, threat) => Math.max(maximum, threat.score), 0);
+}
+
+function expectedThreatScore(threats: ThreatPokemonAnalysis[]): number {
+  const totalUsage = threats.reduce(
+    (total, threat) => total + (threat.environment?.usageRate ?? 0),
+    0
+  );
+  if (totalUsage <= 0) return averageThreatScore(threats) ?? 0;
+  return threats.reduce(
+    (total, threat) =>
+      total + threat.score * (threat.environment?.usageRate ?? 0),
+    0
+  ) / totalUsage;
+}
+
+type AdvisorFunctionalSignature = {
+  typeKey: string;
+  roles: Set<string>;
+  moveTypes: Set<string>;
+  speedBand: "fast" | "medium" | "slow" | "unknown";
+};
+
+function getFunctionalSignature(
+  pokemon: PokemonEntry,
+  environmentDataset: ThreatEnvironmentDataset | null
+): AdvisorFunctionalSignature {
+  const stats = pokemon.baseStats;
+  const environment = environmentDataset?.pokemon.find(
+    (entry) => entry.slug === pokemon.slug
+  );
+  const roles = new Set<string>();
+  if (stats) {
+    if (stats.attack >= ATTACKER_STAT_THRESHOLD) roles.add("physical-offense");
+    if (stats.specialAttack >= ATTACKER_STAT_THRESHOLD) roles.add("special-offense");
+    if (stats.hp + stats.defense >= BULK_TOTAL_THRESHOLD && stats.defense >= BULK_STAT_THRESHOLD) {
+      roles.add("physical-wall");
+    }
+    if (
+      stats.hp + stats.specialDefense >= BULK_TOTAL_THRESHOLD &&
+      stats.specialDefense >= BULK_STAT_THRESHOLD
+    ) {
+      roles.add("special-wall");
+    }
+  }
+  if (
+    environment?.moves.some(
+      (move) =>
+        TRICK_ROOM_RECOMMENDATION_CONFIG.priorityMoveIds.includes(
+          move.id as (typeof TRICK_ROOM_RECOMMENDATION_CONFIG.priorityMoveIds)[number]
+        ) && move.share >= TRICK_ROOM_RECOMMENDATION_CONFIG.adoptedMoveMinimumShare
+    )
+  ) {
+    roles.add("priority");
+  }
+  if (environment?.moves.some((move) => move.id === "uturn" || move.id === "voltswitch" || move.id === "flipturn")) {
+    roles.add("pivot");
+  }
+  const speedBand = !stats
+    ? "unknown"
+    : stats.speed >= TEAM_SPEED_THRESHOLDS.fastMinimum
+      ? "fast"
+      : stats.speed >= TEAM_SPEED_THRESHOLDS.mediumMinimum
+        ? "medium"
+        : "slow";
+  return {
+    typeKey: [...pokemon.types].sort().join("/"),
+    roles,
+    moveTypes: new Set(
+      getEnvironmentAttackingMoves(environment?.moves).map((move) => move.type)
+    ),
+    speedBand
+  };
+}
+
+function overlapRatio(left: Set<string>, right: Set<string>): number {
+  if (left.size === 0 && right.size === 0) return 0;
+  const union = new Set([...left, ...right]);
+  const intersection = [...left].filter((value) => right.has(value)).length;
+  return union.size ? intersection / union.size : 0;
+}
+
+function getRedundancyEvidence(
+  candidate: PokemonEntry,
+  comparisonTeam: TeamSlot[],
+  environmentDataset: ThreatEnvironmentDataset | null,
+  candidateThreatAnswers: Set<string>,
+  existingThreatAnswers: Set<string>
+): AdvisorEvidence | null {
+  const candidateSignature = getFunctionalSignature(candidate, environmentDataset);
+  let strongest: { member: PokemonEntry; similarity: number } | null = null;
+  const teamRoles = new Set<string>();
+  const teamMoveTypes = new Set<string>();
+  const teamAnswerIds = new Set<string>();
+  const teamSpeedBands = new Set<string>();
+  let teamHasExactType = false;
+  for (const slot of comparisonTeam) {
+    if (slot.mode !== "pokemon") continue;
+    const member = getPokemonBySlug(slot.pokemonSlug);
+    if (!member) continue;
+    const signature = getFunctionalSignature(member, environmentDataset);
+    signature.roles.forEach((role) => teamRoles.add(role));
+    signature.moveTypes.forEach((type) => teamMoveTypes.add(type));
+    teamSpeedBands.add(signature.speedBand);
+    teamHasExactType ||= candidateSignature.typeKey === signature.typeKey;
+    existingThreatAnswers.forEach((answer) => teamAnswerIds.add(answer));
+    const exactTypes = candidateSignature.typeKey === signature.typeKey;
+    const roleOverlap = overlapRatio(candidateSignature.roles, signature.roles);
+    const moveOverlap = overlapRatio(candidateSignature.moveTypes, signature.moveTypes);
+    const answerOverlap = overlapRatio(candidateThreatAnswers, existingThreatAnswers);
+    const sameSpeedBand = candidateSignature.speedBand === signature.speedBand;
+    const similarity =
+      (exactTypes ? 0.24 : 0) +
+      roleOverlap * 0.24 +
+      moveOverlap * 0.2 +
+      answerOverlap * 0.22 +
+      (sameSpeedBand ? 0.1 : 0) +
+      (exactTypes && moveOverlap >= 0.7 && answerOverlap >= 0.7 ? 0.15 : 0);
+    if (!strongest || similarity > strongest.similarity) {
+      strongest = { member, similarity };
+    }
+  }
+  const hasUniqueTeamValue =
+    [...candidateSignature.roles].some((role) => !teamRoles.has(role)) ||
+    [...candidateSignature.moveTypes].some((type) => !teamMoveTypes.has(type)) ||
+    [...candidateThreatAnswers].some((answer) => !teamAnswerIds.has(answer)) ||
+    !teamSpeedBands.has(candidateSignature.speedBand);
+  if (teamHasExactType && !hasUniqueTeamValue) {
+    return {
+      id: "redundancy:team-overlap",
+      category: "Risk",
+      points: -24,
+      summary: "同タイプの既存枠と役割・攻撃範囲・回答対象・速度帯が重複し、独自価値がありません。",
+      source: "team-delta"
+    };
+  }
+  if (!strongest || strongest.similarity < 0.78) return null;
+  return {
+    id: `redundancy:${strongest.member.speciesId}`,
+    category: "Risk",
+    points: strongest.similarity >= 0.9 ? -22 : -14,
+    summary: `${strongest.member.nameJa}とタイプ・役割・攻撃範囲・回答対象が大きく重複します。`,
+    source: "team-delta"
+  };
+}
+
+function buildAdvisorPlanEvidence({
+  candidate,
+  comparisonTeam,
+  beforeMetrics,
+  afterMetrics,
+  beforeThreats,
+  afterThreats,
+  threatCoverage,
+  candidateEvidenceGain,
+  lostRoles,
+  threatAnswerLosses,
+  environmentUsageRate,
+  environmentDataset,
+  profile
+}: {
+  candidate: PokemonEntry;
+  comparisonTeam: TeamSlot[];
+  beforeMetrics: AdvisorTeamMetrics;
+  afterMetrics: AdvisorTeamMetrics;
+  beforeThreats: ThreatPokemonAnalysis[];
+  afterThreats: ThreatPokemonAnalysis[];
+  threatCoverage: AdvisorThreatCoverage;
+  candidateEvidenceGain: AdvisorCandidateEvidence;
+  lostRoles: string[];
+  threatAnswerLosses: string[];
+  environmentUsageRate: number;
+  environmentDataset: ThreatEnvironmentDataset | null;
+  profile: TeamProfile;
+}): AdvisorEvidence[] {
+  const evidence: AdvisorEvidence[] = [];
+  for (const type of getAllTypes().map((entry) => entry.nameEn)) {
+    const weakDelta = beforeMetrics.weakCounts[type] - afterMetrics.weakCounts[type];
+    const coverDelta = afterMetrics.coverCounts[type] - beforeMetrics.coverCounts[type];
+    const immunityDelta = afterMetrics.immunityCounts[type] - beforeMetrics.immunityCounts[type];
+    const quadWeakDelta =
+      afterMetrics.quadWeakCounts[type] - beforeMetrics.quadWeakCounts[type];
+    const positive = Math.max(0, weakDelta) * 3 + Math.max(0, coverDelta) * 2 + Math.max(0, immunityDelta) * 3;
+    const negative =
+      Math.max(0, -weakDelta) * 5 +
+      Math.max(0, quadWeakDelta) * 16 +
+      Math.max(0, -coverDelta) * 3 +
+      Math.max(0, -immunityDelta) * 4;
+    if (positive > 0) {
+      evidence.push({
+        id: `defense:${type}`,
+        category: "Defense",
+        points: Math.min(9, positive),
+        summary: `${getTypeLabel(type)}への受け方を改善します。`,
+        source: "team-delta"
+      });
+    }
+    if (negative > 0) {
+      const lostOnlyImmunity =
+        beforeMetrics.immunityCounts[type] === 1 &&
+        afterMetrics.immunityCounts[type] === 0;
+      evidence.push({
+        id: `risk:type:${type}`,
+        category: "Risk",
+        points: -Math.min(20, negative),
+        summary: lostOnlyImmunity
+          ? `唯一の${getTypeLabel(type)}無効枠を失います。`
+          : `${getTypeLabel(type)}への弱点・受け先が悪化します。`,
+        source: "team-delta"
+      });
+    }
+  }
+
+  const offenseDelta = afterMetrics.offenseCoverageCount - beforeMetrics.offenseCoverageCount;
+  if (offenseDelta > 0) {
+    evidence.push({
+      id: "offense:coverage",
+      category: "Offense",
+      points: Math.min(12, offenseDelta * 3),
+      summary: `一致技の攻撃範囲を${offenseDelta}タイプ増やします。`,
+      source: "team-delta"
+    });
+  }
+
+  if (candidateEvidenceGain.recoveryMoveShare > 0 && candidateEvidenceGain.recoveryReason) {
+    evidence.push({
+      id: "role:recovery",
+      category: "Role",
+      points: Math.min(16, candidateEvidenceGain.recoveryMoveShare * 18),
+      summary: candidateEvidenceGain.recoveryReason,
+      source: "role-delta"
+    });
+  }
+  if (
+    candidateEvidenceGain.defensiveAbilityShare > 0 &&
+    candidateEvidenceGain.defensiveAbilityReason
+  ) {
+    evidence.push({
+      id: "role:defensive-ability",
+      category: "Role",
+      points: Math.min(5, candidateEvidenceGain.defensiveAbilityShare * 5),
+      summary: candidateEvidenceGain.defensiveAbilityReason,
+      source: "role-delta"
+    });
+  }
+
+  const roleDeltas: Array<[keyof AdvisorRoleCounts, string]> = [
+    ["physicalAttacker", "物理アタッカー"],
+    ["specialAttacker", "特殊アタッカー"],
+    ["physicalWall", "物理耐久役"],
+    ["specialWall", "特殊耐久役"],
+    [TEAM_PROFILE_CONFIG[profile].activeSpeedRole, TEAM_PROFILE_CONFIG[profile].speedRoleLabel]
+  ];
+  for (const [role, label] of roleDeltas) {
+    const isProfileSpeedRole = role === "fast" || role === "slow";
+    const roleIncreased = afterMetrics.roles[role] > beforeMetrics.roles[role];
+    if (
+      roleIncreased &&
+      (isProfileSpeedRole || beforeMetrics.roles[role] === 0)
+    ) {
+      const speedRolePoints =
+        profile === "trick-room"
+          ? beforeMetrics.roles.slow === 0
+            ? 8
+            : beforeMetrics.roles.slow === 1
+              ? 5
+              : beforeMetrics.roles.slow === 2
+                ? 2
+                : 0
+          : 6;
+      if (isProfileSpeedRole && speedRolePoints <= 0) continue;
+      const speedReason =
+        profile === "trick-room"
+          ? `こちらの${candidateEvidenceGain.profileSpeedAdvantageCount}体より遅く、トリックルーム下で先に動きやすい候補です。`
+          : `こちらの${candidateEvidenceGain.profileSpeedAdvantageCount}体より速く、通常時に先手を取りやすい候補です。`;
+      evidence.push({
+        id: `role:${role}`,
+        category: isProfileSpeedRole ? "Speed" : "Role",
+        points: isProfileSpeedRole ? speedRolePoints : 7,
+        summary: isProfileSpeedRole ? speedReason : `${label}を新しく追加します。`,
+        source: "role-delta"
+      });
+    }
+  }
+  if (
+    profile === "trick-room" &&
+    afterMetrics.roles.fast > beforeMetrics.roles.fast
+  ) {
+    evidence.push({
+      id: "role:fast-fallback",
+      category: "Role",
+      points: 14,
+      summary: "トリックルーム外で動ける高速の保険を追加します。",
+      source: "role-delta"
+    });
+  }
+
+  const clearAnswerIds = new Set<string>();
+  const existingAnswerIds = new Set(
+    threatCoverage.threatAnswers
+      .filter((answer) => answer.currentTeamHasAnswer)
+      .map((answer) => answer.threatId)
+  );
+  for (const answer of threatCoverage.threatAnswers) {
+    if (answer.answerClass !== "Stable" && answer.answerClass !== "Matchup") continue;
+    clearAnswerIds.add(answer.threatId);
+    if (!answer.currentTeamHasAnswer) {
+      evidence.push({
+        id: `threat-answer:${answer.threatId}`,
+        category: "ThreatAnswers",
+        points: answer.answerClass === "Stable" ? 10 : 8,
+        summary: answer.primaryReason ?? `${answer.threatId}へ新しい回答を追加します。`,
+        source: "threat-union"
+      });
+    }
+  }
+
+  if (lostRoles.length > 0) {
+    evidence.push({
+      id: "risk:lost-roles",
+      category: "Risk",
+      points: -Math.min(24, lostRoles.length * 9),
+      summary: `${lostRoles.join("・")}を失います。`,
+      source: "role-delta"
+    });
+  }
+  if (threatAnswerLosses.length > 0) {
+    evidence.push({
+      id: "risk:lost-threat-answers",
+      category: "Risk",
+      points: -Math.min(20, threatAnswerLosses.length * 9),
+      summary: `要警戒相手への既存回答を${threatAnswerLosses.length}件失います。`,
+      source: "threat-union"
+    });
+  }
+
+  const beforeMax = maxThreatScore(beforeThreats);
+  const afterMax = maxThreatScore(afterThreats);
+  const beforeExpected = expectedThreatScore(beforeThreats);
+  const afterExpected = expectedThreatScore(afterThreats);
+  if (afterMax > beforeMax + 1) {
+    evidence.push({
+      id: "risk:max-threat",
+      category: "Risk",
+      points: -Math.min(12, Math.ceil((afterMax - beforeMax) / 2)),
+      summary: `最大脅威スコアが${beforeMax}から${afterMax}へ上がります。`,
+      source: "threat-union"
+    });
+  }
+  if (afterExpected > beforeExpected + 0.5) {
+    evidence.push({
+      id: "risk:expected-threat",
+      category: "Risk",
+      points: -Math.min(10, Math.ceil(afterExpected - beforeExpected)),
+      summary: "環境使用率で重み付けした期待脅威が悪化します。",
+      source: "threat-union"
+    });
+  }
+  const beforeIds = new Set(beforeThreats.map((threat) => threat.pokemon.slug));
+  const emerged = afterThreats.filter((threat) => !beforeIds.has(threat.pokemon.slug));
+  if (emerged.length > 0) {
+    evidence.push({
+      id: "risk:emerged-threats",
+      category: "Risk",
+      points: -Math.min(12, emerged.length * 4),
+      summary: `交換後に新しい要警戒候補が${emerged.length}体現れます。`,
+      source: "threat-union"
+    });
+  }
+
+  const redundancy = getRedundancyEvidence(
+    candidate,
+    comparisonTeam,
+    environmentDataset,
+    clearAnswerIds,
+    existingAnswerIds
+  );
+  if (redundancy) evidence.push(redundancy);
+
+  if (environmentUsageRate > 0) {
+    evidence.push({
+      id: "environment:usage",
+      category: "Environment",
+      points: Math.min(4, Math.sqrt(Math.min(environmentUsageRate, 0.1) / 0.1) * 4),
+      summary: `環境使用率${(environmentUsageRate * 100).toFixed(1)}%の採用実績があります。`,
+      source: "environment"
+    });
+  }
+  return evidence;
 }
 
 export function evaluateAdvisorSwapPlan(
@@ -1647,7 +2071,7 @@ export function evaluateAdvisorSwapPlan(
   );
   const beforeThreatAverage = averageThreatScore(beforeThreats);
   const afterThreatAverage = averageThreatScore(afterThreats);
-  const evidence = getCandidateEvidence(
+  const candidateEvidence = getCandidateEvidence(
     candidate.pokemon,
     beforeThreats,
     input.environmentDataset,
@@ -1663,7 +2087,7 @@ export function evaluateAdvisorSwapPlan(
       )
     : emptyCandidateEvidence();
   const evidenceGain = subtractCandidateEvidence(
-    evidence,
+    candidateEvidence,
     replacedEvidence
   );
   const threatReduction =
@@ -1672,9 +2096,10 @@ export function evaluateAdvisorSwapPlan(
       : 0;
   const issueReduction =
     beforeMetrics.issueIds.length - afterMetrics.issueIds.length;
+  const threatUnion = mergeThreatUnion(beforeThreats, afterThreats);
   const threatCoverage = evaluateAdvisorThreatCoverage({
     candidate: candidate.pokemon,
-    threats: beforeThreats,
+    threats: threatUnion,
     currentTeam: beforeTeam,
     environmentDataset: input.environmentDataset,
     profile
@@ -1779,83 +2204,48 @@ export function evaluateAdvisorSwapPlan(
     ADVISOR_SWAP_WEIGHTS.usageTieBreaker,
     environmentUsageRate * ADVISOR_SWAP_WEIGHTS.usageTieBreaker
   );
-  const baseImprovementScore = Math.round(
-    threatReduction * ADVISOR_SWAP_WEIGHTS.threatReduction +
-      issueReduction * ADVISOR_SWAP_WEIGHTS.issueReduction +
-      consistencyReduction * ADVISOR_SWAP_WEIGHTS.consistencyReduction +
-      defensiveImprovement * ADVISOR_SWAP_WEIGHTS.defensiveImprovement +
-      offensiveImprovement * ADVISOR_SWAP_WEIGHTS.offensiveImprovement +
-      overallSpeedRoleImprovement *
-        ADVISOR_SWAP_WEIGHTS.speedRoleImprovement -
-      lostRoles.length * ADVISOR_SWAP_WEIGHTS.roleLossPenalty -
-      uniqueImmunityLosses.length *
-        ADVISOR_SWAP_WEIGHTS.uniqueImmunityLossPenalty -
-      uniqueResistanceLosses.length *
-        ADVISOR_SWAP_WEIGHTS.uniqueResistanceLossPenalty -
-      threatAnswerLosses.length *
-        ADVISOR_SWAP_WEIGHTS.uniqueThreatAnswerLossPenalty -
-      newMajorWeaknesses.length * ADVISOR_SWAP_WEIGHTS.newWeaknessPenalty -
-      Math.max(0, -threatReduction) *
-        ADVISOR_SWAP_WEIGHTS.threatIncreasePenalty
+  const comparisonTeam = beforeTeam.filter(
+    (slot) => removedSlotId === null || slot.id !== removedSlotId
   );
-  const improvementScore = baseImprovementScore + threatCoverage.finalScore;
-  const notes = buildPlanNotes(
+  const evidence = buildAdvisorPlanEvidence({
+    candidate: candidate.pokemon,
+    comparisonTeam,
     beforeMetrics,
     afterMetrics,
-    beforeThreatAverage,
-    afterThreatAverage,
+    beforeThreats,
+    afterThreats,
+    threatCoverage,
+    candidateEvidenceGain: evidenceGain,
     lostRoles,
-    uniqueImmunityLosses,
-    uniqueResistanceLosses,
     threatAnswerLosses,
-    newMajorWeaknesses,
-    profile,
-    profile !== "trick-room"
-  );
+    environmentUsageRate,
+    environmentDataset: input.environmentDataset,
+    profile
+  });
+  const evidenceScore = scoreAdvisorEvidence(evidence);
+  const improvementScore = evidenceScore.overall;
+  const evidenceImprovements = evidence
+    .filter((entry) => entry.points > 0 && entry.category !== "Environment")
+    .sort((left, right) => right.points - left.points || left.id.localeCompare(right.id))
+    .slice(0, MAX_IMPROVEMENT_NOTES)
+    .map((entry) => entry.summary);
   const megaCountBefore = countMegaForms(beforeTeam);
   const megaCountAfter = countMegaForms(afterTeam);
   const megaLimitPassed =
     candidate.pokemon.formKind !== "mega" ||
     megaCountAfter <= ADVISOR_TEAM_RULES.recommendedMegaLimit;
-  const categoryScores = getCategoryScores({
-    improvementScore,
-    threatReduction,
-    issueReduction,
-    consistencyReduction,
-    defensiveImprovement,
-    offensiveImprovement,
-    speedRoleImprovement,
-    physicalWallImprovement,
-    specialWallImprovement,
-    physicalAttackerImprovement,
-    specialAttackerImprovement,
-    lostRoleCount: lostRoles.length,
-    uniqueImmunityLossCount: uniqueImmunityLosses.length,
-    uniqueResistanceLossCount: uniqueResistanceLosses.length,
-    newMajorWeaknessCount: newMajorWeaknesses.length,
-    evidence: evidenceGain,
-    profile,
-    counterplayScore: threatCoverage.finalScore
-  });
-  const baseCategoryReasons = buildCategoryReasons({
-    beforeMetrics,
-    afterMetrics,
-    evidence,
-    evidenceGain,
-    improvements: notes.improvements,
-    profile
-  });
-  const threatCoverageReasons = buildThreatCoverageReasons(threatCoverage);
+  const categoryScores = {
+    overall: evidenceScore.overall,
+    defensive: evidenceScore.defensive,
+    offensive: evidenceScore.offensive,
+    speed: evidenceScore.speed,
+    typeSpecific: evidenceScore.typeSpecific
+  };
   const categoryReasons = Object.fromEntries(
-    (Object.keys(baseCategoryReasons) as AdvisorRecommendationCategory[]).map(
+    (["overall", "defensive", "offensive", "speed", "typeSpecific"] as AdvisorRecommendationCategory[]).map(
       (category) => [
         category,
-        category === "overall"
-          ? takeRecommendationReasons(
-              threatCoverageReasons,
-              baseCategoryReasons[category]
-            )
-          : baseCategoryReasons[category]
+        getAdvisorEvidenceReasons(evidence, category)
       ]
     )
   ) as Record<AdvisorRecommendationCategory, string[]>;
@@ -1872,41 +2262,35 @@ export function evaluateAdvisorSwapPlan(
   });
   const profileRoles = getAdvisorProfileRoles({
     pokemon: candidate.pokemon,
-    evidence,
+    evidence: candidateEvidence,
     consistencyReduction,
     defensiveImprovement,
     offensiveImprovement
   });
-  const meaningfulNonSpeedImprovement =
-    issueReduction > 0 ||
-    threatReduction >= 2 ||
-    defensiveImprovement >= 2 ||
-    offensiveImprovement >= 2;
-  const meaningfulImprovement =
-    meaningfulNonSpeedImprovement ||
-    (profile !== "trick-room" && speedRoleImprovement > 0);
-  const sharedRecommendationGate =
+  const meaningfulImprovement = evidence.some(
+    (entry) =>
+      entry.points > 0 &&
+      entry.category !== "Environment"
+  );
+  const baseSafetyGate =
     megaLimitPassed &&
-    isAdvisorThreatCoverageEligible(threatCoverage, issueReduction) &&
+    threatCoverage.usageEligibility !== "below-minimum" &&
+    threatCoverage.usageEligibility !== "unknown" &&
     newMajorWeaknesses.length === 0 &&
     !(lostRoles.length >= 2 && improvementScore < 30);
+  const sharedRecommendationGate =
+    baseSafetyGate &&
+    isAdvisorThreatCoverageEligible(threatCoverage, issueReduction);
   const isRecommendation =
     improvementScore > 0 &&
     sharedRecommendationGate &&
     !(threatReduction < 0 && improvementScore < 20) &&
     meaningfulImprovement &&
-    notes.improvements.length > 0;
+    evidenceImprovements.length > 0;
   const categoryMeaning = {
     overall: meaningfulImprovement,
-    defensive:
-      evidenceGain.stableCheckCount > 0 ||
-      evidenceGain.threatMoveImmunityCount > 0 ||
-      evidenceGain.threatMoveResistanceCount > 0,
-    offensive:
-      offensiveImprovement > 0 ||
-      physicalAttackerImprovement > 0 ||
-      specialAttackerImprovement > 0 ||
-      evidenceGain.popularMoveCoverageCount > 0,
+    defensive: categoryReasons.defensive.length > 0,
+    offensive: categoryReasons.offensive.length > 0,
     speed:
       profile === "trick-room"
         ? (speedRoleImprovement > 0 && hasPracticalTrickRoomValue) ||
@@ -1916,10 +2300,7 @@ export function evaluateAdvisorSwapPlan(
         : speedRoleImprovement > 0 ||
           (evidenceGain.profileSpeedAdvantageCount > 0 &&
             evidenceGain.popularMoveCoverageCount > 0),
-    typeSpecific:
-      consistencyReduction > 0 ||
-      defensiveImprovement > 0 ||
-      offensiveImprovement > 0
+    typeSpecific: categoryReasons.typeSpecific.length > 0
   } satisfies Record<AdvisorRecommendationCategory, boolean>;
   const isRecommendationByCategory = Object.fromEntries(
     (Object.keys(categoryMeaning) as AdvisorRecommendationCategory[]).map(
@@ -1928,7 +2309,7 @@ export function evaluateAdvisorSwapPlan(
         const categoryScore = categoryScores[category];
         return [
           category,
-          sharedRecommendationGate &&
+          baseSafetyGate &&
             categoryMeaning[category] &&
             categoryScore > 0 &&
             !(threatReduction < 0 && categoryScore < 20) &&
@@ -1968,10 +2349,15 @@ export function evaluateAdvisorSwapPlan(
     selectedOverallRole: null,
     profileRoles,
     threatCoverage,
-    improvements: notes.improvements,
+    evidence,
+    evidenceScore,
+    improvements: evidenceImprovements,
     cautions: uniqueText([
-      ...notes.cautions,
-      ...buildThreatCoverageCautions(threatCoverage, beforeThreats)
+      ...evidence
+        .filter((entry) => entry.category === "Risk" && entry.points < 0)
+        .sort((left, right) => left.points - right.points)
+        .map((entry) => entry.summary),
+      ...buildThreatCoverageCautions(threatCoverage, threatUnion)
     ]).slice(0, MAX_CAUTION_NOTES),
     lostRoles,
     metrics: {
@@ -1987,28 +2373,28 @@ export function evaluateAdvisorSwapPlan(
       uniqueThreatAnswerLossCount: threatAnswerLosses.length,
       newMajorWeaknessCount: newMajorWeaknesses.length,
       usageTieBreaker,
-      threatMoveImmunityCount: evidence.threatMoveImmunityCount,
-      threatMoveResistanceCount: evidence.threatMoveResistanceCount,
-      stableCheckCount: evidence.stableCheckCount,
-      physicalThreatCheckCount: evidence.physicalThreatCheckCount,
-      specialThreatCheckCount: evidence.specialThreatCheckCount,
-      popularMoveCoverageCount: evidence.popularMoveCoverageCount,
+      threatMoveImmunityCount: candidateEvidence.threatMoveImmunityCount,
+      threatMoveResistanceCount: candidateEvidence.threatMoveResistanceCount,
+      stableCheckCount: threatCoverage.stableSwitchCount,
+      physicalThreatCheckCount: candidateEvidence.physicalThreatCheckCount,
+      specialThreatCheckCount: candidateEvidence.specialThreatCheckCount,
+      popularMoveCoverageCount: candidateEvidence.popularMoveCoverageCount,
       profileSpeedAdvantageCount:
-        evidence.profileSpeedAdvantageCount,
+        candidateEvidence.profileSpeedAdvantageCount,
       standardSpeedAdvantageCount:
-        evidence.standardSpeedAdvantageCount,
-      priorityMoveShare: evidence.priorityMoveShare,
-      priorityMoveName: evidence.priorityMoveName,
-      trickRoomMoveShare: evidence.trickRoomMoveShare,
-      trickRoomMoveName: evidence.trickRoomMoveName,
+        candidateEvidence.standardSpeedAdvantageCount,
+      priorityMoveShare: candidateEvidence.priorityMoveShare,
+      priorityMoveName: candidateEvidence.priorityMoveName,
+      trickRoomMoveShare: candidateEvidence.trickRoomMoveShare,
+      trickRoomMoveName: candidateEvidence.trickRoomMoveName,
       physicalWallImprovement,
       specialWallImprovement,
       physicalAttackerImprovement,
       specialAttackerImprovement,
-      recoveryMoveShare: evidence.recoveryMoveShare,
-      defensiveAbilityShare: evidence.defensiveAbilityShare,
-      mainstreamPhysicalShare: evidence.mainstreamPhysicalShare,
-      mainstreamSpecialShare: evidence.mainstreamSpecialShare,
+      recoveryMoveShare: candidateEvidence.recoveryMoveShare,
+      defensiveAbilityShare: candidateEvidence.defensiveAbilityShare,
+      mainstreamPhysicalShare: candidateEvidence.mainstreamPhysicalShare,
+      mainstreamSpecialShare: candidateEvidence.mainstreamSpecialShare,
       megaCountBefore,
       megaCountAfter,
       megaLimitPassed
@@ -2025,13 +2411,8 @@ function comparePlansForCategory(
 ): number {
   return (
     right.categoryScores[category] - left.categoryScores[category] ||
-    right.threatCoverage.weightedThreatCoverage -
-      left.threatCoverage.weightedThreatCoverage ||
-    right.threatCoverage.distinctThreatCount -
-      left.threatCoverage.distinctThreatCount ||
-    right.improvementScore - left.improvementScore ||
-    right.metrics.threatReduction - left.metrics.threatReduction ||
-    right.metrics.issueReduction - left.metrics.issueReduction ||
+    right.evidence.filter((entry) => entry.points > 0).length -
+      left.evidence.filter((entry) => entry.points > 0).length ||
     right.metrics.usageTieBreaker - left.metrics.usageTieBreaker ||
     left.candidate.pokemon.speciesId - right.candidate.pokemon.speciesId ||
     left.candidate.pokemon.formOrder - right.candidate.pokemon.formOrder
@@ -2102,6 +2483,12 @@ function preselectSimulationCandidates(
     input.advisor.candidatePool.length > 0
       ? input.advisor.candidatePool
       : input.advisor.candidates;
+  const eligible = [...pool]
+    .filter(
+      (candidate) =>
+        (environmentBySlug.get(candidate.pokemon.slug)?.usageRate ?? -1) >=
+        ADVISOR_USAGE_THRESHOLDS.minimumCandidate
+    );
   const selected = new Map<string, TeamAdvisorCandidate>();
   const currentSlowCount = getAdvisorRoleCounts(input.team).slow;
   const summary = summarizeTeam(input.team);
@@ -2113,12 +2500,7 @@ function preselectSimulationCandidates(
     5,
     profile
   );
-  [...pool]
-    .filter(
-      (candidate) =>
-        (environmentBySlug.get(candidate.pokemon.slug)?.usageRate ?? -1) >=
-        ADVISOR_USAGE_THRESHOLDS.minimumCandidate
-    )
+  eligible
     .map((candidate) => ({
       candidate,
       coverage: evaluateAdvisorThreatCoverage({
@@ -2132,21 +2514,13 @@ function preselectSimulationCandidates(
     .sort(
       (left, right) =>
         right.coverage.finalScore - left.coverage.finalScore ||
-        right.coverage.weightedThreatCoverage -
-          left.coverage.weightedThreatCoverage ||
         left.candidate.pokemon.id - right.candidate.pokemon.id
     )
     .slice(0, ADVISOR_RECOMMENDATION_RULES.preselectByThreatCoverage)
-    .forEach(({ candidate }) =>
-      selected.set(candidate.pokemon.slug, candidate)
-    );
-  for (const category of [
-    "overall",
-    "defensive",
-    "offensive",
-    "speed"
-  ] as const) {
-    [...pool]
+    .forEach(({ candidate }) => selected.set(candidate.pokemon.slug, candidate));
+  for (const category of ["overall", "defensive", "offensive", "speed"] as const) {
+    eligible
+      .slice()
       .sort(
         (left, right) =>
           getCandidateProxyScore(
@@ -2171,7 +2545,9 @@ function preselectSimulationCandidates(
   input.advisor.candidates.forEach((candidate) =>
     selected.set(candidate.pokemon.slug, candidate)
   );
-  return [...selected.values()];
+  return [...selected.values()].sort(
+    (left, right) => left.pokemon.id - right.pokemon.id
+  );
 }
 
 function getBestPlansBySpecies(

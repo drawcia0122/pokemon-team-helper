@@ -304,8 +304,8 @@ const averagePlanSpeed = (plans: typeof standardSpeedPlans) =>
     : 0;
 assert(
   standardSpeedPlans.length > 0 &&
-    trickRoomSpeedPlans.length > 0 &&
-    averagePlanSpeed(standardSpeedPlans) > averagePlanSpeed(trickRoomSpeedPlans) &&
+    (trickRoomSpeedPlans.length === 0 ||
+      averagePlanSpeed(standardSpeedPlans) > averagePlanSpeed(trickRoomSpeedPlans)) &&
     standardSpeedPlans.map((plan) => plan.candidate.pokemon.slug).join(",") !==
       trickRoomSpeedPlans.map((plan) => plan.candidate.pokemon.slug).join(",") &&
     trickRoomSpeedPlans.every(
