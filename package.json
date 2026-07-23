@@ -72,7 +72,7 @@
     "data:seed-season1": "node scripts/seedSeason1FromJapaneseList.mjs"
   },
   "dependencies": {
-    "next": "15.5.20",
+    "next": "15.5.21",
     "react": "19.0.0",
     "react-dom": "19.0.0"
   },
