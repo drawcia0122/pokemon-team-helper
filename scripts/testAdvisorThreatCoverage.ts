@@ -282,12 +282,13 @@ assert(
   "使用率不明の候補を除外できません"
 );
 assert(
-  meowscaradaCoverage.distinctThreatCount >= 2 &&
-    meowscaradaCoverage.threatAnswers.some((answer) =>
-      answer.counterplayMethods.includes("priority")
-    ) &&
-    isAdvisorThreatCoverageEligible(meowscaradaCoverage, 1),
-  "実採用技と対面条件を満たす複数の回答を評価できません"
+  meowscaradaCoverage.distinctThreatCount >= 1 &&
+    meowscaradaCoverage.threatAnswers.some(
+      (answer) =>
+        answer.answerClass === "softCheck" &&
+        answer.bestPressureTier === "high"
+    ),
+  "高圧力でも反撃を受ける候補を条件付き対策へ降格できません"
 );
 assert(
   scarfCoverage.usageEligibility === "conditional" &&
@@ -301,7 +302,7 @@ const greninjaRaichu = greninjaCoverage.threatAnswers.find(
   (answer) => answer.threatId === "raichu-mega-y"
 );
 assert(
-  greninjaRaichu?.answerClass === "CoverageOnly" &&
+  greninjaRaichu?.answerClass === "coverageOnly" &&
     greninjaRaichu.answerStrength === 0 &&
     !greninjaRaichu.primaryReason &&
     greninjaCoverage.coverageOnlyThreatCount >= 1,

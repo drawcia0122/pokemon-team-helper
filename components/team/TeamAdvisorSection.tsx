@@ -5,10 +5,14 @@ import { useEffect, useState, type ReactNode } from "react";
 import type {
   AdvisorRecommendationCategory,
   AdvisorSwapPlan,
-  AdvisorSwapSimulation
+  AdvisorSwapSimulation,
+  AdvisorThreatExploreMode
 } from "@/lib/advisorSwapSimulator";
 import { getAdvisorCategoryLabels } from "@/lib/advisorSwapSimulator";
-import { getAdvisorCounterplayMethodLabel } from "@/lib/advisorThreatCoverage";
+import {
+  getAdvisorAnswerClassLabel,
+  getAdvisorCounterplayMethodLabel
+} from "@/lib/advisorThreatCoverage";
 import type {
   AdvisorDiagnosticCategory,
   AdvisorTeamDiagnostics
@@ -226,7 +230,265 @@ function AdvisorRecommendations({
             : "2体以上入力すると追加・入れ替え案を比較します。"}
         </p>
       )}
+      {canAnalyze && simulation.formChangePlans.length ? (
+        <AdvisorFormChangePlans
+          plans={simulation.formChangePlans}
+          profile={profile}
+        />
+      ) : null}
+      {canAnalyze && simulation.threatRecommendations.length ? (
+        <AdvisorThreatExplorer simulation={simulation} profile={profile} />
+      ) : null}
     </section>
+  );
+}
+
+function AdvisorFormChangePlans({
+  plans,
+  profile
+}: {
+  plans: AdvisorSwapPlan[];
+  profile: TeamProfile;
+}) {
+  return (
+    <details className={styles.advisorExplorer}>
+      <summary>フォーム変更案</summary>
+      <p>
+        同じポケモンを別フォームへ切り替えた場合の改善だけを、追加・入れ替え案と分けて表示します。
+      </p>
+      <ol className={styles.advisorCandidateGrid}>
+        {plans.map((plan) => (
+          <li key={`${plan.action.kind}:${plan.candidate.pokemon.slug}`}>
+            <AdvisorRecommendationCard
+              plan={plan}
+              category="overall"
+              profile={profile}
+            />
+          </li>
+        ))}
+      </ol>
+    </details>
+  );
+}
+
+function formatPlanAction(plan: AdvisorSwapPlan): string {
+  if (plan.action.kind === "add") return "空き枠へ追加";
+  if (plan.action.kind === "form-change") {
+    return `${plan.action.removedLabel}からフォーム変更`;
+  }
+  return `${plan.action.removedLabel}を抜いて採用`;
+}
+
+function AdvisorThreatExplorer({
+  simulation,
+  profile
+}: {
+  simulation: AdvisorSwapSimulation;
+  profile: TeamProfile;
+}) {
+  const [selectedThreatId, setSelectedThreatId] = useState(
+    simulation.threatRecommendations[0]?.threat.pokemon.slug ?? ""
+  );
+  const [mode, setMode] =
+    useState<AdvisorThreatExploreMode>("recommended");
+  const [selectedType, setSelectedType] = useState<TypeName>(
+    simulation.threatTypeOptions[0]?.type ?? "normal"
+  );
+  const selectedGroup =
+    simulation.threatRecommendations.find(
+      (group) => group.threat.pokemon.slug === selectedThreatId
+    ) ?? simulation.threatRecommendations[0];
+  const plans =
+    mode === "type"
+      ? selectedGroup?.typePlans[selectedType] ?? []
+      : selectedGroup?.plansByMode[mode] ?? [];
+
+  useEffect(() => {
+    if (
+      selectedThreatId &&
+      simulation.threatRecommendations.some(
+        (group) => group.threat.pokemon.slug === selectedThreatId
+      )
+    ) {
+      return;
+    }
+    setSelectedThreatId(
+      simulation.threatRecommendations[0]?.threat.pokemon.slug ?? ""
+    );
+  }, [selectedThreatId, simulation.threatRecommendations]);
+
+  if (!selectedGroup) return null;
+
+  return (
+    <details className={styles.advisorExplorer}>
+      <summary>ほかの候補を探す</summary>
+      <p>
+        要警戒ポケモンを1体選び、対策方法やタイプを指定して候補を比較できます。
+      </p>
+      <div className={styles.advisorExplorerControls}>
+        <label>
+          <span>対策する相手</span>
+          <select
+            value={selectedGroup.threat.pokemon.slug}
+            onChange={(event) => setSelectedThreatId(event.target.value)}
+          >
+            {simulation.threatRecommendations.map((group) => (
+              <option
+                key={group.threat.pokemon.slug}
+                value={group.threat.pokemon.slug}
+              >
+                {group.threat.pokemon.nameJa}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          <span>探し方</span>
+          <select
+            value={mode}
+            onChange={(event) =>
+              setMode(event.target.value as AdvisorThreatExploreMode)
+            }
+          >
+            <option value="recommended">おすすめ</option>
+            <option value="stableSwitch">安定した受け先</option>
+            <option value="revengeKill">対面・上から処理</option>
+            <option value="type">タイプ別</option>
+          </select>
+        </label>
+        {mode === "type" ? (
+          <label>
+            <span>候補のタイプ</span>
+            <select
+              value={selectedType}
+              onChange={(event) =>
+                setSelectedType(event.target.value as TypeName)
+              }
+            >
+              {simulation.threatTypeOptions.map((option) => (
+                <option key={option.type} value={option.type}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+      </div>
+      {plans.length ? (
+        <ol className={styles.advisorCandidateGrid}>
+          {plans.map((plan) => (
+            <li key={`${selectedGroup.threat.pokemon.slug}:${plan.candidate.pokemon.speciesId}`}>
+              <AdvisorThreatCandidateCard
+                plan={plan}
+                threatId={selectedGroup.threat.pokemon.slug}
+                profile={profile}
+              />
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p className={styles.advisorEmpty} role="status">
+          この条件で明確に改善する候補は見つかりませんでした。
+        </p>
+      )}
+    </details>
+  );
+}
+
+function AdvisorThreatCandidateCard({
+  plan,
+  threatId,
+  profile
+}: {
+  plan: AdvisorSwapPlan;
+  threatId: string;
+  profile: TeamProfile;
+}) {
+  const answer = plan.threatCoverage.threatAnswers.find(
+    (entry) => entry.threatId === threatId
+  );
+  const impact = plan.targetThreatImpacts.find(
+    (entry) => entry.threatId === threatId
+  );
+  if (!answer) return null;
+  const reasons = [
+    answer.primaryReason,
+    ...plan.categoryReasons.overall
+  ].filter((value, index, values): value is string =>
+    Boolean(value) && values.indexOf(value) === index
+  ).slice(0, 3);
+
+  return (
+    <article className={styles.advisorCandidateCard}>
+      <span className={styles.advisorCategoryBadge}>
+        {getAdvisorAnswerClassLabel(answer.answerClass)}
+      </span>
+      <div className={styles.advisorCandidateHeading}>
+        <PokemonVisual
+          appearance="plain"
+          name={plan.candidate.pokemon.nameJa}
+          slug={plan.candidate.pokemon.slug}
+          pokemonId={plan.candidate.pokemon.id}
+          size="large"
+        />
+        <div className={styles.advisorCandidateIdentity}>
+          <strong>{plan.candidate.pokemon.nameJa}</strong>
+          <small>
+            {plan.candidate.pokemon.types.map(getTypeLabel).join(" / ")}
+          </small>
+          <small>
+            環境使用率{" "}
+            {plan.threatCoverage.candidateUsage === null
+              ? "データなし"
+              : `${(plan.threatCoverage.candidateUsage * 100).toFixed(1)}%`}
+          </small>
+        </div>
+      </div>
+      <div className={styles.advisorSwapSummary}>
+        <div>
+          <span>推奨する変更</span>
+          <strong>{formatPlanAction(plan)}</strong>
+        </div>
+        <div>
+          <span>対象の警戒度</span>
+          <strong>
+            {impact?.beforeScore ?? "—"} →{" "}
+            {impact?.afterScore ?? "TOP10外"}
+          </strong>
+        </div>
+        <div>
+          <span>チーム全体</span>
+          <strong>
+            {plan.beforeThreatAverage ?? "—"} →{" "}
+            {plan.afterThreatAverage ?? "—"}
+          </strong>
+        </div>
+        <div>
+          <span>判定精度</span>
+          <strong>
+            {answer.confidence === "high"
+              ? "高"
+              : answer.confidence === "medium"
+                ? "中"
+                : "参考"}
+          </strong>
+        </div>
+      </div>
+      <div className={styles.advisorChangeGrid}>
+        <AdvisorChangeList
+          title="改善理由"
+          items={reasons}
+          tone="improve"
+          empty="明確な改善理由はありません。"
+        />
+        <AdvisorChangeList
+          title="注意点"
+          items={plan.cautions}
+          tone="caution"
+          empty={`${getAdvisorCategoryLabels(profile).overall}評価で大きな注意点はありません。`}
+        />
+      </div>
+    </article>
   );
 }
 
@@ -287,9 +549,7 @@ function AdvisorRecommendationCard({
         <div>
           <span>推奨する変更</span>
           <strong>
-            {plan.action.kind === "add"
-              ? "空き枠へ追加"
-              : `${plan.action.removedLabel}を抜いて採用`}
+            {formatPlanAction(plan)}
           </strong>
         </div>
         <div>

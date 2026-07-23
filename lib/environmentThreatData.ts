@@ -77,7 +77,7 @@ export function buildThreatEnvironmentDataset(
             }
           ];
         }),
-        abilities: entry.abilities.slice(0, 1).map((ability) => ({
+        abilities: entry.abilities.slice(0, 4).map((ability) => ({
           id: ability.id,
           name: localizeEnvironmentValue(
             localization,

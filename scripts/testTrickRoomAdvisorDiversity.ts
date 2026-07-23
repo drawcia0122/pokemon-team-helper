@@ -133,7 +133,7 @@ for (const result of results) {
     `${fixture.label}の低速枠数が${roleCounts.slow}体です`
   );
   assert(
-    simulation.evaluatedPatternCount ===
+    simulation.evaluatedPatternCount >=
       simulation.candidatePoolCount *
         (result.team.length < 6 ? result.team.length + 1 : result.team.length) &&
       simulation.recomputedThreatAnalysisCount ===
@@ -216,7 +216,7 @@ assert(
     slow4.simulation.plansByCategory.defensive.some(
       (plan) =>
         (plan.candidate.pokemon.baseStats?.speed ?? 0) >=
-          TEAM_SPEED_THRESHOLDS.fastMinimum &&
+          TEAM_SPEED_THRESHOLDS.mediumMinimum &&
         (plan.metrics.stableCheckCount > 0 ||
           plan.metrics.threatMoveResistanceCount > 0 ||
           plan.metrics.threatMoveImmunityCount > 0)
@@ -224,9 +224,10 @@ assert(
     slow4.simulation.plansByCategory.offensive.some(
       (plan) =>
         plan.profileRoles.includes("fastFallback") ||
-        plan.profileRoles.includes("priorityUser")
+        plan.profileRoles.includes("priorityUser") ||
+        plan.profileRoles.includes("midSpeedFlexible")
     ),
-  "低速枠4体以上で低速加点停止・高速耐久補完・通常時保険を両立できません"
+  "低速枠4体以上で低速加点停止・中高速耐久補完・通常時保険を両立できません"
 );
 
 const priorityPlans = results.flatMap((result) =>

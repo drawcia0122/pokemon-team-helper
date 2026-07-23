@@ -51,6 +51,7 @@ import {
   type TeamProfile
 } from "@/lib/teamProfile";
 import {
+  deduplicateAdvisorEvidence,
   getAdvisorEvidenceReasons,
   scoreAdvisorEvidence,
   type AdvisorEvidence,
@@ -79,8 +80,12 @@ export const ADVISOR_TEAM_RULES = {
 
 export const ADVISOR_RECOMMENDATION_RULES = {
   maxPerCategory: 5,
-  preselectPerCategory: 24,
-  preselectByThreatCoverage: 32,
+  maxPerThreatMode: 6,
+  preselectPerCategory: 36,
+  preselectByThreatCoverage: 48,
+  preselectPerType: 6,
+  preselectTrickRoomSlowRole: 32,
+  preselectTrickRoomFallbackRole: 16,
   overallScoreWindow: 30,
   maxSameRole: 2,
   maxMegaInOverall: 2,
@@ -180,6 +185,7 @@ const ATTACKER_STAT_THRESHOLD = 100;
 const BULK_TOTAL_THRESHOLD = 180;
 const BULK_STAT_THRESHOLD = 80;
 const MAX_TEAM_SIZE = 6;
+const ADVISOR_THREAT_TRACK_LIMIT = 10;
 const MAX_IMPROVEMENT_NOTES = 3;
 const MAX_CAUTION_NOTES = 2;
 
@@ -245,7 +251,12 @@ export type AdvisorTeamMetrics = {
 
 export type AdvisorSwapAction =
   | { kind: "add"; removedSlotId: null; removedLabel: null }
-  | { kind: "replace"; removedSlotId: string; removedLabel: string };
+  | { kind: "replace"; removedSlotId: string; removedLabel: string }
+  | {
+      kind: "form-change";
+      removedSlotId: string;
+      removedLabel: string;
+    };
 
 export type AdvisorSwapPlanMetrics = {
   threatReduction: number;
@@ -306,12 +317,37 @@ export type AdvisorSwapPlan = {
   threatCoverage: AdvisorThreatCoverage;
   evidence: AdvisorEvidence[];
   evidenceScore: AdvisorEvidenceScore;
+  targetThreatImpacts: AdvisorTargetThreatImpact[];
   improvements: string[];
   cautions: string[];
   lostRoles: string[];
   metrics: AdvisorSwapPlanMetrics;
   isRecommendation: boolean;
   isRecommendationByCategory: Record<AdvisorRecommendationCategory, boolean>;
+};
+
+export type AdvisorThreatExploreMode =
+  | "recommended"
+  | "stableSwitch"
+  | "revengeKill"
+  | "type";
+
+export type AdvisorTargetThreatImpact = {
+  threatId: string;
+  beforeRank: number | null;
+  afterRank: number | null;
+  beforeScore: number | null;
+  afterScore: number | null;
+  scoreDelta: number | null;
+};
+
+export type AdvisorThreatRecommendationGroup = {
+  threat: ThreatPokemonAnalysis;
+  plansByMode: Record<
+    Exclude<AdvisorThreatExploreMode, "type">,
+    AdvisorSwapPlan[]
+  >;
+  typePlans: Partial<Record<TypeName, AdvisorSwapPlan[]>>;
 };
 
 export type AdvisorSwapSimulation = {
@@ -322,6 +358,9 @@ export type AdvisorSwapSimulation = {
   >;
   typePlans: Partial<Record<TypeName, AdvisorSwapPlan[]>>;
   typeOptions: Array<{ type: TypeName; label: string }>;
+  threatRecommendations: AdvisorThreatRecommendationGroup[];
+  threatTypeOptions: Array<{ type: TypeName; label: string }>;
+  formChangePlans: AdvisorSwapPlan[];
   candidatePoolCount: number;
   evaluatedPatternCount: number;
   recomputedThreatAnalysisCount: number;
@@ -778,9 +817,10 @@ function averageThreatScore(
   threats: ThreatPokemonAnalysis[]
 ): number | null {
   if (!threats.length) return null;
+  const topThreats = threats.slice(0, 5);
   return Math.round(
-    threats.reduce((total, threat) => total + threat.score, 0) /
-      threats.length
+    topThreats.reduce((total, threat) => total + threat.score, 0) /
+      topThreats.length
   );
 }
 
@@ -1622,6 +1662,31 @@ function mergeThreatUnion(
   );
 }
 
+function getTargetThreatImpacts(
+  beforeThreats: ThreatPokemonAnalysis[],
+  afterThreats: ThreatPokemonAnalysis[]
+): AdvisorTargetThreatImpact[] {
+  const afterBySlug = new Map(
+    afterThreats.map((threat, index) => [
+      threat.pokemon.slug,
+      { threat, rank: index + 1 }
+    ])
+  );
+  return beforeThreats.slice(0, 5).map((threat, index) => {
+    const after = afterBySlug.get(threat.pokemon.slug);
+    const conservativeAfterScore =
+      after?.threat.score ?? Math.max(0, threat.score - 15);
+    return {
+      threatId: threat.pokemon.slug,
+      beforeRank: index + 1,
+      afterRank: after?.rank ?? null,
+      beforeScore: threat.score,
+      afterScore: after?.threat.score ?? null,
+      scoreDelta: conservativeAfterScore - threat.score
+    };
+  });
+}
+
 function maxThreatScore(threats: ThreatPokemonAnalysis[]): number {
   return threats.reduce((maximum, threat) => Math.max(maximum, threat.score), 0);
 }
@@ -1753,19 +1818,24 @@ function getRedundancyEvidence(
   if (teamHasExactType && !hasUniqueTeamValue) {
     return {
       id: "redundancy:team-overlap",
-      category: "Risk",
+      kind: "risk",
+      primaryDimension: "riskPenalty",
       points: -24,
-      summary: "同タイプの既存枠と役割・攻撃範囲・回答対象・速度帯が重複し、独自価値がありません。",
-      source: "team-delta"
+      displayText:
+        "同タイプの既存枠と役割・攻撃範囲・回答対象・速度帯が重複し、独自価値がありません。",
+      source: "team-delta",
+      confidence: "high"
     };
   }
   if (!strongest || strongest.similarity < 0.78) return null;
   return {
     id: `redundancy:${strongest.member.speciesId}`,
-    category: "Risk",
+    kind: "risk",
+    primaryDimension: "riskPenalty",
     points: strongest.similarity >= 0.9 ? -22 : -14,
-    summary: `${strongest.member.nameJa}とタイプ・役割・攻撃範囲・回答対象が大きく重複します。`,
-    source: "team-delta"
+    displayText: `${strongest.member.nameJa}とタイプ・役割・攻撃範囲・回答対象が大きく重複します。`,
+    source: "team-delta",
+    confidence: "medium"
   };
 }
 
@@ -1805,33 +1875,44 @@ function buildAdvisorPlanEvidence({
     const immunityDelta = afterMetrics.immunityCounts[type] - beforeMetrics.immunityCounts[type];
     const quadWeakDelta =
       afterMetrics.quadWeakCounts[type] - beforeMetrics.quadWeakCounts[type];
+    const lostOnlyImmunity =
+      beforeMetrics.immunityCounts[type] === 1 &&
+      afterMetrics.immunityCounts[type] === 0;
     const positive = Math.max(0, weakDelta) * 3 + Math.max(0, coverDelta) * 2 + Math.max(0, immunityDelta) * 3;
     const negative =
       Math.max(0, -weakDelta) * 5 +
       Math.max(0, quadWeakDelta) * 16 +
       Math.max(0, -coverDelta) * 3 +
-      Math.max(0, -immunityDelta) * 4;
+      Math.max(0, -immunityDelta) * 4 +
+      (lostOnlyImmunity ? 12 : 0);
     if (positive > 0) {
       evidence.push({
         id: `defense:${type}`,
-        category: "Defense",
+        kind: "type-delta",
+        primaryDimension: "defensiveImprovement",
         points: Math.min(9, positive),
-        summary: `${getTypeLabel(type)}への受け方を改善します。`,
-        source: "team-delta"
+        displayText: `${getTypeLabel(type)}への受け方を改善します。`,
+        source: "team-delta",
+        confidence: "high",
+        type,
+        beforeValue: beforeMetrics.weakCounts[type],
+        afterValue: afterMetrics.weakCounts[type]
       });
     }
     if (negative > 0) {
-      const lostOnlyImmunity =
-        beforeMetrics.immunityCounts[type] === 1 &&
-        afterMetrics.immunityCounts[type] === 0;
       evidence.push({
         id: `risk:type:${type}`,
-        category: "Risk",
+        kind: "risk",
+        primaryDimension: "riskPenalty",
         points: -Math.min(20, negative),
-        summary: lostOnlyImmunity
+        displayText: lostOnlyImmunity
           ? `唯一の${getTypeLabel(type)}無効枠を失います。`
           : `${getTypeLabel(type)}への弱点・受け先が悪化します。`,
-        source: "team-delta"
+        source: "team-delta",
+        confidence: "high",
+        type,
+        beforeValue: beforeMetrics.weakCounts[type],
+        afterValue: afterMetrics.weakCounts[type]
       });
     }
   }
@@ -1840,20 +1921,26 @@ function buildAdvisorPlanEvidence({
   if (offenseDelta > 0) {
     evidence.push({
       id: "offense:coverage",
-      category: "Offense",
+      kind: "offense-delta",
+      primaryDimension: "offensiveImprovement",
       points: Math.min(12, offenseDelta * 3),
-      summary: `一致技の攻撃範囲を${offenseDelta}タイプ増やします。`,
-      source: "team-delta"
+      displayText: `一致技の攻撃範囲を${offenseDelta}タイプ増やします。`,
+      source: "team-delta",
+      confidence: "high",
+      beforeValue: beforeMetrics.offenseCoverageCount,
+      afterValue: afterMetrics.offenseCoverageCount
     });
   }
 
   if (candidateEvidenceGain.recoveryMoveShare > 0 && candidateEvidenceGain.recoveryReason) {
     evidence.push({
       id: "role:recovery",
-      category: "Role",
+      kind: "role-delta",
+      primaryDimension: "roleImprovement",
       points: Math.min(16, candidateEvidenceGain.recoveryMoveShare * 18),
-      summary: candidateEvidenceGain.recoveryReason,
-      source: "role-delta"
+      displayText: candidateEvidenceGain.recoveryReason,
+      source: "role-delta",
+      confidence: "medium"
     });
   }
   if (
@@ -1862,10 +1949,12 @@ function buildAdvisorPlanEvidence({
   ) {
     evidence.push({
       id: "role:defensive-ability",
-      category: "Role",
+      kind: "role-delta",
+      primaryDimension: "roleImprovement",
       points: Math.min(5, candidateEvidenceGain.defensiveAbilityShare * 5),
-      summary: candidateEvidenceGain.defensiveAbilityReason,
-      source: "role-delta"
+      displayText: candidateEvidenceGain.defensiveAbilityReason,
+      source: "role-delta",
+      confidence: "medium"
     });
   }
 
@@ -1900,10 +1989,16 @@ function buildAdvisorPlanEvidence({
           : `こちらの${candidateEvidenceGain.profileSpeedAdvantageCount}体より速く、通常時に先手を取りやすい候補です。`;
       evidence.push({
         id: `role:${role}`,
-        category: isProfileSpeedRole ? "Speed" : "Role",
+        kind: isProfileSpeedRole ? "speed-delta" : "role-delta",
+        primaryDimension: isProfileSpeedRole
+          ? "speedImprovement"
+          : "roleImprovement",
         points: isProfileSpeedRole ? speedRolePoints : 7,
-        summary: isProfileSpeedRole ? speedReason : `${label}を新しく追加します。`,
-        source: "role-delta"
+        displayText: isProfileSpeedRole
+          ? speedReason
+          : `${label}を新しく追加します。`,
+        source: "role-delta",
+        confidence: isProfileSpeedRole ? "medium" : "high"
       });
     }
   }
@@ -1913,10 +2008,30 @@ function buildAdvisorPlanEvidence({
   ) {
     evidence.push({
       id: "role:fast-fallback",
-      category: "Role",
+      kind: "role-delta",
+      primaryDimension: "roleImprovement",
       points: 14,
-      summary: "トリックルーム外で動ける高速の保険を追加します。",
-      source: "role-delta"
+      displayText: "トリックルーム外で動ける高速の保険を追加します。",
+      source: "role-delta",
+      confidence: "medium"
+    });
+  }
+
+  const resolvedIssueCount = Math.max(
+    0,
+    beforeMetrics.issueIds.length - afterMetrics.issueIds.length
+  );
+  if (resolvedIssueCount > 0) {
+    evidence.push({
+      id: "issues:resolved",
+      kind: "issue-delta",
+      primaryDimension: "teamIssueImprovement",
+      points: Math.min(15, resolvedIssueCount * 7),
+      displayText: `現在の課題を${resolvedIssueCount}件解消します。`,
+      source: "team-delta",
+      confidence: "high",
+      beforeValue: beforeMetrics.issueIds.length,
+      afterValue: afterMetrics.issueIds.length
     });
   }
 
@@ -1927,35 +2042,47 @@ function buildAdvisorPlanEvidence({
       .map((answer) => answer.threatId)
   );
   for (const answer of threatCoverage.threatAnswers) {
-    if (answer.answerClass !== "Stable" && answer.answerClass !== "Matchup") continue;
+    if (
+      answer.answerClass !== "stableSwitch" &&
+      answer.answerClass !== "revengeKill"
+    ) {
+      continue;
+    }
     clearAnswerIds.add(answer.threatId);
     if (!answer.currentTeamHasAnswer) {
       evidence.push({
         id: `threat-answer:${answer.threatId}`,
-        category: "ThreatAnswers",
-        points: answer.answerClass === "Stable" ? 10 : 8,
-        summary: answer.primaryReason ?? `${answer.threatId}へ新しい回答を追加します。`,
-        source: "threat-union"
+        kind: "counterplay",
+        primaryDimension: "targetCounterplay",
+        points: answer.answerClass === "stableSwitch" ? 10 : 8,
+        displayText:
+          answer.primaryReason ??
+          `${answer.threatId}へ新しい回答を追加します。`,
+        source: "threat-union",
+        confidence: answer.confidence,
+        targetThreat: answer.threatId
       });
     }
   }
 
-  if (lostRoles.length > 0) {
+  if (lostRoles.length > 0 || threatAnswerLosses.length > 0) {
+    const roleText = lostRoles.length
+      ? `${lostRoles.join("・")}を失います`
+      : null;
+    const answerText = threatAnswerLosses.length
+      ? `要警戒相手への既存回答を${threatAnswerLosses.length}件失います`
+      : null;
     evidence.push({
-      id: "risk:lost-roles",
-      category: "Risk",
-      points: -Math.min(24, lostRoles.length * 9),
-      summary: `${lostRoles.join("・")}を失います。`,
-      source: "role-delta"
-    });
-  }
-  if (threatAnswerLosses.length > 0) {
-    evidence.push({
-      id: "risk:lost-threat-answers",
-      category: "Risk",
-      points: -Math.min(20, threatAnswerLosses.length * 9),
-      summary: `要警戒相手への既存回答を${threatAnswerLosses.length}件失います。`,
-      source: "threat-union"
+      id: "risk:removed-member-loss",
+      kind: "risk",
+      primaryDimension: "riskPenalty",
+      points: -Math.min(
+        20,
+        lostRoles.length * 9 + threatAnswerLosses.length * 7
+      ),
+      displayText: `${[roleText, answerText].filter(Boolean).join("。")}。`,
+      source: "role-delta",
+      confidence: "high"
     });
   }
 
@@ -1963,33 +2090,63 @@ function buildAdvisorPlanEvidence({
   const afterMax = maxThreatScore(afterThreats);
   const beforeExpected = expectedThreatScore(beforeThreats);
   const afterExpected = expectedThreatScore(afterThreats);
-  if (afterMax > beforeMax + 1) {
+  const maximumImprovement = Math.max(0, beforeMax - afterMax);
+  const expectedImprovement = Math.max(0, beforeExpected - afterExpected);
+  if (maximumImprovement > 0 || expectedImprovement >= 0.5) {
     evidence.push({
-      id: "risk:max-threat",
-      category: "Risk",
-      points: -Math.min(12, Math.ceil((afterMax - beforeMax) / 2)),
-      summary: `最大脅威スコアが${beforeMax}から${afterMax}へ上がります。`,
-      source: "threat-union"
-    });
-  }
-  if (afterExpected > beforeExpected + 0.5) {
-    evidence.push({
-      id: "risk:expected-threat",
-      category: "Risk",
-      points: -Math.min(10, Math.ceil(afterExpected - beforeExpected)),
-      summary: "環境使用率で重み付けした期待脅威が悪化します。",
-      source: "threat-union"
+      id: "threat-delta:overall",
+      kind: "threat-delta",
+      primaryDimension: "postSwapThreatRisk",
+      points: Math.min(
+        25,
+        Math.ceil(maximumImprovement / 2) +
+          Math.ceil(expectedImprovement)
+      ),
+      displayText: `交換後の最大脅威 ${beforeMax} → ${afterMax}、期待脅威 ${Math.round(beforeExpected)} → ${Math.round(afterExpected)}です。`,
+      source: "threat-union",
+      confidence: "high",
+      beforeValue: beforeExpected,
+      afterValue: afterExpected
     });
   }
   const beforeIds = new Set(beforeThreats.map((threat) => threat.pokemon.slug));
   const emerged = afterThreats.filter((threat) => !beforeIds.has(threat.pokemon.slug));
-  if (emerged.length > 0) {
+  const beforeRanks = new Map(
+    beforeThreats.map((threat, index) => [threat.pokemon.slug, index + 1])
+  );
+  const risen = afterThreats.filter((threat, index) => {
+    const beforeRank = beforeRanks.get(threat.pokemon.slug);
+    return beforeRank !== undefined && beforeRank - (index + 1) >= 2;
+  });
+  const maximumWorsening = Math.max(0, afterMax - beforeMax);
+  const expectedWorsening = Math.max(0, afterExpected - beforeExpected);
+  const postSwapRiskPoints =
+    Math.ceil(maximumWorsening / 2) +
+    Math.ceil(expectedWorsening) +
+    emerged.length * 4 +
+    risen.length * 3;
+  if (postSwapRiskPoints > 0) {
+    const primaryChange =
+      emerged[0] ??
+      risen[0] ??
+      afterThreats.find((threat) => threat.score === afterMax);
     evidence.push({
-      id: "risk:emerged-threats",
-      category: "Risk",
-      points: -Math.min(12, emerged.length * 4),
-      summary: `交換後に新しい要警戒候補が${emerged.length}体現れます。`,
-      source: "threat-union"
+      id: "risk:post-swap-threat-summary",
+      kind: "risk",
+      primaryDimension: "riskPenalty",
+      points: -Math.min(20, postSwapRiskPoints),
+      displayText: emerged.length
+        ? `交換後に${primaryChange?.pokemon.nameJa ?? "新しい要警戒候補"}が要警戒TOP5へ現れます。`
+        : risen.length
+          ? `${primaryChange?.pokemon.nameJa ?? "要警戒候補"}の順位が交換後に大きく上がります。`
+          : `交換後の最大・期待脅威が悪化します。`,
+      source: "threat-union",
+      confidence: "high",
+      affectedTeamMembers: [...emerged, ...risen].map(
+        (threat) => threat.pokemon.slug
+      ),
+      beforeValue: beforeExpected,
+      afterValue: afterExpected
     });
   }
 
@@ -2005,10 +2162,12 @@ function buildAdvisorPlanEvidence({
   if (environmentUsageRate > 0) {
     evidence.push({
       id: "environment:usage",
-      category: "Environment",
+      kind: "environment",
+      primaryDimension: "environmentValidity",
       points: Math.min(4, Math.sqrt(Math.min(environmentUsageRate, 0.1) / 0.1) * 4),
-      summary: `環境使用率${(environmentUsageRate * 100).toFixed(1)}%の採用実績があります。`,
-      source: "environment"
+      displayText: `環境使用率${(environmentUsageRate * 100).toFixed(1)}%の採用実績があります。`,
+      source: "environment",
+      confidence: "high"
     });
   }
   return evidence;
@@ -2046,7 +2205,7 @@ export function evaluateAdvisorSwapPlan(
     beforeSummary,
     input.availablePokemon,
     input.environmentDataset,
-    5,
+    ADVISOR_THREAT_TRACK_LIMIT,
     profile
   );
   const afterThreats = getAdvisorCompatibleThreatAnalysis(
@@ -2054,7 +2213,7 @@ export function evaluateAdvisorSwapPlan(
     afterSummary,
     input.availablePokemon,
     input.environmentDataset,
-    5,
+    ADVISOR_THREAT_TRACK_LIMIT,
     profile
   );
   const beforeMetrics = getAdvisorTeamMetrics(
@@ -2207,30 +2366,55 @@ export function evaluateAdvisorSwapPlan(
   const comparisonTeam = beforeTeam.filter(
     (slot) => removedSlotId === null || slot.id !== removedSlotId
   );
-  const evidence = buildAdvisorPlanEvidence({
-    candidate: candidate.pokemon,
-    comparisonTeam,
-    beforeMetrics,
-    afterMetrics,
-    beforeThreats,
-    afterThreats,
-    threatCoverage,
-    candidateEvidenceGain: evidenceGain,
-    lostRoles,
-    threatAnswerLosses,
-    environmentUsageRate,
-    environmentDataset: input.environmentDataset,
-    profile
-  });
-  const evidenceScore = scoreAdvisorEvidence(evidence);
-  const improvementScore = evidenceScore.overall;
-  const evidenceImprovements = evidence
-    .filter((entry) => entry.points > 0 && entry.category !== "Environment")
-    .sort((left, right) => right.points - left.points || left.id.localeCompare(right.id))
-    .slice(0, MAX_IMPROVEMENT_NOTES)
-    .map((entry) => entry.summary);
   const megaCountBefore = countMegaForms(beforeTeam);
   const megaCountAfter = countMegaForms(afterTeam);
+  const baseEvidence = buildAdvisorPlanEvidence({
+      candidate: candidate.pokemon,
+      comparisonTeam,
+      beforeMetrics,
+      afterMetrics,
+      beforeThreats,
+      afterThreats,
+      threatCoverage,
+      candidateEvidenceGain: evidenceGain,
+      lostRoles,
+      threatAnswerLosses,
+      environmentUsageRate,
+      environmentDataset: input.environmentDataset,
+      profile
+    });
+  if (
+    candidate.pokemon.formKind === "mega" &&
+    megaCountAfter > megaCountBefore
+  ) {
+    baseEvidence.push({
+      id: "risk:mega-opportunity-cost",
+      kind: "risk",
+      primaryDimension: "riskPenalty",
+      points: -5,
+      displayText: "メガ枠を使用します。",
+      source: "team-delta",
+      confidence: "high",
+      beforeValue: megaCountBefore,
+      afterValue: megaCountAfter
+    });
+  }
+  const evidence = deduplicateAdvisorEvidence(baseEvidence);
+  const evidenceScore = scoreAdvisorEvidence(evidence);
+  const targetThreatImpacts = getTargetThreatImpacts(
+    beforeThreats,
+    afterThreats
+  );
+  const improvementScore = evidenceScore.overall;
+  const evidenceImprovements = evidence
+    .filter(
+      (entry) =>
+        entry.points > 0 &&
+        entry.primaryDimension !== "environmentValidity"
+    )
+    .sort((left, right) => right.points - left.points || left.id.localeCompare(right.id))
+    .slice(0, MAX_IMPROVEMENT_NOTES)
+    .map((entry) => entry.displayText);
   const megaLimitPassed =
     candidate.pokemon.formKind !== "mega" ||
     megaCountAfter <= ADVISOR_TEAM_RULES.recommendedMegaLimit;
@@ -2270,7 +2454,7 @@ export function evaluateAdvisorSwapPlan(
   const meaningfulImprovement = evidence.some(
     (entry) =>
       entry.points > 0 &&
-      entry.category !== "Environment"
+      entry.primaryDimension !== "environmentValidity"
   );
   const baseSafetyGate =
     megaLimitPassed &&
@@ -2325,7 +2509,10 @@ export function evaluateAdvisorSwapPlan(
       removedSlotId === null
         ? { kind: "add", removedSlotId: null, removedLabel: null }
         : {
-            kind: "replace",
+            kind:
+              removedPokemon?.speciesId === candidate.pokemon.speciesId
+                ? "form-change"
+                : "replace",
             removedSlotId,
             removedLabel:
               getRemovedLabel(input.team, removedSlotId) ?? "現在のメンバー"
@@ -2351,12 +2538,21 @@ export function evaluateAdvisorSwapPlan(
     threatCoverage,
     evidence,
     evidenceScore,
+    targetThreatImpacts,
     improvements: evidenceImprovements,
     cautions: uniqueText([
       ...evidence
-        .filter((entry) => entry.category === "Risk" && entry.points < 0)
-        .sort((left, right) => left.points - right.points)
-        .map((entry) => entry.summary),
+        .filter(
+          (entry) =>
+            entry.primaryDimension === "riskPenalty" && entry.points < 0
+        )
+        .sort(
+          (left, right) =>
+            Number(right.displayText.includes("唯一")) -
+              Number(left.displayText.includes("唯一")) ||
+            left.points - right.points
+        )
+        .map((entry) => entry.displayText),
       ...buildThreatCoverageCautions(threatCoverage, threatUnion)
     ]).slice(0, MAX_CAUTION_NOTES),
     lostRoles,
@@ -2542,12 +2738,132 @@ function preselectSimulationCandidates(
       .slice(0, ADVISOR_RECOMMENDATION_RULES.preselectPerCategory)
       .forEach((candidate) => selected.set(candidate.pokemon.slug, candidate));
   }
+  for (const type of getAllTypes().map((entry) => entry.nameEn)) {
+    eligible
+      .filter((candidate) => candidate.pokemon.types.includes(type))
+      .slice()
+      .sort(compareCandidatesForPreselection)
+      .slice(0, ADVISOR_RECOMMENDATION_RULES.preselectPerType)
+      .forEach((candidate) => selected.set(candidate.pokemon.slug, candidate));
+  }
+  if (profile === "trick-room") {
+    eligible
+      .filter(
+        (candidate) =>
+          (candidate.pokemon.baseStats?.speed ?? Number.POSITIVE_INFINITY) <=
+            TRICK_ROOM_RECOMMENDATION_CONFIG.lowSpeedThreshold &&
+          (candidate.metrics.threatResponsePoints > 0 ||
+            candidate.metrics.offensePoints > 0 ||
+            candidate.metrics.issueResolutionPoints > 0 ||
+            candidate.metrics.rolePoints > 0)
+      )
+      .slice()
+      .sort(
+        (left, right) =>
+          getCandidateProxyScore(
+            "speed",
+            right,
+            environmentBySlug,
+            profile,
+            currentSlowCount
+          ) -
+            getCandidateProxyScore(
+              "speed",
+              left,
+              environmentBySlug,
+              profile,
+              currentSlowCount
+            ) ||
+          left.pokemon.id - right.pokemon.id
+      )
+      .slice(
+        0,
+        ADVISOR_RECOMMENDATION_RULES.preselectTrickRoomSlowRole
+      )
+      .forEach((candidate) => selected.set(candidate.pokemon.slug, candidate));
+    for (const category of ["defensive", "offensive"] as const) {
+      eligible
+        .filter(
+          (candidate) =>
+            (candidate.pokemon.baseStats?.speed ?? 0) >=
+              TEAM_SPEED_THRESHOLDS.fastMinimum &&
+            (candidate.metrics.threatResponsePoints > 0 ||
+              candidate.metrics.issueResolutionPoints > 0 ||
+              candidate.metrics.offensePoints > 0 ||
+              candidate.metrics.rolePoints > 0)
+        )
+        .slice()
+        .sort(
+          (left, right) =>
+            getCandidateProxyScore(
+              category,
+              right,
+              environmentBySlug,
+              profile,
+              currentSlowCount
+            ) -
+              getCandidateProxyScore(
+                category,
+                left,
+                environmentBySlug,
+                profile,
+                currentSlowCount
+              ) ||
+            left.pokemon.id - right.pokemon.id
+        )
+        .slice(
+          0,
+          ADVISOR_RECOMMENDATION_RULES.preselectTrickRoomFallbackRole
+        )
+        .forEach((candidate) =>
+          selected.set(candidate.pokemon.slug, candidate)
+        );
+    }
+  }
   input.advisor.candidates.forEach((candidate) =>
     selected.set(candidate.pokemon.slug, candidate)
   );
   return [...selected.values()].sort(
     (left, right) => left.pokemon.id - right.pokemon.id
   );
+}
+
+function compareCandidatesForPreselection(
+  left: TeamAdvisorCandidate,
+  right: TeamAdvisorCandidate
+): number {
+  return (
+    right.metrics.threatResponsePoints - left.metrics.threatResponsePoints ||
+    right.metrics.issueResolutionPoints - left.metrics.issueResolutionPoints ||
+    right.score - left.score ||
+    left.pokemon.id - right.pokemon.id
+  );
+}
+
+function createSimulationCandidate(
+  pokemon: PokemonEntry,
+  environmentDataset: ThreatEnvironmentDataset | null,
+  reason: string
+): TeamAdvisorCandidate {
+  const usageRate =
+    environmentDataset?.pokemon.find((entry) => entry.slug === pokemon.slug)
+      ?.usageRate ?? null;
+  return {
+    pokemon,
+    score: 0,
+    rating: 1,
+    reasons: [reason],
+    addressedIssueIds: [],
+    environmentUsageRate: usageRate,
+    metrics: {
+      issueResolutionPoints: 0,
+      threatResponsePoints: 0,
+      rolePoints: 0,
+      offensePoints: 0,
+      environmentUsagePoints: 0,
+      newWeaknessPenalty: 0
+    }
+  };
 }
 
 function getBestPlansBySpecies(
@@ -2558,6 +2874,7 @@ function getBestPlansBySpecies(
   const bestBySpecies = new Map<number, AdvisorSwapPlan>();
   for (const plan of plans) {
     if (
+      plan.action.kind === "form-change" ||
       !plan.isRecommendationByCategory[category] ||
       plan.categoryScores[category] <= 0 ||
       (type && !plan.candidate.pokemon.types.includes(type))
@@ -2751,6 +3068,46 @@ function selectDiverseOverallPlans(
     if (isSlowRecommendation(plan)) slowCount += 1;
     if (selected.length >= ADVISOR_RECOMMENDATION_RULES.maxPerCategory) break;
   }
+  if (
+    profile === "trick-room" &&
+    !selected.some((plan) => plan.profileRoles.includes("slowAttacker")) &&
+    selected.length > 0
+  ) {
+    const bestSlow = ranked.find(
+      (plan) =>
+        isSlowRecommendation(plan) &&
+        plan.profileRoles.includes("slowAttacker") &&
+        plan.metrics.speedRoleImprovement > 0 &&
+        (plan.metrics.popularMoveCoverageCount > 0 ||
+          plan.metrics.stableCheckCount > 0 ||
+          plan.metrics.threatReduction > 0 ||
+          plan.metrics.issueReduction > 0) &&
+        (!isMegaPlan(plan) ||
+          selected.filter(isMegaPlan).length <
+            ADVISOR_RECOMMENDATION_RULES.maxMegaInOverall ||
+          selected.some(isMegaPlan))
+    );
+    const selectedRole = bestSlow?.recommendationRoles[0];
+    if (bestSlow && selectedRole) {
+      const replacementIndex =
+        slowCount >=
+        TRICK_ROOM_RECOMMENDATION_CONFIG.maxSlowRoleRecommendations
+          ? selected.findLastIndex(
+              (plan) =>
+                isSlowRecommendation(plan) &&
+                !plan.profileRoles.includes("slowAttacker")
+            )
+          : isMegaPlan(bestSlow) &&
+        selected.filter(isMegaPlan).length >=
+          ADVISOR_RECOMMENDATION_RULES.maxMegaInOverall
+          ? selected.findLastIndex(isMegaPlan)
+          : selected.length - 1;
+      selected[replacementIndex] = {
+        ...bestSlow,
+        selectedOverallRole: selectedRole
+      };
+    }
+  }
   return selected;
 }
 
@@ -2789,6 +3146,140 @@ function getTypePlanGroups(
   };
 }
 
+function getTargetPlanScore(
+  plan: AdvisorSwapPlan,
+  threatId: string
+): number {
+  const answer = plan.threatCoverage.threatAnswers.find(
+    (entry) => entry.threatId === threatId
+  );
+  const impact = plan.targetThreatImpacts.find(
+    (entry) => entry.threatId === threatId
+  );
+  const classPoints =
+    answer?.answerClass === "stableSwitch"
+      ? 40
+      : answer?.answerClass === "revengeKill"
+        ? 35
+        : answer?.answerClass === "softCheck"
+          ? 20
+          : answer?.answerClass === "coverageOnly"
+            ? 6
+            : 0;
+  const targetReduction = Math.max(0, -(impact?.scoreDelta ?? 0));
+  return (
+    classPoints +
+    targetReduction +
+    plan.evidenceScore.dimensionTotals.postSwapThreatRisk * 0.5 +
+    plan.evidenceScore.dimensionTotals.teamIssueImprovement * 0.35 +
+    plan.evidenceScore.dimensionTotals.riskPenalty * 0.5 +
+    plan.evidenceScore.dimensionTotals.environmentValidity * 0.2
+  );
+}
+
+function isTargetPlanUsable(
+  plan: AdvisorSwapPlan,
+  threatId: string
+): boolean {
+  const answer = plan.threatCoverage.threatAnswers.find(
+    (entry) => entry.threatId === threatId
+  );
+  return Boolean(
+    answer &&
+      answer.answerClass !== "notCounter" &&
+      answer.answerClass !== "coverageOnly" &&
+      plan.metrics.megaLimitPassed &&
+      plan.metrics.newMajorWeaknessCount === 0 &&
+      plan.threatCoverage.usageEligibility !== "below-minimum" &&
+      plan.threatCoverage.usageEligibility !== "unknown" &&
+      getTargetPlanScore(plan, threatId) > 0
+  );
+}
+
+function selectThreatPlans(
+  plans: AdvisorSwapPlan[],
+  threatId: string,
+  mode: Exclude<AdvisorThreatExploreMode, "type">,
+  type?: TypeName
+): AdvisorSwapPlan[] {
+  const bestBySpecies = new Map<number, AdvisorSwapPlan>();
+  for (const plan of plans) {
+    if (plan.action.kind === "form-change") continue;
+    if (!isTargetPlanUsable(plan, threatId)) continue;
+    if (type && !plan.candidate.pokemon.types.includes(type)) continue;
+    const answer = plan.threatCoverage.threatAnswers.find(
+      (entry) => entry.threatId === threatId
+    );
+    if (
+      mode === "stableSwitch" &&
+      answer?.answerClass !== "stableSwitch"
+    ) {
+      continue;
+    }
+    if (
+      mode === "revengeKill" &&
+      answer?.answerClass !== "revengeKill"
+    ) {
+      continue;
+    }
+    const speciesId = plan.candidate.pokemon.speciesId;
+    const current = bestBySpecies.get(speciesId);
+    if (
+      !current ||
+      getTargetPlanScore(plan, threatId) >
+        getTargetPlanScore(current, threatId)
+    ) {
+      bestBySpecies.set(speciesId, plan);
+    }
+  }
+  return [...bestBySpecies.values()]
+    .sort(
+      (left, right) =>
+        getTargetPlanScore(right, threatId) -
+          getTargetPlanScore(left, threatId) ||
+        right.metrics.usageTieBreaker - left.metrics.usageTieBreaker ||
+        left.candidate.pokemon.id - right.candidate.pokemon.id
+    )
+    .slice(0, ADVISOR_RECOMMENDATION_RULES.maxPerThreatMode);
+}
+
+function getThreatRecommendationGroups(
+  plans: AdvisorSwapPlan[],
+  threats: ThreatPokemonAnalysis[]
+): AdvisorThreatRecommendationGroup[] {
+  return threats.slice(0, 5).map((threat) => ({
+    threat,
+    plansByMode: {
+      recommended: selectThreatPlans(
+        plans,
+        threat.pokemon.slug,
+        "recommended"
+      ),
+      stableSwitch: selectThreatPlans(
+        plans,
+        threat.pokemon.slug,
+        "stableSwitch"
+      ),
+      revengeKill: selectThreatPlans(
+        plans,
+        threat.pokemon.slug,
+        "revengeKill"
+      )
+    },
+    typePlans: Object.fromEntries(
+      getAllTypes().map((type) => [
+        type.nameEn,
+        selectThreatPlans(
+          plans,
+          threat.pokemon.slug,
+          "recommended",
+          type.nameEn
+        )
+      ])
+    )
+  }));
+}
+
 function emptySimulation(): AdvisorSwapSimulation {
   return {
     plans: [],
@@ -2800,6 +3291,12 @@ function emptySimulation(): AdvisorSwapSimulation {
     },
     typePlans: {},
     typeOptions: [],
+    threatRecommendations: [],
+    threatTypeOptions: getAllTypes().map((type) => ({
+      type: type.nameEn,
+      label: type.nameJa
+    })),
+    formChangePlans: [],
     candidatePoolCount: 0,
     evaluatedPatternCount: 0,
     recomputedThreatAnalysisCount: 0,
@@ -2843,11 +3340,37 @@ export function getAdvisorSwapSimulation(
     seenCandidateSlugs.add(slug);
     return true;
   });
-  const allPlans = eligibleCandidates.flatMap((candidate) =>
+  const generalPlans = eligibleCandidates.flatMap((candidate) =>
     patternSlotIds.map((removedSlotId) =>
       evaluateAdvisorSwapPlan(input, candidate, removedSlotId)
     )
   );
+  const currentPokemonSlots = input.team.flatMap((slot) => {
+    if (slot.mode !== "pokemon") return [];
+    const pokemon = getPokemonBySlug(slot.pokemonSlug);
+    return pokemon ? [{ slot, pokemon }] : [];
+  });
+  const formPlans = currentPokemonSlots.flatMap(({ slot, pokemon }) =>
+    input.availablePokemon
+      .filter(
+        (form) =>
+          form.speciesId === pokemon.speciesId &&
+          form.slug !== pokemon.slug &&
+          form.formSelection === "team"
+      )
+      .map((form) =>
+        evaluateAdvisorSwapPlan(
+          input,
+          createSimulationCandidate(
+            form,
+            input.environmentDataset,
+            `${pokemon.nameJa}からのフォーム変更`
+          ),
+          slot.id
+        )
+      )
+  );
+  const allPlans = [...generalPlans, ...formPlans];
   const profile = input.profile ?? "standard";
   const overallPlans = selectDiverseOverallPlans(allPlans, profile);
   const plansByCategory = {
@@ -2857,11 +3380,40 @@ export function getAdvisorSwapSimulation(
     speed: selectCategoryPlans(allPlans, "speed", undefined, profile)
   };
   const typeGroups = getTypePlanGroups(allPlans, profile);
+  const beforeThreats =
+    allPlans[0]?.beforeThreats ??
+    getAdvisorCompatibleThreatAnalysis(
+      input.team,
+      summary,
+      input.availablePokemon,
+      input.environmentDataset,
+      5,
+      profile
+    );
+  const threatRecommendations = getThreatRecommendationGroups(
+    allPlans,
+    beforeThreats
+  );
+  const formChangePlans = formPlans
+    .filter(
+      (plan) =>
+        plan.action.kind === "form-change" &&
+        plan.metrics.megaLimitPassed &&
+        plan.improvementScore > 0
+    )
+    .sort((left, right) => right.improvementScore - left.improvementScore)
+    .slice(0, ADVISOR_RECOMMENDATION_RULES.maxPerCategory);
   return {
     plans: overallPlans,
     plansByCategory,
     typePlans: typeGroups.typePlans,
     typeOptions: typeGroups.typeOptions,
+    threatRecommendations,
+    threatTypeOptions: getAllTypes().map((type) => ({
+      type: type.nameEn,
+      label: type.nameJa
+    })),
+    formChangePlans,
     candidatePoolCount: eligibleCandidates.length,
     evaluatedPatternCount: allPlans.length,
     recomputedThreatAnalysisCount: allPlans.length,

@@ -26,11 +26,14 @@ assert(
 );
 const threatCatalogJson = JSON.stringify(threatCatalog);
 assert(
-  Buffer.byteLength(threatCatalogJson) < 400_000 &&
+  Buffer.byteLength(threatCatalogJson) < 430_000 &&
     !threatCatalogJson.includes("rawWeight") &&
     !threatCatalogJson.includes('"name":"icebeam"') &&
     threatCatalogJson.includes('"name":"ふぶき"') &&
-    threatCatalogJson.includes('"name":"ゆきふらし"'),
+    threatCatalogJson.includes('"name":"ゆきふらし"') &&
+    threatCatalog.datasets[0].pokemon.some(
+      (entry) => entry.abilities.length > 1
+    ),
   "要警戒診断DTOが大きすぎるか、日本語化・軽量化できていません"
 );
 assert(catalog.datasets.every((dataset) => dataset.ranking.length === 50), "ランキングがTOP50ではありません");

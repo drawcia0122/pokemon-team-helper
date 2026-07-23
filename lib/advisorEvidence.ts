@@ -1,80 +1,138 @@
-export type AdvisorEvidenceCategory =
-  | "Defense"
-  | "Offense"
-  | "Speed"
-  | "ThreatAnswers"
-  | "Role"
-  | "Risk"
-  | "Environment";
+import type { TypeName } from "@/types/pokemon";
+
+export type AdvisorEvidenceDimension =
+  | "targetCounterplay"
+  | "postSwapThreatRisk"
+  | "teamIssueImprovement"
+  | "defensiveImprovement"
+  | "offensiveImprovement"
+  | "speedImprovement"
+  | "roleImprovement"
+  | "environmentValidity"
+  | "riskPenalty";
+
+export type AdvisorEvidenceConfidence = "high" | "medium" | "low";
 
 export type AdvisorEvidence = {
   id: string;
-  category: AdvisorEvidenceCategory;
-  points: number;
-  summary: string;
+  kind:
+    | "counterplay"
+    | "threat-delta"
+    | "issue-delta"
+    | "type-delta"
+    | "offense-delta"
+    | "speed-delta"
+    | "role-delta"
+    | "environment"
+    | "risk";
   source: "team-delta" | "threat-union" | "role-delta" | "environment";
+  primaryDimension: AdvisorEvidenceDimension;
+  points: number;
+  displayText: string;
+  confidence: AdvisorEvidenceConfidence;
+  targetThreat?: string;
+  affectedTeamMembers?: string[];
+  move?: string;
+  ability?: string;
+  type?: TypeName;
+  beforeValue?: number;
+  afterValue?: number;
 };
 
-export const ADVISOR_EVIDENCE_CAPS: Record<AdvisorEvidenceCategory, number> = {
-  Defense: 28,
-  Offense: 22,
-  Speed: 12,
-  ThreatAnswers: 34,
-  Role: 18,
-  Risk: 60,
-  Environment: 4
+/**
+ * All recommendation scores use this single scale.  In particular,
+ * targetCounterplay is not added again as a separate "coverage score".
+ */
+export const ADVISOR_EVIDENCE_CAPS: Record<
+  AdvisorEvidenceDimension,
+  number
+> = {
+  targetCounterplay: 30,
+  postSwapThreatRisk: 25,
+  teamIssueImprovement: 15,
+  defensiveImprovement: 10,
+  offensiveImprovement: 10,
+  speedImprovement: 5,
+  roleImprovement: 5,
+  environmentValidity: 5,
+  riskPenalty: 40
+};
+
+export const ADVISOR_EVIDENCE_ITEM_CAPS: Record<
+  AdvisorEvidenceDimension,
+  number
+> = {
+  targetCounterplay: 15,
+  postSwapThreatRisk: 15,
+  teamIssueImprovement: 10,
+  defensiveImprovement: 8,
+  offensiveImprovement: 8,
+  speedImprovement: 5,
+  roleImprovement: 5,
+  environmentValidity: 5,
+  riskPenalty: 20
 };
 
 export const ADVISOR_EVIDENCE_CATEGORY_ALLOCATION = {
   overall: {
-    Defense: 1,
-    Offense: 1,
-    Speed: 1,
-    ThreatAnswers: 1,
-    Role: 1,
-    Risk: 1,
-    Environment: 1
+    targetCounterplay: 1,
+    postSwapThreatRisk: 1,
+    teamIssueImprovement: 1,
+    defensiveImprovement: 1,
+    offensiveImprovement: 1,
+    speedImprovement: 1,
+    roleImprovement: 1,
+    environmentValidity: 1,
+    riskPenalty: 1
   },
   defensive: {
-    Defense: 1,
-    Offense: 0,
-    Speed: 0,
-    ThreatAnswers: 0.35,
-    Role: 0.7,
-    Risk: 0.65,
-    Environment: 0.2
+    targetCounterplay: 0.4,
+    postSwapThreatRisk: 0.65,
+    teamIssueImprovement: 0.55,
+    defensiveImprovement: 1,
+    offensiveImprovement: 0,
+    speedImprovement: 0,
+    roleImprovement: 0.6,
+    environmentValidity: 0.2,
+    riskPenalty: 0.8
   },
   offensive: {
-    Defense: 0,
-    Offense: 1,
-    Speed: 0.2,
-    ThreatAnswers: 0.45,
-    Role: 0.7,
-    Risk: 0.65,
-    Environment: 0.2
+    targetCounterplay: 0.65,
+    postSwapThreatRisk: 0.45,
+    teamIssueImprovement: 0.35,
+    defensiveImprovement: 0,
+    offensiveImprovement: 1,
+    speedImprovement: 0.25,
+    roleImprovement: 0.45,
+    environmentValidity: 0.2,
+    riskPenalty: 0.8
   },
   speed: {
-    Defense: 0,
-    Offense: 0.25,
-    Speed: 1,
-    ThreatAnswers: 0.35,
-    Role: 0.35,
-    Risk: 0.35,
-    Environment: 0.15
+    targetCounterplay: 0.55,
+    postSwapThreatRisk: 0.35,
+    teamIssueImprovement: 0.25,
+    defensiveImprovement: 0,
+    offensiveImprovement: 0.2,
+    speedImprovement: 1,
+    roleImprovement: 0.35,
+    environmentValidity: 0.15,
+    riskPenalty: 0.65
   },
   typeSpecific: {
-    Defense: 0.75,
-    Offense: 0.75,
-    Speed: 0,
-    ThreatAnswers: 0.25,
-    Role: 0.2,
-    Risk: 0.65,
-    Environment: 0.1
+    targetCounterplay: 0.55,
+    postSwapThreatRisk: 0.55,
+    teamIssueImprovement: 0.45,
+    defensiveImprovement: 0.75,
+    offensiveImprovement: 0.75,
+    speedImprovement: 0,
+    roleImprovement: 0.25,
+    environmentValidity: 0.1,
+    riskPenalty: 0.8
   }
 } as const;
 
 export type AdvisorEvidenceScore = {
-  categoryTotals: Record<AdvisorEvidenceCategory, number>;
+  dimensionTotals: Record<AdvisorEvidenceDimension, number>;
   overall: number;
   defensive: number;
   offensive: number;
@@ -82,83 +140,129 @@ export type AdvisorEvidenceScore = {
   typeSpecific: number;
 };
 
-function capCategory(
-  category: AdvisorEvidenceCategory,
+export function deduplicateAdvisorEvidence(
+  evidence: AdvisorEvidence[]
+): AdvisorEvidence[] {
+  const byId = new Map<string, AdvisorEvidence>();
+  for (const entry of evidence) {
+    const itemCap = ADVISOR_EVIDENCE_ITEM_CAPS[entry.primaryDimension];
+    const cappedPoints =
+      entry.primaryDimension === "riskPenalty"
+        ? Math.max(-itemCap, Math.min(0, entry.points))
+        : Math.max(0, Math.min(itemCap, entry.points));
+    const normalized = { ...entry, points: cappedPoints };
+    const current = byId.get(entry.id);
+    if (!current || Math.abs(normalized.points) > Math.abs(current.points)) {
+      byId.set(entry.id, normalized);
+    }
+  }
+  return [...byId.values()];
+}
+
+function capDimension(
+  dimension: AdvisorEvidenceDimension,
   value: number
 ): number {
-  const cap = ADVISOR_EVIDENCE_CAPS[category];
-  if (category === "Risk") return Math.max(-cap, Math.min(0, value));
+  const cap = ADVISOR_EVIDENCE_CAPS[dimension];
+  if (dimension === "riskPenalty") {
+    return Math.max(-cap, Math.min(0, value));
+  }
   return Math.max(0, Math.min(cap, value));
 }
 
 export function scoreAdvisorEvidence(
-  evidence: AdvisorEvidence[]
+  rawEvidence: AdvisorEvidence[]
 ): AdvisorEvidenceScore {
-  const categoryTotals = Object.fromEntries(
-    (Object.keys(ADVISOR_EVIDENCE_CAPS) as AdvisorEvidenceCategory[]).map(
-      (category) => {
+  const evidence = deduplicateAdvisorEvidence(rawEvidence);
+  const dimensionTotals = Object.fromEntries(
+    (Object.keys(ADVISOR_EVIDENCE_CAPS) as AdvisorEvidenceDimension[]).map(
+      (dimension) => {
         const total = evidence
-          .filter((entry) => entry.category === category)
+          .filter((entry) => entry.primaryDimension === dimension)
           .reduce((sum, entry) => sum + entry.points, 0);
-        return [category, capCategory(category, total)];
+        return [dimension, capDimension(dimension, total)];
       }
     )
-  ) as Record<AdvisorEvidenceCategory, number>;
+  ) as Record<AdvisorEvidenceDimension, number>;
 
   const scoreFor = (
-    allocation: Record<AdvisorEvidenceCategory, number>
+    allocation: Record<AdvisorEvidenceDimension, number>
   ): number =>
     Math.round(
       Object.entries(allocation).reduce(
-        (total, [category, multiplier]) =>
+        (total, [dimension, multiplier]) =>
           total +
-          categoryTotals[category as AdvisorEvidenceCategory] * multiplier,
+          dimensionTotals[dimension as AdvisorEvidenceDimension] * multiplier,
         0
       )
     );
 
   return {
-    categoryTotals,
-    overall: Math.max(-100, Math.min(100, scoreFor(ADVISOR_EVIDENCE_CATEGORY_ALLOCATION.overall))),
+    dimensionTotals,
+    overall: Math.max(
+      -40,
+      Math.min(
+        100,
+        scoreFor(ADVISOR_EVIDENCE_CATEGORY_ALLOCATION.overall)
+      )
+    ),
     defensive: scoreFor(ADVISOR_EVIDENCE_CATEGORY_ALLOCATION.defensive),
     offensive: scoreFor(ADVISOR_EVIDENCE_CATEGORY_ALLOCATION.offensive),
     speed: scoreFor(ADVISOR_EVIDENCE_CATEGORY_ALLOCATION.speed),
-    typeSpecific: scoreFor(ADVISOR_EVIDENCE_CATEGORY_ALLOCATION.typeSpecific)
+    typeSpecific: scoreFor(
+      ADVISOR_EVIDENCE_CATEGORY_ALLOCATION.typeSpecific
+    )
   };
 }
 
 export function getAdvisorEvidenceReasons(
-  evidence: AdvisorEvidence[],
+  rawEvidence: AdvisorEvidence[],
   category: keyof typeof ADVISOR_EVIDENCE_CATEGORY_ALLOCATION,
   limit = 3
 ): string[] {
+  const evidence = deduplicateAdvisorEvidence(rawEvidence);
   const allocation = ADVISOR_EVIDENCE_CATEGORY_ALLOCATION[category];
-  const explanationPriority = (
-    evidenceCategory: AdvisorEvidenceCategory
+  const dimensionPriority = (
+    dimension: AdvisorEvidenceDimension
   ): number => {
     if (category === "defensive") {
-      if (evidenceCategory === "ThreatAnswers") return 200;
-      if (evidenceCategory === "Role") return 100;
+      if (dimension === "roleImprovement") return 300;
+      if (dimension === "targetCounterplay") return 250;
+      if (dimension === "defensiveImprovement") return 200;
+      if (dimension === "postSwapThreatRisk") return 150;
     }
-    if (category === "offensive" && evidenceCategory === "ThreatAnswers") {
-      return 150;
+    if (category === "offensive") {
+      if (dimension === "targetCounterplay") return 250;
+      if (dimension === "offensiveImprovement") return 200;
     }
-    if (category === "speed" && evidenceCategory === "Speed") return 150;
+    if (category === "speed" && dimension === "speedImprovement") {
+      return 250;
+    }
     return 0;
   };
-  return evidence
+  const ranked = evidence
     .filter(
       (entry) =>
-        entry.points > 0 && allocation[entry.category] > 0
+        entry.points > 0 && allocation[entry.primaryDimension] > 0
     )
     .sort(
       (left, right) =>
-        explanationPriority(right.category) -
-          explanationPriority(left.category) ||
-        right.points * allocation[right.category] -
-          left.points * allocation[left.category] ||
+        dimensionPriority(right.primaryDimension) -
+          dimensionPriority(left.primaryDimension) ||
+        right.points * allocation[right.primaryDimension] -
+          left.points * allocation[left.primaryDimension] ||
         left.id.localeCompare(right.id)
-    )
-    .slice(0, limit)
-    .map((entry) => entry.summary);
+    );
+  const selected: AdvisorEvidence[] = [];
+  const dimensionCounts = new Map<AdvisorEvidenceDimension, number>();
+  for (const entry of ranked) {
+    const count = dimensionCounts.get(entry.primaryDimension) ?? 0;
+    const perDimensionLimit =
+      category === "overall" || category === "typeSpecific" ? limit : 1;
+    if (count >= perDimensionLimit) continue;
+    selected.push(entry);
+    dimensionCounts.set(entry.primaryDimension, count + 1);
+    if (selected.length >= limit) break;
+  }
+  return selected.map((entry) => entry.displayText);
 }

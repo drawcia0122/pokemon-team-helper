@@ -15,7 +15,14 @@ import type {
   ThreatEnvironmentPokemon
 } from "@/types/environmentThreat";
 import type { PokemonEntry, TeamSlot } from "@/types/pokemon";
-import { getAdvisorMoveQuality } from "@/lib/advisorMoveQuality";
+import {
+  compareAdvisorSpeedRanges,
+  evaluateAdvisorAttackPressure,
+  getAdvisorMoveQuality,
+  getAdvisorSpeedRange,
+  type AdvisorAttackPressureTier
+} from "@/lib/advisorMoveQuality";
+import type { AdvisorEvidenceConfidence } from "@/lib/advisorEvidence";
 
 export const ADVISOR_USAGE_THRESHOLDS = {
   normalCandidate: 0.01,
@@ -63,11 +70,11 @@ export type AdvisorCounterplayMethod =
   | "none";
 
 export type AdvisorAnswerClass =
-  | "Stable"
-  | "Matchup"
-  | "Conditional"
-  | "CoverageOnly"
-  | "None";
+  | "stableSwitch"
+  | "revengeKill"
+  | "softCheck"
+  | "coverageOnly"
+  | "notCounter";
 
 export type AdvisorUsageEligibility =
   | "normal"
@@ -90,6 +97,8 @@ export type AdvisorThreatAnswer = {
   newlySolved: boolean;
   primaryReason: string | null;
   failureReasons: string[];
+  confidence: AdvisorEvidenceConfidence;
+  bestPressureTier: AdvisorAttackPressureTier | null;
 };
 
 export type AdvisorThreatCoverage = {
@@ -120,6 +129,8 @@ type CounterplayEvaluation = {
   offensiveAnswer: boolean;
   primaryReason: string | null;
   failureReasons: string[];
+  confidence: AdvisorEvidenceConfidence;
+  bestPressureTier: AdvisorAttackPressureTier | null;
 };
 
 const METHOD_STRENGTH: Record<AdvisorCounterplayMethod, number> = {
@@ -191,7 +202,8 @@ function getBestMoveAgainst(
   defender: PokemonEntry,
   attackerEnvironment: ThreatEnvironmentPokemon | undefined,
   defenderEnvironment: ThreatEnvironmentPokemon | undefined,
-  moves = getEnvironmentAttackingMoves(attackerEnvironment?.moves)
+  moves = getEnvironmentAttackingMoves(attackerEnvironment?.moves),
+  minimumMultiplier = 1
 ) {
   return moves
     .map((move) => ({
@@ -202,13 +214,26 @@ function getBestMoveAgainst(
         defender,
         attackerAbilityUsage: attackerEnvironment?.abilities,
         defenderAbilityUsage: defenderEnvironment?.abilities
+      }),
+      pressure: null as ReturnType<typeof evaluateAdvisorAttackPressure> | null
+    }))
+    .map((entry) => ({
+      ...entry,
+      pressure: evaluateAdvisorAttackPressure({
+        move: entry.move,
+        attacker,
+        defender,
+        typeMultiplier: entry.evaluation.expectedMultiplier
       })
     }))
-    .filter(({ evaluation }) => evaluation.expectedMultiplier >= 1)
+    .filter(
+      ({ evaluation }) =>
+        evaluation.expectedMultiplier >= minimumMultiplier
+    )
     .sort(
       (left, right) =>
-        right.evaluation.expectedMultiplier -
-          left.evaluation.expectedMultiplier ||
+        right.pressure.normalizedPressure -
+          left.pressure.normalizedPressure ||
         right.move.share - left.move.share
     )[0];
 }
@@ -240,10 +265,14 @@ function hasCredibleOffensivePressure(
   bestMove: ReturnType<typeof getBestMoveAgainst>
 ): boolean {
   if (!bestMove || !candidate.baseStats) return false;
-  return getAdvisorMoveQuality({
-    move: bestMove.move,
-    attacker: candidate
-  }).reliable;
+  return (
+    bestMove.pressure.tier === "high" ||
+    (bestMove.pressure.tier === "medium" &&
+      getAdvisorMoveQuality({
+        move: bestMove.move,
+        attacker: candidate
+      }).reliable)
+  );
 }
 
 function evaluateCounterplay(
@@ -266,15 +295,17 @@ function evaluateCounterplay(
       defender: candidate,
       attackerAbilityUsage: threatEnvironment?.abilities,
       defenderAbilityUsage: candidateEnvironment?.abilities
+    }),
+    pressure: null as ReturnType<typeof evaluateAdvisorAttackPressure> | null
+  })).map((entry) => ({
+    ...entry,
+    pressure: evaluateAdvisorAttackPressure({
+      move: entry.move,
+      attacker: threat.pokemon,
+      defender: candidate,
+      typeMultiplier: entry.evaluation.expectedMultiplier
     })
   }));
-  const totalIncomingShare = incoming.reduce(
-    (total, entry) => total + entry.move.share,
-    0
-  );
-  const safeIncomingShare = incoming
-    .filter(({ evaluation }) => evaluation.expectedMultiplier <= 1)
-    .reduce((total, entry) => total + entry.move.share, 0);
   const primaryWeakness = incoming.some(
     ({ move, evaluation }) =>
       move.share >= THREAT_MOVE_THRESHOLDS.primary &&
@@ -289,6 +320,14 @@ function evaluateCounterplay(
     candidateEnvironment,
     threatEnvironment
   );
+  const coverageMove = getBestMoveAgainst(
+    candidate,
+    threat.pokemon,
+    candidateEnvironment,
+    threatEnvironment,
+    getEnvironmentAttackingMoves(candidateEnvironment?.moves),
+    2
+  );
   const credibleOffense = hasCredibleOffensivePressure(candidate, bestMove);
   const recoveryShare = Math.max(
     0,
@@ -296,11 +335,23 @@ function evaluateCounterplay(
       .filter((move) => move.damageClass === "status" && RECOVERY_MOVE_IDS.has(move.id))
       .map((move) => move.share) ?? [])
   );
+  const dangerousSecondaryMove = incoming.some(
+    ({ move, evaluation, pressure }) =>
+      move.share >= THREAT_MOVE_THRESHOLDS.secondary &&
+      (evaluation.expectedMultiplier > 1 ||
+        pressure.tier === "high")
+  );
+  const primaryMovesCovered = incoming
+    .filter(({ move }) => move.share >= THREAT_MOVE_THRESHOLDS.primary)
+    .every(
+      ({ evaluation, pressure }) =>
+        evaluation.expectedMultiplier <= 1 &&
+        pressure.tier !== "high"
+    );
   const stableSwitch =
     incoming.length > 0 &&
-    totalIncomingShare > 0 &&
-    safeIncomingShare / totalIncomingShare >=
-      ADVISOR_COUNTERPLAY_RULES.stableMoveCoverageRatio &&
+    primaryMovesCovered &&
+    !dangerousSecondaryMove &&
     !primaryWeakness &&
     !quadWeakness &&
     getRelevantBulk(candidate, threatEnvironment) &&
@@ -316,11 +367,15 @@ function evaluateCounterplay(
   const threatSpeed = threat.pokemon.baseStats?.speed;
   const hasSpeedData =
     typeof candidateSpeed === "number" && typeof threatSpeed === "number";
+  const speedMatchup = compareAdvisorSpeedRanges({
+    candidate: getAdvisorSpeedRange(candidate, candidateEnvironment),
+    threat: getAdvisorSpeedRange(threat.pokemon, threatEnvironment),
+    profile
+  });
   const outspeed = Boolean(
-    hasSpeedData &&
-      candidateSpeed! > threatSpeed! &&
+    speedMatchup.relation === "favored" &&
       bestMove &&
-      credibleOffense
+      bestMove.pressure.tier === "high"
   );
   const choiceScarf = Boolean(
     hasSpeedData &&
@@ -329,14 +384,14 @@ function evaluateCounterplay(
       candidateSpeed! * ADVISOR_COUNTERPLAY_RULES.choiceScarfSpeedMultiplier >
         threatSpeed! &&
       bestMove &&
-      credibleOffense
+      bestMove.pressure.tier === "high"
   );
   const trickRoom = Boolean(
     profile === "trick-room" &&
       hasSpeedData &&
       candidateSpeed! < threatSpeed! &&
       bestMove &&
-      credibleOffense
+      bestMove.pressure.tier === "high"
   );
   const priority = Boolean(
     priorityMove &&
@@ -352,10 +407,10 @@ function evaluateCounterplay(
         move: priorityMove.move,
         attacker: candidate
       }).stab &&
-      priorityMove.evaluation.expectedMultiplier >= 2
+      priorityMove.pressure.tier === "high"
   );
   const coverageOnly = Boolean(
-    bestMove && bestMove.evaluation.expectedMultiplier >= 2
+    coverageMove
   );
 
   const primaryReturnPressure = incoming.some(
@@ -379,34 +434,46 @@ function evaluateCounterplay(
   const partialResistance = incoming.some(
     ({ evaluation }) => evaluation.resistanceProbability >= 0.5
   );
-  let answerClass: AdvisorAnswerClass = "None";
+  let answerClass: AdvisorAnswerClass = "notCounter";
   if (stableSwitch) {
-    answerClass = "Stable";
-  } else if (credibleOffense && speedControlled && survivesPrimaryReturn) {
-    answerClass = "Matchup";
+    answerClass = "stableSwitch";
+  } else if (
+    bestMove?.pressure.tier === "high" &&
+    speedControlled &&
+    survivesPrimaryReturn
+  ) {
+    answerClass = "revengeKill";
   } else if (
     partialResistance ||
     (credibleOffense && speedControlled) ||
     (credibleOffense && getRelevantBulk(candidate, threatEnvironment))
   ) {
-    answerClass = "Conditional";
+    answerClass = "softCheck";
   } else if (coverageOnly) {
-    answerClass = "CoverageOnly";
+    answerClass = "coverageOnly";
   }
 
-  if (answerClass === "Conditional" && !methods.includes("conditional")) {
+  if (answerClass === "softCheck" && !methods.includes("conditional")) {
     methods.push("conditional");
   }
-  if (answerClass === "None") methods.push("none");
+  if (answerClass === "notCounter") methods.push("none");
 
   const strength =
-    answerClass === "Stable"
+    answerClass === "stableSwitch"
       ? 1
-      : answerClass === "Matchup"
+      : answerClass === "revengeKill"
         ? 0.78
-        : answerClass === "Conditional"
+        : answerClass === "softCheck"
           ? METHOD_STRENGTH.conditional
           : 0;
+  const confidence: AdvisorEvidenceConfidence =
+    answerClass === "stableSwitch" &&
+    incoming.every(({ pressure }) => pressure.confidence !== "low")
+      ? "high"
+      : speedMatchup.confidence === "low" ||
+          bestMove?.pressure.confidence === "low"
+        ? "low"
+        : "medium";
   let primaryReason: string | null = null;
   if (stableSwitch) {
     const representativeResistance = incoming
@@ -425,8 +492,8 @@ function evaluateCounterplay(
     primaryReason = `トリックルーム下で${threat.pokemon.nameJa}より先に動き、${bestMove.move.name}（採用率${formatPercent(bestMove.move.share)}）で圧力をかけられます。`;
   } else if (outspeed && bestMove) {
     primaryReason = `${threat.pokemon.nameJa}より速く、${bestMove.move.name}（採用率${formatPercent(bestMove.move.share)}）で圧力をかけられます。`;
-  } else if (answerClass === "Conditional" && bestMove && credibleOffense) {
-    primaryReason = `${bestMove.move.name}（採用率${formatPercent(bestMove.move.share)}）を持ちますが、安定した対面回答ではありません。`;
+  } else if (answerClass === "softCheck" && bestMove && credibleOffense) {
+    primaryReason = `${bestMove.move.name}（採用率${formatPercent(bestMove.move.share)}）で${bestMove.pressure.tier === "medium" ? "中程度" : "条件付き"}の処理圧力があります。`;
   }
 
   const failureReasons: string[] = [];
@@ -460,9 +527,11 @@ function evaluateCounterplay(
     strength,
     stableSwitch,
     offensiveAnswer:
-      answerClass === "Matchup",
+      answerClass === "revengeKill",
     primaryReason,
-    failureReasons
+    failureReasons,
+    confidence,
+    bestPressureTier: bestMove?.pressure.tier ?? null
   };
 }
 
@@ -561,7 +630,9 @@ export function evaluateAdvisorThreatCoverage({
         !currentTeamHasAnswer &&
         answer.strength >= ADVISOR_COUNTERPLAY_RULES.clearAnswerStrength,
       primaryReason: answer.primaryReason,
-      failureReasons: answer.failureReasons
+      failureReasons: answer.failureReasons,
+      confidence: answer.confidence,
+      bestPressureTier: answer.bestPressureTier
     } satisfies AdvisorThreatAnswer;
   });
   const totalImportance = threatAnswers.reduce(
@@ -581,10 +652,10 @@ export function evaluateAdvisorThreatCoverage({
       answer.answerStrength >= ADVISOR_COUNTERPLAY_RULES.clearAnswerStrength
   );
   const conditionalAnswers = threatAnswers.filter(
-    (answer) => answer.answerClass === "Conditional"
+    (answer) => answer.answerClass === "softCheck"
   );
   const coverageOnlyAnswers = threatAnswers.filter(
-    (answer) => answer.answerClass === "CoverageOnly"
+    (answer) => answer.answerClass === "coverageOnly"
   );
   const newlySolvedCount = clearAnswers.filter(
     (answer) => answer.newlySolved
@@ -690,4 +761,17 @@ export function getAdvisorCounterplayMethodLabel(
     none: "明確な対策なし"
   };
   return labels[method];
+}
+
+export function getAdvisorAnswerClassLabel(
+  answerClass: AdvisorAnswerClass
+): string {
+  const labels: Record<AdvisorAnswerClass, string> = {
+    stableSwitch: "安定した受け先",
+    revengeKill: "対面・上から処理",
+    softCheck: "条件付き対策",
+    coverageOnly: "有効打あり",
+    notCounter: "明確な対策にならない"
+  };
+  return labels[answerClass];
 }

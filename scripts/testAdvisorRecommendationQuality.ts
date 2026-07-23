@@ -94,18 +94,22 @@ assert(
   "交換前後TOP5の和集合を回答評価へ使用していません"
 );
 assert(
-  tinkatonPlan.evidence.some((entry) => entry.category === "Defense") &&
+  tinkatonPlan.evidence.some(
+    (entry) => entry.primaryDimension === "defensiveImprovement"
+  ) &&
     tinkatonPlan.evidence.every(
       (entry) =>
         [
-          "Defense",
-          "Offense",
-          "Speed",
-          "ThreatAnswers",
-          "Role",
-          "Risk",
-          "Environment"
-        ].includes(entry.category)
+          "targetCounterplay",
+          "postSwapThreatRisk",
+          "teamIssueImprovement",
+          "defensiveImprovement",
+          "offensiveImprovement",
+          "speedImprovement",
+          "roleImprovement",
+          "environmentValidity",
+          "riskPenalty"
+        ].includes(entry.primaryDimension)
     ),
   "Evidenceを定義済みカテゴリへ一意に配分できません"
 );
@@ -137,7 +141,9 @@ const greninjaPlan = evaluateAdvisorSwapPlan(
 );
 assert(
   greninjaPlan.evidence.some(
-    (entry) => entry.id.startsWith("redundancy:") && entry.category === "Risk"
+    (entry) =>
+      entry.id.startsWith("redundancy:") &&
+      entry.primaryDimension === "riskPenalty"
   ) && !greninjaPlan.isRecommendation,
   `同タイプ・同役割・同攻撃範囲のゲッコウガを独自価値なしで総合推薦しました: ${JSON.stringify(greninjaPlan.evidence)}`
 );
