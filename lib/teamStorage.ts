@@ -4,6 +4,7 @@ import type { TeamSlot, TypeName } from "@/types/pokemon";
 export const TEAM_STORAGE_KEY = "pokemon-helper:team";
 export const SEASON_STORAGE_KEY = "pokemon-helper:seasonId";
 export const ARTICLE_IMPORT_BACKUP_KEY = "pokemon-helper:teamBeforeArticleImport";
+export const ADVISOR_ADD_BACKUP_KEY = "pokemon-helper:teamBeforeAdvisorAdd";
 
 export function parseStoredTeam(value: string): TeamSlot[] {
   const parsed = JSON.parse(value) as TeamSlot[];

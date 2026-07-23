@@ -17,6 +17,7 @@
 .inputPanel,.statsPanel,.analysisSection,.offenseSection,.advisorSection,.detailsSection { padding: clamp(18px,2.5vw,28px); border-radius: 18px; }
 .sectionHeading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
 .sectionHeading h2 { margin: 2px 0 4px; color: #173f2a; font-size: clamp(1.2rem,2vw,1.5rem); line-height: 1.3; }
+.sectionHeading h2:focus-visible { outline: 3px solid rgba(22,115,72,.28); outline-offset: 3px; border-radius: 4px; }
 .sectionHeading p { margin: 0; color: #617168; font-size: .86rem; line-height: 1.55; }
 .step { color: #22734c; font-size: .68rem; font-weight: 900; letter-spacing: .11em; }
 .inputHeadingActions { display: flex; align-items: flex-end; justify-content: flex-end; gap: 16px; }
@@ -171,6 +172,24 @@
 .threatEmpty { margin: 0; padding: 10px; border-radius: 8px; background: #f6f4f2; color: #6f655f; font-size: .75rem; }
 
 .advisorSection { background: linear-gradient(145deg,#fff 0%,#f6fbf7 100%); }
+.advisorPhaseHeader { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: start; gap: 12px 18px; margin: -4px 0 16px; padding: 15px 16px; border: 1px solid #bcd5c4; border-radius: 12px; background: #edf7f0; }
+.advisorPhaseHeader > div:first-child { display: grid; min-width: 0; gap: 4px; }
+.advisorPhaseLabel { color: #397054; font-size: .64rem; font-weight: 900; letter-spacing: .05em; }
+.advisorPhaseHeader > div:first-child > strong { overflow-wrap: anywhere; color: #174f32; font-size: 1rem; line-height: 1.45; }
+.advisorPhaseHeader p { max-width: 76ch; margin: 0; color: #5d7165; font-size: .74rem; line-height: 1.6; }
+.advisorPhaseCount { padding: 8px 10px; border-radius: 9px; background: #fff; color: #52675a; font-size: .72rem; font-weight: 800; white-space: nowrap; }
+.advisorPhaseCount strong { color: #176f43; font-size: 1.05rem; }
+.advisorAnchor { grid-column: 1/-1; display: flex; align-items: baseline; gap: 8px; padding-top: 9px; border-top: 1px solid #c9ded0; }
+.advisorAnchor span { color: #65766b; font-size: .67rem; font-weight: 800; }
+.advisorAnchor strong { color: #1a5c39; font-size: .88rem; }
+.advisorPriorityList { display: grid; gap: 8px; margin: 0; padding-left: 1.5rem; color: #455f50; }
+.advisorPriorityList li { padding-left: 3px; font-size: .76rem; line-height: 1.6; }
+.advisorPriorityList li::marker { color: #26754b; font-weight: 900; }
+.advisorInputLink { display: inline-flex; min-height: 40px; align-items: center; margin-top: 10px; padding: 8px 12px; border: 1px solid #a9cbb5; border-radius: 8px; color: #176f43; font-size: .75rem; font-weight: 850; text-decoration: none; }
+.advisorLiveRegion:not(:empty) { margin: -5px 0 12px; padding: 10px 12px; border-left: 4px solid #287c50; border-radius: 8px; background: #eaf6ed; color: #235b3b; font-size: .75rem; font-weight: 800; line-height: 1.5; }
+.advisorLiveRegion:empty { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.advisorUndoNotice { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: -4px 0 12px; padding: 9px 11px; border: 1px solid #c8d9ce; border-radius: 9px; background: #fff; color: #53675a; font-size: .72rem; }
+.advisorUndoNotice button { min-height: 38px; padding: 7px 11px; border: 1px solid #a8c7b3; border-radius: 8px; background: #f4faf6; color: #17683f; cursor: pointer; font-weight: 850; white-space: nowrap; }
 .advisorSectionStack { display: grid; gap: 16px; }
 .advisorContentBlock { min-width: 0; padding: clamp(15px,2vw,20px); border: 1px solid #cfddd3; border-radius: 14px; background: rgba(255,255,255,.94); }
 .advisorBlockHeading { display: flex; align-items: center; gap: 9px; margin: 0 0 14px; color: #214d34; font-size: 1rem; }
@@ -213,6 +232,9 @@
 .advisorChangeImprove li::before { color: #25804e; }
 .advisorChangeCaution li::before { color: #b37714; }
 .advisorChangeList p { margin: 0; color: #68766e; font-size: .65rem; line-height: 1.5; }
+.advisorAddAction { display: grid; gap: 6px; margin-top: 12px; }
+.advisorAddAction .addCandidate { width: 100%; }
+.advisorDisabledReason { overflow-wrap: anywhere; color: #8a5b20; font-size: .65rem; line-height: 1.45; }
 .advisorSimulationMeta { margin: 10px 2px 0; color: #728079; font-size: .63rem; line-height: 1.5; }
 .advisorEmpty { margin: 0; padding: 12px 13px; border-radius: 8px; background: #f3f7f4; color: #66736b; font-size: .76rem; line-height: 1.55; }
 .advisorExplorer { margin-top: 16px; padding-top: 14px; border-top: 1px solid #d7e5db; }
@@ -268,7 +290,7 @@
 .offenseDetailGrid > div { display: grid; padding: 8px; border-radius: 7px; background: #f1f6f3; }
 .offenseDetailGrid span { color: #68776e; font-size: .7rem; }
 
-.modeTabs button:focus-visible,.comboboxList button:focus-visible,.statsTabs button:focus-visible,.removeButton:focus-visible,.primaryButton:focus-visible,.secondaryButton:focus-visible,.textButton:focus-visible,.inlineDetails summary:focus-visible,.detailPanel summary:focus-visible,.advisorCategoryControls select:focus-visible,.advisorExplorer summary:focus-visible,.advisorExplorerControls select:focus-visible,.teamProfileControl select:focus-visible { outline: 3px solid rgba(22,115,72,.28); outline-offset: 2px; }
+.modeTabs button:focus-visible,.comboboxList button:focus-visible,.statsTabs button:focus-visible,.removeButton:focus-visible,.primaryButton:focus-visible,.secondaryButton:focus-visible,.textButton:focus-visible,.addCandidate:focus-visible,.advisorInputLink:focus-visible,.advisorUndoNotice button:focus-visible,.inlineDetails summary:focus-visible,.detailPanel summary:focus-visible,.advisorCategoryControls select:focus-visible,.advisorExplorer summary:focus-visible,.advisorExplorerControls select:focus-visible,.teamProfileControl select:focus-visible { outline: 3px solid rgba(22,115,72,.28); outline-offset: 2px; }
 
 @media (max-width:1100px) {
   .seasonBar { grid-template-columns: 1fr 1fr; }
@@ -343,6 +365,11 @@
   .threatList { display: flex; gap: 7px; overflow-x: auto; padding: 1px 1px 7px; scroll-snap-type: x proximity; }
   .threatList > li { flex: 0 0 min(78vw,250px); scroll-snap-align: start; }
   .advisorSectionStack { gap: 10px; }
+  .advisorPhaseHeader { grid-template-columns: minmax(0,1fr); gap: 9px; padding: 12px; }
+  .advisorPhaseCount { justify-self: start; white-space: normal; }
+  .advisorAnchor { grid-column: auto; }
+  .advisorUndoNotice { align-items: stretch; flex-direction: column; }
+  .advisorUndoNotice button { width: 100%; white-space: normal; }
   .advisorContentBlock { padding: 12px 11px; border-radius: 11px; }
   .advisorBlockHeading { margin-bottom: 10px; font-size: .88rem; }
   .advisorCategoryControls { display: grid; grid-template-columns: minmax(0,1fr); gap: 8px; margin-bottom: 10px; }

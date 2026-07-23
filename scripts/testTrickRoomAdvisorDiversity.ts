@@ -135,10 +135,10 @@ for (const result of results) {
   assert(
     simulation.evaluatedPatternCount >=
       simulation.candidatePoolCount *
-        (result.team.length < 6 ? result.team.length + 1 : result.team.length) &&
+        (result.team.length < 6 ? 1 : result.team.length) &&
       simulation.recomputedThreatAnalysisCount ===
         simulation.evaluatedPatternCount,
-    `${fixture.label}で全入れ替え案・入れ替え後TOP5を再計算していません`
+    `${fixture.label}で追加専用案または6体時の全入れ替え案・変更後TOP5を再計算していません`
   );
   assert(
     JSON.stringify(result.team) === original &&

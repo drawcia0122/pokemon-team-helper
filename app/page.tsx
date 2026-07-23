@@ -18,7 +18,13 @@ import {
   type ArticleImportResult
 } from "@/lib/articleImport";
 import { getAdvisorSwapSimulation } from "@/lib/advisorSwapSimulator";
+import { addAdvisorCandidateToTeam } from "@/lib/advisorCandidateAddition";
+import {
+  getAdvisorNextPhaseAnnouncement,
+  getAdvisorPokemonCount
+} from "@/lib/advisorBuildPhase";
 import { getAdvisorTeamDiagnostics } from "@/lib/advisorTeamDiagnostics";
+import { getProgressiveTeamAdvisor } from "@/lib/progressiveTeamAdvisor";
 import { getTeamAdvisorAnalysis } from "@/lib/teamAdvisor";
 import { findThreatEnvironmentDataset } from "@/lib/environmentThreatData";
 import { getTeamDiagnostics } from "@/lib/teamDiagnostics";
@@ -35,6 +41,7 @@ import {
 } from "@/lib/regulations";
 import {
   ARTICLE_IMPORT_BACKUP_KEY,
+  ADVISOR_ADD_BACKUP_KEY,
   parseStoredTeam,
   parseTeamBackup,
   SEASON_STORAGE_KEY,
@@ -47,7 +54,7 @@ import {
   type TeamProfile
 } from "@/lib/teamProfile";
 import { getAllTypes, summarizeTeam } from "@/lib/typeChart";
-import type { TeamSlot } from "@/types/pokemon";
+import type { PokemonEntry, TeamSlot } from "@/types/pokemon";
 import type { ThreatEnvironmentCatalog } from "@/types/environmentThreat";
 import styles from "./page.module.css";
 
@@ -61,6 +68,8 @@ export default function HomePage() {
   const [preserveImportedTeam, setPreserveImportedTeam] = useState(false);
   const [isRestored, setIsRestored] = useState(false);
   const [isRestoreConfirmationOpen, setIsRestoreConfirmationOpen] = useState(false);
+  const [canUndoAdvisorAdd, setCanUndoAdvisorAdd] = useState(false);
+  const [advisorActionNotice, setAdvisorActionNotice] = useState("");
   const [threatEnvironmentCatalog, setThreatEnvironmentCatalog] =
     useState<ThreatEnvironmentCatalog | null>(null);
 
@@ -154,6 +163,25 @@ export default function HomePage() {
       }),
     [advisorThreatPokemon, summary, team, teamProfile]
   );
+  const progressiveAdvisor = useMemo(
+    () =>
+      getProgressiveTeamAdvisor({
+        team,
+        advisor,
+        simulation: advisorSwapSimulation,
+        availablePokemon,
+        environmentDataset: threatEnvironmentDataset,
+        profile: teamProfile
+      }),
+    [
+      advisor,
+      advisorSwapSimulation,
+      availablePokemon,
+      team,
+      teamProfile,
+      threatEnvironmentDataset
+    ]
+  );
 
   useEffect(() => {
     let active = true;
@@ -208,6 +236,17 @@ export default function HomePage() {
       }
     }
 
+    const savedAdvisorBackup = window.localStorage.getItem(
+      ADVISOR_ADD_BACKUP_KEY
+    );
+    if (savedAdvisorBackup) {
+      if (parseTeamBackup(savedAdvisorBackup)) {
+        setCanUndoAdvisorAdd(true);
+      } else {
+        window.localStorage.removeItem(ADVISOR_ADD_BACKUP_KEY);
+      }
+    }
+
     const params = new URLSearchParams(window.location.search);
     setArticleImport(resolveArticleImport(params.get("importArticle")));
     setIsRestored(true);
@@ -230,6 +269,59 @@ export default function HomePage() {
     const url = new URL(window.location.href);
     url.searchParams.delete("importArticle");
     window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+  }
+
+  function clearAdvisorAddUndo() {
+    window.localStorage.removeItem(ADVISOR_ADD_BACKUP_KEY);
+    setCanUndoAdvisorAdd(false);
+  }
+
+  function updateTeamFromInput(nextTeam: TeamSlot[]) {
+    clearAdvisorAddUndo();
+    setAdvisorActionNotice("");
+    setTeam(nextTeam);
+  }
+
+  function addAdvisorCandidate(candidate: PokemonEntry) {
+    const nextTeam = addAdvisorCandidateToTeam({
+      team,
+      candidate,
+      availablePokemon
+    });
+    if (nextTeam.length === team.length) return;
+    window.localStorage.setItem(
+      ADVISOR_ADD_BACKUP_KEY,
+      serializeTeam(team)
+    );
+    window.localStorage.setItem(TEAM_STORAGE_KEY, serializeTeam(nextTeam));
+    setCanUndoAdvisorAdd(true);
+    setTeam(nextTeam);
+    const nextCount = getAdvisorPokemonCount(nextTeam);
+    setAdvisorActionNotice(
+      `${candidate.nameJa}を追加しました。STEP 4は「${getAdvisorNextPhaseAnnouncement(nextCount)}」に切り替わりました。`
+    );
+  }
+
+  function undoAdvisorCandidate() {
+    const backup = parseTeamBackup(
+      window.localStorage.getItem(ADVISOR_ADD_BACKUP_KEY)
+    );
+    if (!backup) {
+      clearAdvisorAddUndo();
+      setAdvisorActionNotice(
+        "追加前のパーティを復元できなかったため、Undoデータを破棄しました。"
+      );
+      return;
+    }
+    window.localStorage.setItem(TEAM_STORAGE_KEY, serializeTeam(backup));
+    window.localStorage.removeItem(ADVISOR_ADD_BACKUP_KEY);
+    setCanUndoAdvisorAdd(false);
+    setTeam(backup);
+    setAdvisorActionNotice(
+      `追加を元に戻しました。STEP 4は「${getAdvisorNextPhaseAnnouncement(
+        getAdvisorPokemonCount(backup)
+      )}」に戻りました。`
+    );
   }
 
   function cancelArticleImport() {
@@ -258,6 +350,7 @@ export default function HomePage() {
       SEASON_STORAGE_KEY,
       resolveStoredSeasonId(targetSeasonId)
     );
+    clearAdvisorAddUndo();
 
     setPreserveImportedTeam(true);
     setCanRestorePreviousTeam(true);
@@ -282,6 +375,7 @@ export default function HomePage() {
     const restoredTeam = selectTeamForRestoreAction(team, backup, "restore");
     window.localStorage.setItem(TEAM_STORAGE_KEY, serializeTeam(restoredTeam));
     window.localStorage.removeItem(ARTICLE_IMPORT_BACKUP_KEY);
+    clearAdvisorAddUndo();
     setPreserveImportedTeam(true);
     setCanRestorePreviousTeam(false);
     setIsRestoreConfirmationOpen(false);
@@ -361,7 +455,7 @@ export default function HomePage() {
 
         <TeamInputPanel
           team={team}
-          onChange={setTeam}
+          onChange={updateTeamFromInput}
           profile={teamProfile}
           onProfileChange={setTeamProfile}
           availablePokemon={availablePokemon}
@@ -386,6 +480,13 @@ export default function HomePage() {
           teamDiagnostics={advisorTeamDiagnostics}
           profile={teamProfile}
           canAnalyze={summary.members.length >= 2}
+          progressive={progressiveAdvisor}
+          team={team}
+          availablePokemon={availablePokemon}
+          onAddCandidate={addAdvisorCandidate}
+          onUndoCandidate={undoAdvisorCandidate}
+          canUndoCandidate={canUndoAdvisorAdd}
+          actionNotice={advisorActionNotice}
         />
         {summary.members.length >= 2 ? (
           <TeamDetails summary={summary} />

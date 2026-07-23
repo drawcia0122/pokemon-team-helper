@@ -1,7 +1,14 @@
 "use client";
 
 import { PokemonVisual } from "@/components/pokemon/PokemonVisual";
-import { useEffect, useState, type ReactNode } from "react";
+import { AdvisorNextCandidateList } from "@/components/team/AdvisorNextCandidateList";
+import { AdvisorPhaseHeader } from "@/components/team/AdvisorPhaseHeader";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode
+} from "react";
 import type {
   AdvisorRecommendationCategory,
   AdvisorSwapPlan,
@@ -18,9 +25,17 @@ import type {
   AdvisorTeamDiagnostics
 } from "@/lib/advisorTeamDiagnostics";
 import type { TeamAdvisorAnalysis } from "@/lib/teamAdvisor";
+import {
+  PROGRESSIVE_ADVISOR_MODE_LABELS,
+  type ProgressiveAdvisorMode
+} from "@/lib/advisorPhaseScoring";
+import {
+  getProgressiveAdvisorModePlans,
+  type ProgressiveTeamAdvisorAnalysis
+} from "@/lib/progressiveTeamAdvisor";
 import type { TeamProfile } from "@/lib/teamProfile";
 import { getTypeLabel } from "@/lib/typeChart";
-import type { TypeName } from "@/types/pokemon";
+import type { PokemonEntry, TeamSlot, TypeName } from "@/types/pokemon";
 import styles from "./TeamWorkspace.module.css";
 
 type TeamAdvisorSectionProps = {
@@ -29,6 +44,13 @@ type TeamAdvisorSectionProps = {
   teamDiagnostics: AdvisorTeamDiagnostics;
   canAnalyze: boolean;
   profile: TeamProfile;
+  progressive: ProgressiveTeamAdvisorAnalysis;
+  team: TeamSlot[];
+  availablePokemon: PokemonEntry[];
+  onAddCandidate: (pokemon: PokemonEntry) => void;
+  onUndoCandidate: () => void;
+  canUndoCandidate: boolean;
+  actionNotice: string;
 };
 
 export function TeamAdvisorSection({
@@ -36,8 +58,33 @@ export function TeamAdvisorSection({
   simulation,
   teamDiagnostics,
   canAnalyze,
-  profile
+  profile,
+  progressive,
+  team,
+  availablePokemon,
+  onAddCandidate,
+  onUndoCandidate,
+  canUndoCandidate,
+  actionNotice
 }: TeamAdvisorSectionProps) {
+  const isComplete = progressive.phase === "completeOptimization";
+  const hasProgressiveExploration =
+    !isComplete &&
+    canAnalyze &&
+    (simulation.formChangePlans.length > 0 ||
+      simulation.threatRecommendations.length > 0);
+  const issuesHeadingNumber = isComplete
+    ? 2
+    : hasProgressiveExploration
+      ? 4
+      : 3;
+  const phaseHeadingRef = useRef<HTMLHeadingElement>(null);
+  const lastFocusedNotice = useRef("");
+  useEffect(() => {
+    if (!actionNotice || actionNotice === lastFocusedNotice.current) return;
+    lastFocusedNotice.current = actionNotice;
+    phaseHeadingRef.current?.focus({ preventScroll: true });
+  }, [actionNotice]);
   return (
     <section
       className={styles.advisorSection}
@@ -45,30 +92,258 @@ export function TeamAdvisorSection({
     >
       <div className={styles.sectionHeading}>
         <div>
-          <span className={styles.step}>STEP 4</span>
-          <h2 id="team-advisor-heading">チームアドバイザー</h2>
-          <p>
-            現在の課題を確認し、追加・入れ替え後の変化を比べて改善案を検討できます。
-          </p>
+          <span className={styles.step}>STEP 4 · チームアドバイザー</span>
+          <h2
+            id="team-advisor-heading"
+            ref={phaseHeadingRef}
+            tabIndex={-1}
+          >
+            {progressive.presentation.title}
+          </h2>
+          <p>{progressive.presentation.description}</p>
         </div>
       </div>
 
+      <AdvisorPhaseHeader analysis={progressive} />
+
+      <div
+        className={styles.advisorLiveRegion}
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {actionNotice}
+      </div>
+      {canUndoCandidate ? (
+        <div className={styles.advisorUndoNotice}>
+          <span>直前の空き枠追加を元に戻せます。</span>
+          <button type="button" onClick={onUndoCandidate}>
+            追加を元に戻す
+          </button>
+        </div>
+      ) : null}
+
       <div className={styles.advisorSectionStack}>
-        <AdvisorIssues advisor={advisor} canAnalyze={canAnalyze} />
-        <AdvisorRecommendations
-          simulation={simulation}
+        <AdvisorPriorities analysis={progressive} />
+        {progressive.phase === "empty" ? (
+          <AdvisorEmptyStart />
+        ) : !isComplete ? (
+          <ProgressiveAdvisorRecommendations
+            analysis={progressive}
+            team={team}
+            availablePokemon={availablePokemon}
+            onAddCandidate={onAddCandidate}
+          />
+        ) : null}
+        {hasProgressiveExploration ? (
+          <AdvisorProgressiveExploration
+            simulation={simulation}
+            profile={profile}
+          />
+        ) : null}
+        <AdvisorIssues
+          advisor={advisor}
           canAnalyze={canAnalyze}
-          profile={profile}
+          headingNumber={issuesHeadingNumber}
         />
         <AdvisorTeamDiagnosticsPanel
           diagnostics={teamDiagnostics}
           canAnalyze={canAnalyze}
+          headingNumber={issuesHeadingNumber + 1}
         />
+        {isComplete ? (
+          <AdvisorRecommendations
+            simulation={simulation}
+            canAnalyze={canAnalyze}
+            profile={profile}
+            headingNumber={4}
+            headingTitle="完成したパーティの入れ替え改善案"
+          />
+        ) : null}
       </div>
 
       <p className={styles.advisorNote}>
         タイプ相性・種族値・Pokemon Showdown環境統計を使った参考シミュレーションです。実採用攻撃技と特性による相性変化に加え、こだわりスカーフの採用率を考慮し、その他の持ち物とテラスタイプは考慮していません。
       </p>
+    </section>
+  );
+}
+
+function AdvisorPriorities({
+  analysis
+}: {
+  analysis: ProgressiveTeamAdvisorAnalysis;
+}) {
+  return (
+    <section
+      className={styles.advisorContentBlock}
+      aria-labelledby="advisor-priorities-heading"
+    >
+      <AdvisorBlockHeading number={1} id="advisor-priorities-heading">
+        今この段階で優先すること
+      </AdvisorBlockHeading>
+      <ol className={styles.advisorPriorityList}>
+        {analysis.priorities.map((priority) => (
+          <li key={priority}>{priority}</li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function AdvisorEmptyStart() {
+  return (
+    <section
+      className={styles.advisorContentBlock}
+      aria-labelledby="advisor-empty-start-heading"
+    >
+      <AdvisorBlockHeading number={2} id="advisor-empty-start-heading">
+        最初の1匹を選択
+      </AdvisorBlockHeading>
+      <p className={styles.advisorEmpty}>
+        まず使いたいポケモンを1匹選んでください。
+        1匹目を選ぶと、そのポケモンと相性の良い相棒候補を表示します。
+      </p>
+      <a className={styles.advisorInputLink} href="#team-input-heading">
+        STEP 1のポケモン選択へ
+      </a>
+    </section>
+  );
+}
+
+function ProgressiveAdvisorRecommendations({
+  analysis,
+  team,
+  availablePokemon,
+  onAddCandidate
+}: {
+  analysis: ProgressiveTeamAdvisorAnalysis;
+  team: TeamSlot[];
+  availablePokemon: PokemonEntry[];
+  onAddCandidate: (pokemon: PokemonEntry) => void;
+}) {
+  const [mode, setMode] = useState<ProgressiveAdvisorMode>("overall");
+  const [selectedType, setSelectedType] = useState<TypeName | "">(
+    analysis.typeOptions[0]?.type ?? ""
+  );
+  useEffect(() => {
+    if (
+      !selectedType ||
+      !analysis.typeOptions.some((option) => option.type === selectedType)
+    ) {
+      setSelectedType(analysis.typeOptions[0]?.type ?? "");
+    }
+  }, [analysis.typeOptions, selectedType]);
+  const candidates = getProgressiveAdvisorModePlans(
+    analysis,
+    mode,
+    selectedType
+  );
+  return (
+    <section
+      className={styles.advisorContentBlock}
+      aria-labelledby="advisor-next-candidates-heading"
+    >
+      <AdvisorBlockHeading number={2} id="advisor-next-candidates-heading">
+        {analysis.presentation.candidateLabel}
+      </AdvisorBlockHeading>
+      <p className={styles.advisorDetailsIntro}>
+        次の空き枠へ追加する候補だけを順位付けしています。適合度は現在の段階内で比較する0〜100点です。
+      </p>
+      <div className={styles.advisorCategoryControls}>
+        <label>
+          <span>推薦モード</span>
+          <select
+            value={mode}
+            onChange={(event) =>
+              setMode(event.target.value as ProgressiveAdvisorMode)
+            }
+          >
+            {(
+              Object.keys(
+                PROGRESSIVE_ADVISOR_MODE_LABELS
+              ) as ProgressiveAdvisorMode[]
+            ).map((value) => (
+              <option key={value} value={value}>
+                {PROGRESSIVE_ADVISOR_MODE_LABELS[value]}
+              </option>
+            ))}
+          </select>
+        </label>
+        {mode === "typeSpecific" && analysis.typeOptions.length ? (
+          <label>
+            <span>候補のタイプ</span>
+            <select
+              value={selectedType}
+              onChange={(event) =>
+                setSelectedType(event.target.value as TypeName)
+              }
+            >
+              {analysis.typeOptions.map((option) => (
+                <option key={option.type} value={option.type}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+      </div>
+      {candidates.length ? (
+        <>
+          <AdvisorNextCandidateList
+            candidates={candidates}
+            mode={mode}
+            memberCount={analysis.memberCount}
+            team={team}
+            availablePokemon={availablePokemon}
+            onAdd={onAddCandidate}
+          />
+          <p className={styles.advisorSimulationMeta}>
+            {analysis.candidatePoolCount}候補を評価し、
+            {candidates.length}件を表示しています。
+          </p>
+        </>
+      ) : (
+        <p className={styles.advisorEmpty} role="status">
+          この条件で、未解決課題を明確に改善する追加候補は見つかりませんでした。
+        </p>
+      )}
+    </section>
+  );
+}
+
+function AdvisorProgressiveExploration({
+  simulation,
+  profile
+}: {
+  simulation: AdvisorSwapSimulation;
+  profile: TeamProfile;
+}) {
+  if (
+    simulation.formChangePlans.length === 0 &&
+    simulation.threatRecommendations.length === 0
+  ) {
+    return null;
+  }
+  return (
+    <section
+      className={styles.advisorContentBlock}
+      aria-labelledby="advisor-progressive-explore-heading"
+    >
+      <AdvisorBlockHeading number={3} id="advisor-progressive-explore-heading">
+        候補を探す
+      </AdvisorBlockHeading>
+      <p className={styles.advisorDetailsIntro}>
+        フォーム変更と、要警戒ポケモン別の対策候補は主ランキングと分けて確認できます。
+      </p>
+      {simulation.formChangePlans.length ? (
+        <AdvisorFormChangePlans
+          plans={simulation.formChangePlans}
+          profile={profile}
+        />
+      ) : null}
+      {simulation.threatRecommendations.length ? (
+        <AdvisorThreatExplorer simulation={simulation} profile={profile} />
+      ) : null}
     </section>
   );
 }
@@ -92,17 +367,19 @@ function AdvisorBlockHeading({
 
 function AdvisorIssues({
   advisor,
-  canAnalyze
+  canAnalyze,
+  headingNumber = 1
 }: {
   advisor: TeamAdvisorAnalysis;
   canAnalyze: boolean;
+  headingNumber?: number;
 }) {
   return (
     <section
       className={styles.advisorContentBlock}
       aria-labelledby="advisor-issues-heading"
     >
-      <AdvisorBlockHeading number={1} id="advisor-issues-heading">
+      <AdvisorBlockHeading number={headingNumber} id="advisor-issues-heading">
         現在の課題
       </AdvisorBlockHeading>
       {advisor.issues.length ? (
@@ -128,11 +405,15 @@ function AdvisorIssues({
 function AdvisorRecommendations({
   simulation,
   canAnalyze,
-  profile
+  profile,
+  headingNumber = 2,
+  headingTitle = "完成したパーティの入れ替え改善案"
 }: {
   simulation: AdvisorSwapSimulation;
   canAnalyze: boolean;
   profile: TeamProfile;
+  headingNumber?: number;
+  headingTitle?: string;
 }) {
   const [category, setCategory] =
     useState<AdvisorRecommendationCategory>("overall");
@@ -162,8 +443,8 @@ function AdvisorRecommendations({
       className={styles.advisorContentBlock}
       aria-labelledby="advisor-candidates-heading"
     >
-      <AdvisorBlockHeading number={2} id="advisor-candidates-heading">
-        改善候補と入れ替え案
+      <AdvisorBlockHeading number={headingNumber} id="advisor-candidates-heading">
+        {headingTitle}
       </AdvisorBlockHeading>
       {canAnalyze ? (
         <div className={styles.advisorCategoryControls}>
@@ -227,7 +508,7 @@ function AdvisorRecommendations({
         <p className={styles.advisorEmpty} role="status">
           {canAnalyze
             ? "明確に改善する入れ替え案は見つかりませんでした。"
-            : "2体以上入力すると追加・入れ替え案を比較します。"}
+            : "6体揃うと入れ替え改善案を比較します。"}
         </p>
       )}
       {canAnalyze && simulation.formChangePlans.length ? (
@@ -649,17 +930,19 @@ function AdvisorChangeList({
 
 function AdvisorTeamDiagnosticsPanel({
   diagnostics,
-  canAnalyze
+  canAnalyze,
+  headingNumber = 3
 }: {
   diagnostics: AdvisorTeamDiagnostics;
   canAnalyze: boolean;
+  headingNumber?: number;
 }) {
   return (
     <section
       className={styles.advisorContentBlock}
       aria-labelledby="advisor-details-heading"
     >
-      <AdvisorBlockHeading number={3} id="advisor-details-heading">
+      <AdvisorBlockHeading number={headingNumber} id="advisor-details-heading">
         チーム詳細診断
       </AdvisorBlockHeading>
       <p className={styles.advisorDetailsIntro}>

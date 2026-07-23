@@ -115,9 +115,14 @@ assert(
   "課題3件・最大5件の候補を持つ基準パーティを作れません"
 );
 assert(
-  ice.simulation.evaluatedPatternCount >=
-    ice.simulation.candidatePoolCount * (iceTeam.length + 1),
-  "3体パーティで空き枠追加と全入れ替えを比較できません"
+  ice.simulation.additionPlans.length ===
+    ice.simulation.candidatePoolCount &&
+    ice.simulation.additionPlans.every(
+      (plan) => plan.action.kind === "add"
+    ) &&
+    ice.simulation.evaluatedPatternCount >=
+      ice.simulation.candidatePoolCount,
+  "3体パーティで空き枠追加案だけを独立評価できません"
 );
 assert(
   ice.simulation.recomputedThreatAnalysisCount ===
@@ -179,20 +184,17 @@ for (const category of categoryNames) {
     `${ADVISOR_CATEGORY_LABELS[category]}の件数・species集約・推薦理由が不正です`
   );
   for (const plan of plans) {
-    const alternatives = [
-      null,
-      ...iceTeam.map((slot) => slot.id)
-    ].map((removedSlotId) =>
-      evaluateAdvisorSwapPlan(ice.input, plan.candidate, removedSlotId)
-    );
-    const bestCategoryScore = Math.max(
-      ...alternatives
-        .filter((entry) => entry.isRecommendationByCategory[category])
-        .map((entry) => entry.categoryScores[category])
+    if (plan.action.kind !== "add") continue;
+    const addition = evaluateAdvisorSwapPlan(
+      ice.input,
+      plan.candidate,
+      null
     );
     assert(
-      plan.categoryScores[category] === bestCategoryScore,
-      `${ADVISOR_CATEGORY_LABELS[category]}で候補ごとの最適な追加・入れ替え案を選べていません`
+      addition.isRecommendationByCategory[category] &&
+        plan.categoryScores[category] ===
+          addition.categoryScores[category],
+      `${ADVISOR_CATEGORY_LABELS[category]}で空き枠追加案を独立評価できていません`
     );
   }
 }
@@ -278,9 +280,14 @@ for (const size of [2, 3, 5]) {
   ].slice(0, size);
   const result = analyze(pokemonTeam(source));
   assert(
-    result.simulation.evaluatedPatternCount >=
-      result.simulation.candidatePoolCount * (size + 1),
-    `${size}体パーティで空き枠追加と${size}通りの入れ替えを比較できません`
+    result.simulation.additionPlans.length ===
+      result.simulation.candidatePoolCount &&
+      result.simulation.additionPlans.every(
+        (plan) => plan.action.kind === "add"
+      ) &&
+      result.simulation.evaluatedPatternCount >=
+        result.simulation.candidatePoolCount,
+    `${size}体パーティで空き枠追加案を入れ替え案と分離できません`
   );
 }
 
@@ -470,24 +477,18 @@ assert(
     !megaTwoReplaceNonMega.metrics.megaLimitPassed &&
     megaTwoReplaceMega.metrics.megaLimitPassed &&
     megaTwoReplaceMega.metrics.megaCountAfter === 2 &&
-    displayedPlans(twoMega.simulation)
-      .filter((plan) => plan.candidate.pokemon.formKind === "mega")
-      .every(
-        (plan) =>
-          plan.action.kind === "replace" &&
-          plan.metrics.megaCountAfter <=
-            ADVISOR_TEAM_RULES.recommendedMegaLimit &&
-          getPokemonBySlug(
-            plan.beforeTeam.find(
-              (slot) => slot.id === plan.action.removedSlotId
-            )?.mode === "pokemon"
-              ? (plan.beforeTeam.find(
-                  (slot) => slot.id === plan.action.removedSlotId
-                ) as Extract<TeamSlot, { mode: "pokemon" }>).pokemonSlug
-              : ""
-          )?.formKind === "mega"
-      ),
-  "メガ2体時に追加・非メガ入れ替えを拒否し、メガ間の入れ替えだけを許可できません"
+    twoMega.simulation.additionPlans.some(
+      (plan) =>
+        plan.candidate.pokemon.formKind === "mega" &&
+        !plan.metrics.megaLimitPassed
+    ) &&
+    !displayedPlans(twoMega.simulation).some(
+      (plan) =>
+        plan.action.kind === "add" &&
+        plan.candidate.pokemon.formKind === "mega" &&
+        plan.metrics.megaLimitPassed
+    ),
+  "メガ2体時にメガ追加を除外し、直接評価ではメガ間の入れ替えだけを許可できません"
 );
 const mawileMega = availablePokemon.find(
   (pokemon) => pokemon.slug === "mawile-mega"
@@ -518,9 +519,12 @@ const megaCandidateAnalysis = analyze(iceTeam, [metagrossMega]);
 assert(
   megaCandidateAnalysis.advisor.candidates[0]?.pokemon.slug ===
     "metagross-mega" &&
-    megaCandidateAnalysis.simulation.plans[0]?.candidate.pokemon.slug ===
-      "metagross-mega",
-  "現在のルールで使用可能なメガフォームを入れ替え候補から除外しました"
+    megaCandidateAnalysis.simulation.additionPlans.some(
+      (plan) =>
+        plan.action.kind === "add" &&
+        plan.candidate.pokemon.slug === "metagross-mega"
+    ),
+  "現在のルールで使用可能なメガフォームを追加候補から除外しました"
 );
 
 const physicalGap = analyze(
@@ -592,6 +596,9 @@ const styleSource = readFileSync(
 );
 assert(
   sectionSource.includes("推奨する変更") &&
+    sectionSource.includes("ProgressiveAdvisorRecommendations") &&
+    sectionSource.includes("次の空き枠へ追加する候補") &&
+    sectionSource.includes("完成したパーティの入れ替え改善案") &&
     sectionSource.includes("要警戒TOP5平均") &&
     sectionSource.includes("改善点") &&
     sectionSource.includes("注意点") &&
@@ -611,7 +618,7 @@ assert(
     simulatorSource.indexOf("!plan.isRecommendationByCategory[category]") <
       simulatorSource.indexOf("const speciesId = plan.candidate.pokemon.speciesId") &&
     !simulatorSource.includes("getThreatPokemonAnalysis("),
-  "新しい入れ替えUI・4分野診断、または旧重複表示の整理が不十分です"
+  "段階型追加UI・完成後入れ替えUI・4分野診断、または旧重複表示の整理が不十分です"
 );
 
 console.log(

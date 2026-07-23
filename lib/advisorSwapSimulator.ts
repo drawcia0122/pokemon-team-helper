@@ -23,6 +23,7 @@ import {
 } from "@/lib/advisorThreatCoverage";
 import {
   getAdvisorCompatibleThreatAnalysis,
+  isThreatPokemonCandidate,
   type ThreatPokemonAnalysis
 } from "@/lib/teamThreats";
 import {
@@ -77,6 +78,8 @@ export const ADVISOR_SWAP_WEIGHTS = {
 export const ADVISOR_TEAM_RULES = {
   recommendedMegaLimit: 2
 } as const;
+
+export const ADVISOR_PROGRESSIVE_MINIMUM_USAGE = 0.001;
 
 export const ADVISOR_RECOMMENDATION_RULES = {
   maxPerCategory: 5,
@@ -352,6 +355,11 @@ export type AdvisorThreatRecommendationGroup = {
 
 export type AdvisorSwapSimulation = {
   plans: AdvisorSwapPlan[];
+  /**
+   * All evaluated empty-slot additions. Progressive phases rank only this
+   * collection so replacement role loss can never be mixed into add results.
+   */
+  additionPlans: AdvisorSwapPlan[];
   plansByCategory: Record<
     Exclude<AdvisorRecommendationCategory, "typeSpecific">,
     AdvisorSwapPlan[]
@@ -2688,6 +2696,25 @@ function preselectSimulationCandidates(
   const selected = new Map<string, TeamAdvisorCandidate>();
   const currentSlowCount = getAdvisorRoleCounts(input.team).slow;
   const summary = summarizeTeam(input.team);
+  if (summary.members.length < MAX_TEAM_SIZE) {
+    return input.availablePokemon
+      .filter((pokemon) => {
+        const usage = environmentBySlug.get(pokemon.slug)?.usageRate;
+        return (
+          isThreatPokemonCandidate(pokemon) &&
+          typeof usage === "number" &&
+          usage >= ADVISOR_PROGRESSIVE_MINIMUM_USAGE
+        );
+      })
+      .map((pokemon) =>
+        createAdvisorSimulationCandidate(
+          pokemon,
+          input.environmentDataset,
+          "段階型チームアドバイザー候補"
+        )
+      )
+      .sort((left, right) => left.pokemon.id - right.pokemon.id);
+  }
   const currentThreats = getAdvisorCompatibleThreatAnalysis(
     input.team,
     summary,
@@ -2840,7 +2867,7 @@ function compareCandidatesForPreselection(
   );
 }
 
-function createSimulationCandidate(
+export function createAdvisorSimulationCandidate(
   pokemon: PokemonEntry,
   environmentDataset: ThreatEnvironmentDataset | null,
   reason: string
@@ -3283,6 +3310,7 @@ function getThreatRecommendationGroups(
 function emptySimulation(): AdvisorSwapSimulation {
   return {
     plans: [],
+    additionPlans: [],
     plansByCategory: {
       overall: [],
       defensive: [],
@@ -3309,14 +3337,14 @@ export function getAdvisorSwapSimulation(
 ): AdvisorSwapSimulation {
   const summary = summarizeTeam(input.team);
   const candidatePool = preselectSimulationCandidates(input);
-  if (summary.members.length < 2 || candidatePool.length === 0) {
+  if (summary.members.length < 1 || candidatePool.length === 0) {
     return emptySimulation();
   }
 
   const memberSlotIds = summary.members.map((member) => member.slotId);
   const patternSlotIds: Array<string | null> =
     summary.members.length < MAX_TEAM_SIZE
-      ? [null, ...memberSlotIds]
+      ? [null]
       : memberSlotIds;
   const teamSpeciesIds = new Set(
     getPokemonMembers(input.team).map((pokemon) => pokemon.speciesId)
@@ -3328,12 +3356,16 @@ export function getAdvisorSwapSimulation(
     const usageRate = input.environmentDataset?.pokemon.find(
       (entry) => entry.slug === slug
     )?.usageRate;
+    const minimumUsage =
+      summary.members.length < MAX_TEAM_SIZE
+        ? ADVISOR_PROGRESSIVE_MINIMUM_USAGE
+        : ADVISOR_USAGE_THRESHOLDS.minimumCandidate;
     if (
       teamSpeciesIds.has(speciesId) ||
       seenCandidateSlugs.has(slug) ||
       (input.environmentDataset !== null &&
         (typeof usageRate !== "number" ||
-          usageRate < ADVISOR_USAGE_THRESHOLDS.minimumCandidate))
+          usageRate < minimumUsage))
     ) {
       return false;
     }
@@ -3361,7 +3393,7 @@ export function getAdvisorSwapSimulation(
       .map((form) =>
         evaluateAdvisorSwapPlan(
           input,
-          createSimulationCandidate(
+          createAdvisorSimulationCandidate(
             form,
             input.environmentDataset,
             `${pokemon.nameJa}からのフォーム変更`
@@ -3371,6 +3403,9 @@ export function getAdvisorSwapSimulation(
       )
   );
   const allPlans = [...generalPlans, ...formPlans];
+  const additionPlans = generalPlans.filter(
+    (plan) => plan.action.kind === "add"
+  );
   const profile = input.profile ?? "standard";
   const overallPlans = selectDiverseOverallPlans(allPlans, profile);
   const plansByCategory = {
@@ -3405,6 +3440,7 @@ export function getAdvisorSwapSimulation(
     .slice(0, ADVISOR_RECOMMENDATION_RULES.maxPerCategory);
   return {
     plans: overallPlans,
+    additionPlans,
     plansByCategory,
     typePlans: typeGroups.typePlans,
     typeOptions: typeGroups.typeOptions,

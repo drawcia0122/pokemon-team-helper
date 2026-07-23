@@ -454,8 +454,12 @@ const styleSource = readFileSync(
 assert(
   sectionSource.includes("STEP 4") &&
     sectionSource.includes("チームアドバイザー") &&
+    sectionSource.includes("AdvisorPhaseHeader") &&
+    sectionSource.includes("ProgressiveAdvisorRecommendations") &&
+    sectionSource.includes("最初の1匹を選択") &&
+    sectionSource.includes("次の空き枠へ追加する候補") &&
     sectionSource.includes("現在の課題") &&
-    sectionSource.includes("改善候補と入れ替え案") &&
+    sectionSource.includes("完成したパーティの入れ替え改善案") &&
     sectionSource.includes("推薦カテゴリ") &&
     sectionSource.includes("getAdvisorCategoryLabels") &&
     sectionSource.includes("チーム詳細診断") &&
@@ -468,13 +472,16 @@ assert(
     sectionSource.includes("function AdvisorTeamDiagnosticsPanel") &&
     sectionSource.includes("function AdvisorRecommendationCard") &&
     sectionSource.includes("function AdvisorDiagnosticCard"),
-  "STEP 4の課題・入れ替え案・4分野詳細診断が不足しています"
+  "STEP 4の段階表示・追加候補・完成後入れ替え案・4分野詳細診断が不足しています"
 );
 assert(
   pageSource.includes("getTeamAdvisorAnalysis") &&
     pageSource.includes("getAdvisorCompatibleThreatAnalysis") &&
     pageSource.includes("threats: advisorThreatPokemon") &&
     pageSource.includes("getAdvisorSwapSimulation") &&
+    pageSource.includes("getProgressiveTeamAdvisor") &&
+    pageSource.includes("addAdvisorCandidateToTeam") &&
+    pageSource.includes("ADVISOR_ADD_BACKUP_KEY") &&
     pageSource.includes("getAdvisorTeamDiagnostics") &&
     pageSource.includes("<TeamAdvisorSection") &&
     pageSource.indexOf("<TeamAdvisorSection") >
