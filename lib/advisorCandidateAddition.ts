@@ -1,6 +1,6 @@
 import {
-  ADVISOR_TEAM_RULES
-} from "@/lib/advisorSwapSimulator";
+  getAdvisorMegaRecommendationDecision
+} from "@/lib/advisorMegaRecommendation";
 import {
   addTeamSlotToFirstEmpty,
   getTeamSlotsByPosition
@@ -71,17 +71,23 @@ export function getAdvisorCandidateAddability({
       reason: "チームへ登録できない表示・移動専用フォームです。"
     };
   }
-  const megaCount = teamPokemon.filter(
+  const currentMegaCount = teamPokemon.filter(
     (pokemon) => pokemon.formKind === "mega"
   ).length;
-  if (
-    candidate.formKind === "mega" &&
-    megaCount >= ADVISOR_TEAM_RULES.recommendedMegaLimit
-  ) {
+  const megaDecision = getAdvisorMegaRecommendationDecision({
+    currentTeamSize: teamPokemon.length,
+    currentMegaCount,
+    candidateIsMega: candidate.formKind === "mega",
+    actionKind: "add"
+  });
+  if (!megaDecision.allowed) {
     return {
       allowed: false,
       code: "mega-limit",
-      reason: `メガ枠の上限（${ADVISOR_TEAM_RULES.recommendedMegaLimit}体）に達しています。`
+      reason:
+        megaDecision.maxMegaCount === 1
+          ? "構築の核ではメガシンカを1体までとしているため追加できません。"
+          : "メガシンカポケモンは2体までです。"
     };
   }
   return { allowed: true, code: "allowed", reason: null };

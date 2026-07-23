@@ -11,6 +11,10 @@ import {
 import {
   getAdvisorCounterplayMethodLabel
 } from "@/lib/advisorThreatCoverage";
+import {
+  getAdvisorMegaCandidateNote,
+  getAdvisorMegaTeamState
+} from "@/lib/advisorMegaRecommendation";
 import { getTypeLabel } from "@/lib/typeChart";
 import type { PokemonEntry, TeamSlot } from "@/types/pokemon";
 import styles from "./TeamWorkspace.module.css";
@@ -47,6 +51,13 @@ export function AdvisorNextCandidateCard({
     candidate: pokemon,
     availablePokemon
   });
+  const megaState = getAdvisorMegaTeamState(team);
+  const megaNote = getAdvisorMegaCandidateNote({
+    currentTeamSize: megaState.currentTeamSize,
+    currentMegaCount: megaState.currentMegaCount,
+    candidateIsMega: pokemon.formKind === "mega",
+    actionKind: "add"
+  });
   const counterplayMethods = [
     ...new Set(
       plan.threatCoverage.threatAnswers
@@ -60,13 +71,20 @@ export function AdvisorNextCandidateCard({
 
   return (
     <article className={styles.advisorCandidateCard}>
-      <span className={styles.advisorCategoryBadge}>
-        {memberCount === 1
-          ? "相棒候補"
-          : `${Math.min(6, memberCount + 1)}匹目候補`}
-        {" · "}
-        {PROGRESSIVE_ADVISOR_MODE_LABELS[mode]}
-      </span>
+      <div className={styles.advisorCandidateBadges}>
+        <span className={styles.advisorCategoryBadge}>
+          {memberCount === 1
+            ? "相棒候補"
+            : `${Math.min(6, memberCount + 1)}匹目候補`}
+          {" · "}
+          {PROGRESSIVE_ADVISOR_MODE_LABELS[mode]}
+        </span>
+        {megaNote ? (
+          <span className={styles.advisorMegaCandidateBadge}>
+            {megaNote}
+          </span>
+        ) : null}
+      </div>
       <div className={styles.advisorCandidateHeading}>
         <PokemonVisual
           appearance="plain"

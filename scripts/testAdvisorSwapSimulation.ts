@@ -474,21 +474,26 @@ const megaTwoReplaceMega = evaluateAdvisorSwapPlan(
 assert(
   ADVISOR_TEAM_RULES.recommendedMegaLimit === 2 &&
     !megaTwoAdd.metrics.megaLimitPassed &&
+    !megaTwoAdd.metrics.megaRecommendationPassed &&
     !megaTwoReplaceNonMega.metrics.megaLimitPassed &&
+    !megaTwoReplaceNonMega.metrics.megaRecommendationPassed &&
     megaTwoReplaceMega.metrics.megaLimitPassed &&
+    !megaTwoReplaceMega.metrics.megaRecommendationPassed &&
     megaTwoReplaceMega.metrics.megaCountAfter === 2 &&
-    twoMega.simulation.additionPlans.some(
-      (plan) =>
-        plan.candidate.pokemon.formKind === "mega" &&
-        !plan.metrics.megaLimitPassed
+    twoMega.simulation.megaRecommendationStats
+      .candidatePoolAfterMegaFilter <
+      twoMega.simulation.megaRecommendationStats
+        .candidatePoolBeforeMegaFilter &&
+    twoMega.simulation.additionPlans.every(
+      (plan) => plan.candidate.pokemon.formKind !== "mega"
     ) &&
     !displayedPlans(twoMega.simulation).some(
       (plan) =>
         plan.action.kind === "add" &&
         plan.candidate.pokemon.formKind === "mega" &&
-        plan.metrics.megaLimitPassed
+        plan.metrics.megaRecommendationPassed
     ),
-  "メガ2体時にメガ追加を除外し、直接評価ではメガ間の入れ替えだけを許可できません"
+  "メガ2体の序盤構築で正式上限と段階型推薦上限を分離し、追加前に別メガを除外できません"
 );
 const mawileMega = availablePokemon.find(
   (pokemon) => pokemon.slug === "mawile-mega"

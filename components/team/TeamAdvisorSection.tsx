@@ -20,6 +20,10 @@ import {
   getAdvisorAnswerClassLabel,
   getAdvisorCounterplayMethodLabel
 } from "@/lib/advisorThreatCoverage";
+import {
+  getAdvisorMegaCandidateNote,
+  getAdvisorMegaTeamState
+} from "@/lib/advisorMegaRecommendation";
 import type {
   AdvisorDiagnosticCategory,
   AdvisorTeamDiagnostics
@@ -34,7 +38,7 @@ import {
   type ProgressiveTeamAdvisorAnalysis
 } from "@/lib/progressiveTeamAdvisor";
 import type { TeamProfile } from "@/lib/teamProfile";
-import { getTypeLabel } from "@/lib/typeChart";
+import { getPokemonBySlug, getTypeLabel } from "@/lib/typeChart";
 import type { PokemonEntry, TeamSlot, TypeName } from "@/types/pokemon";
 import styles from "./TeamWorkspace.module.css";
 
@@ -560,6 +564,34 @@ function formatPlanAction(plan: AdvisorSwapPlan): string {
   return `${plan.action.removedLabel}を抜いて採用`;
 }
 
+function getPlanMegaCandidateNote(plan: AdvisorSwapPlan): string | null {
+  const teamState = getAdvisorMegaTeamState(plan.beforeTeam);
+  const removedSlot =
+    plan.action.removedSlotId === null
+      ? null
+      : plan.beforeTeam.find(
+          (slot) => slot.id === plan.action.removedSlotId
+        ) ?? null;
+  const removedPokemon =
+    removedSlot?.mode === "pokemon"
+      ? getPokemonBySlug(removedSlot.pokemonSlug)
+      : null;
+  return getAdvisorMegaCandidateNote({
+    currentTeamSize: teamState.currentTeamSize,
+    currentMegaCount: teamState.currentMegaCount,
+    candidateIsMega: plan.candidate.pokemon.formKind === "mega",
+    actionKind:
+      plan.action.kind === "form-change"
+        ? "formChange"
+        : plan.action.kind,
+    removedSlotContainsPokemon:
+      plan.action.removedSlotId === null
+        ? undefined
+        : removedSlot?.mode === "pokemon",
+    removedPokemonIsMega: removedPokemon?.formKind === "mega"
+  });
+}
+
 function AdvisorThreatExplorer({
   simulation,
   profile
@@ -698,12 +730,20 @@ function AdvisorThreatCandidateCard({
   ].filter((value, index, values): value is string =>
     Boolean(value) && values.indexOf(value) === index
   ).slice(0, 3);
+  const megaNote = getPlanMegaCandidateNote(plan);
 
   return (
     <article className={styles.advisorCandidateCard}>
-      <span className={styles.advisorCategoryBadge}>
-        {getAdvisorAnswerClassLabel(answer.answerClass)}
-      </span>
+      <div className={styles.advisorCandidateBadges}>
+        <span className={styles.advisorCategoryBadge}>
+          {getAdvisorAnswerClassLabel(answer.answerClass)}
+        </span>
+        {megaNote ? (
+          <span className={styles.advisorMegaCandidateBadge}>
+            {megaNote}
+          </span>
+        ) : null}
+      </div>
       <div className={styles.advisorCandidateHeading}>
         <PokemonVisual
           appearance="plain"
@@ -792,6 +832,7 @@ function AdvisorRecommendationCard({
 }) {
   const candidate = plan.candidate;
   const categoryLabel = getAdvisorCategoryLabels(profile)[category];
+  const megaNote = getPlanMegaCandidateNote(plan);
   const counterplayMethods = [...new Set(
     plan.threatCoverage.threatAnswers
       .filter((answer) => answer.answerStrength >= 0.6)
@@ -800,9 +841,16 @@ function AdvisorRecommendationCard({
   )].slice(0, 3);
   return (
     <article className={styles.advisorCandidateCard}>
-      <span className={styles.advisorCategoryBadge}>
-        {categoryLabel}
-      </span>
+      <div className={styles.advisorCandidateBadges}>
+        <span className={styles.advisorCategoryBadge}>
+          {categoryLabel}
+        </span>
+        {megaNote ? (
+          <span className={styles.advisorMegaCandidateBadge}>
+            {megaNote}
+          </span>
+        ) : null}
+      </div>
       <div className={styles.advisorCandidateHeading}>
         <PokemonVisual
           appearance="plain"

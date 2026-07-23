@@ -27,6 +27,12 @@ export function AdvisorPhaseHeader({
           <strong>{analysis.anchor.nameJa}</strong>
         </div>
       ) : null}
+      <div className={styles.advisorMegaGuidance}>
+        <span>
+          次の候補でのメガ上限: {analysis.megaGuidance.maxMegaCount}体
+        </span>
+        <p>{analysis.megaGuidance.message}</p>
+      </div>
     </div>
   );
 }

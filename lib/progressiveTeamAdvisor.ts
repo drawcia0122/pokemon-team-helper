@@ -20,6 +20,10 @@ import {
   type AdvisorSwapPlan,
   type AdvisorSwapSimulation
 } from "@/lib/advisorSwapSimulator";
+import {
+  getAdvisorMegaGuidance,
+  type AdvisorMegaGuidance
+} from "@/lib/advisorMegaRecommendation";
 import { getAllTypes } from "@/lib/typeChart";
 import type { TeamAdvisorAnalysis } from "@/lib/teamAdvisor";
 import type { TeamProfile } from "@/lib/teamProfile";
@@ -38,6 +42,7 @@ export type ProgressiveTeamAdvisorAnalysis = {
   presentation: AdvisorPhasePresentation;
   memberCount: number;
   anchor: PokemonEntry | null;
+  megaGuidance: AdvisorMegaGuidance;
   priorities: string[];
   candidatesByMode: Record<
     Exclude<ProgressiveAdvisorMode, "typeSpecific">,
@@ -198,6 +203,7 @@ export function getProgressiveTeamAdvisor(
   const phase = getAdvisorBuildPhase(input.team);
   const memberCount = getAdvisorPokemonCount(input.team);
   const anchor = getAdvisorAnchor(input.team);
+  const megaGuidance = getAdvisorMegaGuidance(input.team);
   const presentation = getAdvisorPhasePresentation(phase, memberCount);
   if (phase === "empty") {
     return {
@@ -205,6 +211,7 @@ export function getProgressiveTeamAdvisor(
       presentation,
       memberCount,
       anchor,
+      megaGuidance,
       priorities: getPriorities(
         phase,
         memberCount,
@@ -227,6 +234,7 @@ export function getProgressiveTeamAdvisor(
       presentation,
       memberCount,
       anchor,
+      megaGuidance,
       priorities: getPriorities(
         phase,
         memberCount,
@@ -253,6 +261,7 @@ export function getProgressiveTeamAdvisor(
       (plan) =>
         plan.action.kind === "add" &&
         plan.metrics.megaLimitPassed &&
+        plan.metrics.megaRecommendationPassed &&
         (plan.threatCoverage.candidateUsage ?? 0) >=
           PROGRESSIVE_ADVISOR_RULES.minimumUsageRate
     )
@@ -284,6 +293,7 @@ export function getProgressiveTeamAdvisor(
     presentation,
     memberCount,
     anchor,
+    megaGuidance,
     priorities: getPriorities(
       phase,
       memberCount,

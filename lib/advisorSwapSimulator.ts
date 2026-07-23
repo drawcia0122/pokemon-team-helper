@@ -58,6 +58,11 @@ import {
   type AdvisorEvidence,
   type AdvisorEvidenceScore
 } from "@/lib/advisorEvidence";
+import {
+  ADVISOR_MEGA_RECOMMENDATION_RULES,
+  canRecommendMegaCandidate,
+  type MegaRecommendationActionKind
+} from "@/lib/advisorMegaRecommendation";
 
 export const ADVISOR_SWAP_WEIGHTS = {
   threatReduction: 2,
@@ -76,7 +81,8 @@ export const ADVISOR_SWAP_WEIGHTS = {
 } as const;
 
 export const ADVISOR_TEAM_RULES = {
-  recommendedMegaLimit: 2
+  recommendedMegaLimit:
+    ADVISOR_MEGA_RECOMMENDATION_RULES.standardMegaLimit
 } as const;
 
 export const ADVISOR_PROGRESSIVE_MINIMUM_USAGE = 0.001;
@@ -297,6 +303,7 @@ export type AdvisorSwapPlanMetrics = {
   megaCountBefore: number;
   megaCountAfter: number;
   megaLimitPassed: boolean;
+  megaRecommendationPassed: boolean;
 };
 
 export type AdvisorSwapPlan = {
@@ -370,6 +377,12 @@ export type AdvisorSwapSimulation = {
   threatTypeOptions: Array<{ type: TypeName; label: string }>;
   formChangePlans: AdvisorSwapPlan[];
   candidatePoolCount: number;
+  megaRecommendationStats: {
+    candidatePoolBeforeMegaFilter: number;
+    candidatePoolAfterMegaFilter: number;
+    actionPatternsBeforeMegaFilter: number;
+    actionPatternsAfterMegaFilter: number;
+  };
   evaluatedPatternCount: number;
   recomputedThreatAnalysisCount: number;
   rejectedPlanCount: number;
@@ -2245,6 +2258,12 @@ export function evaluateAdvisorSwapPlan(
     profile
   );
   const removedPokemon = getRemovedPokemon(beforeTeam, removedSlotId);
+  const actionKind: MegaRecommendationActionKind =
+    removedSlotId === null
+      ? "add"
+      : removedPokemon?.speciesId === candidate.pokemon.speciesId
+        ? "formChange"
+        : "replace";
   const replacedEvidence = removedPokemon
     ? getCandidateEvidence(
         removedPokemon,
@@ -2426,6 +2445,15 @@ export function evaluateAdvisorSwapPlan(
   const megaLimitPassed =
     candidate.pokemon.formKind !== "mega" ||
     megaCountAfter <= ADVISOR_TEAM_RULES.recommendedMegaLimit;
+  const megaRecommendationPassed = canRecommendMegaCandidate({
+    currentTeamSize: getPokemonMembers(beforeTeam).length,
+    currentMegaCount: megaCountBefore,
+    candidateIsMega: candidate.pokemon.formKind === "mega",
+    actionKind,
+    removedSlotContainsPokemon:
+      removedSlotId === null ? undefined : removedPokemon !== null,
+    removedPokemonIsMega: removedPokemon?.formKind === "mega"
+  });
   const categoryScores = {
     overall: evidenceScore.overall,
     defensive: evidenceScore.defensive,
@@ -2466,6 +2494,7 @@ export function evaluateAdvisorSwapPlan(
   );
   const baseSafetyGate =
     megaLimitPassed &&
+    megaRecommendationPassed &&
     threatCoverage.usageEligibility !== "below-minimum" &&
     threatCoverage.usageEligibility !== "unknown" &&
     newMajorWeaknesses.length === 0 &&
@@ -2518,9 +2547,7 @@ export function evaluateAdvisorSwapPlan(
         ? { kind: "add", removedSlotId: null, removedLabel: null }
         : {
             kind:
-              removedPokemon?.speciesId === candidate.pokemon.speciesId
-                ? "form-change"
-                : "replace",
+              actionKind === "formChange" ? "form-change" : "replace",
             removedSlotId,
             removedLabel:
               getRemovedLabel(input.team, removedSlotId) ?? "現在のメンバー"
@@ -2601,7 +2628,8 @@ export function evaluateAdvisorSwapPlan(
       mainstreamSpecialShare: candidateEvidence.mainstreamSpecialShare,
       megaCountBefore,
       megaCountAfter,
-      megaLimitPassed
+      megaLimitPassed,
+      megaRecommendationPassed
     },
     isRecommendation,
     isRecommendationByCategory
@@ -3216,6 +3244,7 @@ function isTargetPlanUsable(
       answer.answerClass !== "notCounter" &&
       answer.answerClass !== "coverageOnly" &&
       plan.metrics.megaLimitPassed &&
+      plan.metrics.megaRecommendationPassed &&
       plan.metrics.newMajorWeaknessCount === 0 &&
       plan.threatCoverage.usageEligibility !== "below-minimum" &&
       plan.threatCoverage.usageEligibility !== "unknown" &&
@@ -3326,6 +3355,12 @@ function emptySimulation(): AdvisorSwapSimulation {
     })),
     formChangePlans: [],
     candidatePoolCount: 0,
+    megaRecommendationStats: {
+      candidatePoolBeforeMegaFilter: 0,
+      candidatePoolAfterMegaFilter: 0,
+      actionPatternsBeforeMegaFilter: 0,
+      actionPatternsAfterMegaFilter: 0
+    },
     evaluatedPatternCount: 0,
     recomputedThreatAnalysisCount: 0,
     rejectedPlanCount: 0
@@ -3346,11 +3381,23 @@ export function getAdvisorSwapSimulation(
     summary.members.length < MAX_TEAM_SIZE
       ? [null]
       : memberSlotIds;
+  const currentTeamPokemon = getPokemonMembers(input.team);
+  const currentTeamSize = currentTeamPokemon.length;
+  const currentMegaCount = currentTeamPokemon.filter(
+    (pokemon) => pokemon.formKind === "mega"
+  ).length;
   const teamSpeciesIds = new Set(
-    getPokemonMembers(input.team).map((pokemon) => pokemon.speciesId)
+    currentTeamPokemon.map((pokemon) => pokemon.speciesId)
+  );
+  const removedPokemonBySlot = new Map(
+    input.team.flatMap((slot) => {
+      if (slot.mode !== "pokemon") return [];
+      const pokemon = getPokemonBySlug(slot.pokemonSlug);
+      return pokemon ? [[slot.id, pokemon] as const] : [];
+    })
   );
   const seenCandidateSlugs = new Set<string>();
-  const eligibleCandidates = candidatePool.filter((candidate) => {
+  const candidatesBeforeMegaFilter = candidatePool.filter((candidate) => {
     const speciesId = candidate.pokemon.speciesId;
     const slug = candidate.pokemon.slug;
     const usageRate = input.environmentDataset?.pokemon.find(
@@ -3372,35 +3419,77 @@ export function getAdvisorSwapSimulation(
     seenCandidateSlugs.add(slug);
     return true;
   });
-  const generalPlans = eligibleCandidates.flatMap((candidate) =>
-    patternSlotIds.map((removedSlotId) =>
+  const generalActionPatternsBeforeMegaFilter =
+    candidatesBeforeMegaFilter.flatMap((candidate) =>
+      patternSlotIds.map((removedSlotId) => ({
+        candidate,
+        removedSlotId
+      }))
+    );
+  const generalActionPatterns = generalActionPatternsBeforeMegaFilter.filter(
+    ({ candidate, removedSlotId }) =>
+      canRecommendMegaCandidate({
+        currentTeamSize,
+        currentMegaCount,
+        candidateIsMega: candidate.pokemon.formKind === "mega",
+        actionKind: removedSlotId === null ? "add" : "replace",
+        removedSlotContainsPokemon:
+          removedSlotId === null
+            ? undefined
+            : removedPokemonBySlot.has(removedSlotId),
+        removedPokemonIsMega:
+          removedSlotId === null
+            ? false
+            : removedPokemonBySlot.get(removedSlotId)?.formKind === "mega"
+      })
+  );
+  const eligibleCandidateSlugs = new Set(
+    generalActionPatterns.map(({ candidate }) => candidate.pokemon.slug)
+  );
+  const eligibleCandidates = candidatesBeforeMegaFilter.filter((candidate) =>
+    eligibleCandidateSlugs.has(candidate.pokemon.slug)
+  );
+  const generalPlans = generalActionPatterns.map(
+    ({ candidate, removedSlotId }) =>
       evaluateAdvisorSwapPlan(input, candidate, removedSlotId)
-    )
   );
   const currentPokemonSlots = input.team.flatMap((slot) => {
     if (slot.mode !== "pokemon") return [];
     const pokemon = getPokemonBySlug(slot.pokemonSlug);
     return pokemon ? [{ slot, pokemon }] : [];
   });
-  const formPlans = currentPokemonSlots.flatMap(({ slot, pokemon }) =>
-    input.availablePokemon
-      .filter(
-        (form) =>
-          form.speciesId === pokemon.speciesId &&
-          form.slug !== pokemon.slug &&
-          form.formSelection === "team"
-      )
-      .map((form) =>
-        evaluateAdvisorSwapPlan(
-          input,
-          createAdvisorSimulationCandidate(
-            form,
-            input.environmentDataset,
-            `${pokemon.nameJa}からのフォーム変更`
-          ),
-          slot.id
+  const formActionPatternsBeforeMegaFilter = currentPokemonSlots.flatMap(
+    ({ slot, pokemon }) =>
+      input.availablePokemon
+        .filter(
+          (form) =>
+            form.speciesId === pokemon.speciesId &&
+            form.slug !== pokemon.slug &&
+            form.formSelection === "team"
         )
-      )
+        .map((form) => ({ slot, pokemon, form }))
+  );
+  const formActionPatterns = formActionPatternsBeforeMegaFilter.filter(
+    ({ pokemon, form }) =>
+      canRecommendMegaCandidate({
+        currentTeamSize,
+        currentMegaCount,
+        candidateIsMega: form.formKind === "mega",
+        actionKind: "formChange",
+        removedSlotContainsPokemon: true,
+        removedPokemonIsMega: pokemon.formKind === "mega"
+      })
+  );
+  const formPlans = formActionPatterns.map(({ slot, pokemon, form }) =>
+    evaluateAdvisorSwapPlan(
+      input,
+      createAdvisorSimulationCandidate(
+        form,
+        input.environmentDataset,
+        `${pokemon.nameJa}からのフォーム変更`
+      ),
+      slot.id
+    )
   );
   const allPlans = [...generalPlans, ...formPlans];
   const additionPlans = generalPlans.filter(
@@ -3434,6 +3523,7 @@ export function getAdvisorSwapSimulation(
       (plan) =>
         plan.action.kind === "form-change" &&
         plan.metrics.megaLimitPassed &&
+        plan.metrics.megaRecommendationPassed &&
         plan.improvementScore > 0
     )
     .sort((left, right) => right.improvementScore - left.improvementScore)
@@ -3451,6 +3541,15 @@ export function getAdvisorSwapSimulation(
     })),
     formChangePlans,
     candidatePoolCount: eligibleCandidates.length,
+    megaRecommendationStats: {
+      candidatePoolBeforeMegaFilter: candidatesBeforeMegaFilter.length,
+      candidatePoolAfterMegaFilter: eligibleCandidates.length,
+      actionPatternsBeforeMegaFilter:
+        generalActionPatternsBeforeMegaFilter.length +
+        formActionPatternsBeforeMegaFilter.length,
+      actionPatternsAfterMegaFilter:
+        generalActionPatterns.length + formActionPatterns.length
+    },
     evaluatedPatternCount: allPlans.length,
     recomputedThreatAnalysisCount: allPlans.length,
     rejectedPlanCount:
