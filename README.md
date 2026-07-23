@@ -23,7 +23,7 @@ npm ci
 ### PostCSSのセキュリティ固定
 
 `package.json` のscoped overrideは、Next.js配下の脆弱なPostCSSを安全な
-`8.5.10` へ固定するためのものです。アプリがPostCSSを直接利用するための設定では
+`8.5.22` へ固定するためのものです。アプリがPostCSSを直接利用するための設定では
 ありません。Next.jsを更新する際はoverrideが引き続き必要か再評価し、Next.js側の
 依存だけで安全なバージョンになる場合は削除してください。
 
