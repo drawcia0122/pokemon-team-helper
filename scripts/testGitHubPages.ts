@@ -41,11 +41,12 @@ const pagesNextConfig = createNextConfig(true);
 
 assert(
   indexHtml.includes("チームアドバイザー") &&
-    indexHtml.includes("現在の構築段階") &&
-    indexHtml.includes("最初の1匹を選ぶ") &&
+    indexHtml.includes("チーム改善のおすすめ") &&
+    indexHtml.includes("最初の1匹を選択") &&
     indexHtml.includes("まず使いたいポケモンを1匹選んでください") &&
-    indexHtml.includes("現在の課題") &&
-    indexHtml.includes("チーム詳細診断") &&
+    indexHtml.includes("現在のチーム") &&
+    indexHtml.includes("準備中") &&
+    !indexHtml.includes("現在の構築段階") &&
     !indexHtml.includes("総合評価") &&
     !indexHtml.includes("初版の暫定評価") &&
     !indexHtml.includes("補完スコア候補") &&

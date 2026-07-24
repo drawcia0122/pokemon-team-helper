@@ -100,18 +100,14 @@ export function AdvisorNextCandidateCard({
           size="large"
         />
         <div className={styles.advisorCandidateIdentity}>
-          <span className={styles.advisorRatingLabel}>段階内の適合度</span>
-          <span
-            className={styles.advisorImprovementScore}
-            aria-label={`段階内の適合度 ${candidate.modeScores[mode]}`}
-          >
-            {candidate.modeScores[mode]}
-          </span>
           <strong>{pokemon.nameJa}</strong>
           <small>{pokemon.types.map(getTypeLabel).join(" / ")}</small>
         </div>
       </div>
 
+      <h4 className={styles.advisorOutcomeHeading}>
+        加えるとどうなるか
+      </h4>
       <div className={styles.advisorSwapSummary}>
         {partner ? (
           <>
@@ -168,23 +164,17 @@ export function AdvisorNextCandidateCard({
           </>
         ) : (
           <>
+            {plan.beforeIssues.length > 0 ||
+            plan.afterIssues.length > 0 ? (
+              <div>
+                <span>現在の課題</span>
+                <strong>
+                  {plan.beforeIssues.length}件 → {plan.afterIssues.length}件
+                </strong>
+              </div>
+            ) : null}
             <div>
-              <span>現在の課題</span>
-              <strong>
-                {plan.beforeIssues.length}件 → {plan.afterIssues.length}件
-              </strong>
-            </div>
-            <div>
-              <span>要警戒TOP5平均</span>
-              <strong>
-                {plan.beforeThreatAverage !== null &&
-                plan.afterThreatAverage !== null
-                  ? `${plan.beforeThreatAverage} → ${plan.afterThreatAverage}`
-                  : "環境データ待ち"}
-              </strong>
-            </div>
-            <div>
-              <span>要警戒相手への回答</span>
+              <span>要警戒相手への対応</span>
               <strong>
                 {plan.threatCoverage.distinctThreatCount} /{" "}
                 {plan.threatCoverage.threatAnswers.length}体
@@ -194,7 +184,7 @@ export function AdvisorNextCandidateCard({
                   ? counterplayMethods
                       .map(getAdvisorCounterplayMethodLabel)
                       .join("・")
-                  : "明確な回答を評価中"}
+                  : "直接対策できる相手はありません"}
               </small>
             </div>
             <div>
@@ -216,12 +206,12 @@ export function AdvisorNextCandidateCard({
           <h4>おすすめ理由</h4>
           {reasons.length ? (
             <ul>
-              {reasons.map((reason) => (
-                <li key={reason}>{reason}</li>
+              {reasons.map((reason, index) => (
+                <li key={`${index}:${reason}`}>{reason}</li>
               ))}
             </ul>
           ) : (
-            <p>明確な改善理由を評価中です。</p>
+            <p>この見方で特に強調する理由はありません。</p>
           )}
         </div>
         <div
@@ -230,8 +220,8 @@ export function AdvisorNextCandidateCard({
           <h4>その他の改善</h4>
           {explanation.otherImprovements.length ? (
             <ul>
-              {explanation.otherImprovements.map((improvement) => (
-                <li key={improvement}>{improvement}</li>
+              {explanation.otherImprovements.map((improvement, index) => (
+                <li key={`${index}:${improvement}`}>{improvement}</li>
               ))}
             </ul>
           ) : (
@@ -244,8 +234,8 @@ export function AdvisorNextCandidateCard({
           <h4>注意点</h4>
           {explanation.cautions.length ? (
             <ul>
-              {explanation.cautions.map((caution) => (
-                <li key={caution}>{caution}</li>
+              {explanation.cautions.map((caution, index) => (
+                <li key={`${index}:${caution}`}>{caution}</li>
               ))}
             </ul>
           ) : (

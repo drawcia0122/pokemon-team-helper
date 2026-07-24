@@ -638,16 +638,18 @@ const styleSource = readFileSync(
 assert(
   sectionSource.includes("推奨する変更") &&
     sectionSource.includes("ProgressiveAdvisorRecommendations") &&
-    sectionSource.includes("次の空き枠へ追加する候補") &&
-    sectionSource.includes("完成したパーティの入れ替え改善案") &&
-    sectionSource.includes("要警戒TOP5平均") &&
+    sectionSource.includes("現在のチームに加えたとき") &&
+    sectionSource.includes("おすすめの入れ替え候補") &&
+    sectionSource.includes("入れ替えるとどうなるか") &&
     sectionSource.includes("改善点") &&
     sectionSource.includes("注意点") &&
     sectionSource.includes("チーム詳細診断") &&
-    sectionSource.includes("推薦カテゴリ") &&
+    sectionSource.includes("候補の見方") &&
     sectionSource.includes("getAdvisorCategoryLabels") &&
     sectionSource.includes("改善タイプ") &&
     !sectionSource.includes("補完スコア候補") &&
+    !sectionSource.includes("段階内の適合度") &&
+    !sectionSource.includes("総合改善量") &&
     !sectionSource.includes("4位以下") &&
     !sectionSource.includes("この案を試す") &&
     styleSource.includes(".advisorDiagnosticsGrid") &&

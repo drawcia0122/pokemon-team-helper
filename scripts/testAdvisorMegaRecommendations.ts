@@ -447,7 +447,9 @@ assert(
     (plan) => plan.candidate.pokemon.formKind !== "mega"
   ) &&
     caseA.progressive.megaGuidance.maxMegaCount === 1 &&
-    caseA.progressive.megaGuidance.message.includes("現在のメガ枠"),
+    caseA.progressive.megaGuidance.message.includes(
+      "メガシンカ候補として選んでいる"
+    ),
   "Golden A: 別メガ除外またはphase説明が不正です"
 );
 
@@ -914,7 +916,7 @@ const styleSource = readFileSync(
 );
 assert(
   headerSource.includes("advisorMegaGuidance") &&
-    headerSource.includes("次の候補でのメガ上限") &&
+    headerSource.includes("メガシンカ候補の条件") &&
     nextCardSource.includes("getAdvisorMegaCandidateNote") &&
     sectionSource.includes("getPlanMegaCandidateNote") &&
     sectionSource.includes("advisorMegaCandidateBadge") &&

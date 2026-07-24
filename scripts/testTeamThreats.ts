@@ -832,10 +832,11 @@ assert(
     panelSource.includes("相性の良い味方") &&
     panelSource.includes("苦手な相手") &&
     panelSource.includes("threat.reasons.map") &&
-    panelSource.includes("threat.score") &&
+    !panelSource.includes("styles.threatScore") &&
+    !panelSource.includes("脅威スコア") &&
     panelSource.includes("slug={threat.pokemon.slug}") &&
     panelSource.includes("threat.pokemon.types.map"),
-  "要警戒ポケモンの説明・理由・スコア表示が不足しています"
+  "要警戒ポケモンの説明・理由、または内部スコア非表示が不足しています"
 );
 assert(
   styleSource.includes(".threatList { display: flex;") &&

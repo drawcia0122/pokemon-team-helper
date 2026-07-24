@@ -284,7 +284,7 @@ function getSpeedCategory(
     summary:
       `${TEAM_PROFILE_CONFIG[profile].speedRoleLabel}が${
         isTrickRoom ? roles.slow : roles.fast
-      }体います。素早さ種族値を基準にした概算です。`,
+      }体います。`,
     items: [
       ...roleItems,
       {

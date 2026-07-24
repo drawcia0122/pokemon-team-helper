@@ -534,7 +534,7 @@ assert(
     pageSource.includes("function undoAdvisorCandidate") &&
     pageSource.includes("function updateTeamFromInput") &&
     pageSource.includes("clearAdvisorAddUndo();") &&
-    pageSource.includes("STEP 4は「") &&
+    pageSource.includes("おすすめ内容を「") &&
     candidateButtonSource.includes("aria-describedby") &&
     candidateButtonSource.includes("disabled={!addability.allowed}"),
   "追加前backup・localStorage・Undo・手入力時破棄・無効理由のUI統合が不足しています"

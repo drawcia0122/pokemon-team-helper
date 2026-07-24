@@ -136,7 +136,10 @@ export function AnalysisSummary({
                 {diagnostics.strengths.map((item) => (
                   <li key={item.id}>
                     <strong>{item.title}</strong>
-                    <span>{item.reason}</span>
+                    <details>
+                      <summary>診断の根拠</summary>
+                      <p>{item.reason}</p>
+                    </details>
                   </li>
                 ))}
               </ul>
@@ -151,7 +154,10 @@ export function AnalysisSummary({
                 {diagnostics.cautions.map((item) => (
                   <li key={item.id}>
                     <strong>{item.title}</strong>
-                    <span>{item.reason}</span>
+                    <details>
+                      <summary>診断の根拠</summary>
+                      <p>{item.reason}</p>
+                    </details>
                   </li>
                 ))}
               </ul>
@@ -199,10 +205,6 @@ export function AnalysisSummary({
                         ? `環境使用率 ${formatPercent(threat.environment.usageRate)}・${threat.environment.usageRank}位`
                         : "環境統計なし"}
                     </small>
-                  </div>
-                  <div className={styles.threatScore}>
-                    <span>脅威スコア</span>
-                    <strong>{threat.score}</strong>
                   </div>
                 </div>
                 <ul className={styles.threatReasons}>

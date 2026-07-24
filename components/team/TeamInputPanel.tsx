@@ -83,7 +83,7 @@ export function TeamInputPanel({
                 )
               )}
             </select>
-            <small>素早さ種族値を基準にした概算です。</small>
+            <small>選んだ方針に合わせて、素早さの見方を調整します。</small>
           </label>
           <strong className={styles.slotCount}>{team.length}<span> / 6体</span></strong>
         </div>

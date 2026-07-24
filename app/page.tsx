@@ -290,7 +290,7 @@ export default function HomePage() {
     setTeam(nextTeam);
     const nextCount = getAdvisorPokemonCount(nextTeam);
     setAdvisorActionNotice(
-      `${candidate.nameJa}を追加しました。STEP 4は「${getAdvisorNextPhaseAnnouncement(nextCount)}」に切り替わりました。`
+      `${candidate.nameJa}を追加しました。おすすめ内容を「${getAdvisorNextPhaseAnnouncement(nextCount)}」へ更新しました。`
     );
   }
 
@@ -301,7 +301,7 @@ export default function HomePage() {
     if (!backup) {
       clearAdvisorAddUndo();
       setAdvisorActionNotice(
-        "追加前のパーティを復元できなかったため、Undoデータを破棄しました。"
+        "追加前のパーティを復元できなかったため、保存されていた取り消し情報を削除しました。"
       );
       return;
     }
@@ -310,9 +310,9 @@ export default function HomePage() {
     setCanUndoAdvisorAdd(false);
     setTeam(backup);
     setAdvisorActionNotice(
-      `追加を元に戻しました。STEP 4は「${getAdvisorNextPhaseAnnouncement(
+      `追加を元に戻しました。おすすめ内容を「${getAdvisorNextPhaseAnnouncement(
         getAdvisorPokemonCount(backup)
-      )}」に戻りました。`
+      )}」へ更新しました。`
     );
   }
 

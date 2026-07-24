@@ -15,6 +15,13 @@ export type AdvisorPhasePresentation = {
   candidateLabel: string;
 };
 
+export function getAdvisorTeamStatus(memberCount: number): string {
+  if (memberCount === 0) return "準備中";
+  if (memberCount >= 6) return "完成済み";
+  const remaining = 6 - memberCount;
+  return remaining === 1 ? "構築中・あと1体" : `構築中・あと${remaining}体`;
+}
+
 export function getAdvisorBuildPhase(
   team: readonly TeamSlot[]
 ): AdvisorBuildPhase {
@@ -83,10 +90,10 @@ export function getAdvisorPhasePresentation(
       }
       if (memberCount === 4) {
         return {
-          title: "5匹目候補 — 残っている弱点を補う",
+          title: "5匹目でチームをさらに整える",
           description:
             "残っている複数の課題をまとめて改善し、既存4体と役割が重複しすぎない候補です。",
-          candidateLabel: "残っている弱点を補う5匹目候補"
+          candidateLabel: "チームをさらに整える5匹目候補"
         };
       }
       return {
@@ -99,8 +106,8 @@ export function getAdvisorPhasePresentation(
       return {
         title: "完成したパーティを改善",
         description:
-          "6体完成後は、役割損失を含むTASK037の入れ替えシミュレーションで改善案を比較します。",
-        candidateLabel: "完成したパーティの入れ替え改善案"
+          "6体の役割バランスを保ちながら、より改善できる入れ替え案を比較します。",
+        candidateLabel: "おすすめの入れ替え候補"
       };
   }
 }

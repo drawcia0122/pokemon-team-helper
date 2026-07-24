@@ -79,11 +79,7 @@ export function TeamAdvisorSection({
     canAnalyze &&
     (simulation.formChangePlans.length > 0 ||
       simulation.threatRecommendations.length > 0);
-  const issuesHeadingNumber = isComplete
-    ? 2
-    : hasProgressiveExploration
-      ? 4
-      : 3;
+  const diagnosticsHeadingNumber = hasProgressiveExploration ? 4 : 3;
   const phaseHeadingRef = useRef<HTMLHeadingElement>(null);
   const lastFocusedNotice = useRef("");
   useEffect(() => {
@@ -104,13 +100,13 @@ export function TeamAdvisorSection({
             ref={phaseHeadingRef}
             tabIndex={-1}
           >
-            {progressive.presentation.title}
+            チーム改善のおすすめ
           </h2>
-          <p>{progressive.presentation.description}</p>
+          <p>
+            現在の課題を確認し、おすすめ候補と改善内容を順に見ていきます。
+          </p>
         </div>
       </div>
-
-      <AdvisorPhaseHeader analysis={progressive} />
 
       <div
         className={styles.advisorLiveRegion}
@@ -129,42 +125,51 @@ export function TeamAdvisorSection({
       ) : null}
 
       <div className={styles.advisorSectionStack}>
-        <AdvisorPriorities analysis={progressive} />
         {progressive.phase === "empty" ? (
           <AdvisorEmptyStart />
-        ) : !isComplete ? (
-          <ProgressiveAdvisorRecommendations
-            analysis={progressive}
-            team={team}
-            availablePokemon={availablePokemon}
-            onAddCandidate={onAddCandidate}
-          />
-        ) : null}
-        {hasProgressiveExploration ? (
-          <AdvisorProgressiveExploration
-            simulation={simulation}
-            profile={profile}
-          />
-        ) : null}
-        <AdvisorIssues
-          advisor={advisor}
-          canAnalyze={canAnalyze}
-          headingNumber={issuesHeadingNumber}
-        />
-        <AdvisorTeamDiagnosticsPanel
-          diagnostics={teamDiagnostics}
-          canAnalyze={canAnalyze}
-          headingNumber={issuesHeadingNumber + 1}
-        />
-        {isComplete ? (
-          <AdvisorRecommendations
-            simulation={simulation}
-            canAnalyze={canAnalyze}
-            profile={profile}
-            headingNumber={4}
-            headingTitle="完成したパーティの入れ替え改善案"
-          />
-        ) : null}
+        ) : (
+          <>
+            {canAnalyze ? (
+              <AdvisorIssues
+                advisor={advisor}
+                canAnalyze={canAnalyze}
+                headingNumber={1}
+              />
+            ) : (
+              <AdvisorPriorities analysis={progressive} />
+            )}
+            {!isComplete ? (
+              <ProgressiveAdvisorRecommendations
+                analysis={progressive}
+                team={team}
+                availablePokemon={availablePokemon}
+                onAddCandidate={onAddCandidate}
+              />
+            ) : (
+              <AdvisorRecommendations
+                simulation={simulation}
+                canAnalyze={canAnalyze}
+                profile={profile}
+                headingNumber={2}
+                headingTitle="おすすめの入れ替え候補"
+              />
+            )}
+            {hasProgressiveExploration ? (
+              <AdvisorProgressiveExploration
+                simulation={simulation}
+                profile={profile}
+              />
+            ) : null}
+            {canAnalyze ? (
+              <AdvisorTeamDiagnosticsPanel
+                diagnostics={teamDiagnostics}
+                canAnalyze={canAnalyze}
+                headingNumber={diagnosticsHeadingNumber}
+              />
+            ) : null}
+          </>
+        )}
+        <AdvisorPhaseHeader analysis={progressive} />
       </div>
 
       <p className={styles.advisorNote}>
@@ -185,7 +190,7 @@ function AdvisorPriorities({
       aria-labelledby="advisor-priorities-heading"
     >
       <AdvisorBlockHeading number={1} id="advisor-priorities-heading">
-        今この段階で優先すること
+        今のチームで優先すること
       </AdvisorBlockHeading>
       <ol className={styles.advisorPriorityList}>
         {analysis.priorities.map((priority) => (
@@ -202,7 +207,7 @@ function AdvisorEmptyStart() {
       className={styles.advisorContentBlock}
       aria-labelledby="advisor-empty-start-heading"
     >
-      <AdvisorBlockHeading number={2} id="advisor-empty-start-heading">
+      <AdvisorBlockHeading number={1} id="advisor-empty-start-heading">
         最初の1匹を選択
       </AdvisorBlockHeading>
       <p className={styles.advisorEmpty}>
@@ -210,7 +215,7 @@ function AdvisorEmptyStart() {
         1匹目を選ぶと、そのポケモンと相性の良い相棒候補を表示します。
       </p>
       <a className={styles.advisorInputLink} href="#team-input-heading">
-        STEP 1のポケモン選択へ
+        ポケモン選択へ
       </a>
     </section>
   );
@@ -253,11 +258,11 @@ function ProgressiveAdvisorRecommendations({
         {analysis.presentation.candidateLabel}
       </AdvisorBlockHeading>
       <p className={styles.advisorDetailsIntro}>
-        次の空き枠へ追加する候補だけを順位付けしています。適合度は現在の段階内で比較する0〜100点です。
+        現在のチームに加えたとき、相性の良い候補から順に表示しています。
       </p>
       <div className={styles.advisorCategoryControls}>
         <label>
-          <span>推薦モード</span>
+          <span>候補の見方</span>
           <select
             value={mode}
             onChange={(event) =>
@@ -294,20 +299,14 @@ function ProgressiveAdvisorRecommendations({
         ) : null}
       </div>
       {candidates.length ? (
-        <>
-          <AdvisorNextCandidateList
-            candidates={candidates}
-            mode={mode}
-            memberCount={analysis.memberCount}
-            team={team}
-            availablePokemon={availablePokemon}
-            onAdd={onAddCandidate}
-          />
-          <p className={styles.advisorSimulationMeta}>
-            {analysis.candidatePoolCount}候補を評価し、
-            {candidates.length}件を表示しています。
-          </p>
-        </>
+        <AdvisorNextCandidateList
+          candidates={candidates}
+          mode={mode}
+          memberCount={analysis.memberCount}
+          team={team}
+          availablePokemon={availablePokemon}
+          onAdd={onAddCandidate}
+        />
       ) : (
         <p className={styles.advisorEmpty} role="status">
           この条件で、未解決課題を明確に改善する追加候補は見つかりませんでした。
@@ -339,7 +338,7 @@ function AdvisorProgressiveExploration({
         候補を探す
       </AdvisorBlockHeading>
       <p className={styles.advisorDetailsIntro}>
-        フォーム変更と、要警戒ポケモン別の対策候補は主ランキングと分けて確認できます。
+        フォーム変更や、要警戒ポケモンに合わせた対策候補も確認できます。
       </p>
       {simulation.formChangePlans.length ? (
         <AdvisorFormChangePlans
@@ -348,7 +347,7 @@ function AdvisorProgressiveExploration({
         />
       ) : null}
       {simulation.threatRecommendations.length ? (
-        <AdvisorThreatExplorer simulation={simulation} profile={profile} />
+        <AdvisorThreatExplorer simulation={simulation} />
       ) : null}
     </section>
   );
@@ -392,8 +391,14 @@ function AdvisorIssues({
         <ul className={styles.advisorIssueList}>
           {advisor.issues.map((issue) => (
             <li key={issue.id}>
+              <span className={styles.advisorPriorityBadge}>
+                優先して改善
+              </span>
               <strong>{issue.title}</strong>
-              <span>{issue.reason}</span>
+              <details>
+                <summary>判断の根拠</summary>
+                <p>{issue.reason}</p>
+              </details>
             </li>
           ))}
         </ul>
@@ -455,7 +460,7 @@ function AdvisorRecommendations({
       {canAnalyze ? (
         <div className={styles.advisorCategoryControls}>
           <label>
-            <span>推薦カテゴリ</span>
+            <span>候補の見方</span>
             <select
               value={category}
               onChange={(event) =>
@@ -493,23 +498,17 @@ function AdvisorRecommendations({
         </div>
       ) : null}
       {plans.length ? (
-        <>
-          <ol className={styles.advisorCandidateGrid}>
-            {plans.map((plan) => (
-              <li key={plan.candidate.pokemon.speciesId}>
-                <AdvisorRecommendationCard
-                  plan={plan}
-                  category={category}
-                  profile={profile}
-                />
-              </li>
-            ))}
-          </ol>
-          <p className={styles.advisorSimulationMeta}>
-            {simulation.evaluatedPatternCount}通りを比較し、要警戒TOP5を
-            {simulation.recomputedThreatAnalysisCount}回再抽出しました。
-          </p>
-        </>
+        <ol className={styles.advisorCandidateGrid}>
+          {plans.map((plan) => (
+            <li key={plan.candidate.pokemon.speciesId}>
+              <AdvisorRecommendationCard
+                plan={plan}
+                category={category}
+                profile={profile}
+              />
+            </li>
+          ))}
+        </ol>
       ) : (
         <p className={styles.advisorEmpty} role="status">
           {canAnalyze
@@ -524,7 +523,7 @@ function AdvisorRecommendations({
         />
       ) : null}
       {canAnalyze && simulation.threatRecommendations.length ? (
-        <AdvisorThreatExplorer simulation={simulation} profile={profile} />
+        <AdvisorThreatExplorer simulation={simulation} />
       ) : null}
     </section>
   );
@@ -566,6 +565,14 @@ function formatPlanAction(plan: AdvisorSwapPlan): string {
   return `${plan.action.removedLabel}を抜いて採用`;
 }
 
+function formatPlanOutcomeHeading(plan: AdvisorSwapPlan): string {
+  if (plan.action.kind === "add") return "加えるとどうなるか";
+  if (plan.action.kind === "form-change") {
+    return "フォームを変えるとどうなるか";
+  }
+  return "入れ替えるとどうなるか";
+}
+
 function getPlanMegaCandidateNote(plan: AdvisorSwapPlan): string | null {
   const teamState = getAdvisorMegaTeamState(plan.beforeTeam);
   const removedSlot =
@@ -595,11 +602,9 @@ function getPlanMegaCandidateNote(plan: AdvisorSwapPlan): string | null {
 }
 
 function AdvisorThreatExplorer({
-  simulation,
-  profile
+  simulation
 }: {
   simulation: AdvisorSwapSimulation;
-  profile: TeamProfile;
 }) {
   const [selectedThreatId, setSelectedThreatId] = useState(
     simulation.threatRecommendations[0]?.threat.pokemon.slug ?? ""
@@ -696,7 +701,6 @@ function AdvisorThreatExplorer({
               <AdvisorThreatCandidateCard
                 plan={plan}
                 threatId={selectedGroup.threat.pokemon.slug}
-                profile={profile}
               />
             </li>
           ))}
@@ -712,17 +716,12 @@ function AdvisorThreatExplorer({
 
 function AdvisorThreatCandidateCard({
   plan,
-  threatId,
-  profile
+  threatId
 }: {
   plan: AdvisorSwapPlan;
   threatId: string;
-  profile: TeamProfile;
 }) {
   const answer = plan.threatCoverage.threatAnswers.find(
-    (entry) => entry.threatId === threatId
-  );
-  const impact = plan.targetThreatImpacts.find(
     (entry) => entry.threatId === threatId
   );
   if (!answer) return null;
@@ -735,6 +734,13 @@ function AdvisorThreatCandidateCard({
   if (!explanation.eligibleForPrimaryRecommendation) return null;
   const reasons = explanation.primaryReasons;
   const megaNote = getPlanMegaCandidateNote(plan);
+  const targetThreat = plan.beforeThreats.find(
+    (entry) => entry.pokemon.slug === threatId
+  );
+  const counterplay = answer.counterplayMethods
+    .filter((method) => method !== "conditional" && method !== "none")
+    .map(getAdvisorCounterplayMethodLabel)
+    .join("・");
 
   return (
     <article className={styles.advisorCandidateCard}>
@@ -769,27 +775,29 @@ function AdvisorThreatCandidateCard({
           </small>
         </div>
       </div>
+      <h4 className={styles.advisorOutcomeHeading}>
+        {formatPlanOutcomeHeading(plan)}
+      </h4>
       <div className={styles.advisorSwapSummary}>
         <div>
           <span>推奨する変更</span>
           <strong>{formatPlanAction(plan)}</strong>
         </div>
         <div>
-          <span>対象の警戒度</span>
-          <strong>
-            {impact?.beforeScore ?? "—"} →{" "}
-            {impact?.afterScore ?? "TOP10外"}
-          </strong>
+          <span>対策する相手</span>
+          <strong>{targetThreat?.pokemon.nameJa ?? "要警戒ポケモン"}</strong>
+          <small>{counterplay || "条件付きで対策できます"}</small>
         </div>
+        {plan.beforeIssues.length > 0 || plan.afterIssues.length > 0 ? (
+          <div>
+            <span>現在の課題</span>
+            <strong>
+              {plan.beforeIssues.length}件 → {plan.afterIssues.length}件
+            </strong>
+          </div>
+        ) : null}
         <div>
-          <span>チーム全体</span>
-          <strong>
-            {plan.beforeThreatAverage ?? "—"} →{" "}
-            {plan.afterThreatAverage ?? "—"}
-          </strong>
-        </div>
-        <div>
-          <span>判定精度</span>
+          <span>対策の確かさ</span>
           <strong>
             {answer.confidence === "high"
               ? "高"
@@ -816,19 +824,11 @@ function AdvisorThreatCandidateCard({
           title="注意点"
           items={explanation.cautions}
           tone="caution"
-          empty={`${getAdvisorCategoryLabels(profile).overall}評価で大きな注意点はありません。`}
+          empty="この見方では大きな注意点はありません。"
         />
       </div>
     </article>
   );
-}
-
-function formatThreatDelta(plan: AdvisorSwapPlan): string {
-  if (plan.threatAverageDelta === null) return "環境データ待ち";
-  if (plan.threatAverageDelta === 0) return "±0";
-  return plan.threatAverageDelta > 0
-    ? `+${plan.threatAverageDelta}`
-    : `${plan.threatAverageDelta}`;
 }
 
 function AdvisorRecommendationCard({
@@ -880,13 +880,6 @@ function AdvisorRecommendationCard({
           size="large"
         />
         <div className={styles.advisorCandidateIdentity}>
-          <span className={styles.advisorRatingLabel}>総合改善量</span>
-          <span
-            className={styles.advisorImprovementScore}
-            aria-label={`総合改善量 ${plan.improvementScore}`}
-          >
-            +{plan.improvementScore}
-          </span>
           <strong>{candidate.pokemon.nameJa}</strong>
           <small>
             {candidate.pokemon.types.map(getTypeLabel).join(" / ")}
@@ -894,6 +887,9 @@ function AdvisorRecommendationCard({
         </div>
       </div>
 
+      <h4 className={styles.advisorOutcomeHeading}>
+        {formatPlanOutcomeHeading(plan)}
+      </h4>
       <div className={styles.advisorSwapSummary}>
         <div>
           <span>推奨する変更</span>
@@ -901,27 +897,14 @@ function AdvisorRecommendationCard({
             {formatPlanAction(plan)}
           </strong>
         </div>
-        <div>
-          <span>要警戒TOP5平均</span>
-          {plan.beforeThreatAverage !== null &&
-          plan.afterThreatAverage !== null ? (
+        {plan.beforeIssues.length > 0 || plan.afterIssues.length > 0 ? (
+          <div>
+            <span>現在の課題</span>
             <strong>
-              {plan.beforeThreatAverage} → {plan.afterThreatAverage}
-              <small
-                className={
-                  plan.threatAverageDelta !== null &&
-                  plan.threatAverageDelta <= 0
-                    ? styles.advisorDeltaGood
-                    : styles.advisorDeltaBad
-                }
-              >
-                （{formatThreatDelta(plan)}）
-              </small>
+              {plan.beforeIssues.length}件 → {plan.afterIssues.length}件
             </strong>
-          ) : (
-            <strong>環境データの読み込み待ち</strong>
-          )}
-        </div>
+          </div>
+        ) : null}
         <div className={styles.advisorThreatCoverageSummary}>
           <span>現在の要警戒TOP5への対応</span>
           <strong>
@@ -993,8 +976,8 @@ function AdvisorChangeList({
       <h4>{title}</h4>
       {items.length ? (
         <ul>
-          {items.map((item) => (
-            <li key={item}>{item}</li>
+          {items.map((item, index) => (
+            <li key={`${index}:${item}`}>{item}</li>
           ))}
         </ul>
       ) : (
@@ -1022,7 +1005,7 @@ function AdvisorTeamDiagnosticsPanel({
         チーム詳細診断
       </AdvisorBlockHeading>
       <p className={styles.advisorDetailsIntro}>
-        現在のチームを防御・攻撃・素早さ・タイプ補完の4分野で確認します。
+        防御・攻撃・素早さ・タイプ補完の順に、詳しい状態を確認できます。
       </p>
       {!canAnalyze ? (
         <p className={styles.advisorEmpty} role="status">
@@ -1048,23 +1031,26 @@ function AdvisorDiagnosticCard({
     <article className={styles.advisorDiagnosticCard}>
       <h4>{category.title}</h4>
       <p>{category.summary}</p>
-      <dl>
-        {category.items.map((item) => (
-          <div
-            key={item.id}
-            className={
-              item.tone === "attention"
-                ? styles.advisorDiagnosticAttention
-                : item.tone === "positive"
-                  ? styles.advisorDiagnosticPositive
-                  : undefined
-            }
-          >
-            <dt>{item.label}</dt>
-            <dd>{item.value}</dd>
-          </div>
-        ))}
-      </dl>
+      <details className={styles.advisorDiagnosticDetails}>
+        <summary>詳しい内訳</summary>
+        <dl>
+          {category.items.map((item) => (
+            <div
+              key={item.id}
+              className={
+                item.tone === "attention"
+                  ? styles.advisorDiagnosticAttention
+                  : item.tone === "positive"
+                    ? styles.advisorDiagnosticPositive
+                    : undefined
+              }
+            >
+              <dt>{item.label}</dt>
+              <dd>{item.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </details>
     </article>
   );
 }

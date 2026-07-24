@@ -115,7 +115,7 @@ export function getAdvisorMegaGuidance(
     if (state.currentMegaCount >= 2) {
       message = `現在の${state.currentTeamSize}体にメガシンカが${state.currentMegaCount}体含まれています。既存メンバーはそのまま保持し、新しいメガ候補は追加しません。`;
     } else if (state.currentMegaCount === 1) {
-      message = `現在のメガ枠: ${megaNames[0]}。2・3体目には通常ポケモンを提案します。`;
+      message = `現在は${megaNames[0]}をメガシンカ候補として選んでいるため、2・3体目は通常ポケモンから提案します。`;
     } else {
       message =
         "構築の核ではメガシンカを1体までとして候補を選んでいます。";

@@ -145,9 +145,11 @@
 .strengthDiagnostics h3 { color: #226642; }
 .cautionDiagnostics h3 { color: #805b12; }
 .diagnosticsGrid ul { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
-.diagnosticsGrid li { display: grid; gap: 1px; }
+.diagnosticsGrid li { display: grid; gap: 4px; }
 .diagnosticsGrid li strong { color: #2d4235; font-size: .75rem; line-height: 1.4; }
-.diagnosticsGrid li span,.diagnosticsGrid > div > p { margin: 0; color: #647269; font-size: .68rem; line-height: 1.45; }
+.diagnosticsGrid li details { color: #647269; font-size: .68rem; line-height: 1.45; }
+.diagnosticsGrid li summary { width: fit-content; cursor: pointer; color: #52675a; font-weight: 800; }
+.diagnosticsGrid li details p,.diagnosticsGrid > div > p { margin: 4px 0 0; color: #647269; font-size: .68rem; line-height: 1.45; }
 .diagnosticsNote { margin: 8px 0 0; color: #738078; font-size: .62rem; line-height: 1.45; }
 .threatsPanel { margin-top: 15px; padding-top: 15px; border-top: 1px solid #d8e4dc; }
 .threatsHeading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
@@ -155,15 +157,12 @@
 .threatsHeading span { color: #6a776f; font-size: .68rem; }
 .threatList { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 7px; margin: 0; padding: 0; list-style: none; }
 .threatList > li { min-width: 0; padding: 9px; border: 1px solid #e0cfc7; border-radius: 10px; background: #fff8f5; }
-.threatCardHeading { display: grid; grid-template-columns: auto auto minmax(0,1fr) auto; align-items: center; gap: 5px; }
+.threatCardHeading { display: grid; grid-template-columns: auto auto minmax(0,1fr); align-items: center; gap: 5px; }
 .threatRank { display: grid; width: 20px; height: 20px; place-items: center; border-radius: 50%; background: #855342; color: #fff; font-size: .62rem; font-weight: 900; }
 .threatIdentity { display: grid; min-width: 0; gap: 1px; }
 .threatIdentity strong { overflow: hidden; color: #3f302a; font-size: .7rem; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
 .threatIdentity span { overflow: hidden; color: #7a6a63; font-size: .57rem; text-overflow: ellipsis; white-space: nowrap; }
 .threatUsage { overflow: hidden; color: #7a5a36; font-size: .55rem; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
-.threatScore { display: grid; justify-items: center; padding-left: 5px; border-left: 1px solid #eadbd4; }
-.threatScore span { color: #8a7167; font-size: .5rem; font-weight: 800; }
-.threatScore strong { color: #844b39; font-size: .9rem; font-variant-numeric: tabular-nums; }
 .threatReasons { display: grid; gap: 3px; margin: 7px 0 0; padding: 0; list-style: none; }
 .threatReasons li { position: relative; padding-left: 9px; color: #665850; font-size: .61rem; line-height: 1.4; }
 .threatReasons li::before { position: absolute; top: 0; left: 0; content: "•"; color: #a66d56; }
@@ -172,10 +171,10 @@
 .threatEmpty { margin: 0; padding: 10px; border-radius: 8px; background: #f6f4f2; color: #6f655f; font-size: .75rem; }
 
 .advisorSection { background: linear-gradient(145deg,#fff 0%,#f6fbf7 100%); }
-.advisorPhaseHeader { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: start; gap: 12px 18px; margin: -4px 0 16px; padding: 15px 16px; border: 1px solid #bcd5c4; border-radius: 12px; background: #edf7f0; }
-.advisorPhaseHeader > div:first-child { display: grid; min-width: 0; gap: 4px; }
+.advisorPhaseHeader { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: start; gap: 12px 18px; padding: 13px 14px; border: 1px dashed #bcd0c2; border-radius: 12px; background: #f5f9f6; }
+.advisorPhaseSummary { display: grid; min-width: 0; gap: 4px; }
 .advisorPhaseLabel { color: #397054; font-size: .64rem; font-weight: 900; letter-spacing: .05em; }
-.advisorPhaseHeader > div:first-child > strong { overflow-wrap: anywhere; color: #174f32; font-size: 1rem; line-height: 1.45; }
+.advisorPhaseSummary > strong { overflow-wrap: anywhere; color: #174f32; font-size: .92rem; line-height: 1.45; }
 .advisorPhaseHeader p { max-width: 76ch; margin: 0; color: #5d7165; font-size: .74rem; line-height: 1.6; }
 .advisorPhaseCount { padding: 8px 10px; border-radius: 9px; background: #fff; color: #52675a; font-size: .72rem; font-weight: 800; white-space: nowrap; }
 .advisorPhaseCount strong { color: #176f43; font-size: 1.05rem; }
@@ -200,8 +199,11 @@
 .advisorIssueList,.advisorCandidateGrid { margin: 0; padding: 0; list-style: none; }
 .advisorIssueList { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
 .advisorIssueList li { display: grid; min-width: 0; gap: 4px; padding: 13px 14px; border-left: 4px solid #d29b29; border-radius: 9px; background: #fff8e8; }
+.advisorPriorityBadge { width: fit-content; padding: 2px 7px; border-radius: 999px; background: #f6df9a; color: #6b4d0d; font-size: .58rem; font-weight: 900; }
 .advisorIssueList strong { overflow-wrap: anywhere; color: #5d481b; font-size: .82rem; line-height: 1.45; }
-.advisorIssueList span { overflow-wrap: anywhere; color: #746b58; font-size: .72rem; line-height: 1.55; }
+.advisorIssueList details { color: #746b58; font-size: .72rem; line-height: 1.55; }
+.advisorIssueList summary { width: fit-content; cursor: pointer; color: #705d34; font-weight: 800; }
+.advisorIssueList p { margin: 5px 0 0; overflow-wrap: anywhere; }
 .advisorCategoryControls { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 10px; margin: -2px 0 14px; }
 .advisorCategoryControls label { display: grid; min-width: min(220px,100%); gap: 5px; color: #52645a; font-size: .67rem; font-weight: 850; }
 .advisorCategoryControls select { width: 100%; min-height: 40px; padding: 8px 34px 8px 10px; border: 1px solid #b9cec0; border-radius: 8px; background: #fff; color: #244f37; font: inherit; font-size: .78rem; font-weight: 750; }
@@ -216,16 +218,13 @@
 .advisorCandidateIdentity { display: grid; min-width: 0; grid-template-columns: auto minmax(0,1fr); align-items: center; gap: 1px 7px; }
 .advisorCandidateIdentity strong { grid-column: 1/-1; overflow-wrap: anywhere; color: #1d4930; font-size: .94rem; line-height: 1.4; }
 .advisorCandidateIdentity small { grid-column: 1/-1; color: #68776e; font-size: .68rem; line-height: 1.4; white-space: normal; }
-.advisorRatingLabel { color: #68766d; font-size: .62rem; font-weight: 850; }
-.advisorImprovementScore { justify-self: start; color: #187044; font-size: .88rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.advisorOutcomeHeading { margin: 12px 0 -5px; color: #315f43; font-size: .72rem; }
 .advisorSwapSummary { display: grid; gap: 7px; margin-top: 13px; }
 .advisorSwapSummary > div { display: grid; min-width: 0; gap: 2px; padding: 9px 10px; border-radius: 8px; background: #edf6ef; }
 .advisorSwapSummary span { color: #63736a; font-size: .61rem; font-weight: 850; }
 .advisorSwapSummary strong { overflow-wrap: anywhere; color: #1f5034; font-size: .78rem; line-height: 1.45; }
 .advisorSwapSummary small { margin-left: 4px; font-size: .68rem; }
 .advisorThreatCoverageSummary small { margin: 1px 0 0; overflow-wrap: anywhere; color: #5d7165; line-height: 1.45; }
-.advisorDeltaGood { color: #167044; }
-.advisorDeltaBad { color: #a34f2f; }
 .advisorChangeGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); flex: 1; gap: 8px; margin-top: 10px; }
 .advisorChangeList { min-width: 0; padding: 9px 10px; border-radius: 8px; }
 .advisorChangeImprove { background: #edf7f0; }
@@ -242,7 +241,6 @@
 .advisorAddAction { display: grid; gap: 6px; margin-top: 12px; }
 .advisorAddAction .addCandidate { width: 100%; }
 .advisorDisabledReason { overflow-wrap: anywhere; color: #8a5b20; font-size: .65rem; line-height: 1.45; }
-.advisorSimulationMeta { margin: 10px 2px 0; color: #728079; font-size: .63rem; line-height: 1.5; }
 .advisorEmpty { margin: 0; padding: 12px 13px; border-radius: 8px; background: #f3f7f4; color: #66736b; font-size: .76rem; line-height: 1.55; }
 .advisorExplorer { margin-top: 16px; padding-top: 14px; border-top: 1px solid #d7e5db; }
 .advisorExplorer > summary { width: fit-content; cursor: pointer; color: #176f49; font-size: .78rem; font-weight: 850; }
@@ -255,7 +253,8 @@
 .advisorDiagnosticCard { min-width: 0; padding: 14px; border: 1px solid #d3e0d7; border-radius: 11px; background: #f9fcfa; }
 .advisorDiagnosticCard h4 { margin: 0 0 4px; color: #244f37; font-size: .86rem; }
 .advisorDiagnosticCard > p { min-height: 2.8em; margin: 0 0 10px; overflow-wrap: anywhere; color: #617168; font-size: .7rem; line-height: 1.5; }
-.advisorDiagnosticCard dl { display: grid; gap: 5px; margin: 0; }
+.advisorDiagnosticDetails > summary { width: fit-content; cursor: pointer; color: #315f43; font-size: .68rem; font-weight: 850; }
+.advisorDiagnosticCard dl { display: grid; gap: 5px; margin: 8px 0 0; }
 .advisorDiagnosticCard dl > div { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; align-items: start; padding: 6px 7px; border-radius: 6px; background: #f0f5f2; }
 .advisorDiagnosticCard dt { overflow-wrap: anywhere; color: #53655a; font-size: .66rem; line-height: 1.4; }
 .advisorDiagnosticCard dd { margin: 0; color: #334d3d; font-size: .68rem; font-weight: 900; line-height: 1.4; text-align: right; }

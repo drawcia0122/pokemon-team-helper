@@ -459,13 +459,13 @@ assert(
     sectionSource.includes("AdvisorPhaseHeader") &&
     sectionSource.includes("ProgressiveAdvisorRecommendations") &&
     sectionSource.includes("最初の1匹を選択") &&
-    sectionSource.includes("次の空き枠へ追加する候補") &&
+    sectionSource.includes("現在のチームに加えたとき") &&
     sectionSource.includes("現在の課題") &&
-    sectionSource.includes("完成したパーティの入れ替え改善案") &&
-    sectionSource.includes("推薦カテゴリ") &&
+    sectionSource.includes("おすすめの入れ替え候補") &&
+    sectionSource.includes("候補の見方") &&
     sectionSource.includes("getAdvisorCategoryLabels") &&
     sectionSource.includes("チーム詳細診断") &&
-    sectionSource.includes("要警戒TOP5平均") &&
+    sectionSource.includes("入れ替えるとどうなるか") &&
     sectionSource.includes("おすすめ理由") &&
     sectionSource.includes("注意点") &&
     sectionSource.includes("実採用攻撃技と特性による相性変化") &&
@@ -512,6 +512,8 @@ assert(
     styleSource.includes("overflow-wrap: anywhere;") &&
     !styleSource.includes(".advisorCandidateGrid { display: flex;") &&
     !sectionSource.includes("ThreatPokemon") &&
+    !sectionSource.includes("段階内の適合度") &&
+    !sectionSource.includes("総合改善量") &&
     !sectionSource.includes("総合評価") &&
     !sectionSource.includes("初版の暫定評価"),
   "Advisor候補のPC 3列・モバイル縦積み、長文折返し、総合評価削除が不十分です"
