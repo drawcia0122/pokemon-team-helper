@@ -1,5 +1,8 @@
 import { localizeEnvironmentValue } from "@/lib/environmentLocalization";
-import type { EnvironmentSnapshot } from "@/types/environmentData";
+import type {
+  EnvironmentDatasetMetadata,
+  EnvironmentSnapshot
+} from "@/types/environmentData";
 import type { EnvironmentLocalizationDictionary } from "@/types/environmentLocalization";
 import type {
   EnvironmentMoveMetadataRegistry,
@@ -28,12 +31,14 @@ export function buildThreatEnvironmentDataset(
   snapshot: EnvironmentSnapshot,
   pokemon: PokemonEntry[],
   localization: EnvironmentLocalizationDictionary,
-  moveMetadata: EnvironmentMoveMetadataRegistry
+  moveMetadata: EnvironmentMoveMetadataRegistry,
+  metadata: EnvironmentDatasetMetadata
 ): ThreatEnvironmentDataset {
   const pokemonBySlug = new Map(pokemon.map((entry) => [entry.slug, entry]));
 
   return {
     snapshotId: snapshot.snapshotId,
+    metadata,
     source: "Pokemon Showdown",
     period: snapshot.period.value,
     regulationId: snapshot.regulationId,

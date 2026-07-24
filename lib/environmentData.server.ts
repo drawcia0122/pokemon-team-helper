@@ -104,7 +104,8 @@ export function getEnvironmentRankingCatalog(): EnvironmentRankingCatalogDto {
     buildEnvironmentRankingDataset(
       readEnvironmentSnapshot(reference),
       pokemon,
-      localization.dictionaryVersion
+      localization.dictionaryVersion,
+      reference.metadata
     )
   );
   return {
@@ -168,7 +169,8 @@ export function getThreatEnvironmentCatalog(): ThreatEnvironmentCatalog {
         readEnvironmentSnapshot(reference),
         pokemon,
         localization,
-        moveMetadata
+        moveMetadata,
+        reference.metadata
       )
     )
   };

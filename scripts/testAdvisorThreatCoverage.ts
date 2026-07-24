@@ -224,6 +224,21 @@ const candidateEntries = [
 
 const dataset: ThreatEnvironmentDataset = {
   snapshotId: "task036-fixture",
+  metadata: {
+    schemaVersion: 1,
+    datasetId: "task036-fixture",
+    source: "Pokemon Showdown",
+    sourceUrl:
+      "https://www.smogon.com/stats/2026-06/chaos/gen9championsbssregmb-1760.json",
+    fetchedAt: "2026-07-01T00:00:00.000Z",
+    publishedAt: "2026-07-01T00:00:00.000Z",
+    regulation: "M-B",
+    season: "2026-06",
+    cutoff: 1760,
+    minimumUsageRate: 0.001,
+    checksum: "0".repeat(64),
+    pokemonCount: threatEntries.length + candidateEntries.length
+  },
   source: "Pokemon Showdown",
   period: "2026-06",
   regulationId: "M-B",

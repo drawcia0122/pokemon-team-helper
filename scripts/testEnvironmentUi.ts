@@ -38,6 +38,25 @@ assert(
 );
 assert(catalog.datasets.every((dataset) => dataset.ranking.length === 50), "ランキングがTOP50ではありません");
 assert(
+  catalog.datasets.every(
+    (dataset) =>
+      dataset.metadata.datasetId === dataset.snapshotId &&
+      dataset.metadata.regulation === dataset.regulationId &&
+      dataset.metadata.season === dataset.period &&
+      dataset.metadata.cutoff === dataset.ratingCutoff &&
+      dataset.metadata.minimumUsageRate === 0.001
+  ),
+  "ランキングDataset Metadataがsnapshotと一致しません"
+);
+assert(
+  threatCatalog.datasets.every(
+    (dataset) =>
+      dataset.metadata.datasetId === dataset.snapshotId &&
+      dataset.metadata.minimumUsageRate === 0.001
+  ),
+  "要警戒Dataset Metadataがsnapshotと一致しません"
+);
+assert(
   findEnvironmentRankingDataset(catalog.datasets, {
     battleFormat: "single",
     regulationId: "M-B",
@@ -107,6 +126,22 @@ const clientSource = readFileSync(
   "utf8"
 );
 assert(!clientSource.includes("data/environment/"), "Client Componentがsnapshotを直接importしています");
+assert(
+  clientSource.includes("環境データ") &&
+    clientSource.includes("更新") &&
+    clientSource.includes("レギュレーション") &&
+    clientSource.includes("取得元"),
+  "環境データの更新日・regulation・取得元を表示していません"
+);
+const homeSource = readFileSync(
+  path.join(process.cwd(), "app/page.tsx"),
+  "utf8"
+);
+assert(
+  homeSource.includes("_threats.json?v=") &&
+    homeSource.includes("environmentIndexData"),
+  "Threat Dataset更新後のfetch cacheを無効化できません"
+);
 const serverSource = readFileSync(path.join(process.cwd(), "lib/environmentData.server.ts"), "utf8");
 assert(
   serverSource.includes("findLatestEnvironmentSnapshotReference") &&

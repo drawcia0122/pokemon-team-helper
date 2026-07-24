@@ -7,6 +7,10 @@ import type {
   InvestmentSystem
 } from "@/types/environmentData";
 import type { PokemonEntry } from "@/types/pokemon";
+import {
+  buildEnvironmentDatasetMetadata,
+  ENVIRONMENT_MINIMUM_USAGE_RATE
+} from "@/lib/environmentDataset";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
@@ -50,6 +54,16 @@ export function validateEnvironmentRegistry(
     !registry.allowedCutoffs.includes(1760)
   ) {
     errors.push("formatRegistry: cutoffは0と1760だけを許可してください");
+  }
+  if (
+    !Array.isArray(registry.allowedUnresolvedPokemonNames) ||
+    registry.allowedUnresolvedPokemonNames.some(
+      (name) => typeof name !== "string" || name.trim() === ""
+    ) ||
+    new Set(registry.allowedUnresolvedPokemonNames).size !==
+      registry.allowedUnresolvedPokemonNames.length
+  ) {
+    errors.push("formatRegistry: allowedUnresolvedPokemonNamesが不正です");
   }
   if (!Array.isArray(registry.formats) || registry.formats.length === 0) {
     errors.push("formatRegistry: formatsが空です");
@@ -95,6 +109,22 @@ export function validateEnvironmentRegistry(
       "no-public-api-and-terms-restrict-reverse-engineering-and-redistribution"
   ) {
     errors.push("formatRegistry: Pokemon HOME policy gateが不正です");
+  }
+  if (
+    !registry.automaticUpdate ||
+    registry.automaticUpdate.periodStrategy !== "previous-complete-month" ||
+    !registry.formats.some(
+      (format) =>
+        format.sourceFormatId === registry.automaticUpdate.sourceFormatId &&
+        format.enabled
+    ) ||
+    !Array.isArray(registry.automaticUpdate.cutoffs) ||
+    registry.automaticUpdate.cutoffs.length === 0 ||
+    registry.automaticUpdate.cutoffs.some(
+      (cutoff) => !registry.allowedCutoffs.includes(cutoff)
+    )
+  ) {
+    errors.push("formatRegistry: automaticUpdateが不正です");
   }
   return { errors, registry: errors.length === 0 ? registry : null };
 }
@@ -189,6 +219,15 @@ export function validateEnvironmentSnapshot(
   }
   if (!validIsoDateTime(snapshot.retrievedAt)) errors.push("snapshot: retrievedAtが不正です");
   if (!validHash(snapshot.contentHash)) errors.push("snapshot: contentHashが不正です");
+  if (
+    snapshot.period?.kind !== "month" ||
+    !/^\d{4}-(?:0[1-9]|1[0-2])$/.test(snapshot.period?.value ?? "") ||
+    snapshot.period?.startAt !== `${snapshot.period?.value}-01` ||
+    typeof snapshot.period?.endAt !== "string" ||
+    !snapshot.period.endAt.startsWith(`${snapshot.period.value}-`)
+  ) {
+    errors.push("snapshot: periodが不正です");
+  }
   if (!format) {
     errors.push(`snapshot: 未登録formatです ${snapshot.sourceFormatId}`);
   } else {
@@ -203,6 +242,13 @@ export function validateEnvironmentSnapshot(
   }
   if (!Number.isInteger(snapshot.battleCount) || snapshot.battleCount <= 0) {
     errors.push("snapshot: battleCountが不正です");
+  }
+  if (
+    snapshot.fieldAvailability?.usage !== "available" ||
+    snapshot.fieldAvailability?.moves !== "available" ||
+    snapshot.fieldAvailability?.abilities !== "available"
+  ) {
+    errors.push("snapshot: 必須fieldAvailabilityが不正です");
   }
   if (!Array.isArray(snapshot.pokemon)) {
     errors.push("snapshot: pokemonが配列ではありません");
@@ -268,6 +314,8 @@ export function validateEnvironmentSnapshot(
   if (
     !snapshot.normalization ||
     snapshot.normalization.normalizerVersion !== "1.1.0" ||
+    snapshot.normalization.usageUnit !== "ratio" ||
+    snapshot.normalization.topK !== null ||
     !Number.isInteger(snapshot.normalization.unresolvedPokemonCount) ||
     snapshot.normalization.unresolvedPokemonCount < 0 ||
     !Number.isInteger(snapshot.normalization.unresolvedReferenceCount) ||
@@ -283,6 +331,13 @@ function indexEntryMatchesSnapshot(
   entry: EnvironmentSnapshotIndexEntry,
   snapshot: EnvironmentSnapshot
 ): boolean {
+  if (!entry.metadata || typeof entry.metadata.publishedAt !== "string") {
+    return false;
+  }
+  const expectedMetadata = buildEnvironmentDatasetMetadata(
+    snapshot,
+    entry.metadata.publishedAt
+  );
   return (
     entry.snapshotId === snapshot.snapshotId &&
     entry.sourceFormatId === snapshot.sourceFormatId &&
@@ -291,7 +346,8 @@ function indexEntryMatchesSnapshot(
     entry.regulationId === snapshot.regulationId &&
     entry.battleFormat === snapshot.battleFormat &&
     entry.retrievedAt === snapshot.retrievedAt &&
-    entry.contentHash === snapshot.contentHash
+    entry.contentHash === snapshot.contentHash &&
+    JSON.stringify(entry.metadata) === JSON.stringify(expectedMetadata)
   );
 }
 
@@ -315,6 +371,14 @@ export function validateEnvironmentIndex(
     ids.add(entry.snapshotId);
     paths.add(entry.path);
     if (entry.status !== "available") errors.push(`environment index: statusが不正です ${entry.snapshotId}`);
+    if (
+      !entry.metadata ||
+      entry.metadata.schemaVersion !== 1 ||
+      !validIsoDateTime(entry.metadata.publishedAt) ||
+      entry.metadata.minimumUsageRate !== ENVIRONMENT_MINIMUM_USAGE_RATE
+    ) {
+      errors.push(`environment index: metadataが不正です ${entry.snapshotId}`);
+    }
     const snapshot = snapshotsByPath.get(entry.path);
     if (!snapshot) errors.push(`environment index: snapshot fileがありません ${entry.path}`);
     else if (!indexEntryMatchesSnapshot(entry, snapshot)) errors.push(`environment index: snapshotと不一致です ${entry.path}`);

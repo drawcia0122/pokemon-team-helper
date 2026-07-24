@@ -39,6 +39,7 @@ async function main() {
       generatedFrom: catalog.datasets.map((dataset) => ({
         snapshotId: dataset.snapshotId,
         contentHash: dataset.contentHash,
+        metadata: dataset.metadata,
         detailCount: dataset.ranking.length
       })),
       detailFileCount: exports.length,

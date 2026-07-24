@@ -3,6 +3,15 @@
   "source": "pokemon-showdown",
   "allowedHost": "www.smogon.com",
   "allowedCutoffs": [0, 1760],
+  "allowedUnresolvedPokemonNames": [
+    "Meowstic-F-Mega",
+    "Meowstic-M-Mega"
+  ],
+  "automaticUpdate": {
+    "sourceFormatId": "gen9championsbssregmb",
+    "cutoffs": [0, 1760],
+    "periodStrategy": "previous-complete-month"
+  },
   "formats": [
     {
       "sourceFormatId": "gen9championsbssregma",

@@ -29,6 +29,12 @@ export type EnvironmentFormatRegistry = {
   source: EnvironmentDataSource;
   allowedHost: "www.smogon.com";
   allowedCutoffs: number[];
+  allowedUnresolvedPokemonNames: string[];
+  automaticUpdate: {
+    sourceFormatId: string;
+    cutoffs: number[];
+    periodStrategy: "previous-complete-month";
+  };
   formats: EnvironmentFormatDefinition[];
   sourcePolicies: EnvironmentSourcePolicy[];
 };
@@ -37,6 +43,21 @@ export type EnvironmentPokemonAliases = {
   schemaVersion: 1;
   source: EnvironmentDataSource;
   aliases: Record<string, string>;
+};
+
+export type EnvironmentDatasetMetadata = {
+  schemaVersion: 1;
+  datasetId: string;
+  source: "Pokemon Showdown";
+  sourceUrl: string;
+  fetchedAt: string;
+  publishedAt: string;
+  regulation: "M-A" | "M-B";
+  season: string;
+  cutoff: number;
+  minimumUsageRate: number;
+  checksum: string;
+  pokemonCount: number;
 };
 
 export type EnvironmentUsage = {
@@ -161,6 +182,7 @@ export type EnvironmentSnapshotIndexEntry = {
   path: string;
   retrievedAt: string;
   contentHash: string;
+  metadata: EnvironmentDatasetMetadata;
 };
 
 export type EnvironmentSnapshotIndex = {

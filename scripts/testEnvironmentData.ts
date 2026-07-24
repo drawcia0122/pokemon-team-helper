@@ -29,7 +29,10 @@ import {
   collectEnvironmentSnapshot,
   writeFileAtomically
 } from "./environment-data/collector";
-import { normalizeShowdownSnapshot } from "./environment-data/normalizer";
+import {
+  normalizeEnvironmentUsageRate,
+  normalizeShowdownSnapshot
+} from "./environment-data/normalizer";
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
@@ -74,6 +77,12 @@ async function main() {
     "TASK023のformat/cutoff registryが不正です"
   );
   assert(validateEnvironmentAliases(aliases, pokemon).errors.length === 0, "aliasを検証できません");
+  assert(
+    normalizeEnvironmentUsageRate("12.5%") === 0.125 &&
+      normalizeEnvironmentUsageRate(12.5) === 0.125 &&
+      normalizeEnvironmentUsageRate(0.125) === 0.125,
+    "使用率のpercent・percent数値・ratioを0〜1へ統一できません"
+  );
   assert(
     registry.sourcePolicies.some(
       (policy) =>

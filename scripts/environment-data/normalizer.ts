@@ -49,6 +49,23 @@ function isFiniteNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
 }
 
+export function normalizeEnvironmentUsageRate(value: unknown): number {
+  const isPercentage =
+    typeof value === "string" && value.trim().endsWith("%");
+  const numeric =
+    typeof value === "string"
+      ? Number(value.trim().replace(/%$/, ""))
+      : value;
+  if (!isFiniteNumber(numeric) || numeric < 0) {
+    throw new Error(`usageが数値ではありません: ${String(value)}`);
+  }
+  const rate = isPercentage || numeric > 1 ? numeric / 100 : numeric;
+  if (!Number.isFinite(rate) || rate < 0 || rate > 1) {
+    throw new Error(`usageが0〜1へ正規化できません: ${String(value)}`);
+  }
+  return rate;
+}
+
 function assertWeightMap(value: unknown, context: string): asserts value is Record<string, number> {
   if (
     !isRecord(value) ||
@@ -86,7 +103,9 @@ export function parseRawChaosStats(
     if (!Number.isInteger(rawValue["Raw count"]) || Number(rawValue["Raw count"]) < 0) {
       throw new Error(`${sourceName}: Raw countが不正です`);
     }
-    if (!isFiniteNumber(rawValue.usage) || rawValue.usage < 0 || rawValue.usage > 1) {
+    try {
+      rawValue.usage = normalizeEnvironmentUsageRate(rawValue.usage);
+    } catch {
       throw new Error(`${sourceName}: usageが0〜1ではありません`);
     }
     for (const key of ["Abilities", "Items", "Spreads", "Moves"] as const) {

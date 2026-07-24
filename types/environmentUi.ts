@@ -1,4 +1,8 @@
-import type { EnvironmentBattleFormat, InvestmentSystem } from "@/types/environmentData";
+import type {
+  EnvironmentBattleFormat,
+  EnvironmentDatasetMetadata,
+  InvestmentSystem
+} from "@/types/environmentData";
 
 export type EnvironmentSelection = {
   battleFormat: EnvironmentBattleFormat;
@@ -17,6 +21,7 @@ export type EnvironmentRankingEntryDto = {
 
 export type EnvironmentRankingDatasetDto = EnvironmentSelection & {
   snapshotId: string;
+  metadata: EnvironmentDatasetMetadata;
   sourceFormatId: string;
   period: string;
   retrievedAt: string;

@@ -19,6 +19,23 @@ function percent(value: number): string {
   return `${percentage < 0.1 && percentage > 0 ? percentage.toFixed(2) : percentage.toFixed(1)}%`;
 }
 
+function updatedDate(value: string): string {
+  const date = new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  }).format(new Date(value));
+  return `${date}更新`;
+}
+
+function periodLabel(value: string): string {
+  const [year, month] = value.split("-").map(Number);
+  return Number.isInteger(year) && Number.isInteger(month)
+    ? `${year}年${month}月`
+    : value;
+}
+
 function DistributionList({
   values,
   emptyMessage
@@ -229,12 +246,20 @@ export function EnvironmentExplorer({ catalog }: { catalog: EnvironmentRankingCa
       </div>
 
       <div className={styles.sourceSummary}>
-        <strong>{catalog.source}</strong>
-        <span>{dataset?.period ?? "対象月: データなし"}</span>
-        <span>{selection.battleFormat === "single" ? "Single" : "Double"}</span>
-        <span>{selection.regulationId}</span>
+        <strong>環境データ</strong>
+        {dataset ? (
+          <span>{updatedDate(dataset.metadata.fetchedAt)}</span>
+        ) : null}
+        <span>
+          集計期間 {dataset ? periodLabel(dataset.metadata.season) : "データなし"}
+        </span>
+        <span>レギュレーション {selection.regulationId}</span>
+        <span>
+          {selection.battleFormat === "single" ? "シングル" : "ダブル"}
+        </span>
         <span>cutoff {selection.ratingCutoff}</span>
         {dataset ? <span>{dataset.battleCount.toLocaleString("ja-JP")}対戦</span> : null}
+        <span>取得元 {catalog.source} / Smogon</span>
       </div>
 
       {!dataset ? (

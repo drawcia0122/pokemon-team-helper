@@ -53,7 +53,21 @@ import {
 import { getAllTypes, summarizeTeam } from "@/lib/typeChart";
 import type { PokemonEntry, TeamSlot } from "@/types/pokemon";
 import type { ThreatEnvironmentCatalog } from "@/types/environmentThreat";
+import environmentIndexData from "@/data/environment/index.json";
+import type { EnvironmentSnapshotIndex } from "@/types/environmentData";
 import styles from "./page.module.css";
+
+const environmentIndex =
+  environmentIndexData as EnvironmentSnapshotIndex;
+const threatCatalogVersion = environmentIndex.latest
+  .map((latest) =>
+    environmentIndex.snapshots.find(
+      (snapshot) => snapshot.snapshotId === latest.snapshotId
+    )?.contentHash.slice(0, 16)
+  )
+  .filter(Boolean)
+  .sort()
+  .join("-");
 
 export default function HomePage() {
   const [seasonId, setSeasonId] = useState(() => getLatestSeasonId());
@@ -177,7 +191,12 @@ export default function HomePage() {
 
   useEffect(() => {
     let active = true;
-    void fetch("environment-data/_threats.json", { cache: "force-cache" })
+    void fetch(
+      `environment-data/_threats.json?v=${encodeURIComponent(
+        threatCatalogVersion
+      )}`,
+      { cache: "force-cache" }
+    )
       .then((response) => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return response.json() as Promise<ThreatEnvironmentCatalog>;

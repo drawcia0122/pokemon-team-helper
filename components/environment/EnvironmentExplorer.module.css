@@ -4,7 +4,7 @@
 .controls select { width: 100%; min-width: 0; padding: 10px 34px 10px 11px; border: 1px solid #b7d2c0; border-radius: 9px; background: #f8fcf9; color: #173c28; font: inherit; font-size: .9rem; }
 .controls select:focus-visible,.rankingList button:focus-visible { outline: 3px solid rgba(22,129,77,.34); outline-offset: 2px; }
 .sourceSummary { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; padding: 11px 14px; border-radius: 12px; background: #eaf6ed; color: #3d5c49; font-size: .78rem; }
-.sourceSummary strong { color: #155e37; }
+.sourceSummary strong { color: #155e37; white-space: nowrap; }
 .sourceSummary span { padding-left: 8px; border-left: 1px solid #a9cab4; }
 .columns { display: grid; grid-template-columns: minmax(350px,.8fr) minmax(0,1.2fr); align-items: start; gap: 18px; }
 .rankingPanel,.detailPanel { min-width: 0; border: 1px solid #c8ded0; border-radius: 18px; background: #fff; box-shadow: 0 16px 40px rgba(24,82,51,.07); }
@@ -55,6 +55,7 @@
 @media (max-width:520px) {
   .controls { grid-template-columns: 1fr; gap: 9px; padding: 13px; }
   .sourceSummary { gap: 6px; font-size: .7rem; }
+  .sourceSummary span { padding-left: 6px; }
   .rankingPanel,.detailPanel { border-radius: 14px; }
   .panelHeading { padding: 14px 13px 11px; }
   .rankingList button { grid-template-columns: 27px 36px minmax(0,1fr) auto; gap: 7px; padding: 8px 9px; }

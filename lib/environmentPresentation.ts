@@ -1,4 +1,7 @@
-import type { EnvironmentSnapshot } from "@/types/environmentData";
+import type {
+  EnvironmentDatasetMetadata,
+  EnvironmentSnapshot
+} from "@/types/environmentData";
 import { findEnvironmentPokemon } from "@/lib/environmentData";
 import { localizeEnvironmentValue } from "@/lib/environmentLocalization";
 import type { PokemonEntry } from "@/types/pokemon";
@@ -38,7 +41,8 @@ export function environmentDetailFetchUrl(
 export function buildEnvironmentRankingDataset(
   snapshot: EnvironmentSnapshot,
   pokemon: PokemonEntry[],
-  localizationVersion: string
+  localizationVersion: string,
+  metadata: EnvironmentDatasetMetadata
 ): EnvironmentRankingDatasetDto {
   const lookup = pokemonBySlug(pokemon);
   const ranking = snapshot.pokemon.slice(0, RANKING_LIMIT).map((entry) => {
@@ -55,6 +59,7 @@ export function buildEnvironmentRankingDataset(
   });
   return {
     snapshotId: snapshot.snapshotId,
+    metadata,
     sourceFormatId: snapshot.sourceFormatId,
     period: snapshot.period.value,
     retrievedAt: snapshot.retrievedAt,

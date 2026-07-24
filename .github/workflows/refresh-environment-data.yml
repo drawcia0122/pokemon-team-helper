@@ -1,0 +1,143 @@
+name: Refresh environment data
+
+on:
+  schedule:
+    - cron: "23 6 * * 2"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Fetch・Normalize・Validate・Compareだけを実行する"
+        required: false
+        type: boolean
+        default: true
+      period:
+        description: "対象月（空欄なら前月、YYYY-MM）"
+        required: false
+        type: string
+        default: ""
+      source_format_id:
+        description: "対象format（空欄ならregistryの自動更新対象）"
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: refresh-environment-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      published: ${{ steps.commit.outputs.published }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Fetch, normalize, validate and compare
+        shell: bash
+        env:
+          INPUT_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && 'true' || 'false' }}
+          INPUT_PERIOD: ${{ github.event_name == 'workflow_dispatch' && inputs.period || '' }}
+          INPUT_SOURCE_FORMAT: ${{ github.event_name == 'workflow_dispatch' && inputs.source_format_id || '' }}
+        run: |
+          update_args=()
+          if [[ "$INPUT_DRY_RUN" == "true" ]]; then
+            update_args+=(--dry-run)
+          fi
+          if [[ -n "$INPUT_PERIOD" ]]; then
+            update_args+=(--period "$INPUT_PERIOD")
+          fi
+          if [[ -n "$INPUT_SOURCE_FORMAT" ]]; then
+            update_args+=(--format "$INPUT_SOURCE_FORMAT")
+          fi
+          npm run environment:update -- "${update_args[@]}"
+
+      - name: Validate published fallback and pipeline controls
+        run: |
+          npm run environment:validate
+          npm run test:environment-pipeline
+
+      - name: Detect published Dataset changes
+        id: changes
+        shell: bash
+        run: |
+          if [[ -n "$(git status --porcelain -- data/environment)" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No environment Dataset changes."
+          fi
+
+      - name: Validate application
+        if: ${{ steps.changes.outputs.changed == 'true' }}
+        run: npm run check
+
+      - name: Configure GitHub Pages
+        if: ${{ steps.changes.outputs.changed == 'true' }}
+        uses: actions/configure-pages@v6
+
+      - name: Build GitHub Pages export
+        if: ${{ steps.changes.outputs.changed == 'true' }}
+        env:
+          GITHUB_PAGES: "true"
+        run: npm run build:pages
+
+      - name: Validate GitHub Pages export
+        if: ${{ steps.changes.outputs.changed == 'true' }}
+        run: npm run test:pages
+
+      - name: Upload GitHub Pages artifact
+        if: ${{ steps.changes.outputs.changed == 'true' }}
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: out
+
+      - name: Commit normal Dataset changes
+        id: commit
+        if: ${{ steps.changes.outputs.changed == 'true' && github.ref == 'refs/heads/main' }}
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/environment
+          if git diff --cached --quiet; then
+            echo "published=false" >> "$GITHUB_OUTPUT"
+            echo "No content changes after export."
+            exit 0
+          fi
+          git commit -m "chore: update environment dataset"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+          echo "published=true" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: refresh
+    if: ${{ needs.refresh.outputs.published == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy normal Dataset
+        id: deployment
+        uses: actions/deploy-pages@v5

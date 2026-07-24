@@ -23,6 +23,7 @@ import type {
   TeamSummary,
   TypeName
 } from "@/types/pokemon";
+import { ENVIRONMENT_MINIMUM_USAGE_RATE } from "@/lib/environmentDataset";
 import {
   countProfileSpeedAdvantages,
   formatThreatSpeedReason,
@@ -71,7 +72,7 @@ export const THREAT_USAGE_SCORE_CURVE = [
 ] as const;
 
 export const POPULAR_MOVE_MIN_SHARE = THREAT_MOVE_THRESHOLDS.primary;
-export const MIN_THREAT_USAGE_RATE = 0.001;
+export const MIN_THREAT_USAGE_RATE = ENVIRONMENT_MINIMUM_USAGE_RATE;
 
 export type ThreatPokemonEnvironment = {
   source: "Pokemon Showdown";

@@ -1,5 +1,6 @@
 import type {
   EnvironmentBattleFormat,
+  EnvironmentDatasetMetadata,
   InvestmentSystem
 } from "@/types/environmentData";
 import type { TypeName } from "@/types/pokemon";
@@ -56,6 +57,7 @@ export type ThreatEnvironmentPokemon = {
 
 export type ThreatEnvironmentDataset = {
   snapshotId: string;
+  metadata: EnvironmentDatasetMetadata;
   source: "Pokemon Showdown";
   period: string;
   regulationId: "M-A" | "M-B";

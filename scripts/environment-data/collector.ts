@@ -4,6 +4,7 @@ import path from "node:path";
 import formatRegistryData from "../../data/environment/formatRegistry.json";
 import aliasesData from "../../data/environment/sourcePokemonAliases.json";
 import pokemonData from "../../data/pokemon.json";
+import { buildEnvironmentDatasetMetadata } from "../../lib/environmentDataset";
 import {
   validateEnvironmentAliases,
   validateEnvironmentIndex,
@@ -50,7 +51,11 @@ export type EnvironmentCollectionResult = {
   hashMatched: boolean;
 };
 
-function sourceUrl(period: string, sourceFormatId: string, cutoff: number) {
+export function environmentSourceUrl(
+  period: string,
+  sourceFormatId: string,
+  cutoff: number
+) {
   return `https://www.smogon.com/stats/${period}/chaos/${sourceFormatId}-${cutoff}.json`;
 }
 
@@ -127,7 +132,7 @@ export async function writeFileAtomically(filePath: string, value: string): Prom
   }
 }
 
-function assertConfiguration(options: {
+export function resolveEnvironmentFormat(options: {
   registry: EnvironmentFormatRegistry;
   aliases: EnvironmentPokemonAliases;
   pokemon: PokemonEntry[];
@@ -154,7 +159,9 @@ function emptyIndex(): EnvironmentSnapshotIndex {
   return { schemaVersion: 1, snapshots: [], latest: [] };
 }
 
-async function readIndex(rootDir: string): Promise<EnvironmentSnapshotIndex> {
+export async function readEnvironmentIndex(
+  rootDir: string
+): Promise<EnvironmentSnapshotIndex> {
   try {
     return JSON.parse(
       await readFile(path.join(rootDir, "data/environment/index.json"), "utf8")
@@ -165,10 +172,11 @@ async function readIndex(rootDir: string): Promise<EnvironmentSnapshotIndex> {
   }
 }
 
-function updateIndex(
+export function updateEnvironmentIndex(
   previous: EnvironmentSnapshotIndex,
   snapshot: EnvironmentSnapshot,
-  snapshotPath: string
+  snapshotPath: string,
+  publishedAt: string
 ): EnvironmentSnapshotIndex {
   const entry: EnvironmentSnapshotIndexEntry = {
     snapshotId: snapshot.snapshotId,
@@ -181,7 +189,8 @@ function updateIndex(
     status: "available",
     path: snapshotPath,
     retrievedAt: snapshot.retrievedAt,
-    contentHash: snapshot.contentHash
+    contentHash: snapshot.contentHash,
+    metadata: buildEnvironmentDatasetMetadata(snapshot, publishedAt)
   };
   const snapshots = previous.snapshots
     .filter((item) => item.snapshotId !== entry.snapshotId)
@@ -213,7 +222,9 @@ function updateIndex(
   return { schemaVersion: 1, snapshots, latest };
 }
 
-async function parseThroughTemporaryFile(rawText: string): Promise<unknown> {
+export async function parseEnvironmentSourceText(
+  rawText: string
+): Promise<unknown> {
   const directory = await mkdtemp(path.join(tmpdir(), "pokemon-environment-"));
   const temporaryPath = path.join(directory, "source.json");
   try {
@@ -234,16 +245,20 @@ export async function collectEnvironmentSnapshot(
   const registry = options.registry ?? (formatRegistryData as EnvironmentFormatRegistry);
   const aliases = options.aliases ?? (aliasesData as EnvironmentPokemonAliases);
   const pokemon = options.pokemon ?? (pokemonData as PokemonEntry[]);
-  const format = assertConfiguration({
+  const format = resolveEnvironmentFormat({
     registry,
     aliases,
     pokemon,
     sourceFormatId: options.sourceFormatId,
     cutoff: options.cutoff
   });
-  const url = sourceUrl(options.period, options.sourceFormatId, options.cutoff);
+  const url = environmentSourceUrl(
+    options.period,
+    options.sourceFormatId,
+    options.cutoff
+  );
   const rawText = await (options.fetchText ?? fetchShowdownChaosJson)(url);
-  const parsed = await parseThroughTemporaryFile(rawText);
+  const parsed = await parseEnvironmentSourceText(rawText);
   const snapshot = normalizeShowdownSnapshot({
     rawText,
     parsed,
@@ -259,7 +274,7 @@ export async function collectEnvironmentSnapshot(
   if (errors.length > 0) throw new Error(errors.join("\n"));
 
   const snapshotPath = `data/environment/snapshots/pokemon-showdown/${options.period}/${options.sourceFormatId}-${options.cutoff}.json`;
-  const previousIndex = await readIndex(rootDir);
+  const previousIndex = await readEnvironmentIndex(rootDir);
   const existing = previousIndex.snapshots.find(
     (entry) => entry.snapshotId === snapshot.snapshotId
   );
@@ -289,7 +304,12 @@ export async function collectEnvironmentSnapshot(
     };
   }
 
-  const nextIndex = updateIndex(previousIndex, snapshot, snapshotPath);
+  const nextIndex = updateEnvironmentIndex(
+    previousIndex,
+    snapshot,
+    snapshotPath,
+    (options.now ?? new Date()).toISOString()
+  );
   const indexErrors = validateEnvironmentIndex(
     nextIndex,
     new Map([[snapshotPath, snapshot]])
