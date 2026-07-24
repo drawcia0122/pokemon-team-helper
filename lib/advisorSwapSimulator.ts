@@ -370,6 +370,11 @@ export type AdvisorThreatRecommendationGroup = {
 
 export type AdvisorSwapSimulation = {
   threatSnapshot: ThreatSnapshot;
+  /**
+   * Read-only debug surface for Recommendation Analyzer. Recommendation
+   * selection continues to use the derived collections below.
+   */
+  evaluatedPlans: AdvisorSwapPlan[];
   plans: AdvisorSwapPlan[];
   /**
    * All evaluated empty-slot additions. Progressive phases rank only this
@@ -3103,6 +3108,7 @@ function emptySimulation(
 ): AdvisorSwapSimulation {
   return {
     threatSnapshot,
+    evaluatedPlans: [],
     plans: [],
     additionPlans: [],
     plansByCategory: {
@@ -3286,6 +3292,7 @@ export function getAdvisorSwapSimulation(
     .slice(0, ADVISOR_RECOMMENDATION_RULES.maxPerCategory);
   return {
     threatSnapshot: input.threatSnapshot,
+    evaluatedPlans: allPlans,
     plans: overallPlans,
     additionPlans,
     plansByCategory,
