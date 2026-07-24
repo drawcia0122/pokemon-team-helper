@@ -7,6 +7,7 @@ import type {
   TeamAdvisorCandidate
 } from "@/lib/teamAdvisor";
 import { getPokemonBySlug } from "@/lib/typeChart";
+import { getThreatSnapshot } from "@/lib/threatSnapshot";
 import type { PokemonEntry, TeamSlot } from "@/types/pokemon";
 
 function assert(condition: unknown, message: string): asserts condition {
@@ -55,17 +56,24 @@ const team: TeamSlot[] = [
 ];
 const tinkaton = candidate(pokemon("tinkaton"));
 const scizor = candidate(pokemon("scizor"));
+const threatSnapshot = getThreatSnapshot({
+  team,
+  availablePokemon,
+  environmentDataset: dataset
+});
 const advisor: TeamAdvisorAnalysis = {
   overallLabel: "改善余地あり",
   issues: [],
   candidates: [tinkaton, scizor],
-  candidatePool: [tinkaton, scizor]
+  candidatePool: [tinkaton, scizor],
+  threatSnapshot
 };
 const input = {
   team,
   advisor,
   availablePokemon,
   environmentDataset: dataset,
+  threatSnapshot,
   profile: "standard" as const
 };
 const tinkatonPlan = evaluateAdvisorSwapPlan(input, tinkaton, null);
@@ -87,11 +95,13 @@ assert(
   `氷一貫fixtureでデカヌチャンをハッサムより低く評価しました: ${JSON.stringify({ tinkaton: { score: tinkatonPlan.improvementScore, evidence: tinkatonPlan.evidence }, scizor: { score: scizorPlan.improvementScore, evidence: scizorPlan.evidence } })}`
 );
 assert(
-  tinkatonPlan.threatCoverage.threatAnswers.length >= 5 &&
-    tinkatonPlan.threatCoverage.threatAnswers.some(
+  tinkatonPlan.threatCoverage.threatAnswers.length ===
+      tinkatonPlan.beforeThreats.length &&
+    tinkatonPlan.recommendationThreatCoverage.threatAnswers.length >= 5 &&
+    tinkatonPlan.recommendationThreatCoverage.threatAnswers.some(
       (answer) => answer.threatRank > 5
     ),
-  "交換前後TOP5の和集合を回答評価へ使用していません"
+  "表示TOP5とRecommendation内部の追跡対象を分離できていません"
 );
 assert(
   tinkatonPlan.evidence.some(
@@ -122,11 +132,17 @@ const overlapTeam: TeamSlot[] = [
   { id: "overlap-5", mode: "pokemon", pokemonSlug: "primarina" }
 ];
 const greninja = candidate(pokemon("greninja"));
+const overlapThreatSnapshot = getThreatSnapshot({
+  team: overlapTeam,
+  availablePokemon,
+  environmentDataset: dataset
+});
 const overlapAdvisor: TeamAdvisorAnalysis = {
   overallLabel: "改善余地あり",
   issues: [],
   candidates: [greninja],
-  candidatePool: [greninja]
+  candidatePool: [greninja],
+  threatSnapshot: overlapThreatSnapshot
 };
 const greninjaPlan = evaluateAdvisorSwapPlan(
   {
@@ -134,6 +150,7 @@ const greninjaPlan = evaluateAdvisorSwapPlan(
     advisor: overlapAdvisor,
     availablePokemon,
     environmentDataset: dataset,
+    threatSnapshot: overlapThreatSnapshot,
     profile: "standard"
   },
   greninja,

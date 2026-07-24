@@ -24,6 +24,7 @@ import type {
   ThreatEnvironmentDataset,
   ThreatEnvironmentPokemon
 } from "@/types/environmentThreat";
+import type { ThreatSnapshot } from "@/lib/threatSnapshot";
 import type {
   PokemonEntry,
   TeamSlot,
@@ -95,13 +96,14 @@ export type TeamAdvisorAnalysis = {
   issues: TeamAdvisorIssue[];
   candidates: TeamAdvisorCandidate[];
   candidatePool: TeamAdvisorCandidate[];
+  threatSnapshot: ThreatSnapshot;
 };
 
 export type TeamAdvisorInput = {
   team: TeamSlot[];
   summary: TeamSummary;
   diagnostics: TeamDiagnostics;
-  threats: ThreatPokemonAnalysis[];
+  threatSnapshot: ThreatSnapshot;
   availablePokemon: PokemonEntry[];
   environmentDataset: ThreatEnvironmentDataset | null;
   profile?: TeamProfile;
@@ -640,7 +642,7 @@ export function getTeamAdvisorAnalysis({
   team,
   summary,
   diagnostics,
-  threats,
+  threatSnapshot,
   availablePokemon,
   environmentDataset,
   profile = "standard"
@@ -650,7 +652,8 @@ export function getTeamAdvisorAnalysis({
       overallLabel: "分析待ち",
       issues: [],
       candidates: [],
-      candidatePool: []
+      candidatePool: [],
+      threatSnapshot
     };
   }
 
@@ -677,7 +680,7 @@ export function getTeamAdvisorAnalysis({
     const candidate = scoreCandidate(
       pokemon,
       issues,
-      threats,
+      threatSnapshot.trackedThreats,
       summary,
       environmentBySlug.get(pokemon.slug),
       environmentBySlug,
@@ -706,7 +709,13 @@ export function getTeamAdvisorAnalysis({
         ? "要調整"
         : "改善余地あり";
 
-  return { overallLabel, issues, candidates, candidatePool };
+  return {
+    overallLabel,
+    issues,
+    candidates,
+    candidatePool,
+    threatSnapshot
+  };
 }
 
 export const TEAM_ADVISOR_EVALUATED_TYPE_COUNT = getAllTypes().length;

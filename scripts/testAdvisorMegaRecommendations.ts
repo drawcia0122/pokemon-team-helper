@@ -27,6 +27,7 @@ import {
   serializeTeam
 } from "@/lib/teamStorage";
 import { getPokemonBySlug } from "@/lib/typeChart";
+import { getThreatSnapshot } from "@/lib/threatSnapshot";
 import { analyzeAdvisorTeam } from "@/scripts/lib/trickRoomAdvisorHarness";
 import type { TeamProfile } from "@/lib/teamProfile";
 import type {
@@ -83,6 +84,7 @@ function simulationInput(
     advisor: result.advisor,
     availablePokemon: result.availablePokemon,
     environmentDataset: result.environmentDataset,
+    threatSnapshot: result.threatSnapshot,
     profile: result.profile
   };
 }
@@ -467,7 +469,13 @@ const mixedBoundaryTeam: TeamSlot[] = [
 ];
 const mixedBoundaryInput: AdvisorSwapSimulationInput = {
   ...simulationInput(caseC),
-  team: mixedBoundaryTeam
+  team: mixedBoundaryTeam,
+  threatSnapshot: getThreatSnapshot({
+    team: mixedBoundaryTeam,
+    availablePokemon: caseC.availablePokemon,
+    environmentDataset: caseC.environmentDataset,
+    profile: caseC.profile
+  })
 };
 const mixedTypeReplacement = evaluateAdvisorSwapPlan(
   mixedBoundaryInput,

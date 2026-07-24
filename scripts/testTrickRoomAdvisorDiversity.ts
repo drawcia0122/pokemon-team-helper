@@ -264,9 +264,12 @@ assert(
         plan.metrics.speedRoleImprovement > 0
     ) &&
     standardSpeedPlans.every((plan) =>
-      plan.categoryReasons.speed.every(
-        (reason) => !reason.includes("トリックルーム下")
-      )
+      plan.categoryEvidenceIds.speed
+        .map(
+          (evidenceId) =>
+            plan.evidence.find((item) => item.id === evidenceId)?.displayText ?? ""
+        )
+        .every((reason) => !reason.includes("トリックルーム下"))
     ),
   "通常プロファイルの速度評価がトリックルーム向けに変化しました"
 );

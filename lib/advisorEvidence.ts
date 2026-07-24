@@ -13,6 +13,14 @@ export type AdvisorEvidenceDimension =
 
 export type AdvisorEvidenceConfidence = "high" | "medium" | "low";
 
+export type AdvisorEvidenceScope =
+  | "selected-threat"
+  | "current-top5"
+  | "post-action-top5"
+  | "tracked-threat"
+  | "phase-specific"
+  | "team-general";
+
 export type AdvisorEvidence = {
   id: string;
   kind:
@@ -30,6 +38,17 @@ export type AdvisorEvidence = {
   points: number;
   displayText: string;
   confidence: AdvisorEvidenceConfidence;
+  scope?: AdvisorEvidenceScope;
+  targetThreatId?: string | null;
+  beforeRank?: number | null;
+  afterRank?: number | null;
+  beforeScore?: number | null;
+  afterScore?: number | null;
+  usageRate?: number | null;
+  /**
+   * Kept for TASK037 compatibility. New explanation code reads
+   * `targetThreatId`.
+   */
   targetThreat?: string;
   affectedTeamMembers?: string[];
   move?: string;
@@ -38,6 +57,34 @@ export type AdvisorEvidence = {
   beforeValue?: number;
   afterValue?: number;
 };
+
+function inferAdvisorEvidenceScope(
+  evidence: AdvisorEvidence
+): AdvisorEvidenceScope {
+  if (evidence.targetThreatId || evidence.targetThreat) {
+    return "tracked-threat";
+  }
+  if (evidence.source === "threat-union") {
+    return "tracked-threat";
+  }
+  return "team-general";
+}
+
+export function normalizeAdvisorEvidence(
+  evidence: AdvisorEvidence
+): AdvisorEvidence {
+  return {
+    ...evidence,
+    scope: evidence.scope ?? inferAdvisorEvidenceScope(evidence),
+    targetThreatId:
+      evidence.targetThreatId ?? evidence.targetThreat ?? null,
+    beforeRank: evidence.beforeRank ?? null,
+    afterRank: evidence.afterRank ?? null,
+    beforeScore: evidence.beforeScore ?? null,
+    afterScore: evidence.afterScore ?? null,
+    usageRate: evidence.usageRate ?? null
+  };
+}
 
 /**
  * All recommendation scores use this single scale.  In particular,
@@ -150,7 +197,10 @@ export function deduplicateAdvisorEvidence(
       entry.primaryDimension === "riskPenalty"
         ? Math.max(-itemCap, Math.min(0, entry.points))
         : Math.max(0, Math.min(itemCap, entry.points));
-    const normalized = { ...entry, points: cappedPoints };
+    const normalized = normalizeAdvisorEvidence({
+      ...entry,
+      points: cappedPoints
+    });
     const current = byId.get(entry.id);
     if (!current || Math.abs(normalized.points) > Math.abs(current.points)) {
       byId.set(entry.id, normalized);
@@ -215,11 +265,11 @@ export function scoreAdvisorEvidence(
   };
 }
 
-export function getAdvisorEvidenceReasons(
+export function selectAdvisorEvidence(
   rawEvidence: AdvisorEvidence[],
   category: keyof typeof ADVISOR_EVIDENCE_CATEGORY_ALLOCATION,
   limit = 3
-): string[] {
+): AdvisorEvidence[] {
   const evidence = deduplicateAdvisorEvidence(rawEvidence);
   const allocation = ADVISOR_EVIDENCE_CATEGORY_ALLOCATION[category];
   const dimensionPriority = (
@@ -264,5 +314,15 @@ export function getAdvisorEvidenceReasons(
     dimensionCounts.set(entry.primaryDimension, count + 1);
     if (selected.length >= limit) break;
   }
-  return selected.map((entry) => entry.displayText);
+  return selected;
+}
+
+export function getAdvisorEvidenceReasons(
+  rawEvidence: AdvisorEvidence[],
+  category: keyof typeof ADVISOR_EVIDENCE_CATEGORY_ALLOCATION,
+  limit = 3
+): string[] {
+  return selectAdvisorEvidence(rawEvidence, category, limit).map(
+    (entry) => entry.displayText
+  );
 }

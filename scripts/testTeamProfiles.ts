@@ -30,6 +30,7 @@ import {
   isThreatPokemonCandidate,
   MIN_THREAT_USAGE_RATE
 } from "@/lib/teamThreats";
+import { getThreatSnapshot } from "@/lib/threatSnapshot";
 import { summarizeTeam } from "@/lib/typeChart";
 import type { PokemonEntry, TeamSlot } from "@/types/pokemon";
 
@@ -218,19 +219,18 @@ function analyzeAdvisor(team: TeamSlot[], profile: TeamProfile) {
     availablePokemon,
     profile
   );
-  const threats = getAdvisorCompatibleThreatAnalysis(
+  const threatSnapshot = getThreatSnapshot({
     team,
-    summary,
     availablePokemon,
     environmentDataset,
-    5,
     profile
-  );
+  });
+  const threats = threatSnapshot.currentDisplayedTop5;
   const advisor = getTeamAdvisorAnalysis({
     team,
     summary,
     diagnostics,
-    threats,
+    threatSnapshot,
     availablePokemon,
     environmentDataset,
     profile
@@ -240,6 +240,7 @@ function analyzeAdvisor(team: TeamSlot[], profile: TeamProfile) {
     advisor,
     availablePokemon,
     environmentDataset,
+    threatSnapshot,
     profile
   });
   const details = getAdvisorTeamDiagnostics({
@@ -310,7 +311,12 @@ assert(
       trickRoomSpeedPlans.map((plan) => plan.candidate.pokemon.slug).join(",") &&
     trickRoomSpeedPlans.every(
       (plan) =>
-        plan.categoryReasons.speed.some((reason) => reason.includes("より遅く")) &&
+        plan.categoryEvidenceIds.speed
+          .map(
+            (evidenceId) =>
+              plan.evidence.find((item) => item.id === evidenceId)?.displayText ?? ""
+          )
+          .some((reason) => reason.includes("より遅く")) &&
         plan.metrics.popularMoveCoverageCount > 0
     ),
   "通常の高速案とトリルの低速・実戦改善案を切り替えられません"

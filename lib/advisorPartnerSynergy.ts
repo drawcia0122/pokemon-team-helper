@@ -455,6 +455,16 @@ export function evaluateAdvisorPartnerSynergy({
       confidence: "medium"
     });
   }
+  const scopedEvidence = evidence.map((entry) => ({
+    ...entry,
+    scope: "phase-specific" as const,
+    targetThreatId: null,
+    beforeRank: null,
+    afterRank: null,
+    beforeScore: null,
+    afterScore: null,
+    usageRate: null
+  }));
 
   return {
     anchorWeaknesses,
@@ -469,13 +479,13 @@ export function evaluateAdvisorPartnerSynergy({
     candidateRoles,
     roleAdditions,
     teammateSynergyPoints,
-    evidence,
-    reasons: evidence
+    evidence: scopedEvidence,
+    reasons: scopedEvidence
       .filter((entry) => entry.points > 0)
       .sort((left, right) => right.points - left.points)
       .map((entry) => entry.displayText)
       .slice(0, 4),
-    cautions: evidence
+    cautions: scopedEvidence
       .filter((entry) => entry.points < 0)
       .map((entry) => entry.displayText)
       .slice(0, 2)

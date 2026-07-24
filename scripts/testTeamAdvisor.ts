@@ -9,10 +9,8 @@ import {
   TEAM_ADVISOR_EVALUATED_TYPE_COUNT
 } from "@/lib/teamAdvisor";
 import { getTeamDiagnostics } from "@/lib/teamDiagnostics";
-import {
-  getAdvisorCompatibleThreatAnalysis,
-  isThreatPokemonCandidate
-} from "@/lib/teamThreats";
+import { isThreatPokemonCandidate } from "@/lib/teamThreats";
+import { getThreatSnapshot } from "@/lib/threatSnapshot";
 import { getPokemonBySlug, summarizeTeam } from "@/lib/typeChart";
 import type {
   ThreatEnvironmentDataset,
@@ -36,19 +34,24 @@ function advise(
 ) {
   const summary = summarizeTeam(team);
   const diagnostics = getTeamDiagnostics(team, summary, availablePokemon);
-  const threats = includeThreats
-    ? getAdvisorCompatibleThreatAnalysis(
-        team,
-        summary,
-        availablePokemon,
-        environment
-      )
-    : [];
+  const baseThreatSnapshot = getThreatSnapshot({
+    team,
+    availablePokemon,
+    environmentDataset: environment
+  });
+  const threatSnapshot = includeThreats
+    ? baseThreatSnapshot
+    : {
+        ...baseThreatSnapshot,
+        currentDisplayedTop5: [],
+        trackedThreats: [],
+        fullThreatRanking: []
+      };
   return getTeamAdvisorAnalysis({
     team,
     summary,
     diagnostics,
-    threats,
+    threatSnapshot,
     availablePokemon: candidates,
     environmentDataset: environment
   });
@@ -261,17 +264,16 @@ const moveAbilityDiagnostics = getTeamDiagnostics(
   moveAbilitySummary,
   [groundThreatPokemon, levitateAnswerPokemon]
 );
-const moveAbilityThreats = getAdvisorCompatibleThreatAnalysis(
-  electricTypeTeam,
-  moveAbilitySummary,
-  [groundThreatPokemon],
-  moveAbilityDataset
-);
+const moveAbilityThreatSnapshot = getThreatSnapshot({
+  team: electricTypeTeam,
+  availablePokemon: [groundThreatPokemon],
+  environmentDataset: moveAbilityDataset
+});
 const moveAbilityAdvisor = getTeamAdvisorAnalysis({
   team: electricTypeTeam,
   summary: moveAbilitySummary,
   diagnostics: moveAbilityDiagnostics,
-  threats: moveAbilityThreats,
+  threatSnapshot: moveAbilityThreatSnapshot,
   availablePokemon: [levitateAnswerPokemon],
   environmentDataset: moveAbilityDataset
 });
@@ -476,8 +478,9 @@ assert(
 );
 assert(
   pageSource.includes("getTeamAdvisorAnalysis") &&
-    pageSource.includes("getAdvisorCompatibleThreatAnalysis") &&
-    pageSource.includes("threats: advisorThreatPokemon") &&
+    pageSource.includes("getThreatSnapshot") &&
+    pageSource.includes("threatSnapshot.currentDisplayedTop5") &&
+    pageSource.includes("threatSnapshot") &&
     pageSource.includes("getAdvisorSwapSimulation") &&
     pageSource.includes("getProgressiveTeamAdvisor") &&
     pageSource.includes("addAdvisorCandidateToTeam") &&

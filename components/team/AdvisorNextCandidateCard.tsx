@@ -67,7 +67,8 @@ export function AdvisorNextCandidateCard({
     )
   ].slice(0, 3);
   const partner = candidate.partnerSynergy;
-  const reasons = candidate.reasonsByMode[mode];
+  const explanation = candidate.explanationsByMode[mode];
+  const reasons = explanation.primaryReasons;
 
   return (
     <article className={styles.advisorCandidateCard}>
@@ -82,6 +83,11 @@ export function AdvisorNextCandidateCard({
         {megaNote ? (
           <span className={styles.advisorMegaCandidateBadge}>
             {megaNote}
+          </span>
+        ) : null}
+        {explanation.label ? (
+          <span className={styles.advisorCategoryBadge}>
+            {explanation.label}
           </span>
         ) : null}
       </div>
@@ -207,7 +213,7 @@ export function AdvisorNextCandidateCard({
         <div
           className={`${styles.advisorChangeList} ${styles.advisorChangeImprove}`}
         >
-          <h4>{partner ? "相互補完の要点" : "この候補が埋める穴"}</h4>
+          <h4>おすすめ理由</h4>
           {reasons.length ? (
             <ul>
               {reasons.map((reason) => (
@@ -219,12 +225,26 @@ export function AdvisorNextCandidateCard({
           )}
         </div>
         <div
+          className={`${styles.advisorChangeList} ${styles.advisorChangeOther}`}
+        >
+          <h4>その他の改善</h4>
+          {explanation.otherImprovements.length ? (
+            <ul>
+              {explanation.otherImprovements.map((improvement) => (
+                <li key={improvement}>{improvement}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>追加の改善点はありません。</p>
+          )}
+        </div>
+        <div
           className={`${styles.advisorChangeList} ${styles.advisorChangeCaution}`}
         >
           <h4>注意点</h4>
-          {candidate.cautions.length ? (
+          {explanation.cautions.length ? (
             <ul>
-              {candidate.cautions.map((caution) => (
+              {explanation.cautions.map((caution) => (
                 <li key={caution}>{caution}</li>
               ))}
             </ul>

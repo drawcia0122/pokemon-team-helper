@@ -4,7 +4,7 @@ import { findThreatEnvironmentDataset } from "@/lib/environmentThreatData";
 import { getAvailablePokemonBySeason } from "@/lib/regulations";
 import { getTeamAdvisorAnalysis } from "@/lib/teamAdvisor";
 import { getTeamDiagnostics } from "@/lib/teamDiagnostics";
-import { getAdvisorCompatibleThreatAnalysis } from "@/lib/teamThreats";
+import { getThreatSnapshot } from "@/lib/threatSnapshot";
 import { getPokemonBySlug, summarizeTeam } from "@/lib/typeChart";
 import type { TeamProfile } from "@/lib/teamProfile";
 import type { TeamSlot } from "@/types/pokemon";
@@ -74,19 +74,18 @@ export function analyzeAdvisorTeam(
     availablePokemon,
     profile
   );
-  const threats = getAdvisorCompatibleThreatAnalysis(
+  const threatSnapshot = getThreatSnapshot({
     team,
-    summary,
     availablePokemon,
     environmentDataset,
-    5,
     profile
-  );
+  });
+  const threats = threatSnapshot.currentDisplayedTop5;
   const advisor = getTeamAdvisorAnalysis({
     team,
     summary,
     diagnostics,
-    threats,
+    threatSnapshot,
     availablePokemon,
     environmentDataset,
     profile
@@ -96,6 +95,7 @@ export function analyzeAdvisorTeam(
     advisor,
     availablePokemon,
     environmentDataset,
+    threatSnapshot,
     profile
   });
   return {
@@ -104,6 +104,7 @@ export function analyzeAdvisorTeam(
     environmentDataset,
     advisor,
     threats,
+    threatSnapshot,
     simulation
   };
 }

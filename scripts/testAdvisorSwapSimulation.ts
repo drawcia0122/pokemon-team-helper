@@ -10,6 +10,7 @@ import {
   type AdvisorSwapSimulationInput
 } from "@/lib/advisorSwapSimulator";
 import { getAdvisorTeamDiagnostics } from "@/lib/advisorTeamDiagnostics";
+import { buildAdvisorExplanationPresentation } from "@/lib/advisorExplanation";
 import { getThreatEnvironmentCatalog } from "@/lib/environmentData.server";
 import { findThreatEnvironmentDataset } from "@/lib/environmentThreatData";
 import { getAvailablePokemonBySeason } from "@/lib/regulations";
@@ -18,7 +19,7 @@ import {
   type TeamAdvisorCandidate
 } from "@/lib/teamAdvisor";
 import { getTeamDiagnostics } from "@/lib/teamDiagnostics";
-import { getAdvisorCompatibleThreatAnalysis } from "@/lib/teamThreats";
+import { getThreatSnapshot } from "@/lib/threatSnapshot";
 import { getPokemonBySlug, summarizeTeam } from "@/lib/typeChart";
 import type { ThreatEnvironmentDataset } from "@/types/environmentThreat";
 import type { PokemonEntry, TeamSlot } from "@/types/pokemon";
@@ -42,17 +43,17 @@ function analyze(
 ) {
   const summary = summarizeTeam(team);
   const diagnostics = getTeamDiagnostics(team, summary, availablePokemon);
-  const threats = getAdvisorCompatibleThreatAnalysis(
+  const threatSnapshot = getThreatSnapshot({
     team,
-    summary,
     availablePokemon,
-    environment
-  );
+    environmentDataset: environment
+  });
+  const threats = threatSnapshot.currentDisplayedTop5;
   const advisor = getTeamAdvisorAnalysis({
     team,
     summary,
     diagnostics,
-    threats,
+    threatSnapshot,
     availablePokemon: candidatePool,
     environmentDataset: environment
   });
@@ -60,7 +61,8 @@ function analyze(
     team,
     advisor,
     availablePokemon,
-    environmentDataset: environment
+    environmentDataset: environment,
+    threatSnapshot
   };
   return {
     summary,
@@ -146,15 +148,32 @@ assert(
 );
 assert(
   ice.simulation.plans.every(
-    (plan) =>
-      plan.improvementScore > 0 &&
-      new Set(plan.improvements).size === plan.improvements.length &&
-      new Set(plan.cautions).size === plan.cautions.length &&
-      plan.improvements.every((item) => !plan.cautions.includes(item))
-  ) &&
-    ice.simulation.plans.some(
-      (plan) => plan.improvements.length > 0 && plan.cautions.length > 0
-    ),
+    (plan) => {
+      const presentation = buildAdvisorExplanationPresentation({
+        phase: "situationalCoverage",
+        plan,
+        mode: "overall"
+      });
+      const sections = [
+        presentation.primaryReasons,
+        presentation.otherImprovements,
+        presentation.cautions
+      ];
+      return (
+        plan.improvementScore > 0 &&
+        sections.every(
+          (section, index) =>
+            new Set(section).size === section.length &&
+            section.every((text) =>
+              sections.every(
+                (other, otherIndex) =>
+                  otherIndex === index || !other.includes(text)
+              )
+            )
+        )
+      );
+    }
+  ),
   "改善量0以下の案、または重複した改善点・注意点を表示しました"
 );
 
@@ -177,9 +196,8 @@ for (const category of categoryNames) {
         (plan) =>
           plan.isRecommendationByCategory[category] &&
           plan.categoryScores[category] > 0 &&
-          plan.categoryReasons[category].length >= 1 &&
-          plan.categoryReasons[category].length <= 3 &&
-          plan.cautions.length <= 2
+          plan.categoryEvidenceIds[category].length >= 1 &&
+          plan.categoryEvidenceIds[category].length <= 3
       ),
     `${ADVISOR_CATEGORY_LABELS[category]}の件数・species集約・推薦理由が不正です`
   );
@@ -239,19 +257,22 @@ assert(
     (plan) =>
       (plan.candidate.pokemon.baseStats?.attack ?? 255) < 100 &&
       plan.metrics.stableCheckCount > 0 &&
-      plan.categoryReasons.defensive.some(
-        (reason) =>
-          reason.includes("採用率") &&
-          (reason.includes("半減") || reason.includes("無効"))
+      plan.evidence.some(
+        (evidence) =>
+          plan.categoryEvidenceIds.defensive.includes(evidence.id) &&
+          evidence.displayText.includes("採用率") &&
+          (evidence.displayText.includes("半減") ||
+            evidence.displayText.includes("無効"))
       )
   ) &&
     ice.simulation.plansByCategory.defensive.some(
       (plan) =>
         plan.metrics.recoveryMoveShare >= 0.1 &&
-        plan.categoryReasons.defensive.some(
-          (reason) =>
-            reason.includes("採用率") &&
-            reason.includes("継続的な受け役")
+        plan.evidence.some(
+          (evidence) =>
+            plan.categoryEvidenceIds.defensive.includes(evidence.id) &&
+            evidence.displayText.includes("採用率") &&
+            evidence.displayText.includes("継続的な受け役")
         )
     ) &&
     ice.simulation.plansByCategory.defensive.every(
@@ -323,20 +344,28 @@ const unchangedSource = getPokemonBySlug("plusle");
 assert(neutralPokemon, "検証用マイナンがいません");
 assert(unchangedSource, "検証用プラスルがいません");
 const unchangedTeam = pokemonTeam(Array(6).fill("plusle"));
+const noImprovementAvailablePokemon = [
+  ...availablePokemon,
+  unchangedSource,
+  neutralPokemon
+];
+const noImprovementThreatSnapshot = getThreatSnapshot({
+  team: unchangedTeam,
+  availablePokemon: noImprovementAvailablePokemon,
+  environmentDataset: null
+});
 const noImprovementInput: AdvisorSwapSimulationInput = {
   team: unchangedTeam,
   advisor: {
     overallLabel: "改善余地あり",
     issues: [],
     candidates: [candidateFor(neutralPokemon)],
-    candidatePool: [candidateFor(neutralPokemon)]
+    candidatePool: [candidateFor(neutralPokemon)],
+    threatSnapshot: noImprovementThreatSnapshot
   },
-  availablePokemon: [
-    ...availablePokemon,
-    unchangedSource,
-    neutralPokemon
-  ],
-  environmentDataset: null
+  availablePokemon: noImprovementAvailablePokemon,
+  environmentDataset: null,
+  threatSnapshot: noImprovementThreatSnapshot
 };
 const noImprovement = getAdvisorSwapSimulation(noImprovementInput);
 assert(
@@ -360,9 +389,14 @@ const lossPlan = evaluateAdvisorSwapPlan(
   candidateFor(replacement),
   "slot-1"
 );
+const lossPresentation = buildAdvisorExplanationPresentation({
+  phase: "situationalCoverage",
+  plan: lossPlan,
+  mode: "overall"
+});
 assert(
   lossPlan.metrics.uniqueImmunityLossCount > 0 &&
-    lossPlan.cautions.some((item) => item.includes("無効枠")) &&
+    lossPresentation.cautions.some((item) => item.includes("無効枠")) &&
     ADVISOR_SWAP_WEIGHTS.uniqueImmunityLossPenalty > 0 &&
     ADVISOR_SWAP_WEIGHTS.uniqueResistanceLossPenalty > 0,
   "唯一の無効・耐性を失う案を減点または注意表示できません"
@@ -376,9 +410,11 @@ const roleLossPlan = evaluateAdvisorSwapPlan(
   "slot-1"
 );
 assert(
-  roleLossPlan.metrics.roleLossCount > 0 &&
+    roleLossPlan.metrics.roleLossCount > 0 &&
     roleLossPlan.lostRoles.some((role) => role.includes("高速枠")) &&
-    roleLossPlan.cautions.some((item) => item.includes("高速枠")) &&
+    roleLossPlan.evidence.some(
+      (evidence) => evidence.id === "risk:removed-member-loss"
+    ) &&
     ADVISOR_SWAP_WEIGHTS.roleLossPenalty > 0,
   "唯一の高速枠を失う案を減点・注意表示できません"
 );
@@ -617,12 +653,14 @@ assert(
     styleSource.includes(".advisorDiagnosticsGrid") &&
     styleSource.includes(".advisorChangeGrid") &&
     !styleSource.includes(".advisorCandidateGrid { display: flex;") &&
-    simulatorSource.includes("getAdvisorCompatibleThreatAnalysis") &&
+    simulatorSource.includes("getThreatSnapshot") &&
+    simulatorSource.includes("currentDisplayedTop5") &&
+    simulatorSource.includes("recommendationThreatCoverage") &&
     simulatorSource.includes("ADVISOR_TEAM_RULES") &&
     simulatorSource.includes("ADVISOR_CATEGORY_WEIGHTS") &&
     simulatorSource.indexOf("!plan.isRecommendationByCategory[category]") <
       simulatorSource.indexOf("const speciesId = plan.candidate.pokemon.speciesId") &&
-    !simulatorSource.includes("getThreatPokemonAnalysis("),
+    !simulatorSource.includes("getAdvisorCompatibleThreatAnalysis("),
   "段階型追加UI・完成後入れ替えUI・4分野診断、または旧重複表示の整理が不十分です"
 );
 

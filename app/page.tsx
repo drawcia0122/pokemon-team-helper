@@ -28,10 +28,7 @@ import { getProgressiveTeamAdvisor } from "@/lib/progressiveTeamAdvisor";
 import { getTeamAdvisorAnalysis } from "@/lib/teamAdvisor";
 import { findThreatEnvironmentDataset } from "@/lib/environmentThreatData";
 import { getTeamDiagnostics } from "@/lib/teamDiagnostics";
-import {
-  getAdvisorCompatibleThreatAnalysis,
-  getThreatPokemonAnalysis
-} from "@/lib/teamThreats";
+import { getThreatSnapshot } from "@/lib/threatSnapshot";
 import {
   getAvailablePokemonBySeason,
   getLatestSeasonId,
@@ -97,37 +94,24 @@ export default function HomePage() {
       ),
     [seasonMeta.regulationId, threatEnvironmentCatalog]
   );
-  const threatPokemon = useMemo(
+  const threatSnapshot = useMemo(
     () =>
-      getThreatPokemonAnalysis(
+      getThreatSnapshot({
         team,
-        summary,
         availablePokemon,
-        threatEnvironmentDataset,
-        5,
-        teamProfile
-      ),
-    [availablePokemon, summary, team, teamProfile, threatEnvironmentDataset]
+        environmentDataset: threatEnvironmentDataset,
+        profile: teamProfile
+      }),
+    [availablePokemon, team, teamProfile, threatEnvironmentDataset]
   );
-  const advisorThreatPokemon = useMemo(
-    () =>
-      getAdvisorCompatibleThreatAnalysis(
-        team,
-        summary,
-        availablePokemon,
-        threatEnvironmentDataset,
-        5,
-        teamProfile
-      ),
-    [availablePokemon, summary, team, teamProfile, threatEnvironmentDataset]
-  );
+  const threatPokemon = threatSnapshot.currentDisplayedTop5;
   const advisor = useMemo(
     () =>
       getTeamAdvisorAnalysis({
         team,
         summary,
         diagnostics,
-        threats: advisorThreatPokemon,
+        threatSnapshot,
         availablePokemon,
         environmentDataset: threatEnvironmentDataset,
         profile: teamProfile
@@ -138,7 +122,7 @@ export default function HomePage() {
       summary,
       team,
       teamProfile,
-      advisorThreatPokemon,
+      threatSnapshot,
       threatEnvironmentDataset
     ]
   );
@@ -149,19 +133,27 @@ export default function HomePage() {
         advisor,
         availablePokemon,
         environmentDataset: threatEnvironmentDataset,
+        threatSnapshot,
         profile: teamProfile
       }),
-    [advisor, availablePokemon, team, teamProfile, threatEnvironmentDataset]
+    [
+      advisor,
+      availablePokemon,
+      team,
+      teamProfile,
+      threatEnvironmentDataset,
+      threatSnapshot
+    ]
   );
   const advisorTeamDiagnostics = useMemo(
     () =>
       getAdvisorTeamDiagnostics({
         team,
         summary,
-        threats: advisorThreatPokemon,
+        threats: threatSnapshot.currentDisplayedTop5,
         profile: teamProfile
       }),
-    [advisorThreatPokemon, summary, team, teamProfile]
+    [summary, team, teamProfile, threatSnapshot]
   );
   const progressiveAdvisor = useMemo(
     () =>

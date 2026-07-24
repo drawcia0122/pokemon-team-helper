@@ -16,6 +16,8 @@ import type {
   AdvisorThreatExploreMode
 } from "@/lib/advisorSwapSimulator";
 import { getAdvisorCategoryLabels } from "@/lib/advisorSwapSimulator";
+import { getAdvisorBuildPhase } from "@/lib/advisorBuildPhase";
+import { buildAdvisorExplanationPresentation } from "@/lib/advisorExplanation";
 import {
   getAdvisorAnswerClassLabel,
   getAdvisorCounterplayMethodLabel
@@ -724,12 +726,14 @@ function AdvisorThreatCandidateCard({
     (entry) => entry.threatId === threatId
   );
   if (!answer) return null;
-  const reasons = [
-    answer.primaryReason,
-    ...plan.categoryReasons.overall
-  ].filter((value, index, values): value is string =>
-    Boolean(value) && values.indexOf(value) === index
-  ).slice(0, 3);
+  const explanation = buildAdvisorExplanationPresentation({
+    phase: getAdvisorBuildPhase(plan.beforeTeam),
+    plan,
+    mode: "overall",
+    selectedThreatId: threatId
+  });
+  if (!explanation.eligibleForPrimaryRecommendation) return null;
+  const reasons = explanation.primaryReasons;
   const megaNote = getPlanMegaCandidateNote(plan);
 
   return (
@@ -797,14 +801,20 @@ function AdvisorThreatCandidateCard({
       </div>
       <div className={styles.advisorChangeGrid}>
         <AdvisorChangeList
-          title="改善理由"
+          title="おすすめ理由"
           items={reasons}
           tone="improve"
           empty="明確な改善理由はありません。"
         />
         <AdvisorChangeList
+          title="その他の改善"
+          items={explanation.otherImprovements}
+          tone="other"
+          empty="追加の改善点はありません。"
+        />
+        <AdvisorChangeList
           title="注意点"
-          items={plan.cautions}
+          items={explanation.cautions}
           tone="caution"
           empty={`${getAdvisorCategoryLabels(profile).overall}評価で大きな注意点はありません。`}
         />
@@ -833,6 +843,11 @@ function AdvisorRecommendationCard({
   const candidate = plan.candidate;
   const categoryLabel = getAdvisorCategoryLabels(profile)[category];
   const megaNote = getPlanMegaCandidateNote(plan);
+  const explanation = buildAdvisorExplanationPresentation({
+    phase: getAdvisorBuildPhase(plan.beforeTeam),
+    plan,
+    mode: category
+  });
   const counterplayMethods = [...new Set(
     plan.threatCoverage.threatAnswers
       .filter((answer) => answer.answerStrength >= 0.6)
@@ -848,6 +863,11 @@ function AdvisorRecommendationCard({
         {megaNote ? (
           <span className={styles.advisorMegaCandidateBadge}>
             {megaNote}
+          </span>
+        ) : null}
+        {explanation.label ? (
+          <span className={styles.advisorCategoryBadge}>
+            {explanation.label}
           </span>
         ) : null}
       </div>
@@ -928,13 +948,19 @@ function AdvisorRecommendationCard({
       <div className={styles.advisorChangeGrid}>
         <AdvisorChangeList
           title="おすすめ理由"
-          items={plan.categoryReasons[category]}
+          items={explanation.primaryReasons}
           tone="improve"
           empty="明確な改善点はありません。"
         />
         <AdvisorChangeList
+          title="その他の改善"
+          items={explanation.otherImprovements}
+          tone="other"
+          empty="追加の改善点はありません。"
+        />
+        <AdvisorChangeList
           title="注意点"
-          items={plan.cautions}
+          items={explanation.cautions}
           tone="caution"
           empty="大きな注意点はありません。"
         />
@@ -951,7 +977,7 @@ function AdvisorChangeList({
 }: {
   title: string;
   items: string[];
-  tone: "improve" | "caution";
+  tone: "improve" | "other" | "caution";
   empty: string;
 }) {
   return (
@@ -959,7 +985,9 @@ function AdvisorChangeList({
       className={`${styles.advisorChangeList} ${
         tone === "improve"
           ? styles.advisorChangeImprove
-          : styles.advisorChangeCaution
+          : tone === "other"
+            ? styles.advisorChangeOther
+            : styles.advisorChangeCaution
       }`}
     >
       <h4>{title}</h4>

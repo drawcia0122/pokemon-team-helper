@@ -1,15 +1,16 @@
 import type { AdvisorBuildPhase } from "@/lib/advisorBuildPhase";
 import type { AdvisorPartnerSynergy } from "@/lib/advisorPartnerSynergy";
 import {
+  buildAdvisorExplanationPresentation,
+  type AdvisorExplanationPresentation
+} from "@/lib/advisorExplanation";
+import {
   deduplicateAdvisorEvidence,
   scoreAdvisorEvidence,
   type AdvisorEvidence,
   type AdvisorEvidenceDimension
 } from "@/lib/advisorEvidence";
-import type {
-  AdvisorRecommendationCategory,
-  AdvisorSwapPlan
-} from "@/lib/advisorSwapSimulator";
+import type { AdvisorSwapPlan } from "@/lib/advisorSwapSimulator";
 
 export type ProgressiveAdvisorMode =
   | "overall"
@@ -99,6 +100,10 @@ export type ProgressiveAdvisorCandidate = {
   modeScores: Record<ProgressiveAdvisorMode, number>;
   breakdown: AdvisorPhaseScoreBreakdown;
   reasonsByMode: Record<ProgressiveAdvisorMode, string[]>;
+  explanationsByMode: Record<
+    ProgressiveAdvisorMode,
+    AdvisorExplanationPresentation
+  >;
   cautions: string[];
   evidence: AdvisorEvidence[];
   partnerSynergy: AdvisorPartnerSynergy | null;
@@ -130,17 +135,6 @@ function phaseText(value: string): string {
     .replaceAll("交換前後", "追加前後");
 }
 
-function unique(items: string[]): string[] {
-  return [...new Set(items.filter(Boolean))];
-}
-
-function getLegacyCategory(
-  mode: ProgressiveAdvisorMode
-): AdvisorRecommendationCategory {
-  if (mode === "role") return "speed";
-  return mode;
-}
-
 function getPartnerEvidence(
   plan: AdvisorSwapPlan,
   partner: AdvisorPartnerSynergy
@@ -168,62 +162,6 @@ function getPartnerEvidence(
     ...partner.evidence,
     ...reusablePlanEvidence
   ]);
-}
-
-function getReasons(
-  plan: AdvisorSwapPlan,
-  mode: ProgressiveAdvisorMode,
-  partner: AdvisorPartnerSynergy | null,
-  evidence: AdvisorEvidence[]
-): string[] {
-  if (partner) {
-    const dimensions =
-      mode === "defensive"
-        ? new Set<AdvisorEvidenceDimension>(["defensiveImprovement"])
-        : mode === "offensive"
-          ? new Set<AdvisorEvidenceDimension>([
-              "offensiveImprovement",
-              "targetCounterplay"
-            ])
-          : mode === "role"
-            ? new Set<AdvisorEvidenceDimension>([
-                "roleImprovement",
-                "speedImprovement"
-              ])
-            : new Set<AdvisorEvidenceDimension>([
-                "defensiveImprovement",
-                "offensiveImprovement",
-                "targetCounterplay",
-                "roleImprovement",
-                "speedImprovement"
-              ]);
-    return unique(
-      evidence
-        .filter(
-          (entry) =>
-            entry.points > 0 && dimensions.has(entry.primaryDimension)
-        )
-        .sort(
-          (left, right) =>
-            right.points - left.points || left.id.localeCompare(right.id)
-        )
-        .map((entry) => phaseText(entry.displayText))
-    ).slice(0, 4);
-  }
-
-  const legacyCategory = getLegacyCategory(mode);
-  const categoryReasons = plan.categoryReasons[legacyCategory] ?? [];
-  const evidenceReasons = plan.evidence
-    .filter(
-      (entry) =>
-        entry.points > 0 &&
-        entry.primaryDimension !== "environmentValidity"
-    )
-    .sort((left, right) => right.points - left.points)
-    .map((entry) => entry.displayText);
-  return unique([...categoryReasons, ...evidenceReasons])
-    .map(phaseText)
-    .slice(0, 4);
 }
 
 function getModeScores(
@@ -550,6 +488,25 @@ export function scoreAdvisorPhasePlan({
     scored.breakdown,
     partnerSynergy
   );
+  const explanationsByMode = Object.fromEntries(
+    (
+      [
+        "overall",
+        "defensive",
+        "offensive",
+        "role",
+        "typeSpecific"
+      ] as ProgressiveAdvisorMode[]
+    ).map((mode) => [
+      mode,
+      buildAdvisorExplanationPresentation({
+        phase,
+        plan,
+        mode,
+        evidence
+      })
+    ])
+  ) as Record<ProgressiveAdvisorMode, AdvisorExplanationPresentation>;
   const reasonsByMode = Object.fromEntries(
     (
       [
@@ -561,7 +518,7 @@ export function scoreAdvisorPhasePlan({
       ] as ProgressiveAdvisorMode[]
     ).map((mode) => [
       mode,
-      getReasons(plan, mode, partnerSynergy, evidence)
+      explanationsByMode[mode].primaryReasons
     ])
   ) as Record<ProgressiveAdvisorMode, string[]>;
   return {
@@ -571,19 +528,8 @@ export function scoreAdvisorPhasePlan({
     modeScores,
     breakdown: scored.breakdown,
     reasonsByMode,
-    cautions: unique([
-      ...evidence
-        .filter(
-          (entry) =>
-            entry.primaryDimension === "riskPenalty" && entry.points < 0
-        )
-        .sort(
-          (left, right) =>
-            left.points - right.points || left.id.localeCompare(right.id)
-        )
-        .map((entry) => phaseText(entry.displayText)),
-      ...plan.cautions.map(phaseText)
-    ]).slice(0, 3),
+    explanationsByMode,
+    cautions: explanationsByMode.overall.cautions.map(phaseText),
     evidence,
     partnerSynergy
   };

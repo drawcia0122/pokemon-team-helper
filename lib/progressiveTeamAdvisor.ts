@@ -102,7 +102,13 @@ function takeDisplayCandidates(
   return ranked
     .filter((candidate) => {
       const hasReason = candidate.reasonsByMode[mode].length > 0;
-      if (!hasReason || candidate.modeScores[mode] <= 0) return false;
+      if (
+        !hasReason ||
+        candidate.modeScores[mode] <= 0 ||
+        !candidate.explanationsByMode[mode].eligibleForPrimaryRecommendation
+      ) {
+        return false;
+      }
       if (memberCount !== 5) return true;
       return (
         candidate.fitScore >=
