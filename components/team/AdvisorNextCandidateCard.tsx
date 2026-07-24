@@ -244,6 +244,41 @@ export function AdvisorNextCandidateCard({
         </div>
       </div>
 
+      {plan.contestability ? (
+        <details className={styles.advisorDiagnosticDetails}>
+          <summary>
+            選出しやすさ {plan.contestability.score.toFixed(0)} / 100
+          </summary>
+          <dl>
+            <div>
+              <dt>環境上位への対応</dt>
+              <dd>{plan.contestability.axes.environment.toFixed(0)}</dd>
+            </div>
+            <div>
+              <dt>現在のチームとの相性</dt>
+              <dd>{plan.contestability.axes.team.toFixed(0)}</dd>
+            </div>
+            <div>
+              <dt>主要対面での動きやすさ</dt>
+              <dd>{plan.contestability.axes.matchup.toFixed(0)}</dd>
+            </div>
+            <div>
+              <dt>仕事の安定性</dt>
+              <dd>{plan.contestability.axes.reliability.toFixed(0)}</dd>
+            </div>
+          </dl>
+          {plan.contestability.reasons.length ? (
+            <ul>
+              {plan.contestability.reasons.map((reason) => (
+                <li key={`${reason.axis}:${reason.text}`}>
+                  {reason.text}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </details>
+      ) : null}
+
       <AdvisorAddCandidateButton
         candidate={pokemon}
         addability={addability}

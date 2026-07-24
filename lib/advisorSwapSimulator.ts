@@ -38,6 +38,7 @@ import {
   summarizeTeam
 } from "@/lib/typeChart";
 import type { ThreatEnvironmentDataset } from "@/types/environmentThreat";
+import type { ContestabilityCandidate } from "@/types/contestability";
 import type {
   PokemonEntry,
   TeamSlot,
@@ -331,16 +332,26 @@ export type AdvisorSwapPlan = {
   baselineRecommendationScore: number;
   battleValueContribution: number;
   battleValueExplanation: string[];
+  contestability: ContestabilityCandidate | null;
+  contestabilityContribution: number;
+  contestabilityExplanation: string[];
+  preContestabilityRecommendation: number;
+  recommendationProtectionAdjustment: number;
   finalRecommendation: number;
   recommendationIntegration: {
     weight: number;
+    contestabilityWeight: number;
     recommendationNormalized: number;
+    recommendationConfidence: number;
+    confidenceAdjustedRecommendation: number;
     contributionNormalized: Record<string, number>;
     contributionRatios: Record<string, number>;
     battleValue: number;
     battleValueNormalized: number;
     battleValueRatio: number;
     battleValueAxes: Record<string, number>;
+    contestabilityNormalized: number;
+    contestabilityRatio: number;
   } | null;
   categoryScores: Record<AdvisorRecommendationCategory, number>;
   categoryEvidenceIds: Record<AdvisorRecommendationCategory, string[]>;
@@ -2371,6 +2382,11 @@ export function evaluateAdvisorSwapPlan(
     baselineRecommendationScore: improvementScore,
     battleValueContribution: 0,
     battleValueExplanation: [],
+    contestability: null,
+    contestabilityContribution: 0,
+    contestabilityExplanation: [],
+    preContestabilityRecommendation: improvementScore,
+    recommendationProtectionAdjustment: 0,
     finalRecommendation: improvementScore,
     recommendationIntegration: null,
     categoryScores,

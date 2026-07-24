@@ -141,6 +141,13 @@ assert(
   result.regression.status !== "regressed",
   `Benchmarkが悪化しました: ${JSON.stringify(result.regression)}`
 );
+const case001 = result.cases.find((entry) => entry.id === "case001");
+assert(
+  result.summary.overallScore >= 90 &&
+    result.summary.failCount === 0 &&
+    case001?.status === "PASS",
+  `TASK050 Benchmark目標を満たしていません: Overall=${result.summary.overallScore} FAIL=${result.summary.failCount} CASE001=${case001?.status ?? "missing"}`
+);
 assert(
   Object.keys(golden.caseScores).length === dataset.cases.length &&
     dataset.cases.every((entry) => entry.id in golden.caseScores),

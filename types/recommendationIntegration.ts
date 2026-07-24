@@ -2,6 +2,10 @@ import type {
   RecommendationContributionCategory
 } from "@/lib/recommendationAnalyzer";
 import type { BattleValueAxis } from "@/types/battleValue";
+import type {
+  ContestabilityCandidate,
+  ContestabilityReason
+} from "@/types/contestability";
 
 export type BattleValueIntegrationExplanation = {
   axis: BattleValueAxis;
@@ -34,12 +38,21 @@ export type RecommendationIntegrationCandidate = {
   battleValueRatio: number;
   battleValueAxes: Record<BattleValueAxis, number>;
   battleValueExplanation: BattleValueIntegrationExplanation[];
+  contestability: number;
+  contestabilityAxes: ContestabilityCandidate["axes"];
+  contestabilityReasons: ContestabilityReason[];
+  contestabilityContribution: number;
+  contestabilityRatio: number;
+  recommendationConfidence: number;
+  confidenceAdjustedRecommendation: number;
+  preContestabilityRecommendation: number;
+  recommendationProtectionAdjustment: number;
   finalRecommendation: number;
 };
 
 export type RecommendationIntegrationResult = {
   metadata: {
-    schemaVersion: 1;
+    schemaVersion: 2;
     mode: "integrated";
     normalization: "percentile-rank";
     formula: string;
@@ -52,6 +65,13 @@ export type RecommendationIntegrationResult = {
   };
   config: {
     battleValueWeight: number;
+    contestabilityWeight: number;
+    recommendationWeight: number;
+    recommendationConfidenceFloor: number;
+    recommendationConfidenceMaximum: number;
+    directActionConfidenceBoost: number;
+    recommendationConfidenceMidpoint: number;
+    recommendationConfidenceSlope: number;
     baselineContinuityWeight: number;
     contributionWeight: number;
     contributionWeights: Record<
@@ -64,6 +84,8 @@ export type RecommendationIntegrationResult = {
   integratedTop20: string[];
   baselineTop50: string[];
   integratedTop50: string[];
+  preContestabilityTop20: string[];
+  preContestabilityTop50: string[];
   top20RetentionRate: number;
   top50RetentionRate: number;
   representatives: RecommendationIntegrationCandidate[];

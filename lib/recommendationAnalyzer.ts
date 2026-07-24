@@ -26,6 +26,7 @@ import type {
   SemanticCandidateProfile,
   SemanticRecommendationGapAnalysis
 } from "@/types/semanticRecommendationGap";
+import type { ContestabilityCandidate } from "@/types/contestability";
 
 export const RECOMMENDATION_CONTRIBUTION_CATEGORIES = [
   "Threat",
@@ -98,6 +99,13 @@ export type RecommendationCandidateAnalysis = {
   baselineRecommendationScore: number;
   battleValueContribution: number;
   battleValueExplanation: string[];
+  contestability: number;
+  contestabilityBreakdown: ContestabilityCandidate["axes"] | null;
+  contestabilityReasons: string[];
+  contestabilityContribution: number;
+  contestabilityRatio: number;
+  preContestabilityRecommendation: number;
+  recommendationProtectionAdjustment: number;
   finalRecommendation: number;
   battleValueRatio: number;
   contributionRatios: Record<string, number>;
@@ -475,6 +483,18 @@ export function analyzeRecommendationPlan(
     baselineRecommendationScore: plan.baselineRecommendationScore,
     battleValueContribution: plan.battleValueContribution,
     battleValueExplanation: [...plan.battleValueExplanation],
+    contestability: plan.contestability?.score ?? 0,
+    contestabilityBreakdown: plan.contestability
+      ? { ...plan.contestability.axes }
+      : null,
+    contestabilityReasons: [...plan.contestabilityExplanation],
+    contestabilityContribution: plan.contestabilityContribution,
+    contestabilityRatio:
+      plan.recommendationIntegration?.contestabilityRatio ?? 0,
+    preContestabilityRecommendation:
+      plan.preContestabilityRecommendation,
+    recommendationProtectionAdjustment:
+      plan.recommendationProtectionAdjustment,
     finalRecommendation: plan.finalRecommendation,
     battleValueRatio:
       plan.recommendationIntegration?.battleValueRatio ?? 0,
@@ -892,7 +912,7 @@ export function formatRecommendationAnalyzerReport(
   lines.push(`Recommendation ${topLabel}`);
   for (const candidate of result.recommendationTop20) {
     lines.push(
-      `${candidate.speciesRank}. ${candidate.name} (${candidate.slug}) Recommendation=${candidate.baselineRecommendationScore} BattleValueContribution=${candidate.battleValueContribution} Final=${candidate.finalRecommendation} BattleValueRatio=${round(candidate.battleValueRatio * 100, 1)}% raw=${candidate.rank} categories=[overall:${candidate.categoryScores.overall} defensive:${candidate.categoryScores.defensive} offensive:${candidate.categoryScores.offensive} speed:${candidate.categoryScores.speed} type:${candidate.categoryScores.typeSpecific}]`
+      `${candidate.speciesRank}. ${candidate.name} (${candidate.slug}) Recommendation=${candidate.baselineRecommendationScore} BattleValueContribution=${candidate.battleValueContribution} Contestability=${candidate.contestability} ContestabilityContribution=${candidate.contestabilityContribution} Final=${candidate.finalRecommendation} BattleValueRatio=${round(candidate.battleValueRatio * 100, 1)}% ContestabilityRatio=${round(candidate.contestabilityRatio * 100, 1)}% raw=${candidate.rank} categories=[overall:${candidate.categoryScores.overall} defensive:${candidate.categoryScores.defensive} offensive:${candidate.categoryScores.offensive} speed:${candidate.categoryScores.speed} type:${candidate.categoryScores.typeSpecific}]`
     );
     candidate.topContributions.forEach((entry, index) =>
       lines.push(

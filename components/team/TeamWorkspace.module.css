@@ -254,6 +254,11 @@
 .advisorDiagnosticCard h4 { margin: 0 0 4px; color: #244f37; font-size: .86rem; }
 .advisorDiagnosticCard > p { min-height: 2.8em; margin: 0 0 10px; overflow-wrap: anywhere; color: #617168; font-size: .7rem; line-height: 1.5; }
 .advisorDiagnosticDetails > summary { width: fit-content; cursor: pointer; color: #315f43; font-size: .68rem; font-weight: 850; }
+.advisorDiagnosticDetails dl { display: grid; gap: 5px; margin: 8px 0 0; }
+.advisorDiagnosticDetails dl > div { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; align-items: start; padding: 6px 7px; border-radius: 6px; background: #f0f5f2; }
+.advisorDiagnosticDetails dt { overflow-wrap: anywhere; color: #53655a; font-size: .66rem; line-height: 1.4; }
+.advisorDiagnosticDetails dd { margin: 0; color: #334d3d; font-size: .68rem; font-weight: 900; line-height: 1.4; text-align: right; }
+.advisorDiagnosticDetails ul { margin: 8px 0 0; padding-left: 18px; color: #53655a; font-size: .68rem; line-height: 1.5; }
 .advisorDiagnosticCard dl { display: grid; gap: 5px; margin: 8px 0 0; }
 .advisorDiagnosticCard dl > div { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; align-items: start; padding: 6px 7px; border-radius: 6px; background: #f0f5f2; }
 .advisorDiagnosticCard dt { overflow-wrap: anywhere; color: #53655a; font-size: .66rem; line-height: 1.4; }

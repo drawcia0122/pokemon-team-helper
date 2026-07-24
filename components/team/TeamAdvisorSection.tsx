@@ -828,7 +828,10 @@ function AdvisorThreatCandidateCard({
         />
       </div>
       {plan.recommendationIntegration ? (
-        <BattleValueDetails plan={plan} />
+        <>
+          <ContestabilityDetails plan={plan} />
+          <BattleValueDetails plan={plan} />
+        </>
       ) : null}
     </article>
   );
@@ -867,6 +870,40 @@ function BattleValueDetails({ plan }: { plan: AdvisorSwapPlan }) {
           </div>
         ))}
       </dl>
+    </details>
+  );
+}
+
+const CONTESTABILITY_DISPLAY_LABELS: Record<string, string> = {
+  environment: "環境上位への対応",
+  team: "現在のチームとの相性",
+  matchup: "主要対面での動きやすさ",
+  reliability: "仕事の安定性"
+};
+
+function ContestabilityDetails({ plan }: { plan: AdvisorSwapPlan }) {
+  const contestability = plan.contestability;
+  if (!contestability) return null;
+  return (
+    <details className={styles.advisorDiagnosticDetails}>
+      <summary>
+        選出しやすさ {contestability.score.toFixed(0)} / 100
+      </summary>
+      <dl>
+        {Object.entries(contestability.axes).map(([axis, score]) => (
+          <div key={axis}>
+            <dt>{CONTESTABILITY_DISPLAY_LABELS[axis] ?? axis}</dt>
+            <dd>{score.toFixed(0)}</dd>
+          </div>
+        ))}
+      </dl>
+      {contestability.reasons.length ? (
+        <ul>
+          {contestability.reasons.map((reason) => (
+            <li key={`${reason.axis}:${reason.text}`}>{reason.text}</li>
+          ))}
+        </ul>
+      ) : null}
     </details>
   );
 }
@@ -989,7 +1026,10 @@ function AdvisorRecommendationCard({
         />
       </div>
       {plan.recommendationIntegration ? (
-        <BattleValueDetails plan={plan} />
+        <>
+          <ContestabilityDetails plan={plan} />
+          <BattleValueDetails plan={plan} />
+        </>
       ) : null}
     </article>
   );
