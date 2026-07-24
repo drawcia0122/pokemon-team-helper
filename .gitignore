@@ -3,6 +3,7 @@ out/
 public/environment-data/
 node_modules/
 *.tsbuildinfo
+/benchmark.json
 
 .DS_Store
 *.log

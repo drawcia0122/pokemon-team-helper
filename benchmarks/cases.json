@@ -1,0 +1,317 @@
+{
+  "schemaVersion": 1,
+  "title": "Recommendation Human-Building Sense Benchmark",
+  "description": "RecommendationとBattle Valueの統合結果を、固定順位ではなく相対条件と役割条件で評価します。",
+  "cases": [
+    {
+      "id": "case001",
+      "title": "Dragon offense",
+      "description": "ドラゴン中心の攻撃構築で、終盤性能と高速圧力を持つ候補が静的補完候補へ埋もれないことを確認します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["garchomp", "hydreigon", "dragonite", "corviknight", "clefable"],
+      "expected": [
+        {"id": "king-over-jolteon", "type": "ranks-above", "candidate": "kingambit", "reference": "jolteon", "weight": 3, "failureReason": "Cleanup不足"},
+        {"id": "dragapult-top50", "type": "rank-at-most", "candidate": "dragapult", "maxRank": 50, "weight": 2, "failureReason": "高速圧力不足"}
+      ],
+      "priority": "critical",
+      "tags": ["Dragon offense", "Cleanup", "representative"]
+    },
+    {
+      "id": "case002",
+      "title": "Hyper offense",
+      "description": "高速展開構築でSetupまたはCleanupを持つ候補が上位へ入ることを確認します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["grimmsnarl", "garchomp", "gholdengo", "charizard", "meowscarada"],
+      "expected": [
+        {"id": "setup-in-top20", "type": "top-with-axis", "axis": "setupWinCondition", "maxRank": 20, "minimum": 5, "weight": 3, "failureReason": "Setup不足"},
+        {"id": "gengar-improves", "type": "rank-improves", "candidate": "gengar-mega", "minimumPlaces": 1, "weight": 2, "failureReason": "Battle Value不足"}
+      ],
+      "priority": "high",
+      "tags": ["Hyper offense", "Setup", "Cleanup"]
+    },
+    {
+      "id": "case003",
+      "title": "Stall",
+      "description": "受け中心の構築で、拘束や崩しによる勝ち筋を持つ候補を評価できることを確認します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["umbreon", "toxapex", "skarmory", "gliscor", "clefable"],
+      "expected": [
+        {"id": "gengar-bv", "type": "battle-value-at-least", "candidate": "gengar-mega", "minimum": 30, "weight": 2, "failureReason": "Battle Value不足"},
+        {"id": "wallbreak-in-top30", "type": "top-with-axis", "axis": "immediateBreak", "maxRank": 30, "minimum": 8, "weight": 3, "failureReason": "WallBreak不足"}
+      ],
+      "priority": "critical",
+      "tags": ["Stall", "WallBreak", "Trap"]
+    },
+    {
+      "id": "case004",
+      "title": "Balance",
+      "description": "標準的なバランス構築でTASK048の代表的な相対関係を維持することを確認します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["charizard", "garchomp", "rotom-wash", "corviknight", "clefable"],
+      "expected": [
+        {"id": "king-over-jolteon", "type": "ranks-above", "candidate": "kingambit", "reference": "jolteon", "weight": 3, "failureReason": "Coverage過大評価"},
+        {"id": "gengar-top20", "type": "rank-at-most", "candidate": "gengar-mega", "maxRank": 20, "weight": 3, "failureReason": "Battle Value不足"}
+      ],
+      "priority": "critical",
+      "tags": ["Balance", "representative", "TASK048"]
+    },
+    {
+      "id": "case005",
+      "title": "Trick Room",
+      "description": "トリックルーム構築で通常構築の高速評価へ引っ張られず、崩しと勝ち筋を評価できることを確認します。",
+      "regulation": "M-B",
+      "profile": "trick-room",
+      "team": ["hatterene", "slowbro", "audino", "slowking-galar", "kingambit"],
+      "expected": [
+        {"id": "mawile-top40", "type": "rank-at-most", "candidate": "mawile-mega", "maxRank": 40, "weight": 3, "failureReason": "Trick Room適性不足"},
+        {"id": "wallbreak-in-top20", "type": "top-with-axis", "axis": "immediateBreak", "maxRank": 20, "minimum": 8, "weight": 2, "failureReason": "WallBreak不足"}
+      ],
+      "priority": "critical",
+      "tags": ["Trick Room", "WallBreak", "Mega"]
+    },
+    {
+      "id": "case006",
+      "title": "Rain",
+      "description": "雨構築でメガスターミーの実戦価値が統合前より改善することを確認します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["pelipper", "swampert", "forretress", "garchomp", "corviknight"],
+      "expected": [
+        {"id": "starmie-improves", "type": "rank-improves", "candidate": "starmie-mega", "minimumPlaces": 1, "weight": 3, "failureReason": "Battle Value不足"},
+        {"id": "starmie-bv", "type": "battle-value-at-least", "candidate": "starmie-mega", "minimum": 35, "weight": 2, "failureReason": "Cleanup不足"}
+      ],
+      "priority": "high",
+      "tags": ["Rain", "Mega Starmie", "representative"]
+    },
+    {
+      "id": "case007",
+      "title": "Sand",
+      "description": "砂構築で静的な高速補完より終盤性能のある候補を優先できることを確認します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["tyranitar", "excadrill", "forretress", "rotom-wash", "corviknight"],
+      "expected": [
+        {"id": "king-over-jolteon", "type": "ranks-above", "candidate": "kingambit", "reference": "jolteon", "weight": 3, "failureReason": "Coverage過大評価"},
+        {"id": "cleanup-in-top30", "type": "top-with-axis", "axis": "cleanup", "maxRank": 30, "minimum": 7, "weight": 2, "failureReason": "Cleanup不足"}
+      ],
+      "priority": "high",
+      "tags": ["Sand", "Cleanup"]
+    },
+    {
+      "id": "case008",
+      "title": "Sun",
+      "description": "晴れ構築で積みから勝ち筋を作る候補を適切に評価できることを確認します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["torkoal", "venusaur", "charizard", "dragonite", "clefable"],
+      "expected": [
+        {"id": "volcarona-top50", "type": "rank-at-most", "candidate": "volcarona", "maxRank": 50, "weight": 2, "failureReason": "Setup不足"},
+        {"id": "volcarona-setup", "type": "battle-axis-at-least", "candidate": "volcarona", "axis": "setupWinCondition", "minimum": 5, "weight": 3, "failureReason": "WinCondition不足"}
+      ],
+      "priority": "high",
+      "tags": ["Sun", "Setup", "Volcarona", "representative"]
+    },
+    {
+      "id": "case009",
+      "title": "Hazard Stack",
+      "description": "定数ダメージを活用する構築で、終盤の詰め役がRecommendationへ現れることを確認します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["glimmora", "garchomp", "gholdengo", "grimmsnarl", "dragonite"],
+      "expected": [
+        {"id": "cleanup-in-top20", "type": "top-with-axis", "axis": "cleanup", "maxRank": 20, "minimum": 7, "weight": 3, "failureReason": "Cleanup不足"},
+        {"id": "king-top30", "type": "rank-at-most", "candidate": "kingambit", "maxRank": 30, "weight": 2, "failureReason": "Threat過大評価"}
+      ],
+      "priority": "high",
+      "tags": ["Hazard Stack", "Cleanup"]
+    },
+    {
+      "id": "case010",
+      "title": "Hazard Removal shortage",
+      "description": "ステルスロックに弱い構築で、単純なBattle Valueだけに偏らないことを確認します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["volcarona", "dragonite", "weavile", "clefable", "kingambit"],
+      "expected": [
+        {"id": "corviknight-top40", "type": "rank-at-most", "candidate": "corviknight", "maxRank": 40, "weight": 3, "failureReason": "Hazard Removal不足"},
+        {"id": "defensive-not-lost", "type": "battle-value-at-least", "candidate": "corviknight", "minimum": 15, "weight": 2, "failureReason": "Battle Value過大評価"}
+      ],
+      "priority": "critical",
+      "tags": ["Hazard Removal不足", "Defensive"]
+    },
+    {
+      "id": "case011",
+      "title": "Setup shortage",
+      "description": "受け寄りの構築へ明確な積み勝ち筋を追加できることを確認します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["audino", "toxapex", "corviknight", "rotom-wash", "clefable"],
+      "expected": [
+        {"id": "setup-in-top20", "type": "top-with-axis", "axis": "setupWinCondition", "maxRank": 20, "minimum": 6, "weight": 3, "failureReason": "Setup不足"},
+        {"id": "volcarona-improves", "type": "rank-improves", "candidate": "volcarona", "minimumPlaces": 1, "weight": 2, "failureReason": "WinCondition不足"}
+      ],
+      "priority": "critical",
+      "tags": ["Setup不足", "WinCondition不足"]
+    },
+    {
+      "id": "case012",
+      "title": "Cleanup shortage",
+      "description": "低速寄りのバランス構築へ終盤の詰め役を提示できることを確認します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["hippowdon", "forretress", "slowking-galar", "clefable", "corviknight"],
+      "expected": [
+        {"id": "cleanup-in-top20", "type": "top-with-axis", "axis": "cleanup", "maxRank": 20, "minimum": 7, "weight": 3, "failureReason": "Cleanup不足"},
+        {"id": "dragapult-top50", "type": "rank-at-most", "candidate": "dragapult", "maxRank": 50, "weight": 2, "failureReason": "高速圧力不足"}
+      ],
+      "priority": "critical",
+      "tags": ["Cleanup不足", "Dragapult", "representative"]
+    },
+    {
+      "id": "case013",
+      "title": "Priority shortage",
+      "description": "先制技がない構築でPriority Finishを持つ候補を評価できることを確認します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["hydreigon", "volcarona", "rotom-wash", "corviknight", "clefable"],
+      "expected": [
+        {"id": "priority-in-top30", "type": "top-with-axis", "axis": "priorityRevenge", "maxRank": 30, "minimum": 4, "weight": 3, "failureReason": "Priority不足"},
+        {"id": "king-priority", "type": "battle-axis-at-least", "candidate": "kingambit", "axis": "priorityRevenge", "minimum": 4, "weight": 2, "failureReason": "Priority不足"}
+      ],
+      "priority": "high",
+      "tags": ["Priority不足", "Priority Finish"]
+    },
+    {
+      "id": "case014",
+      "title": "Mega in early phase",
+      "description": "構築序盤でTASK039のメガ候補制御を守りながら、強力なメガ候補を評価できることを確認します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["garchomp", "rotom-wash"],
+      "expected": [
+        {"id": "gengar-improves", "type": "rank-improves", "candidate": "gengar-mega", "minimumPlaces": 1, "weight": 3, "failureReason": "Battle Value不足"},
+        {"id": "mega-wallbreak", "type": "battle-axis-at-least", "candidate": "mawile-mega", "axis": "immediateBreak", "minimum": 8, "weight": 2, "failureReason": "WallBreak不足"}
+      ],
+      "priority": "critical",
+      "tags": ["Mega入り序盤", "TASK039"]
+    },
+    {
+      "id": "case015",
+      "title": "Mega in late phase",
+      "description": "既にメガ候補を含む完成直前の構築で、2体目候補の機会費用を含めた順位を確認します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["charizard-mega-x", "garchomp", "rotom-wash", "corviknight", "clefable"],
+      "expected": [
+        {"id": "starmie-improves", "type": "rank-improves", "candidate": "starmie-mega", "minimumPlaces": 1, "weight": 2, "failureReason": "Battle Value不足"},
+        {"id": "king-over-jolteon", "type": "ranks-above", "candidate": "kingambit", "reference": "jolteon", "weight": 3, "failureReason": "Coverage過大評価"}
+      ],
+      "priority": "critical",
+      "tags": ["Mega入り終盤", "TASK039", "Mega Starmie"]
+    },
+    {
+      "id": "case016",
+      "title": "Defensive Team",
+      "description": "防御的な構築でもDefensive候補を一律に落とさず、必要な崩し役を両立して評価できることを確認します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["milotic", "umbreon", "corviknight", "clefable", "forretress"],
+      "expected": [
+        {"id": "gengar-top50", "type": "rank-at-most", "candidate": "gengar-mega", "maxRank": 50, "weight": 2, "failureReason": "WallBreak不足"},
+        {"id": "wallbreak-in-top20", "type": "top-with-axis", "axis": "immediateBreak", "maxRank": 20, "minimum": 8, "weight": 3, "failureReason": "WallBreak不足"}
+      ],
+      "priority": "high",
+      "tags": ["Defensive Team", "WallBreak"]
+    },
+    {
+      "id": "case017",
+      "title": "Pivot Team",
+      "description": "交代技を多用する構築で、Tempoだけでなく試合を終わらせる候補が上位へ入ることを確認します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["rotom-wash", "corviknight", "meowscarada", "scizor", "slowking-galar"],
+      "expected": [
+        {"id": "cleanup-in-top20", "type": "top-with-axis", "axis": "cleanup", "maxRank": 20, "minimum": 7, "weight": 3, "failureReason": "Cleanup不足"},
+        {"id": "king-over-jolteon", "type": "ranks-above", "candidate": "kingambit", "reference": "jolteon", "weight": 2, "failureReason": "Tempo過大評価"}
+      ],
+      "priority": "high",
+      "tags": ["Pivot Team", "Tempo", "Cleanup"]
+    },
+    {
+      "id": "case018",
+      "title": "Double Wall",
+      "description": "物理・特殊受けを並べた構築で、拘束・崩し性能を持つ候補が評価されることを確認します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["umbreon", "skarmory", "garchomp", "rotom-wash", "dragapult"],
+      "expected": [
+        {"id": "gengar-top50", "type": "rank-at-most", "candidate": "gengar-mega", "maxRank": 50, "weight": 3, "failureReason": "WallBreak不足"},
+        {"id": "gengar-trap", "type": "battle-axis-at-least", "candidate": "gengar-mega", "axis": "trapTargetRemoval", "minimum": 5, "weight": 2, "failureReason": "Trap不足"}
+      ],
+      "priority": "high",
+      "tags": ["Double Wall", "Mega Gengar", "representative"]
+    },
+    {
+      "id": "case019",
+      "title": "WallBreak shortage",
+      "description": "低火力の補完中心構築で、メガクチートの崩し性能を評価できることを確認します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["sylveon", "corviknight", "clefable", "rotom-wash", "skarmory"],
+      "expected": [
+        {"id": "mawile-top60", "type": "rank-at-most", "candidate": "mawile-mega", "maxRank": 60, "weight": 2, "failureReason": "WallBreak不足"},
+        {"id": "mawile-break", "type": "battle-axis-at-least", "candidate": "mawile-mega", "axis": "immediateBreak", "minimum": 10, "weight": 3, "failureReason": "WallBreak不足"}
+      ],
+      "priority": "critical",
+      "tags": ["WallBreak不足", "Mega Mawile", "representative"]
+    },
+    {
+      "id": "case020",
+      "title": "WinCondition shortage",
+      "description": "明確な勝ち筋がない受け構築で、SetupまたはTrapによる勝ち筋を提示できることを確認します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["toxapex", "audino", "corviknight", "rotom-wash", "clefable"],
+      "expected": [
+        {"id": "setup-in-top20", "type": "top-with-axis", "axis": "setupWinCondition", "maxRank": 20, "minimum": 6, "weight": 3, "failureReason": "WinCondition不足"},
+        {"id": "gengar-improves", "type": "rank-improves", "candidate": "gengar-mega", "minimumPlaces": 1, "weight": 2, "failureReason": "Battle Value不足"}
+      ],
+      "priority": "critical",
+      "tags": ["WinCondition不足", "Setup", "Trap"]
+    },
+    {
+      "id": "case021",
+      "title": "Representative static support comparison",
+      "description": "Battle Value代表候補が静的補完候補のサンダース・ニンフィアへ再び埋もれないことを確認します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["charizard", "garchomp", "rotom-wash", "corviknight", "clefable"],
+      "expected": [
+        {"id": "king-over-jolteon", "type": "ranks-above", "candidate": "kingambit", "reference": "jolteon", "weight": 3, "failureReason": "Coverage過大評価"},
+        {"id": "gengar-over-sylveon", "type": "ranks-above", "candidate": "gengar-mega", "reference": "sylveon", "weight": 3, "failureReason": "Battle Value不足"},
+        {"id": "dragapult-top50", "type": "rank-at-most", "candidate": "dragapult", "maxRank": 50, "weight": 1, "failureReason": "高速圧力不足"}
+      ],
+      "priority": "critical",
+      "tags": ["representative", "Jolteon", "Sylveon", "Kingambit"]
+    },
+    {
+      "id": "case022",
+      "title": "Representative offensive mega comparison",
+      "description": "実戦価値の高いメガ候補3体のBattle Valueと順位改善を継続監視します。",
+      "regulation": "M-B",
+      "profile": "standard",
+      "team": ["charizard", "garchomp", "rotom-wash", "corviknight", "clefable"],
+      "expected": [
+        {"id": "starmie-improves", "type": "rank-improves", "candidate": "starmie-mega", "minimumPlaces": 1, "weight": 2, "failureReason": "Battle Value不足"},
+        {"id": "gengar-improves", "type": "rank-improves", "candidate": "gengar-mega", "minimumPlaces": 1, "weight": 2, "failureReason": "Battle Value不足"},
+        {"id": "mawile-bv", "type": "battle-value-at-least", "candidate": "mawile-mega", "minimum": 40, "weight": 2, "failureReason": "WallBreak不足"}
+      ],
+      "priority": "high",
+      "tags": ["representative", "Mega Starmie", "Mega Gengar", "Mega Mawile"]
+    }
+  ]
+}

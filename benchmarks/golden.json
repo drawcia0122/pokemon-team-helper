@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "generatedFromCommit": "TASK049-initial",
+  "overallScore": 85.54,
+  "passRate": 0.6818,
+  "partialRate": 0.2727,
+  "failRate": 0.0455,
+  "caseScores": {
+    "case001": 0,
+    "case002": 60,
+    "case003": 100,
+    "case004": 100,
+    "case005": 100,
+    "case006": 100,
+    "case007": 100,
+    "case008": 100,
+    "case009": 60,
+    "case010": 100,
+    "case011": 100,
+    "case012": 60,
+    "case013": 100,
+    "case014": 100,
+    "case015": 70,
+    "case016": 100,
+    "case017": 60,
+    "case018": 70,
+    "case019": 100,
+    "case020": 100,
+    "case021": 100,
+    "case022": 100
+  }
+}
