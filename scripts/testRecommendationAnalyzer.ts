@@ -126,11 +126,11 @@ assert(
   "Battle Candidateシグナル集計が不正です"
 );
 assert(
-  result.representativeComparison.length === 8 &&
+  result.representativeComparison.length === 10 &&
     result.representativeComparison.every(
       (entry) => entry.candidate && entry.battleCandidate
     ),
-  "代表8体の比較データが揃っていません"
+  "代表10体の比較データが揃っていません"
 );
 const megaGengar = result.representativeComparison.find(
   (entry) => entry.slug === "gengar-mega"

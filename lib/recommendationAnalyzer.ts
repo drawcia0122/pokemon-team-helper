@@ -5,6 +5,10 @@ import {
   type AdvisorEvidenceDimension
 } from "@/lib/advisorEvidence";
 import { getAdvisorMovePower } from "@/lib/advisorMoveQuality";
+import {
+  analyzeSemanticRecommendationGap,
+  formatSemanticRecommendationGapReport
+} from "@/lib/semanticRecommendationGap";
 import type {
   AdvisorRecommendationCategory,
   AdvisorSwapPlan
@@ -18,6 +22,10 @@ import type {
   ThreatEnvironmentDataset
 } from "@/types/environmentThreat";
 import type { PokemonEntry } from "@/types/pokemon";
+import type {
+  SemanticCandidateProfile,
+  SemanticRecommendationGapAnalysis
+} from "@/types/semanticRecommendationGap";
 
 export const RECOMMENDATION_CONTRIBUTION_CATEGORIES = [
   "Threat",
@@ -54,8 +62,10 @@ export const REPRESENTATIVE_RECOMMENDATION_SLUGS = [
   "starmie-mega",
   "lucario-mega",
   "blaziken-mega",
+  "lopunny-mega",
   "kingambit",
   "volcarona",
+  "dragapult",
   "jolteon",
   "sylveon"
 ] as const;
@@ -96,6 +106,10 @@ export type RecommendationCandidateAnalysis = {
     RecommendationContributionEvidence[]
   >;
   riskMagnitude: number;
+  eligibilityConstraints: {
+    megaLimitPassed: boolean;
+    megaRecommendationPassed: boolean;
+  };
 };
 
 export type BattleCandidateAnalysis = {
@@ -121,10 +135,14 @@ export type RecommendationOutlier = {
 };
 
 export type RecommendationAnalyzerResult = {
+  metadata: SemanticRecommendationGapAnalysis["metadata"];
+  input: RecommendationAnalyzerContext;
   context: RecommendationAnalyzerContext;
   candidates: RecommendationCandidateAnalysis[];
+  recommendationRanking: RecommendationCandidateAnalysis[];
   recommendationTop20: RecommendationCandidateAnalysis[];
   contributionAverages: Record<RecommendationContributionCategory, number>;
+  contributionSummary: Record<RecommendationContributionCategory, number>;
   battleCandidates: BattleCandidateAnalysis[];
   underestimatedCandidates: RecommendationOutlier[];
   overestimatedCandidates: RecommendationOutlier[];
@@ -132,7 +150,19 @@ export type RecommendationAnalyzerResult = {
     slug: string;
     candidate: RecommendationCandidateAnalysis | null;
     battleCandidate: BattleCandidateAnalysis | null;
+    semanticProfile: SemanticCandidateProfile | null;
   }>;
+  datasetSummary: SemanticRecommendationGapAnalysis["datasetSummary"];
+  representationMap: SemanticRecommendationGapAnalysis["representationMap"];
+  semanticProfiles: SemanticRecommendationGapAnalysis["semanticProfiles"];
+  battleTagSummary: SemanticRecommendationGapAnalysis["battleTagSummary"];
+  archetypeSummary: SemanticRecommendationGapAnalysis["archetypeSummary"];
+  semanticGapRanking: SemanticRecommendationGapAnalysis["semanticGapRanking"];
+  semanticUnderestimationCandidates: SemanticRecommendationGapAnalysis["semanticUnderestimationCandidates"];
+  staticSupportCandidates: SemanticRecommendationGapAnalysis["staticSupportCandidates"];
+  riskDominatedCandidates: SemanticRecommendationGapAnalysis["riskDominatedCandidates"];
+  contributionInvestigation: SemanticRecommendationGapAnalysis["contributionInvestigation"];
+  unclassifiedSummary: SemanticRecommendationGapAnalysis["unclassifiedSummary"];
 };
 
 const SETUP_MOVE_IDS = new Set([
@@ -440,7 +470,11 @@ function analyzePlan(
     contributions,
     topContributions,
     evidenceByCategory,
-    riskMagnitude: Math.abs(Math.min(0, contributions.Risk))
+    riskMagnitude: Math.abs(Math.min(0, contributions.Risk)),
+    eligibilityConstraints: {
+      megaLimitPassed: plan.metrics.megaLimitPassed,
+      megaRecommendationPassed: plan.metrics.megaRecommendationPassed
+    }
   };
 }
 
@@ -739,19 +773,47 @@ export function analyzeRecommendations({
       };
     });
 
-  return {
+  const semanticGap = analyzeSemanticRecommendationGap({
     context,
     candidates,
+    recommendationTop: recommendationTop20,
+    environmentSnapshot,
+    availablePokemon,
+    topLimit
+  });
+  const semanticProfileBySlug = new Map(
+    semanticGap.semanticProfiles.map((profile) => [profile.slug, profile])
+  );
+  return {
+    metadata: semanticGap.metadata,
+    input: context,
+    context,
+    candidates,
+    recommendationRanking: candidates,
     recommendationTop20,
     contributionAverages,
+    contributionSummary: contributionAverages,
     battleCandidates,
     underestimatedCandidates,
     overestimatedCandidates,
     representativeComparison: representativeSlugs.map((slug) => ({
       slug,
       candidate: candidateBySlug.get(slug) ?? null,
-      battleCandidate: battleBySlug.get(slug) ?? null
-    }))
+      battleCandidate: battleBySlug.get(slug) ?? null,
+      semanticProfile: semanticProfileBySlug.get(slug) ?? null
+    })),
+    datasetSummary: semanticGap.datasetSummary,
+    representationMap: semanticGap.representationMap,
+    semanticProfiles: semanticGap.semanticProfiles,
+    battleTagSummary: semanticGap.battleTagSummary,
+    archetypeSummary: semanticGap.archetypeSummary,
+    semanticGapRanking: semanticGap.semanticGapRanking,
+    semanticUnderestimationCandidates:
+      semanticGap.semanticUnderestimationCandidates,
+    staticSupportCandidates: semanticGap.staticSupportCandidates,
+    riskDominatedCandidates: semanticGap.riskDominatedCandidates,
+    contributionInvestigation: semanticGap.contributionInvestigation,
+    unclassifiedSummary: semanticGap.unclassifiedSummary
   };
 }
 
@@ -878,5 +940,29 @@ export function formatRecommendationAnalyzerReport(
       `${candidate.name} (${candidate.slug}) Recommendation=${candidate.speciesRank ?? "圏外"} raw=${candidate.recommendationRank ?? "未評価"} Usage=${round(candidate.usageRate * 100, 2)}% Battle Candidate=${candidate.signalStars}(${candidate.signalCount}) ${signalText}`
     );
   }
+  lines.push("");
+  lines.push(
+    formatSemanticRecommendationGapReport(
+      {
+        metadata: result.metadata,
+        datasetSummary: result.datasetSummary,
+        representationMap: result.representationMap,
+        semanticProfiles: result.semanticProfiles,
+        battleTagSummary: result.battleTagSummary,
+        archetypeSummary: result.archetypeSummary,
+        semanticGapRanking: result.semanticGapRanking,
+        semanticUnderestimationCandidates:
+          result.semanticUnderestimationCandidates,
+        staticSupportCandidates: result.staticSupportCandidates,
+        riskDominatedCandidates: result.riskDominatedCandidates,
+        representativeComparison: result.representativeComparison.flatMap(
+          (entry) => (entry.semanticProfile ? [entry.semanticProfile] : [])
+        ),
+        contributionInvestigation: result.contributionInvestigation,
+        unclassifiedSummary: result.unclassifiedSummary
+      },
+      result.recommendationTop20.length
+    ).trimEnd()
+  );
   return `${lines.join("\n")}\n`;
 }
