@@ -290,6 +290,7 @@ function buildProfile(
   else if (unclassifiedRate >= 0.35) disposition = "unclassified-heavy";
   else if (
     !candidate ||
+    candidate.speciesRank === null ||
     !candidate.eligibilityConstraints.megaLimitPassed ||
     !candidate.eligibilityConstraints.megaRecommendationPassed
   ) {

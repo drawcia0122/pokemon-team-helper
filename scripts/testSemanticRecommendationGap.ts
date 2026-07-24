@@ -101,6 +101,12 @@ assert(
     first.riskDominatedCandidates.length >= 15,
   "分析候補を15体以上出力できていません"
 );
+assert(
+  !first.semanticUnderestimationCandidates.some(
+    (entry) => entry.recommendationRank === null
+  ),
+  "species重複・eligibility除外をSemantic過小評価へ混同しました"
+);
 
 const starmie = profile(first, "starmie-mega");
 const jolteon = profile(first, "jolteon");
