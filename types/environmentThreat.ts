@@ -33,6 +33,11 @@ export type ThreatEnvironmentAbility = {
   share: number;
 };
 
+export type ThreatEnvironmentItem = {
+  id: string;
+  share: number;
+};
+
 export type ThreatEnvironmentRelation = {
   slug: string | null;
   name: string;
@@ -51,6 +56,7 @@ export type ThreatEnvironmentPokemon = {
   };
   moves: ThreatEnvironmentMove[];
   abilities: ThreatEnvironmentAbility[];
+  items?: ThreatEnvironmentItem[];
   teammates: ThreatEnvironmentRelation[];
   checksAndCounters: ThreatEnvironmentRelation[];
 };

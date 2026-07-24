@@ -95,6 +95,12 @@ export type RecommendationCandidateAnalysis = {
   action: AdvisorSwapPlan["action"];
   recommendationEligible: boolean;
   recommendationScore: number;
+  baselineRecommendationScore: number;
+  battleValueContribution: number;
+  battleValueExplanation: string[];
+  finalRecommendation: number;
+  battleValueRatio: number;
+  contributionRatios: Record<string, number>;
   categoryScores: Record<AdvisorRecommendationCategory, number>;
   contributions: Record<RecommendationContributionCategory, number>;
   topContributions: Array<{
@@ -428,7 +434,7 @@ function allocateEvidence(
     (total, points) => total + points,
     0
   );
-  const residual = round(plan.improvementScore - allocated);
+  const residual = round(plan.baselineRecommendationScore - allocated);
   if (residual !== 0) {
     const target =
       [...RECOMMENDATION_CONTRIBUTION_CATEGORIES].sort(
@@ -440,7 +446,7 @@ function allocateEvidence(
   return { contributions, evidenceByCategory };
 }
 
-function analyzePlan(
+export function analyzeRecommendationPlan(
   plan: AdvisorSwapPlan,
   rank: number,
   environmentDataset: ThreatEnvironmentDataset
@@ -466,6 +472,15 @@ function analyzePlan(
     action: plan.action,
     recommendationEligible: plan.isRecommendationByCategory.overall,
     recommendationScore: plan.improvementScore,
+    baselineRecommendationScore: plan.baselineRecommendationScore,
+    battleValueContribution: plan.battleValueContribution,
+    battleValueExplanation: [...plan.battleValueExplanation],
+    finalRecommendation: plan.finalRecommendation,
+    battleValueRatio:
+      plan.recommendationIntegration?.battleValueRatio ?? 0,
+    contributionRatios: {
+      ...(plan.recommendationIntegration?.contributionRatios ?? {})
+    },
     categoryScores: { ...plan.categoryScores },
     contributions,
     topContributions,
@@ -653,7 +668,7 @@ export function analyzeRecommendations({
 }): RecommendationAnalyzerResult {
   const rankedPlans = bestPlansBySlug(plans);
   const candidates = rankedPlans.map((plan, index) =>
-    analyzePlan(plan, index + 1, environmentDataset)
+    analyzeRecommendationPlan(plan, index + 1, environmentDataset)
   );
   const planBySlug = new Map(
     rankedPlans.map((plan) => [plan.candidate.pokemon.slug, plan])
@@ -877,7 +892,7 @@ export function formatRecommendationAnalyzerReport(
   lines.push(`Recommendation ${topLabel}`);
   for (const candidate of result.recommendationTop20) {
     lines.push(
-      `${candidate.speciesRank}. ${candidate.name} (${candidate.slug}) score=${candidate.recommendationScore} raw=${candidate.rank} categories=[overall:${candidate.categoryScores.overall} defensive:${candidate.categoryScores.defensive} offensive:${candidate.categoryScores.offensive} speed:${candidate.categoryScores.speed} type:${candidate.categoryScores.typeSpecific}]`
+      `${candidate.speciesRank}. ${candidate.name} (${candidate.slug}) Recommendation=${candidate.baselineRecommendationScore} BattleValueContribution=${candidate.battleValueContribution} Final=${candidate.finalRecommendation} BattleValueRatio=${round(candidate.battleValueRatio * 100, 1)}% raw=${candidate.rank} categories=[overall:${candidate.categoryScores.overall} defensive:${candidate.categoryScores.defensive} offensive:${candidate.categoryScores.offensive} speed:${candidate.categoryScores.speed} type:${candidate.categoryScores.typeSpecific}]`
     );
     candidate.topContributions.forEach((entry, index) =>
       lines.push(

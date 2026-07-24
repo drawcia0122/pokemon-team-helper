@@ -481,7 +481,7 @@ assert(
     pageSource.includes("getThreatSnapshot") &&
     pageSource.includes("threatSnapshot.currentDisplayedTop5") &&
     pageSource.includes("threatSnapshot") &&
-    pageSource.includes("getAdvisorSwapSimulation") &&
+    pageSource.includes("getIntegratedAdvisorSwapSimulation") &&
     pageSource.includes("getProgressiveTeamAdvisor") &&
     pageSource.includes("addAdvisorCandidateToTeam") &&
     pageSource.includes("ADVISOR_ADD_BACKUP_KEY") &&

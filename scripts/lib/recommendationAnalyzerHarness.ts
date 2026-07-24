@@ -156,6 +156,7 @@ export function buildRecommendationAnalyzerFixture(
     profile
   });
   return {
+    team,
     analyzerInput: {
       context: {
         team: teamSlugs,

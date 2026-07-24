@@ -17,7 +17,7 @@ import {
   selectTeamForRestoreAction,
   type ArticleImportResult
 } from "@/lib/articleImport";
-import { getAdvisorSwapSimulation } from "@/lib/advisorSwapSimulator";
+import { getIntegratedAdvisorSwapSimulation } from "@/lib/recommendationBattleValueIntegration";
 import { addAdvisorCandidateToTeam } from "@/lib/advisorCandidateAddition";
 import {
   getAdvisorNextPhaseAnnouncement,
@@ -142,7 +142,7 @@ export default function HomePage() {
   );
   const advisorSwapSimulation = useMemo(
     () =>
-      getAdvisorSwapSimulation({
+      getIntegratedAdvisorSwapSimulation({
         team,
         advisor,
         availablePokemon,

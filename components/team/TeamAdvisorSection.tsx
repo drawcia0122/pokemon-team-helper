@@ -827,7 +827,47 @@ function AdvisorThreatCandidateCard({
           empty="この見方では大きな注意点はありません。"
         />
       </div>
+      {plan.recommendationIntegration ? (
+        <BattleValueDetails plan={plan} />
+      ) : null}
     </article>
+  );
+}
+
+const BATTLE_VALUE_DISPLAY_LABELS: Record<string, string> = {
+  immediateBreak: "崩し（Break）",
+  cleanup: "終盤の詰め（Cleanup）",
+  setupWinCondition: "能力上昇からの勝ち筋（Setup）",
+  priorityRevenge: "先制・対面処理（Priority Finish）",
+  trade: "1対1交換（Trade）",
+  tempo: "試合の流れ（Tempo）",
+  snowball: "連続展開（Snowball）",
+  trapTargetRemoval: "拘束（Trap）",
+  roleCompression: "役割の両立（Compression）"
+};
+
+function BattleValueDetails({ plan }: { plan: AdvisorSwapPlan }) {
+  const integration = plan.recommendationIntegration;
+  if (!integration) return null;
+  const axes = Object.entries(integration.battleValueAxes)
+    .filter(([, score]) => score > 0)
+    .sort(
+      (left, right) =>
+        right[1] - left[1] || left[0].localeCompare(right[0])
+    );
+  if (axes.length === 0) return null;
+  return (
+    <details className={styles.advisorDiagnosticDetails}>
+      <summary>勝ち筋の詳しい内訳</summary>
+      <dl>
+        {axes.map(([axis, score]) => (
+          <div key={axis}>
+            <dt>{BATTLE_VALUE_DISPLAY_LABELS[axis] ?? axis}</dt>
+            <dd>{score.toFixed(1)}</dd>
+          </div>
+        ))}
+      </dl>
+    </details>
   );
 }
 
@@ -948,6 +988,9 @@ function AdvisorRecommendationCard({
           empty="大きな注意点はありません。"
         />
       </div>
+      {plan.recommendationIntegration ? (
+        <BattleValueDetails plan={plan} />
+      ) : null}
     </article>
   );
 }

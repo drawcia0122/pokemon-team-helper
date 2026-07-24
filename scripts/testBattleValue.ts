@@ -271,15 +271,25 @@ for (const relativePath of [
   "lib/teamThreats.ts",
   "lib/threatSnapshot.ts",
   "lib/teamAdvisor.ts",
-  "lib/recommendationAnalyzer.ts",
-  "app/page.tsx",
-  "components/team/TeamAdvisorSection.tsx"
+  "lib/recommendationAnalyzer.ts"
 ]) {
   assert(
-    !readFileSync(relativePath, "utf8").includes("battleValue"),
-    `${relativePath}へBattle Valueが接続されています`
+    !readFileSync(relativePath, "utf8").includes(
+      'from "@/lib/battleValueEngine"'
+    ),
+    `${relativePath}がBattle Value Engineへ直接依存しています`
   );
 }
+assert(
+  readFileSync(
+    "lib/recommendationBattleValueIntegration.ts",
+    "utf8"
+  ).includes('from "@/lib/battleValueEngine"') &&
+    readFileSync("app/page.tsx", "utf8").includes(
+      "getIntegratedAdvisorSwapSimulation"
+    ),
+  "TASK048の正式Integration境界がありません"
+);
 assert(
   first.hazardControlInvestigation.archetypeCount === 0 &&
     !first.hazardControlInvestigation.requiresBothTags &&

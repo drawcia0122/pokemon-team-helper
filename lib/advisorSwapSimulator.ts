@@ -328,6 +328,20 @@ export type AdvisorSwapPlan = {
   afterThreatAverage: number | null;
   threatAverageDelta: number | null;
   improvementScore: number;
+  baselineRecommendationScore: number;
+  battleValueContribution: number;
+  battleValueExplanation: string[];
+  finalRecommendation: number;
+  recommendationIntegration: {
+    weight: number;
+    recommendationNormalized: number;
+    contributionNormalized: Record<string, number>;
+    contributionRatios: Record<string, number>;
+    battleValue: number;
+    battleValueNormalized: number;
+    battleValueRatio: number;
+    battleValueAxes: Record<string, number>;
+  } | null;
   categoryScores: Record<AdvisorRecommendationCategory, number>;
   categoryEvidenceIds: Record<AdvisorRecommendationCategory, string[]>;
   recommendationRoles: AdvisorRecommendationRole[];
@@ -2354,6 +2368,11 @@ export function evaluateAdvisorSwapPlan(
         ? afterThreatAverage - beforeThreatAverage
         : null,
     improvementScore,
+    baselineRecommendationScore: improvementScore,
+    battleValueContribution: 0,
+    battleValueExplanation: [],
+    finalRecommendation: improvementScore,
+    recommendationIntegration: null,
     categoryScores,
     categoryEvidenceIds,
     recommendationRoles,
@@ -3318,5 +3337,68 @@ export function getAdvisorSwapSimulation(
     recomputedThreatAnalysisCount: allPlans.length,
     rejectedPlanCount:
       allPlans.length - allPlans.filter((plan) => plan.isRecommendation).length
+  };
+}
+
+export function rebuildAdvisorSwapSimulationWithPlans(
+  baseline: AdvisorSwapSimulation,
+  allPlans: AdvisorSwapPlan[],
+  profile: TeamProfile = "standard"
+): AdvisorSwapSimulation {
+  if (allPlans.length === 0) return baseline;
+  const additionPlans = allPlans.filter(
+    (plan) => plan.action.kind === "add"
+  );
+  const overallPlans = selectDiverseOverallPlans(allPlans, profile);
+  const plansByCategory = {
+    overall: overallPlans,
+    defensive: selectCategoryPlans(
+      allPlans,
+      "defensive",
+      undefined,
+      profile
+    ),
+    offensive: selectCategoryPlans(
+      allPlans,
+      "offensive",
+      undefined,
+      profile
+    ),
+    speed: selectCategoryPlans(allPlans, "speed", undefined, profile)
+  };
+  const typeGroups = getTypePlanGroups(allPlans, profile);
+  const threatRecommendations = getThreatRecommendationGroups(
+    allPlans,
+    baseline.threatSnapshot.currentDisplayedTop5
+  );
+  const formChangePlans = allPlans
+    .filter(
+      (plan) =>
+        plan.action.kind === "form-change" &&
+        plan.metrics.megaLimitPassed &&
+        plan.metrics.megaRecommendationPassed &&
+        plan.finalRecommendation > 0
+    )
+    .sort(
+      (left, right) =>
+        right.finalRecommendation - left.finalRecommendation ||
+        left.candidate.pokemon.slug.localeCompare(
+          right.candidate.pokemon.slug
+        )
+    )
+    .slice(0, ADVISOR_RECOMMENDATION_RULES.maxPerCategory);
+  return {
+    ...baseline,
+    evaluatedPlans: allPlans,
+    plans: overallPlans,
+    additionPlans,
+    plansByCategory,
+    typePlans: typeGroups.typePlans,
+    typeOptions: typeGroups.typeOptions,
+    threatRecommendations,
+    formChangePlans,
+    rejectedPlanCount:
+      allPlans.length -
+      allPlans.filter((plan) => plan.isRecommendation).length
   };
 }

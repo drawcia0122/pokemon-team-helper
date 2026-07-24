@@ -327,9 +327,22 @@ export function buildAdvisorExplanationPresentation({
   const displayedKeys = new Set(
     [...primaryEvidence, ...otherEvidence, ...cautionEvidence].map(evidenceKey)
   );
+  const battleValueReasons =
+    mode === "overall" && !selectedThreatId
+      ? plan.battleValueExplanation
+      : [];
+  const primaryReasons =
+    battleValueReasons.length === 0
+      ? primaryEvidence.map((entry) => entry.displayText)
+      : [
+          ...primaryEvidence
+            .slice(0, Math.max(0, PRIMARY_REASON_LIMIT - 1))
+            .map((entry) => entry.displayText),
+          battleValueReasons[0]
+        ];
   return {
     label,
-    primaryReasons: primaryEvidence.map((entry) => entry.displayText),
+    primaryReasons,
     otherImprovements: otherEvidence.map((entry) => entry.displayText),
     cautions: cautionEvidence.map((entry) => entry.displayText),
     hasDirectThreatEvidence: directEvidence.length > 0,

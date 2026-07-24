@@ -13,6 +13,7 @@ import type {
 import type { PokemonEntry } from "@/types/pokemon";
 
 const MOVE_LIMIT = 8;
+const ITEM_LIMIT = 1;
 const RELATION_LIMIT = 3;
 
 function buildRelation(
@@ -90,6 +91,10 @@ export function buildThreatEnvironmentDataset(
             ability.id
           ).name,
           share: ability.share
+        })),
+        items: entry.items.slice(0, ITEM_LIMIT).map((item) => ({
+          id: item.id,
+          share: item.share
         })),
         teammates: entry.teammates
           .slice(0, RELATION_LIMIT)
