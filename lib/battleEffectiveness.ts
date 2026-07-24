@@ -429,3 +429,15 @@ export function evaluateMoveAgainstPokemon({
 export function getAbilityBypassIds(): readonly string[] {
   return [...ATTACKER_ABILITY_BYPASSES];
 }
+
+export function getDefensiveAbilityImmunities(): ReadonlyArray<{
+  abilityId: string;
+  immuneTypes: readonly TypeName[];
+}> {
+  return Object.entries(DEFENSIVE_IMMUNITIES).flatMap(
+    ([abilityId, immuneTypes]) =>
+      immuneTypes
+        ? [{ abilityId, immuneTypes: [...immuneTypes] }]
+        : []
+  );
+}
