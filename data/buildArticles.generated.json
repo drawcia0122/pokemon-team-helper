@@ -2459,5 +2459,61 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-07-26T09:25:36.939Z"
+  },
+  {
+    "id": "hatena-blog-5eec8eee869dfe72e9ce",
+    "source": "hatena-blog",
+    "sourceArticleId": "5eec8eee869dfe72e9ce",
+    "sourceUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/27/070643",
+    "canonicalUrl": "https://murasaki3sun.hatenablog.com/entry/2026/07/27/070643",
+    "title": "【ポケチャンM4ダブル】メガケケンカニで勝つ！中速スタンダード構築",
+    "authorName": "murasaki3sun",
+    "publishedAt": "2026-07-26T22:06:43.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://cdn-ak.f.st-hatena.com/images/fotolife/m/murasaki3sun/20260726/20260726091003.jpg",
+      "source": "structured-data",
+      "alt": "【ポケチャンM4ダブル】メガケケンカニで勝つ！中速スタンダード構築のサムネイル",
+      "width": null,
+      "height": null
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.43
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-26T22:15:27.291Z",
+    "lastCollectedAt": "2026-07-26T22:15:27.291Z",
+    "contentFingerprint": "80828ec3da39365aa9466465500d0e70d8a3758df6372af7c89d10fe293198ff",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-26T22:15:27.291Z"
   }
 ]
