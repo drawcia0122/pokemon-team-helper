@@ -2398,5 +2398,66 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-07-23T10:07:20.637Z"
+  },
+  {
+    "id": "note-ne54104276380",
+    "source": "note",
+    "sourceArticleId": "ne54104276380",
+    "sourceUrl": "https://note.com/bonusprus/n/ne54104276380",
+    "canonicalUrl": "https://note.com/bonusprus/n/ne54104276380",
+    "title": "【M-4シングル】メガカイリューにメガ枠を使う意味｜ギルガルドと組むと何が変わるのか",
+    "authorName": "ポケモン育成",
+    "publishedAt": "2026-07-26T09:03:23.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "カイリュー",
+      "ギルガルド",
+      "ポケモンチャンピオンズ",
+      "メガカイリュー",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/297735842/rectangle_large_type_2_66a29bf7e9802df5fc90437b241dbac4.png",
+      "source": "structured-data",
+      "alt": "【M-4シングル】メガカイリューにメガ枠を使う意味｜ギルガルドと組むと何が変わるのかのサムネイル",
+      "width": 1732,
+      "height": 907
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 1,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.58
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-26T09:25:36.939Z",
+    "lastCollectedAt": "2026-07-26T09:25:36.939Z",
+    "contentFingerprint": "899f15705dec60901eca40551e30edb4d2d9bcd74682fb831356b71b2b423e50",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-26T09:25:36.939Z"
   }
 ]
