@@ -2515,5 +2515,65 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-07-26T22:15:27.291Z"
+  },
+  {
+    "id": "note-n192e15787f9a",
+    "source": "note",
+    "sourceArticleId": "n192e15787f9a",
+    "sourceUrl": "https://note.com/trainer_lens26/n/n192e15787f9a",
+    "canonicalUrl": "https://note.com/trainer_lens26/n/n192e15787f9a",
+    "title": "【海外構築・翻訳解説】実は奥が深すぎる！？――メガカラマネロ構築【ポケモンチャンピオンズ】",
+    "authorName": "【PTLJ】ポケモン海外構築翻訳サイト『Translator's Lens』",
+    "publishedAt": "2026-07-27T15:32:28.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "翻訳",
+      "ポケモンチャンピオンズ",
+      "メガカラマネロ",
+      "海外構築",
+      "M-3",
+      "double"
+    ],
+    "summary": "M-3のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/298080106/rectangle_large_type_2_8281c7f014eb4d787b94a9b47c65032c.png",
+      "source": "structured-data",
+      "alt": "【海外構築・翻訳解説】実は奥が深すぎる！？――メガカラマネロ構築【ポケモンチャンピオンズ】のサムネイル",
+      "width": 720,
+      "height": 377
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.6,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.545
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 1
+    },
+    "firstCollectedAt": "2026-07-27T16:35:12.139Z",
+    "lastCollectedAt": "2026-07-27T16:35:12.139Z",
+    "contentFingerprint": "109cba7c6cfc7f9f906719e85358f8e03a48401687a205316f55f7331e566db5",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-27T16:35:12.139Z"
   }
 ]
