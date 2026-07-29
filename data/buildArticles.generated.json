@@ -2687,5 +2687,68 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-07-28T23:17:10.654Z"
+  },
+  {
+    "id": "note-nb35d44ea3488",
+    "source": "note",
+    "sourceArticleId": "nb35d44ea3488",
+    "sourceUrl": "https://note.com/sockperson/n/nb35d44ea3488",
+    "canonicalUrl": "https://note.com/sockperson/n/nb35d44ea3488",
+    "title": "[ブイズ] シーズンM-4　シングルバトル　　ブイズ統一　R2000達成",
+    "authorName": "sock",
+    "publishedAt": "2026-07-29T04:41:26.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [
+      "vaporeon",
+      "jolteon",
+      "flareon",
+      "espeon",
+      "umbreon",
+      "sylveon"
+    ],
+    "tags": [
+      "ブイズ",
+      "シングルバトル",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングルで使用された、シャワーズ入りの構築記事です。採用ポケモン6体と構築経緯を確認できます。",
+    "thumbnail": null,
+    "collectionCompleteness": "complete",
+    "extractionConfidence": 1,
+    "missingFields": [],
+    "teamExtractionMethod": "section-headings",
+    "teamExtractionIssue": null,
+    "extractionEvidence": {
+      "extractionMethod": "section-headings",
+      "sourceHeading": "個体紹介",
+      "resolvedCount": 6,
+      "confidence": "high"
+    },
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 1,
+      "teamConfidence": 1,
+      "overallConfidence": 1
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 6,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-29T06:20:20.398Z",
+    "lastCollectedAt": "2026-07-29T06:20:20.398Z",
+    "contentFingerprint": "28ca49e673014dcd0b8e8dc69c7692cc63d9b72678f36791d212ed13cb7120e0",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-29T06:20:20.398Z"
   }
 ]
