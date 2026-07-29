@@ -2812,5 +2812,64 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-07-29T11:50:04.985Z"
+  },
+  {
+    "id": "note-ndd4a68a058db",
+    "source": "note",
+    "sourceArticleId": "ndd4a68a058db",
+    "sourceUrl": "https://note.com/firm_finch9653/n/ndd4a68a058db",
+    "canonicalUrl": "https://note.com/firm_finch9653/n/ndd4a68a058db",
+    "title": "【M-Bダブル】使用率150位未満統一反省会",
+    "authorName": "あたま",
+    "publishedAt": "2026-07-20T15:13:36.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "構築記事",
+      "ダブルバトル",
+      "ポケモンチャンピオンズ",
+      "M-3",
+      "double"
+    ],
+    "summary": "M-3のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/296080103/rectangle_large_type_2_c0f0fe4946c3f5c6b3d58427617594fb.png",
+      "source": "structured-data",
+      "alt": "【M-Bダブル】使用率150位未満統一反省会のサムネイル",
+      "width": 1347,
+      "height": 705
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.505
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-29T18:42:53.634Z",
+    "lastCollectedAt": "2026-07-29T18:42:53.634Z",
+    "contentFingerprint": "5e86e602969abdd5c168af5ac35b00aa372e05cccd2f3269137ad8dee4ce9566",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-29T18:42:53.634Z"
   }
 ]
