@@ -2750,5 +2750,67 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-07-29T06:20:20.398Z"
+  },
+  {
+    "id": "note-n32d04be46849",
+    "source": "note",
+    "sourceArticleId": "n32d04be46849",
+    "sourceUrl": "https://note.com/lunala_p0ke/n/n32d04be46849",
+    "canonicalUrl": "https://note.com/lunala_p0ke/n/n32d04be46849",
+    "title": "【ポケモンチャンピオンズ】ランクマッチシーズンM-4 イッカサナ【ダブルバトル】",
+    "authorName": "るなら",
+    "publishedAt": "2026-07-29T09:26:17.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最高レート2000",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "ダブルバトル",
+      "メガサーナイト",
+      "ヒスイダイケンキ",
+      "イッカネズミ",
+      "ダブルバトル構築記事",
+      "ポケモンチャンピオンズ",
+      "M-4"
+    ],
+    "summary": "M-4のダブル構築記事です。最高レート2000。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/298596760/rectangle_large_type_2_c4cf3f84a30397380f27a2dd91bca4dd.jpeg",
+      "source": "structured-data",
+      "alt": "【ポケモンチャンピオンズ】ランクマッチシーズンM-4 イッカサナ【ダブルバトル】のサムネイル",
+      "width": 1325,
+      "height": 694
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 1,
+      "teamConfidence": 0.6666666666666666,
+      "overallConfidence": 0.9
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 1,
+      "alias": 0,
+      "decorated": 3,
+      "ambiguous": 1,
+      "unresolved": 1
+    },
+    "firstCollectedAt": "2026-07-29T11:50:04.985Z",
+    "lastCollectedAt": "2026-07-29T11:50:04.985Z",
+    "contentFingerprint": "e5b074d62fd2ab7f1b677b9bd9c429f37d50c4ff2bbf09619b29583bbe4f8672",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-29T11:50:04.985Z"
   }
 ]
