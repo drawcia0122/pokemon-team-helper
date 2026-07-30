@@ -2929,5 +2929,63 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-07-29T21:13:53.798Z"
+  },
+  {
+    "id": "note-n49f86334877d",
+    "source": "note",
+    "sourceArticleId": "n49f86334877d",
+    "sourceUrl": "https://note.com/firm_finch9653/n/n49f86334877d",
+    "canonicalUrl": "https://note.com/firm_finch9653/n/n49f86334877d",
+    "title": "【M-Bシングル】シンプルビームタブンネ×影分身サーナイト",
+    "authorName": "あたま",
+    "publishedAt": "2026-07-30T07:15:50.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": "最終37位",
+    "pokemonSlugs": [],
+    "tags": [
+      "構築記事",
+      "ポケモンチャンピオンズ",
+      "M-3",
+      "single"
+    ],
+    "summary": "M-3のシングル構築記事です。最終37位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/298374809/rectangle_large_type_2_9feef88c2c461a9c0f11f147b0bf47f5.png",
+      "source": "structured-data",
+      "alt": "【M-Bシングル】シンプルビームタブンネ×影分身サーナイトのサムネイル",
+      "width": 1347,
+      "height": 705
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.505
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-30T07:21:30.351Z",
+    "lastCollectedAt": "2026-07-30T07:21:30.351Z",
+    "contentFingerprint": "4319e9b004e08f4f29a40913c30bcfc1e60ba83a189ce55f43f3eb00622d6b05",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-30T07:21:30.351Z"
   }
 ]
