@@ -3,6 +3,7 @@ import type {
 } from "@/lib/recommendationAnalyzer";
 
 export const RECOMMENDATION_INTEGRATION_CONFIG = {
+  recommendationWeight: 0.75,
   battleValueWeight: 0.15,
   baselineContinuityWeight: 0.95,
   contributionWeight: 0.05,

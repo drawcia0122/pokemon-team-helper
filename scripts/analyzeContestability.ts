@@ -88,7 +88,7 @@ function format(
     lines.push(
       `${candidate.integratedRank}. ${candidate.name} (${candidate.slug}) Final=${candidate.finalRecommendation} Contestability=${candidate.contestability} actual=${(candidate.contestabilityRatio * 100).toFixed(1)}%`,
       `  Environment=${candidate.contestabilityAxes.environment} Team=${candidate.contestabilityAxes.team} Matchup=${candidate.contestabilityAxes.matchup} Reliability=${candidate.contestabilityAxes.reliability}`,
-      `  Recommendation confidence=${candidate.recommendationConfidence} protection=${candidate.recommendationProtectionAdjustment >= 0 ? "+" : ""}${candidate.recommendationProtectionAdjustment}`,
+      `  Recommendation confidence=${candidate.recommendationConfidence}`,
       `  Reasons: ${candidate.contestabilityReasons.map((reason) => reason.text).join(" / ")}`
     );
   }

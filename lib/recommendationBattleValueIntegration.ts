@@ -78,164 +78,6 @@ function planKey(plan: AdvisorSwapPlan, index: number): string {
   }`;
 }
 
-function applyRecommendationRetentionGuard(
-  plans: AdvisorSwapPlan[]
-): AdvisorSwapPlan[] {
-  const rawRanked = bestBySpecies(
-    plans,
-    (plan) => plan.finalRecommendation
-  );
-  const previousRanked = bestBySpecies(
-    plans,
-    (plan) => plan.preContestabilityRecommendation
-  );
-  const rawScore = new Map(
-    rawRanked.map((plan) => [
-      plan.candidate.pokemon.speciesId,
-      plan.finalRecommendation
-    ])
-  );
-  const byRawScore = (left: AdvisorSwapPlan, right: AdvisorSwapPlan) =>
-    (rawScore.get(right.candidate.pokemon.speciesId) ?? 0) -
-      (rawScore.get(left.candidate.pokemon.speciesId) ?? 0) ||
-    left.candidate.pokemon.slug.localeCompare(
-      right.candidate.pokemon.slug
-    );
-  const previousTop20 = previousRanked.slice(0, 20);
-  const previousTop50 = previousRanked.slice(0, 50);
-  const previousTop50Species = new Set(
-    previousTop50.map((plan) => plan.candidate.pokemon.speciesId)
-  );
-  const protectedTop20Count = Math.ceil(
-    20 * CONTESTABILITY_CONFIG.minimumTop20Retention
-  );
-  const protectedTop50Count = Math.ceil(
-    50 * CONTESTABILITY_CONFIG.minimumTop50Retention
-  );
-  const challengeCount = 50 - protectedTop50Count;
-  const protectedTop20 = [...previousTop20]
-    .sort(byRawScore)
-    .slice(0, protectedTop20Count);
-  const protectedTop20Species = new Set(
-    protectedTop20.map((plan) => plan.candidate.pokemon.speciesId)
-  );
-  const protectedTop50 = [
-    ...protectedTop20,
-    ...previousTop50
-      .filter(
-        (plan) =>
-          !protectedTop20Species.has(plan.candidate.pokemon.speciesId)
-      )
-      .sort(byRawScore)
-      .slice(0, protectedTop50Count - protectedTop20.length)
-  ];
-  const challengers = rawRanked
-    .filter(
-      (plan) =>
-        !previousTop50Species.has(plan.candidate.pokemon.speciesId)
-    )
-    .sort(
-      (left, right) =>
-        (right.contestability?.score ?? 0) -
-          (left.contestability?.score ?? 0) ||
-        byRawScore(left, right)
-    )
-    .slice(0, challengeCount);
-  const desiredTop50 = [...protectedTop50, ...challengers];
-  const protectedTop20Set = new Set(
-    protectedTop20.map((plan) => plan.candidate.pokemon.speciesId)
-  );
-  const top20Challengers = desiredTop50
-    .filter(
-      (plan) =>
-        !protectedTop20Set.has(plan.candidate.pokemon.speciesId)
-    )
-    .sort(byRawScore)
-    .slice(0, 20 - protectedTop20.length);
-  const desiredTop20 = [...protectedTop20, ...top20Challengers].sort(
-    byRawScore
-  );
-  const desiredTop20Species = new Set(
-    desiredTop20.map((plan) => plan.candidate.pokemon.speciesId)
-  );
-  const desiredTop50Rest = desiredTop50
-    .filter(
-      (plan) =>
-        !desiredTop20Species.has(plan.candidate.pokemon.speciesId)
-    )
-    .sort(byRawScore);
-  const desiredTop50Species = new Set(
-    desiredTop50.map((plan) => plan.candidate.pokemon.speciesId)
-  );
-  const remainder = rawRanked.filter(
-    (plan) =>
-      !desiredTop50Species.has(plan.candidate.pokemon.speciesId)
-  );
-  const desiredOrder = [
-    ...desiredTop20,
-    ...desiredTop50Rest,
-    ...remainder
-  ];
-  const scoreSlots = rawRanked
-    .map((plan) => plan.finalRecommendation)
-    .sort((left, right) => right - left);
-  for (let index = 1; index < scoreSlots.length; index += 1) {
-    if (scoreSlots[index] >= scoreSlots[index - 1]) {
-      scoreSlots[index] = round(
-        Math.max(0, scoreSlots[index - 1] - 0.000001),
-        6
-      );
-    }
-  }
-  const adjustmentBySpecies = new Map(
-    desiredOrder.map((plan, index) => [
-      plan.candidate.pokemon.speciesId,
-      round(
-        scoreSlots[index] -
-          (rawScore.get(plan.candidate.pokemon.speciesId) ?? 0),
-        6
-      )
-    ])
-  );
-  return plans.map((plan) => {
-    const adjustment =
-      adjustmentBySpecies.get(plan.candidate.pokemon.speciesId) ?? 0;
-    const finalRecommendation = round(
-      plan.finalRecommendation + adjustment,
-      6
-    );
-    const integration = plan.recommendationIntegration;
-    return {
-      ...plan,
-      improvementScore: finalRecommendation,
-      finalRecommendation,
-      recommendationProtectionAdjustment: adjustment,
-      categoryScores: {
-        ...plan.categoryScores,
-        overall: finalRecommendation
-      },
-      recommendationIntegration: integration
-        ? {
-            ...integration,
-            battleValueRatio:
-              finalRecommendation === 0
-                ? 0
-                : round(
-                    plan.battleValueContribution / finalRecommendation
-                  ),
-            contestabilityRatio:
-              finalRecommendation === 0
-                ? 0
-                : round(
-                    plan.contestabilityContribution /
-                      finalRecommendation
-                  )
-          }
-        : null
-    };
-  });
-}
-
 function battleValueExplanation(
   candidate: BattleValueCandidate
 ): BattleValueIntegrationExplanation[] {
@@ -416,6 +258,16 @@ export function integrateBattleValueRecommendation({
     Map<string, number>
   >;
   const weight = RECOMMENDATION_INTEGRATION_CONFIG.battleValueWeight;
+  const recommendationWeight =
+    RECOMMENDATION_INTEGRATION_CONFIG.recommendationWeight;
+  const contestabilityWeight = CONTESTABILITY_CONFIG.weight;
+  const integrationWeightTotal =
+    recommendationWeight + weight + contestabilityWeight;
+  if (Math.abs(integrationWeightTotal - 1) > 0.000001) {
+    throw new Error(
+      `Recommendation integration weights must total 1: ${integrationWeightTotal}`
+    );
+  }
   const integratedPlans = planAnalyses.map(({ key, plan, analysis }) => {
     const normalized = Object.fromEntries(
       RECOMMENDATION_CONTRIBUTION_CATEGORIES.map((category) => [
@@ -460,8 +312,6 @@ export function integrateBattleValueRecommendation({
         recommendationNormalized * recommendationConfidence
       )
     );
-    const contestabilityWeight = CONTESTABILITY_CONFIG.weight;
-    const recommendationWeight = 1 - weight - contestabilityWeight;
     const finalRecommendation = round(
       confidenceAdjustedRecommendation * recommendationWeight +
         normalizedBattle * weight +
@@ -514,7 +364,6 @@ export function integrateBattleValueRecommendation({
       contestabilityExplanation:
         contestability?.reasons.map((entry) => entry.text) ?? [],
       preContestabilityRecommendation,
-      recommendationProtectionAdjustment: 0,
       finalRecommendation,
       recommendationIntegration: {
         weight,
@@ -539,11 +388,9 @@ export function integrateBattleValueRecommendation({
       }
     } satisfies AdvisorSwapPlan;
   });
-  const protectedPlans =
-    applyRecommendationRetentionGuard(integratedPlans);
   const simulation = rebuildAdvisorSwapSimulationWithPlans(
     baseline,
-    protectedPlans,
+    integratedPlans,
     profile
   );
   const baselineRanked = bestBySpecies(
@@ -551,7 +398,7 @@ export function integrateBattleValueRecommendation({
     (plan) => plan.baselineRecommendationScore
   );
   const integratedRanked = bestBySpecies(
-    protectedPlans,
+    integratedPlans,
     (plan) => plan.finalRecommendation
   );
   const baselineRank = new Map(
@@ -624,8 +471,6 @@ export function integrateBattleValueRecommendation({
             integration.confidenceAdjustedRecommendation,
           preContestabilityRecommendation:
             plan.preContestabilityRecommendation,
-          recommendationProtectionAdjustment:
-            plan.recommendationProtectionAdjustment,
           finalRecommendation: plan.finalRecommendation
         }
       ];
@@ -648,7 +493,7 @@ export function integrateBattleValueRecommendation({
         mode: "integrated",
         normalization: "percentile-rank",
         formula: `Final = confidence-adjusted Recommendation × ${round(
-          (1 - weight - CONTESTABILITY_CONFIG.weight) * 100,
+          recommendationWeight * 100,
           1
         )}% + normalized Battle Value × ${round(
           weight * 100,
@@ -666,9 +511,8 @@ export function integrateBattleValueRecommendation({
       },
       config: {
         battleValueWeight: weight,
-        contestabilityWeight: CONTESTABILITY_CONFIG.weight,
-        recommendationWeight:
-          1 - weight - CONTESTABILITY_CONFIG.weight,
+        contestabilityWeight,
+        recommendationWeight,
         recommendationConfidenceFloor:
           CONTESTABILITY_CONFIG.recommendationConfidenceFloor,
         recommendationConfidenceMaximum:
@@ -693,20 +537,20 @@ export function integrateBattleValueRecommendation({
       baselineTop50: baselineSlugs.slice(0, 50),
       integratedTop50: integratedSlugs.slice(0, 50),
       preContestabilityTop20: bestBySpecies(
-        protectedPlans,
+        integratedPlans,
         (plan) => plan.preContestabilityRecommendation
       )
         .slice(0, 20)
         .map((plan) => plan.candidate.pokemon.slug),
       preContestabilityTop50: bestBySpecies(
-        protectedPlans,
+        integratedPlans,
         (plan) => plan.preContestabilityRecommendation
       )
         .slice(0, 50)
         .map((plan) => plan.candidate.pokemon.slug),
       top20RetentionRate: retentionBySpecies(
         bestBySpecies(
-          protectedPlans,
+          integratedPlans,
           (plan) => plan.preContestabilityRecommendation
         ),
         integratedRanked,
@@ -714,7 +558,7 @@ export function integrateBattleValueRecommendation({
       ),
       top50RetentionRate: retentionBySpecies(
         bestBySpecies(
-          protectedPlans,
+          integratedPlans,
           (plan) => plan.preContestabilityRecommendation
         ),
         integratedRanked,
@@ -724,7 +568,7 @@ export function integrateBattleValueRecommendation({
         const candidate = bySlug.get(slug);
         return candidate ? [candidate] : [];
       }),
-      megaConstraintsPreserved: protectedPlans.every((plan, index) => {
+      megaConstraintsPreserved: integratedPlans.every((plan, index) => {
         const before = baseline.evaluatedPlans[index];
         return (
           before.metrics.megaLimitPassed ===
@@ -771,7 +615,6 @@ export function formatRecommendationIntegrationReport(
       `  Battle Value: configured=${result.config.battleValueWeight * 100}% actual=${round(candidate.battleValueRatio * 100, 1)}% contribution=${candidate.battleValueContribution}`,
       `  Contestability: score=${candidate.contestability} configured=${result.config.contestabilityWeight * 100}% actual=${round(candidate.contestabilityRatio * 100, 1)}% Environment=${candidate.contestabilityAxes.environment} Team=${candidate.contestabilityAxes.team} Matchup=${candidate.contestabilityAxes.matchup} Reliability=${candidate.contestabilityAxes.reliability}`,
       `  Contestability reasons: ${candidate.contestabilityReasons.map((entry) => entry.text).join(" / ")}`,
-      `  Recommendation protection: ${candidate.recommendationProtectionAdjustment >= 0 ? "+" : ""}${candidate.recommendationProtectionAdjustment}`,
       `  Axes: ${candidate.battleValueExplanation.map((entry) => `${entry.label}=${entry.score}`).join(" ")}`,
       `  Reasons: ${candidate.battleValueExplanation.slice(0, 3).map((entry) => entry.text).join(" / ")}`
     );

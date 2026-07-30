@@ -80,7 +80,8 @@ assert(
 );
 
 assert(
-  RECOMMENDATION_INTEGRATION_CONFIG.battleValueWeight === 0.15 &&
+  RECOMMENDATION_INTEGRATION_CONFIG.recommendationWeight === 0.75 &&
+    RECOMMENDATION_INTEGRATION_CONFIG.battleValueWeight === 0.15 &&
     RECOMMENDATION_INTEGRATION_CONFIG.baselineContinuityWeight === 0.95 &&
     RECOMMENDATION_INTEGRATION_CONFIG.contributionWeight === 0.05 &&
     Math.abs(
@@ -93,7 +94,15 @@ assert(
 assert(
   firstAnalysis.metadata.mode === "integrated" &&
     firstAnalysis.metadata.normalization === "percentile-rank" &&
+    firstAnalysis.config.recommendationWeight === 0.75 &&
     firstAnalysis.config.battleValueWeight === 0.15 &&
+    firstAnalysis.config.contestabilityWeight === 0.1 &&
+    Math.abs(
+      firstAnalysis.config.recommendationWeight +
+        firstAnalysis.config.battleValueWeight +
+        firstAnalysis.config.contestabilityWeight -
+        1
+    ) < 0.000001 &&
     firstAnalysis.metadata.formula.includes("15%"),
   "Integration mode・正規化・設定値が明示されていません"
 );
@@ -132,7 +141,7 @@ for (const entry of firstAnalysis.candidates) {
 assert(
   firstAnalysis.top20RetentionRate >= 0.75 &&
     firstAnalysis.top50RetentionRate >= 0.9,
-  `Recommendation保護率が不足しています: TOP20=${firstAnalysis.top20RetentionRate} TOP50=${firstAnalysis.top50RetentionRate}`
+  `Recommendation残留率が不足しています: TOP20=${firstAnalysis.top20RetentionRate} TOP50=${firstAnalysis.top50RetentionRate}`
 );
 assert(
   firstAnalysis.representatives.map((entry) => entry.slug).join("|") ===

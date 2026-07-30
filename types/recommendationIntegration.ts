@@ -46,7 +46,6 @@ export type RecommendationIntegrationCandidate = {
   recommendationConfidence: number;
   confidenceAdjustedRecommendation: number;
   preContestabilityRecommendation: number;
-  recommendationProtectionAdjustment: number;
   finalRecommendation: number;
 };
 

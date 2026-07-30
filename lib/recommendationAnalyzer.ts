@@ -105,7 +105,6 @@ export type RecommendationCandidateAnalysis = {
   contestabilityContribution: number;
   contestabilityRatio: number;
   preContestabilityRecommendation: number;
-  recommendationProtectionAdjustment: number;
   finalRecommendation: number;
   battleValueRatio: number;
   contributionRatios: Record<string, number>;
@@ -493,8 +492,6 @@ export function analyzeRecommendationPlan(
       plan.recommendationIntegration?.contestabilityRatio ?? 0,
     preContestabilityRecommendation:
       plan.preContestabilityRecommendation,
-    recommendationProtectionAdjustment:
-      plan.recommendationProtectionAdjustment,
     finalRecommendation: plan.finalRecommendation,
     battleValueRatio:
       plan.recommendationIntegration?.battleValueRatio ?? 0,

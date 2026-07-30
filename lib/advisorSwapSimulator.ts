@@ -336,7 +336,6 @@ export type AdvisorSwapPlan = {
   contestabilityContribution: number;
   contestabilityExplanation: string[];
   preContestabilityRecommendation: number;
-  recommendationProtectionAdjustment: number;
   finalRecommendation: number;
   recommendationIntegration: {
     weight: number;
@@ -2386,7 +2385,6 @@ export function evaluateAdvisorSwapPlan(
     contestabilityContribution: 0,
     contestabilityExplanation: [],
     preContestabilityRecommendation: improvementScore,
-    recommendationProtectionAdjustment: 0,
     finalRecommendation: improvementScore,
     recommendationIntegration: null,
     categoryScores,

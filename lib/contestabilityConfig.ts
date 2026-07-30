@@ -5,8 +5,6 @@ export const CONTESTABILITY_CONFIG = {
   recommendationConfidenceFloor: 0.18,
   recommendationConfidenceMaximum: 1.05,
   directActionConfidenceBoost: 0.35,
-  minimumTop20Retention: 0.8,
-  minimumTop50Retention: 0.9,
   recommendationConfidenceMidpoint: 55,
   recommendationConfidenceSlope: 0.4,
   axisWeights: {
