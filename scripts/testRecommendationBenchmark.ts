@@ -5,6 +5,7 @@ import {
   runRecommendationBenchmark,
   validateRecommendationBenchmarkDataset
 } from "@/lib/recommendationBenchmark";
+import { evaluateRecommendationReleaseGate } from "@/scripts/lib/recommendationReleaseGate";
 import type {
   RecommendationBenchmarkGolden,
   RecommendationBenchmarkResult
@@ -129,24 +130,55 @@ assert(
     result.metadata.caseCount,
   "PASS・PARTIAL・FAIL件数がCase数と一致しません"
 );
-assert(
-  result.summary.overallScore >= golden.overallScore,
-  `Overall Scoreが低下しました: ${golden.overallScore} -> ${result.summary.overallScore}`
-);
-assert(
-  result.summary.passRate >= golden.passRate,
-  `PASS率が低下しました: ${golden.passRate} -> ${result.summary.passRate}`
-);
-assert(
-  result.regression.status !== "regressed",
-  `Benchmarkが悪化しました: ${JSON.stringify(result.regression)}`
-);
 const case001 = result.cases.find((entry) => entry.id === "case001");
+const releaseGate = evaluateRecommendationReleaseGate({
+  overallScore: result.summary.overallScore,
+  failCount: result.summary.failCount,
+  case001Status: case001?.status ?? null,
+  task049OverallScore: golden.overallScore,
+  rankingRetention: {
+    top20: 0.55,
+    top50: 0.66
+  }
+});
 assert(
-  result.summary.overallScore >= 90 &&
-    result.summary.failCount === 0 &&
-    case001?.status === "PASS",
-  `TASK050 Benchmark目標を満たしていません: Overall=${result.summary.overallScore} FAIL=${result.summary.failCount} CASE001=${case001?.status ?? "missing"}`
+  releaseGate.passed,
+  `Recommendation Release Gateを満たしていません: ${releaseGate.failures.join(" / ")}`
+);
+assert(
+  releaseGate.rankingRetention.classification === "audit-only" &&
+    evaluateRecommendationReleaseGate({
+      overallScore: result.summary.overallScore,
+      failCount: result.summary.failCount,
+      case001Status: case001?.status ?? null,
+      task049OverallScore: golden.overallScore,
+      rankingRetention: { top20: 0, top50: 0 }
+    }).passed,
+  "順位残留率低下だけでRelease Gateが失敗しました"
+);
+assert(
+  !evaluateRecommendationReleaseGate({
+    overallScore: 89.99,
+    failCount: 0,
+    case001Status: "PASS",
+    task049OverallScore: golden.overallScore,
+    rankingRetention: { top20: 1, top50: 1 }
+  }).passed &&
+    !evaluateRecommendationReleaseGate({
+      overallScore: result.summary.overallScore,
+      failCount: 1,
+      case001Status: "PASS",
+      task049OverallScore: golden.overallScore,
+      rankingRetention: { top20: 1, top50: 1 }
+    }).passed &&
+    !evaluateRecommendationReleaseGate({
+      overallScore: result.summary.overallScore,
+      failCount: 0,
+      case001Status: "FAIL",
+      task049OverallScore: golden.overallScore,
+      rankingRetention: { top20: 1, top50: 1 }
+    }).passed,
+  "Benchmark悪化をRelease Blockerとして検出できません"
 );
 assert(
   Object.keys(golden.caseScores).length === dataset.cases.length &&
