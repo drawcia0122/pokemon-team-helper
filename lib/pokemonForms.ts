@@ -68,7 +68,12 @@ export function searchPokemonSpeciesRepresentatives(
     }
   }
 
-  return representatives;
+  return representatives.sort(
+    (left, right) =>
+      left.nameJa.localeCompare(right.nameJa, "ja") ||
+      left.speciesId - right.speciesId ||
+      left.slug.localeCompare(right.slug, "en")
+  );
 }
 
 export function selectInitialFormForSpecies(

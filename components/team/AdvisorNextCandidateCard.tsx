@@ -1,8 +1,6 @@
 import { PokemonVisual } from "@/components/pokemon/PokemonVisual";
-import { AdvisorAddCandidateButton } from "@/components/team/AdvisorAddCandidateButton";
-import {
-  getAdvisorCandidateAddability
-} from "@/lib/advisorCandidateAddition";
+import { AdvisorCandidateActionButton } from "@/components/team/AdvisorCandidateActionButton";
+import type { AdvisorSwapPlan } from "@/lib/advisorSwapSimulator";
 import {
   PROGRESSIVE_ADVISOR_MODE_LABELS,
   type ProgressiveAdvisorCandidate,
@@ -35,22 +33,17 @@ export function AdvisorNextCandidateCard({
   memberCount,
   team,
   availablePokemon,
-  onAdd
+  onApply
 }: {
   candidate: ProgressiveAdvisorCandidate;
   mode: ProgressiveAdvisorMode;
   memberCount: number;
   team: TeamSlot[];
   availablePokemon: PokemonEntry[];
-  onAdd: (pokemon: PokemonEntry) => void;
+  onApply: (plan: AdvisorSwapPlan) => void;
 }) {
   const plan = candidate.plan;
   const pokemon = plan.candidate.pokemon;
-  const addability = getAdvisorCandidateAddability({
-    team,
-    candidate: pokemon,
-    availablePokemon
-  });
   const megaState = getAdvisorMegaTeamState(team);
   const megaNote = getAdvisorMegaCandidateNote({
     currentTeamSize: megaState.currentTeamSize,
@@ -279,10 +272,11 @@ export function AdvisorNextCandidateCard({
         </details>
       ) : null}
 
-      <AdvisorAddCandidateButton
-        candidate={pokemon}
-        addability={addability}
-        onAdd={onAdd}
+      <AdvisorCandidateActionButton
+        plan={plan}
+        team={team}
+        availablePokemon={availablePokemon}
+        onApply={onApply}
       />
     </article>
   );

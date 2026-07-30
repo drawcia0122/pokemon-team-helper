@@ -10,7 +10,6 @@ import { TeamDetails } from "@/components/team/TeamDetails";
 import { TeamAdvisorSection } from "@/components/team/TeamAdvisorSection";
 import { TeamInputPanel } from "@/components/team/TeamInputPanel";
 import {
-  mergeImportedPokemonOptions,
   resolveArticleImport,
   selectSeasonForArticleImport,
   selectTeamForImportAction,
@@ -18,7 +17,8 @@ import {
   type ArticleImportResult
 } from "@/lib/articleImport";
 import { getIntegratedAdvisorSwapSimulation } from "@/lib/recommendationBattleValueIntegration";
-import { addAdvisorCandidateToTeam } from "@/lib/advisorCandidateAddition";
+import { applyAdvisorCandidateAction } from "@/lib/advisorCandidateActions";
+import type { AdvisorSwapPlan } from "@/lib/advisorSwapSimulator";
 import {
   getAdvisorNextPhaseAnnouncement,
   getAdvisorPokemonCount
@@ -76,7 +76,6 @@ export default function HomePage() {
   const [articleImport, setArticleImport] = useState<ArticleImportResult>({ status: "idle" });
   const [importNotice, setImportNotice] = useState<string | null>(null);
   const [canRestorePreviousTeam, setCanRestorePreviousTeam] = useState(false);
-  const [preserveImportedTeam, setPreserveImportedTeam] = useState(false);
   const [isRestored, setIsRestored] = useState(false);
   const [isRestoreConfirmationOpen, setIsRestoreConfirmationOpen] = useState(false);
   const [canUndoAdvisorAdd, setCanUndoAdvisorAdd] = useState(false);
@@ -88,13 +87,6 @@ export default function HomePage() {
   const seasonOptions = useMemo(() => getSeasonOptions(), []);
   const seasonMeta = useMemo(() => getSeasonMeta(seasonId), [seasonId]);
   const availablePokemon = useMemo(() => getAvailablePokemonBySeason(seasonId), [seasonId]);
-  const pokemonInputOptions = useMemo(
-    () =>
-      preserveImportedTeam
-        ? mergeImportedPokemonOptions(availablePokemon, team)
-        : availablePokemon,
-    [availablePokemon, preserveImportedTeam, team]
-  );
   const summary = useMemo(() => summarizeTeam(team), [team]);
   const diagnostics = useMemo(
     () => getTeamDiagnostics(team, summary, availablePokemon, teamProfile),
@@ -240,7 +232,6 @@ export default function HomePage() {
     if (savedBackup) {
       if (parseTeamBackup(savedBackup)) {
         setCanRestorePreviousTeam(true);
-        setPreserveImportedTeam(true);
         setImportNotice("構築記事から読み込んだパーティです");
       } else {
         window.localStorage.removeItem(ARTICLE_IMPORT_BACKUP_KEY);
@@ -293,13 +284,22 @@ export default function HomePage() {
     setTeam(nextTeam);
   }
 
-  function addAdvisorCandidate(candidate: PokemonEntry) {
-    const nextTeam = addAdvisorCandidateToTeam({
+  function applyAdvisorCandidate(plan: AdvisorSwapPlan) {
+    const result = applyAdvisorCandidateAction({
       team,
-      candidate,
+      sourceTeam: plan.beforeTeam,
+      candidate: plan.candidate.pokemon,
+      action: plan.action,
       availablePokemon
     });
-    if (nextTeam.length === team.length) return;
+    if (!result.actionability.allowed) {
+      setAdvisorActionNotice(
+        result.actionability.reason ??
+          "この候補を適用できません。再計算された候補を確認してください。"
+      );
+      return;
+    }
+    const nextTeam = result.team;
     window.localStorage.setItem(
       ADVISOR_ADD_BACKUP_KEY,
       serializeTeam(team)
@@ -308,8 +308,14 @@ export default function HomePage() {
     setCanUndoAdvisorAdd(true);
     setTeam(nextTeam);
     const nextCount = getAdvisorPokemonCount(nextTeam);
+    const actionLabel =
+      plan.action.kind === "add"
+        ? `${plan.candidate.pokemon.nameJa}を空き枠に追加しました。`
+        : plan.action.kind === "form-change"
+          ? `${plan.action.removedLabel ?? "フォーム"}を${plan.candidate.pokemon.nameJa}へ変更しました。`
+          : `${plan.action.removedLabel ?? "現在のメンバー"}を${plan.candidate.pokemon.nameJa}へ入れ替えました。`;
     setAdvisorActionNotice(
-      `${candidate.nameJa}を追加しました。おすすめ内容を「${getAdvisorNextPhaseAnnouncement(nextCount)}」へ更新しました。`
+      `${actionLabel}おすすめ内容を「${getAdvisorNextPhaseAnnouncement(nextCount)}」へ更新しました。`
     );
   }
 
@@ -329,10 +335,22 @@ export default function HomePage() {
     setCanUndoAdvisorAdd(false);
     setTeam(backup);
     setAdvisorActionNotice(
-      `追加を元に戻しました。おすすめ内容を「${getAdvisorNextPhaseAnnouncement(
+      `直前の変更を元に戻しました。おすすめ内容を「${getAdvisorNextPhaseAnnouncement(
         getAdvisorPokemonCount(backup)
       )}」へ更新しました。`
     );
+  }
+
+  function changeSeason(nextSeasonId: string) {
+    clearAdvisorAddUndo();
+    setAdvisorActionNotice("");
+    setSeasonId(nextSeasonId);
+  }
+
+  function changeTeamProfile(nextProfile: TeamProfile) {
+    clearAdvisorAddUndo();
+    setAdvisorActionNotice("");
+    setTeamProfile(nextProfile);
   }
 
   function cancelArticleImport() {
@@ -363,7 +381,6 @@ export default function HomePage() {
     );
     clearAdvisorAddUndo();
 
-    setPreserveImportedTeam(true);
     setCanRestorePreviousTeam(true);
     setTeam(importedTeam);
     setSeasonId(targetSeasonId);
@@ -387,7 +404,6 @@ export default function HomePage() {
     window.localStorage.setItem(TEAM_STORAGE_KEY, serializeTeam(restoredTeam));
     window.localStorage.removeItem(ARTICLE_IMPORT_BACKUP_KEY);
     clearAdvisorAddUndo();
-    setPreserveImportedTeam(true);
     setCanRestorePreviousTeam(false);
     setIsRestoreConfirmationOpen(false);
     setTeam(restoredTeam);
@@ -415,7 +431,7 @@ export default function HomePage() {
       <div className={styles.workspace}>
         <SeasonBar
           seasonId={seasonId}
-          onSeasonChange={setSeasonId}
+          onSeasonChange={changeSeason}
           options={seasonOptions}
           meta={seasonMeta}
         />
@@ -468,9 +484,8 @@ export default function HomePage() {
           team={team}
           onChange={updateTeamFromInput}
           profile={teamProfile}
-          onProfileChange={setTeamProfile}
+          onProfileChange={changeTeamProfile}
           availablePokemon={availablePokemon}
-          pokemonInputOptions={pokemonInputOptions}
           allTypes={allTypes}
         />
 
@@ -494,7 +509,7 @@ export default function HomePage() {
           progressive={progressiveAdvisor}
           team={team}
           availablePokemon={availablePokemon}
-          onAddCandidate={addAdvisorCandidate}
+          onApplyCandidate={applyAdvisorCandidate}
           onUndoCandidate={undoAdvisorCandidate}
           canUndoCandidate={canUndoAdvisorAdd}
           actionNotice={advisorActionNotice}

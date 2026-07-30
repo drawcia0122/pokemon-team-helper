@@ -25,6 +25,7 @@ import {
   TEAM_PROFILE_CONFIG,
   type TeamProfile
 } from "@/lib/teamProfile";
+import { filterPokemonSelectionByTypes } from "@/lib/teamCandidateSelection";
 import { getAllPokemon, getPokemonBySlug, getTypeLabel } from "@/lib/typeChart";
 import type { PokemonEntry, TeamSlot, TypeEntry, TypeName } from "@/types/pokemon";
 import styles from "./TeamWorkspace.module.css";
@@ -37,7 +38,6 @@ export function TeamInputPanel({
   profile,
   onProfileChange,
   availablePokemon,
-  pokemonInputOptions,
   allTypes
 }: {
   team: TeamSlot[];
@@ -45,10 +45,20 @@ export function TeamInputPanel({
   profile: TeamProfile;
   onProfileChange: (profile: TeamProfile) => void;
   availablePokemon: PokemonEntry[];
-  pokemonInputOptions: PokemonEntry[];
   allTypes: TypeEntry[];
 }) {
   const positionedTeam = getTeamSlotsByPosition(team);
+  const [typeFilterPositions, setTypeFilterPositions] = useState<number[]>([]);
+
+  function setTypeFilterActive(position: number, active: boolean) {
+    setTypeFilterPositions((current) =>
+      active
+        ? current.includes(position)
+          ? current
+          : [...current, position]
+        : current.filter((entry) => entry !== position)
+    );
+  }
 
   function updateSlot(position: number, nextSlot: TeamSlotWithoutId | TeamSlot) {
     onChange(setTeamSlotAtPosition(team, position, nextSlot));
@@ -90,7 +100,10 @@ export function TeamInputPanel({
       </div>
 
       <div className={styles.teamGrid}>
-        {positionedTeam.map((slot, position) => (
+        {positionedTeam.map((slot, position) => {
+          const typeFilterActive =
+            typeFilterPositions.includes(position) || slot?.mode === "type";
+          return (
           <article
             key={`team-position-${position + 1}`}
             className={`${styles.slotCard} ${slot === null ? styles.emptySlotCard : ""} ${slot && !isTeamSlotAllowed(slot, availablePokemon) ? styles.unavailableSlot : ""}`}
@@ -108,8 +121,9 @@ export function TeamInputPanel({
               <div className={styles.modeTabs} aria-label={`枠${position + 1}の入力方法`}>
                 <button
                   type="button"
-                  aria-pressed={slot === null || slot.mode === "pokemon"}
+                  aria-pressed={!typeFilterActive}
                   onClick={() => {
+                    setTypeFilterActive(position, false);
                     if (slot?.mode === "type") {
                       removeSlot(position);
                     }
@@ -119,31 +133,33 @@ export function TeamInputPanel({
                 </button>
                 <button
                   type="button"
-                  aria-pressed={slot?.mode === "type"}
-                  onClick={() =>
-                    updateSlot(position, {
-                      mode: "type",
-                      primaryType: "water"
-                    })
-                  }
+                  aria-pressed={typeFilterActive}
+                  onClick={() => setTypeFilterActive(position, true)}
                 >
                   タイプ
                 </button>
               </div>
             </div>
 
-            {slot?.mode === "type" ? (
-              <TypeSlotEditor
-                slot={slot}
+            {typeFilterActive ? (
+              <TypePokemonFilter
+                position={position}
+                initialSlot={slot?.mode === "type" ? slot : null}
                 allTypes={allTypes}
-                onChange={(nextSlot) => updateSlot(position, nextSlot)}
+                availablePokemon={availablePokemon}
+                onSelect={(pokemon) => {
+                  updateSlot(position, {
+                    mode: "pokemon",
+                    pokemonSlug: pokemon.slug
+                  });
+                  setTypeFilterActive(position, false);
+                }}
               />
             ) : (
               <PokemonSlotEditor
                 position={position}
                 slot={slot?.mode === "pokemon" ? slot : null}
                 availablePokemon={availablePokemon}
-                pokemonInputOptions={pokemonInputOptions}
                 onChange={(nextSlot) => updateSlot(position, nextSlot)}
               />
             )}
@@ -159,7 +175,8 @@ export function TeamInputPanel({
               </button>
             ) : null}
           </article>
-        ))}
+          );
+        })}
       </div>
 
       <div className={styles.inputActions}>
@@ -180,29 +197,29 @@ function PokemonSlotEditor({
   position,
   slot,
   availablePokemon,
-  pokemonInputOptions,
   onChange
 }: {
   position: number;
   slot: Extract<TeamSlot, { mode: "pokemon" }> | null;
   availablePokemon: PokemonEntry[];
-  pokemonInputOptions: PokemonEntry[];
   onChange: (nextSlot: Omit<Extract<TeamSlot, { mode: "pokemon" }>, "id"> | Extract<TeamSlot, { mode: "pokemon" }>) => void;
 }) {
   const allPokemon = getAllPokemon();
   const selectedPokemon = slot ? getPokemonBySlug(slot.pokemonSlug) ?? null : null;
+  const availableSlugs = new Set(availablePokemon.map((pokemon) => pokemon.slug));
   const selectableForms = selectedPokemon
-    ? getSelectableForms(allPokemon, selectedPokemon.speciesId)
+    ? getSelectableForms(allPokemon, selectedPokemon.speciesId).filter(
+        (form) => availableSlugs.has(form.slug)
+      )
     : [];
   const selectedFormIsSelectable = Boolean(
     selectedPokemon && selectableForms.some((form) => form.slug === selectedPokemon.slug)
   );
-  const availableSlugs = new Set(availablePokemon.map((pokemon) => pokemon.slug));
 
   function selectSpecies(representative: PokemonEntry) {
     const nextPokemon = selectInitialFormForSpecies(
       allPokemon,
-      pokemonInputOptions,
+      availablePokemon,
       representative.speciesId
     );
     if (!nextPokemon) return;
@@ -219,7 +236,7 @@ function PokemonSlotEditor({
       <PokemonSearchCombobox
         position={position}
         allPokemon={allPokemon}
-        pokemonInputOptions={pokemonInputOptions}
+        pokemonInputOptions={availablePokemon}
         selectedPokemon={selectedPokemon}
         onSelect={selectSpecies}
       />
@@ -266,7 +283,6 @@ function PokemonSlotEditor({
             {selectableForms.map((form) => (
               <option key={form.slug} value={form.slug}>
                 {getFormOptionLabel(form)}
-                {availableSlugs.has(form.slug) ? "" : "（現在のシーズンでは使用不可）"}
               </option>
             ))}
           </select>
@@ -439,49 +455,196 @@ function PokemonSearchCombobox({
   );
 }
 
-function TypeSlotEditor({
-  slot,
+function TypePokemonFilter({
+  position,
+  initialSlot,
   allTypes,
-  onChange
+  availablePokemon,
+  onSelect
 }: {
-  slot: Extract<TeamSlot, { mode: "type" }>;
+  position: number;
+  initialSlot: Extract<TeamSlot, { mode: "type" }> | null;
   allTypes: TypeEntry[];
-  onChange: (nextSlot: Extract<TeamSlot, { mode: "type" }>) => void;
+  availablePokemon: PokemonEntry[];
+  onSelect: (pokemon: PokemonEntry) => void;
 }) {
-  const label = [slot.primaryType, slot.secondaryType]
-    .filter((type): type is TypeName => Boolean(type))
-    .map(getTypeLabel)
-    .join(" / ");
+  const listboxId = useId();
+  const [primaryType, setPrimaryType] = useState<TypeName | "">(
+    initialSlot?.primaryType ?? ""
+  );
+  const [secondaryType, setSecondaryType] = useState<TypeName | "">(
+    initialSlot?.secondaryType ?? ""
+  );
+  const [draft, setDraft] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const filteredPokemon = useMemo(
+    () =>
+      filterPokemonSelectionByTypes({
+        pokemon: availablePokemon,
+        primaryType,
+        secondaryType
+      }),
+    [availablePokemon, primaryType, secondaryType]
+  );
+  const suggestions = useMemo(
+    () =>
+      filterPokemonSelectionByTypes({
+        pokemon: availablePokemon,
+        primaryType,
+        secondaryType,
+        query: draft
+      }).slice(0, SUGGESTION_LIMIT),
+    [availablePokemon, draft, primaryType, secondaryType]
+  );
+
+  useEffect(() => {
+    setActiveIndex((current) =>
+      Math.min(current, Math.max(0, suggestions.length - 1))
+    );
+  }, [suggestions.length]);
+
+  function close() {
+    setIsEditing(false);
+    setDraft("");
+    setActiveIndex(0);
+  }
+
+  function commit(pokemon: PokemonEntry) {
+    onSelect(pokemon);
+    close();
+  }
 
   return (
     <>
-      <div className={styles.slotIdentity}>
-        <span className={styles.typeVisual} aria-hidden="true">タイプ</span>
-        <div className={styles.typeRow}>
-          <span>{label}</span>
-        </div>
-      </div>
       <div className={styles.dualControls}>
         <label className={styles.control}>
           <span>第1タイプ</span>
           <select
-            value={slot.primaryType}
-            onChange={(event) => onChange({ ...slot, primaryType: event.target.value as TypeName })}
+            value={primaryType}
+            onChange={(event) => {
+              const nextType = event.target.value as TypeName | "";
+              setPrimaryType(nextType);
+              if (nextType === secondaryType) setSecondaryType("");
+              setDraft("");
+              setActiveIndex(0);
+            }}
+            aria-label={`枠${position + 1}の第1タイプ`}
           >
+            <option value="">選択してください</option>
             {allTypes.map((entry) => <option key={entry.nameEn} value={entry.nameEn}>{entry.nameJa}</option>)}
           </select>
         </label>
         <label className={styles.control}>
           <span>第2タイプ</span>
           <select
-            value={slot.secondaryType ?? ""}
-            onChange={(event) => onChange({ ...slot, secondaryType: (event.target.value || undefined) as TypeName | undefined })}
+            value={secondaryType}
+            onChange={(event) => {
+              setSecondaryType(event.target.value as TypeName | "");
+              setDraft("");
+              setActiveIndex(0);
+            }}
+            disabled={!primaryType}
+            aria-label={`枠${position + 1}の第2タイプ`}
           >
             <option value="">なし</option>
-            {allTypes.map((entry) => <option key={entry.nameEn} value={entry.nameEn}>{entry.nameJa}</option>)}
+            {allTypes
+              .filter((entry) => entry.nameEn !== primaryType)
+              .map((entry) => <option key={entry.nameEn} value={entry.nameEn}>{entry.nameJa}</option>)}
           </select>
         </label>
       </div>
+      {!primaryType ? (
+        <p className={styles.typeFilterStatus} role="status">
+          第1タイプを選ぶと、使用できるポケモンを絞り込みます。
+        </p>
+      ) : filteredPokemon.length === 0 ? (
+        <p className={styles.typeFilterStatus} role="status">
+          このタイプ条件に一致する使用可能なポケモンはいません。
+        </p>
+      ) : (
+        <div
+          className={styles.pokemonCombobox}
+          onBlur={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+              close();
+            }
+          }}
+        >
+          <label className={styles.visuallyHidden} htmlFor={`${listboxId}-input`}>
+            枠{position + 1}のタイプ一致ポケモン
+          </label>
+          <input
+            id={`${listboxId}-input`}
+            type="text"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={isEditing}
+            aria-controls={listboxId}
+            aria-activedescendant={isEditing && suggestions[activeIndex] ? `${listboxId}-option-${activeIndex}` : undefined}
+            aria-label={`枠${position + 1}のタイプ一致ポケモン`}
+            autoComplete="off"
+            placeholder={`${filteredPokemon.length}件からポケモンを選択`}
+            value={draft}
+            onFocus={() => {
+              setIsEditing(true);
+              setActiveIndex(0);
+            }}
+            onChange={(event) => {
+              setDraft(event.target.value);
+              setIsEditing(true);
+              setActiveIndex(0);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "ArrowDown") {
+                event.preventDefault();
+                setIsEditing(true);
+                setActiveIndex((current) => Math.min(current + 1, suggestions.length - 1));
+              } else if (event.key === "ArrowUp") {
+                event.preventDefault();
+                setActiveIndex((current) => Math.max(0, current - 1));
+              } else if (event.key === "Enter" && isEditing && suggestions[activeIndex]) {
+                event.preventDefault();
+                commit(suggestions[activeIndex]);
+              } else if (event.key === "Escape") {
+                event.preventDefault();
+                close();
+                event.currentTarget.blur();
+              }
+            }}
+          />
+          {isEditing ? (
+            <div className={styles.comboboxList} id={listboxId} role="listbox">
+              {suggestions.length ? suggestions.map((pokemon, index) => (
+                <button
+                  type="button"
+                  role="option"
+                  id={`${listboxId}-option-${index}`}
+                  aria-selected={index === activeIndex}
+                  key={pokemon.slug}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onMouseEnter={() => setActiveIndex(index)}
+                  onClick={() => commit(pokemon)}
+                >
+                  <PokemonVisual
+                    appearance="plain"
+                    name={pokemon.nameJa}
+                    slug={pokemon.slug}
+                    pokemonId={pokemon.id}
+                    size="small"
+                  />
+                  <span>
+                    <strong>{pokemon.nameJa}</strong>
+                    <small>{pokemon.types.map(getTypeLabel).join(" / ")}</small>
+                  </span>
+                </button>
+              )) : (
+                <p>検索に一致するポケモンはいません</p>
+              )}
+            </div>
+          ) : null}
+        </div>
+      )}
     </>
   );
 }

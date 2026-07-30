@@ -56,8 +56,9 @@
 .control > span { color: #56685d; font-size: .68rem; font-weight: 800; }
 .control input,.control select { min-height: 38px; padding: 7px 9px; font-size: .78rem; }
 .formControl { padding: 7px; border: 1px solid #c8dbcf; border-radius: 9px; background: #f4faf6; }
-.formControl > span::after { content: " · 同一species"; color: #7b8a81; font-weight: 700; }
+.formControl > span::after { content: " · 同じポケモン"; color: #7b8a81; font-weight: 700; }
 .dualControls { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.typeFilterStatus { margin: 5px 0 8px; padding: 9px 10px; border-radius: 8px; background: #eef5f0; color: #5f7166; font-size: .68rem; line-height: 1.5; }
 .removeButton { min-height: 36px; margin-top: auto; border: 0; border-top: 1px solid #dce7df; background: transparent; color: #7b5147; cursor: pointer; font-size: .7rem; font-weight: 800; }
 .emptyIdentity { display: grid; flex: 1; place-content: center; justify-items: center; gap: 4px; min-height: 92px; color: #718077; }
 .emptyIdentity > span { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 50%; background: #e5f2e8; color: #176b42; font-size: 1.35rem; }

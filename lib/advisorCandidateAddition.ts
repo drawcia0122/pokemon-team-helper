@@ -52,7 +52,7 @@ export function getAdvisorCandidateAddability({
     return {
       allowed: false,
       code: "duplicate-species",
-      reason: "同じspeciesのポケモンがすでに登録されています。"
+      reason: "同じポケモンがすでに登録されています。"
     };
   }
   if (
@@ -61,7 +61,7 @@ export function getAdvisorCandidateAddability({
     return {
       allowed: false,
       code: "unavailable",
-      reason: "現在のM-Bルールではこのフォームを使用できません。"
+      reason: "現在のルールではこのフォームを使用できません。"
     };
   }
   if (!isThreatPokemonCandidate(candidate)) {

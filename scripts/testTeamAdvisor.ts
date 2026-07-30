@@ -483,7 +483,7 @@ assert(
     pageSource.includes("threatSnapshot") &&
     pageSource.includes("getIntegratedAdvisorSwapSimulation") &&
     pageSource.includes("getProgressiveTeamAdvisor") &&
-    pageSource.includes("addAdvisorCandidateToTeam") &&
+    pageSource.includes("applyAdvisorCandidateAction") &&
     pageSource.includes("ADVISOR_ADD_BACKUP_KEY") &&
     pageSource.includes("getAdvisorTeamDiagnostics") &&
     pageSource.includes("<TeamAdvisorSection") &&

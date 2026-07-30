@@ -3,6 +3,7 @@ import type {
   ProgressiveAdvisorCandidate,
   ProgressiveAdvisorMode
 } from "@/lib/advisorPhaseScoring";
+import type { AdvisorSwapPlan } from "@/lib/advisorSwapSimulator";
 import type { PokemonEntry, TeamSlot } from "@/types/pokemon";
 import styles from "./TeamWorkspace.module.css";
 
@@ -12,14 +13,14 @@ export function AdvisorNextCandidateList({
   memberCount,
   team,
   availablePokemon,
-  onAdd
+  onApply
 }: {
   candidates: ProgressiveAdvisorCandidate[];
   mode: ProgressiveAdvisorMode;
   memberCount: number;
   team: TeamSlot[];
   availablePokemon: PokemonEntry[];
-  onAdd: (pokemon: PokemonEntry) => void;
+  onApply: (plan: AdvisorSwapPlan) => void;
 }) {
   return (
     <ol className={styles.advisorCandidateGrid}>
@@ -31,7 +32,7 @@ export function AdvisorNextCandidateList({
             memberCount={memberCount}
             team={team}
             availablePokemon={availablePokemon}
-            onAdd={onAdd}
+            onApply={onApply}
           />
         </li>
       ))}

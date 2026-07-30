@@ -1,6 +1,7 @@
 "use client";
 
 import { PokemonVisual } from "@/components/pokemon/PokemonVisual";
+import { AdvisorCandidateActionButton } from "@/components/team/AdvisorCandidateActionButton";
 import { AdvisorNextCandidateList } from "@/components/team/AdvisorNextCandidateList";
 import { AdvisorPhaseHeader } from "@/components/team/AdvisorPhaseHeader";
 import {
@@ -53,7 +54,7 @@ type TeamAdvisorSectionProps = {
   progressive: ProgressiveTeamAdvisorAnalysis;
   team: TeamSlot[];
   availablePokemon: PokemonEntry[];
-  onAddCandidate: (pokemon: PokemonEntry) => void;
+  onApplyCandidate: (plan: AdvisorSwapPlan) => void;
   onUndoCandidate: () => void;
   canUndoCandidate: boolean;
   actionNotice: string;
@@ -68,7 +69,7 @@ export function TeamAdvisorSection({
   progressive,
   team,
   availablePokemon,
-  onAddCandidate,
+  onApplyCandidate,
   onUndoCandidate,
   canUndoCandidate,
   actionNotice
@@ -117,9 +118,9 @@ export function TeamAdvisorSection({
       </div>
       {canUndoCandidate ? (
         <div className={styles.advisorUndoNotice}>
-          <span>直前の空き枠追加を元に戻せます。</span>
+          <span>直前の候補操作を1回だけ元に戻せます。</span>
           <button type="button" onClick={onUndoCandidate}>
-            追加を元に戻す
+            変更を元に戻す
           </button>
         </div>
       ) : null}
@@ -143,7 +144,7 @@ export function TeamAdvisorSection({
                 analysis={progressive}
                 team={team}
                 availablePokemon={availablePokemon}
-                onAddCandidate={onAddCandidate}
+                onApplyCandidate={onApplyCandidate}
               />
             ) : (
               <AdvisorRecommendations
@@ -152,12 +153,18 @@ export function TeamAdvisorSection({
                 profile={profile}
                 headingNumber={2}
                 headingTitle="おすすめの入れ替え候補"
+                team={team}
+                availablePokemon={availablePokemon}
+                onApplyCandidate={onApplyCandidate}
               />
             )}
             {hasProgressiveExploration ? (
               <AdvisorProgressiveExploration
                 simulation={simulation}
                 profile={profile}
+                team={team}
+                availablePokemon={availablePokemon}
+                onApplyCandidate={onApplyCandidate}
               />
             ) : null}
             {canAnalyze ? (
@@ -225,12 +232,12 @@ function ProgressiveAdvisorRecommendations({
   analysis,
   team,
   availablePokemon,
-  onAddCandidate
+  onApplyCandidate
 }: {
   analysis: ProgressiveTeamAdvisorAnalysis;
   team: TeamSlot[];
   availablePokemon: PokemonEntry[];
-  onAddCandidate: (pokemon: PokemonEntry) => void;
+  onApplyCandidate: (plan: AdvisorSwapPlan) => void;
 }) {
   const [mode, setMode] = useState<ProgressiveAdvisorMode>("overall");
   const [selectedType, setSelectedType] = useState<TypeName | "">(
@@ -305,7 +312,7 @@ function ProgressiveAdvisorRecommendations({
           memberCount={analysis.memberCount}
           team={team}
           availablePokemon={availablePokemon}
-          onAdd={onAddCandidate}
+          onApply={onApplyCandidate}
         />
       ) : (
         <p className={styles.advisorEmpty} role="status">
@@ -318,10 +325,16 @@ function ProgressiveAdvisorRecommendations({
 
 function AdvisorProgressiveExploration({
   simulation,
-  profile
+  profile,
+  team,
+  availablePokemon,
+  onApplyCandidate
 }: {
   simulation: AdvisorSwapSimulation;
   profile: TeamProfile;
+  team: TeamSlot[];
+  availablePokemon: PokemonEntry[];
+  onApplyCandidate: (plan: AdvisorSwapPlan) => void;
 }) {
   if (
     simulation.formChangePlans.length === 0 &&
@@ -344,10 +357,18 @@ function AdvisorProgressiveExploration({
         <AdvisorFormChangePlans
           plans={simulation.formChangePlans}
           profile={profile}
+          team={team}
+          availablePokemon={availablePokemon}
+          onApplyCandidate={onApplyCandidate}
         />
       ) : null}
       {simulation.threatRecommendations.length ? (
-        <AdvisorThreatExplorer simulation={simulation} />
+        <AdvisorThreatExplorer
+          simulation={simulation}
+          team={team}
+          availablePokemon={availablePokemon}
+          onApplyCandidate={onApplyCandidate}
+        />
       ) : null}
     </section>
   );
@@ -417,12 +438,18 @@ function AdvisorRecommendations({
   simulation,
   canAnalyze,
   profile,
+  team,
+  availablePokemon,
+  onApplyCandidate,
   headingNumber = 2,
   headingTitle = "完成したパーティの入れ替え改善案"
 }: {
   simulation: AdvisorSwapSimulation;
   canAnalyze: boolean;
   profile: TeamProfile;
+  team: TeamSlot[];
+  availablePokemon: PokemonEntry[];
+  onApplyCandidate: (plan: AdvisorSwapPlan) => void;
   headingNumber?: number;
   headingTitle?: string;
 }) {
@@ -505,6 +532,9 @@ function AdvisorRecommendations({
                 plan={plan}
                 category={category}
                 profile={profile}
+                team={team}
+                availablePokemon={availablePokemon}
+                onApplyCandidate={onApplyCandidate}
               />
             </li>
           ))}
@@ -520,10 +550,18 @@ function AdvisorRecommendations({
         <AdvisorFormChangePlans
           plans={simulation.formChangePlans}
           profile={profile}
+          team={team}
+          availablePokemon={availablePokemon}
+          onApplyCandidate={onApplyCandidate}
         />
       ) : null}
       {canAnalyze && simulation.threatRecommendations.length ? (
-        <AdvisorThreatExplorer simulation={simulation} />
+        <AdvisorThreatExplorer
+          simulation={simulation}
+          team={team}
+          availablePokemon={availablePokemon}
+          onApplyCandidate={onApplyCandidate}
+        />
       ) : null}
     </section>
   );
@@ -531,10 +569,16 @@ function AdvisorRecommendations({
 
 function AdvisorFormChangePlans({
   plans,
-  profile
+  profile,
+  team,
+  availablePokemon,
+  onApplyCandidate
 }: {
   plans: AdvisorSwapPlan[];
   profile: TeamProfile;
+  team: TeamSlot[];
+  availablePokemon: PokemonEntry[];
+  onApplyCandidate: (plan: AdvisorSwapPlan) => void;
 }) {
   return (
     <details className={styles.advisorExplorer}>
@@ -549,6 +593,9 @@ function AdvisorFormChangePlans({
               plan={plan}
               category="overall"
               profile={profile}
+              team={team}
+              availablePokemon={availablePokemon}
+              onApplyCandidate={onApplyCandidate}
             />
           </li>
         ))}
@@ -602,9 +649,15 @@ function getPlanMegaCandidateNote(plan: AdvisorSwapPlan): string | null {
 }
 
 function AdvisorThreatExplorer({
-  simulation
+  simulation,
+  team,
+  availablePokemon,
+  onApplyCandidate
 }: {
   simulation: AdvisorSwapSimulation;
+  team: TeamSlot[];
+  availablePokemon: PokemonEntry[];
+  onApplyCandidate: (plan: AdvisorSwapPlan) => void;
 }) {
   const [selectedThreatId, setSelectedThreatId] = useState(
     simulation.threatRecommendations[0]?.threat.pokemon.slug ?? ""
@@ -701,6 +754,9 @@ function AdvisorThreatExplorer({
               <AdvisorThreatCandidateCard
                 plan={plan}
                 threatId={selectedGroup.threat.pokemon.slug}
+                team={team}
+                availablePokemon={availablePokemon}
+                onApplyCandidate={onApplyCandidate}
               />
             </li>
           ))}
@@ -716,10 +772,16 @@ function AdvisorThreatExplorer({
 
 function AdvisorThreatCandidateCard({
   plan,
-  threatId
+  threatId,
+  team,
+  availablePokemon,
+  onApplyCandidate
 }: {
   plan: AdvisorSwapPlan;
   threatId: string;
+  team: TeamSlot[];
+  availablePokemon: PokemonEntry[];
+  onApplyCandidate: (plan: AdvisorSwapPlan) => void;
 }) {
   const answer = plan.threatCoverage.threatAnswers.find(
     (entry) => entry.threatId === threatId
@@ -833,6 +895,12 @@ function AdvisorThreatCandidateCard({
           <BattleValueDetails plan={plan} />
         </>
       ) : null}
+      <AdvisorCandidateActionButton
+        plan={plan}
+        team={team}
+        availablePokemon={availablePokemon}
+        onApply={onApplyCandidate}
+      />
     </article>
   );
 }
@@ -911,11 +979,17 @@ function ContestabilityDetails({ plan }: { plan: AdvisorSwapPlan }) {
 function AdvisorRecommendationCard({
   plan,
   category,
-  profile
+  profile,
+  team,
+  availablePokemon,
+  onApplyCandidate
 }: {
   plan: AdvisorSwapPlan;
   category: AdvisorRecommendationCategory;
   profile: TeamProfile;
+  team: TeamSlot[];
+  availablePokemon: PokemonEntry[];
+  onApplyCandidate: (plan: AdvisorSwapPlan) => void;
 }) {
   const candidate = plan.candidate;
   const categoryLabel = getAdvisorCategoryLabels(profile)[category];
@@ -1031,6 +1105,12 @@ function AdvisorRecommendationCard({
           <BattleValueDetails plan={plan} />
         </>
       ) : null}
+      <AdvisorCandidateActionButton
+        plan={plan}
+        team={team}
+        availablePokemon={availablePokemon}
+        onApply={onApplyCandidate}
+      />
     </article>
   );
 }
