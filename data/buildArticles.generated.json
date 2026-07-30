@@ -2987,5 +2987,64 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-07-30T07:21:30.351Z"
+  },
+  {
+    "id": "note-nfa6753d8dc19",
+    "source": "note",
+    "sourceArticleId": "nfa6753d8dc19",
+    "sourceUrl": "https://note.com/pokemon_dawn/n/nfa6753d8dc19",
+    "canonicalUrl": "https://note.com/pokemon_dawn/n/nfa6753d8dc19",
+    "title": "【シーズンM-4 シングルバトルで初めてマスターボール級行けた】Switch2 ポケモンチャンピオンズ",
+    "authorName": "ヒカリ＆ポッチャマ",
+    "publishedAt": "2026-07-30T10:22:01.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "マスターボール級",
+    "pokemonSlugs": [],
+    "tags": [
+      "ゲーム",
+      "ランクバトル",
+      "ポケチャン",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。マスターボール級。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/298902448/rectangle_large_type_2_6f14172309ccff9c639cd306f84fcb26.jpeg",
+      "source": "structured-data",
+      "alt": "【シーズンM-4 シングルバトルで初めてマスターボール級行けた】Switch2 ポケモンチャンピオンズのサムネイル",
+      "width": 1920,
+      "height": 1005
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.7
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-30T12:05:28.912Z",
+    "lastCollectedAt": "2026-07-30T12:05:28.912Z",
+    "contentFingerprint": "47826381e44b5494c76fff6a7ec8ddd8445af6fd481ddeee698f2c511578e551",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-30T12:05:28.912Z"
   }
 ]
