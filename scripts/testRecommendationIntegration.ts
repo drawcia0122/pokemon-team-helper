@@ -332,7 +332,7 @@ assert(
 
 const appSource = readFileSync("app/page.tsx", "utf8");
 const integrationSource = readFileSync(
-  "lib/recommendationBattleValueIntegration.ts",
+  "lib/recommendationIntegrationRuntime.ts",
   "utf8"
 );
 assert(

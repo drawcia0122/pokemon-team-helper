@@ -1,8 +1,7 @@
 import { classifyCandidateArchetype } from "@/lib/candidateArchetype";
 import type {
-  RecommendationCandidateAnalysis,
-  RecommendationContributionCategory
-} from "@/lib/recommendationAnalyzer";
+  RecommendationCandidateAnalysis
+} from "@/lib/recommendationContribution";
 import { analyzeSemanticCoverage } from "@/lib/semanticCombatCoverage";
 import {
   BATTLE_TAG_DEFINITIONS,
@@ -453,33 +452,31 @@ function contributionInvestigation(
   }));
 }
 
-export function analyzeSemanticRecommendationGap({
-  context,
-  candidates,
-  recommendationTop,
-  environmentSnapshot,
-  availablePokemon,
-  topLimit
-}: {
-  context: {
-    datasetId: string;
-    regulation: string;
-    ratingCutoff: number;
-    profile: "standard" | "trick-room";
+export type SemanticRecommendationRuntimeAnalysis = {
+  semanticProfiles: SemanticCandidateProfile[];
+  coverage: {
+    moves: number;
+    abilities: number;
+    items: number;
   };
+};
+
+export function buildSemanticRecommendationRuntimeAnalysis({
+  candidates,
+  environmentSnapshot,
+  availablePokemon
+}: {
   candidates: RecommendationCandidateAnalysis[];
-  recommendationTop: RecommendationCandidateAnalysis[];
   environmentSnapshot: EnvironmentSnapshot;
   availablePokemon: PokemonEntry[];
-  topLimit: number;
-}): SemanticRecommendationGapAnalysis {
+}): SemanticRecommendationRuntimeAnalysis {
   const candidateBySlug = new Map(
     candidates.map((candidate) => [candidate.slug, candidate])
   );
   const availableBySlug = new Map(
     availablePokemon.map((pokemon) => [pokemon.slug, pokemon])
   );
-  const profiles = environmentSnapshot.pokemon
+  const semanticProfiles = environmentSnapshot.pokemon
     .filter(
       (environment) =>
         environment.usage.rate >= MINIMUM_USAGE_RATE &&
@@ -500,7 +497,44 @@ export function analyzeSemanticRecommendationGap({
         left.usageRank - right.usageRank ||
         left.slug.localeCompare(right.slug)
     );
-  assignRiskFreeRanks(profiles);
+  assignRiskFreeRanks(semanticProfiles);
+  const coverage = analyzeSemanticCoverage(environmentSnapshot).coverage;
+  return {
+    semanticProfiles,
+    coverage: {
+      moves: coverage.moves.occurrenceCoverageRate,
+      abilities: coverage.abilities.occurrenceCoverageRate,
+      items: coverage.items.occurrenceCoverageRate
+    }
+  };
+}
+
+export function analyzeSemanticRecommendationGap({
+  context,
+  candidates,
+  recommendationTop,
+  environmentSnapshot,
+  availablePokemon,
+  topLimit
+}: {
+  context: {
+    datasetId: string;
+    regulation: string;
+    ratingCutoff: number;
+    profile: "standard" | "trick-room";
+  };
+  candidates: RecommendationCandidateAnalysis[];
+  recommendationTop: RecommendationCandidateAnalysis[];
+  environmentSnapshot: EnvironmentSnapshot;
+  availablePokemon: PokemonEntry[];
+  topLimit: number;
+}): SemanticRecommendationGapAnalysis {
+  const runtime = buildSemanticRecommendationRuntimeAnalysis({
+    candidates,
+    environmentSnapshot,
+    availablePokemon
+  });
+  const profiles = runtime.semanticProfiles;
   const semanticGapRanking = [...profiles].sort(
     (left, right) =>
       right.semanticGap - left.semanticGap ||
@@ -569,7 +603,6 @@ export function analyzeSemanticRecommendationGap({
       profiles.filter((profile) => profile.archetype.primary === name).length
     ])
   ) as Record<CandidateArchetypeName, number>;
-  const coverage = analyzeSemanticCoverage(environmentSnapshot);
   const rankedProfiles = profiles.filter(
     (profile): profile is SemanticCandidateProfile & {
       recommendationRank: number;
@@ -658,9 +691,7 @@ export function analyzeSemanticRecommendationGap({
       pokemonCount: environmentSnapshot.pokemon.length,
       semanticAnalyzableCount: profiles.length,
       coverage: {
-        moves: coverage.coverage.moves.occurrenceCoverageRate,
-        abilities: coverage.coverage.abilities.occurrenceCoverageRate,
-        items: coverage.coverage.items.occurrenceCoverageRate
+        ...runtime.coverage
       },
       unclassifiedElementCount: unclassifiedSummary.length,
       archetypeCounts,

@@ -18,8 +18,7 @@ import {
   validateBuildArticleThumbnail
 } from "@/lib/buildArticleThumbnail";
 import type {
-  BuildArticle,
-  GeneratedBuildArticle
+  BuildArticle
 } from "@/types/buildArticle";
 import type { AppMeta, PokemonEntry } from "@/types/pokemon";
 import { classifyBuildArticle } from "./build-article-collectors/classify";
@@ -37,8 +36,7 @@ import {
   matchesManualArticle
 } from "./build-article-collectors/deduplicate";
 import {
-  createPokemonResolver,
-  extractArticleFromHtml
+  createPokemonResolver
 } from "./build-article-collectors/extract";
 import {
   SafeHttpClient,

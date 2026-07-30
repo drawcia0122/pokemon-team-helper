@@ -282,9 +282,9 @@ for (const relativePath of [
 }
 assert(
   readFileSync(
-    "lib/recommendationBattleValueIntegration.ts",
+    "lib/recommendationIntegrationRuntime.ts",
     "utf8"
-  ).includes('from "@/lib/battleValueEngine"') &&
+  ).includes('from "@/lib/battleValueRuntime"') &&
     readFileSync("app/page.tsx", "utf8").includes(
       "getIntegratedAdvisorSwapSimulation"
     ),

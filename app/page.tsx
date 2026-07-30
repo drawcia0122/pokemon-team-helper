@@ -16,7 +16,7 @@ import {
   selectTeamForRestoreAction,
   type ArticleImportResult
 } from "@/lib/articleImport";
-import { getIntegratedAdvisorSwapSimulation } from "@/lib/recommendationBattleValueIntegration";
+import { getIntegratedAdvisorSwapSimulation } from "@/lib/recommendationIntegrationRuntime";
 import { applyAdvisorCandidateAction } from "@/lib/advisorCandidateActions";
 import type { AdvisorSwapPlan } from "@/lib/advisorSwapSimulator";
 import {
@@ -30,12 +30,12 @@ import { findThreatEnvironmentDataset } from "@/lib/environmentThreatData";
 import { getTeamDiagnostics } from "@/lib/teamDiagnostics";
 import { getThreatSnapshot } from "@/lib/threatSnapshot";
 import {
-  getAvailablePokemonBySeason,
   getLatestSeasonId,
   getSeasonMeta,
   getSeasonOptions,
   resolveStoredSeasonId
 } from "@/lib/regulations";
+import { getRegulationCandidatesForSeason } from "@/lib/regulationCandidateCache";
 import {
   ARTICLE_IMPORT_BACKUP_KEY,
   ADVISOR_ADD_BACKUP_KEY,
@@ -51,7 +51,7 @@ import {
   type TeamProfile
 } from "@/lib/teamProfile";
 import { getAllTypes, summarizeTeam } from "@/lib/typeChart";
-import type { PokemonEntry, TeamSlot } from "@/types/pokemon";
+import type { TeamSlot } from "@/types/pokemon";
 import type { ThreatEnvironmentCatalog } from "@/types/environmentThreat";
 import environmentIndexData from "@/data/environment/index.json";
 import type { EnvironmentSnapshotIndex } from "@/types/environmentData";
@@ -86,7 +86,10 @@ export default function HomePage() {
   const allTypes = useMemo(() => getAllTypes(), []);
   const seasonOptions = useMemo(() => getSeasonOptions(), []);
   const seasonMeta = useMemo(() => getSeasonMeta(seasonId), [seasonId]);
-  const availablePokemon = useMemo(() => getAvailablePokemonBySeason(seasonId), [seasonId]);
+  const availablePokemon = useMemo(
+    () => getRegulationCandidatesForSeason(seasonId),
+    [seasonId]
+  );
   const summary = useMemo(() => summarizeTeam(team), [team]);
   const diagnostics = useMemo(
     () => getTeamDiagnostics(team, summary, availablePokemon, teamProfile),
@@ -304,7 +307,6 @@ export default function HomePage() {
       ADVISOR_ADD_BACKUP_KEY,
       serializeTeam(team)
     );
-    window.localStorage.setItem(TEAM_STORAGE_KEY, serializeTeam(nextTeam));
     setCanUndoAdvisorAdd(true);
     setTeam(nextTeam);
     const nextCount = getAdvisorPokemonCount(nextTeam);
@@ -330,7 +332,6 @@ export default function HomePage() {
       );
       return;
     }
-    window.localStorage.setItem(TEAM_STORAGE_KEY, serializeTeam(backup));
     window.localStorage.removeItem(ADVISOR_ADD_BACKUP_KEY);
     setCanUndoAdvisorAdd(false);
     setTeam(backup);
@@ -374,11 +375,6 @@ export default function HomePage() {
     );
 
     window.localStorage.setItem(ARTICLE_IMPORT_BACKUP_KEY, serializeTeam(team));
-    window.localStorage.setItem(TEAM_STORAGE_KEY, serializeTeam(importedTeam));
-    window.localStorage.setItem(
-      SEASON_STORAGE_KEY,
-      resolveStoredSeasonId(targetSeasonId)
-    );
     clearAdvisorAddUndo();
 
     setCanRestorePreviousTeam(true);
@@ -401,7 +397,6 @@ export default function HomePage() {
     }
 
     const restoredTeam = selectTeamForRestoreAction(team, backup, "restore");
-    window.localStorage.setItem(TEAM_STORAGE_KEY, serializeTeam(restoredTeam));
     window.localStorage.removeItem(ARTICLE_IMPORT_BACKUP_KEY);
     clearAdvisorAddUndo();
     setCanRestorePreviousTeam(false);

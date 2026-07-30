@@ -16,16 +16,6 @@ function sameIds(left: string[], right: string[]): boolean {
   return left.join("|") === right.join("|");
 }
 
-function presentationTexts(presentation: ReturnType<
-  typeof buildAdvisorExplanationPresentation
->): string[] {
-  return [
-    ...presentation.primaryReasons,
-    ...presentation.otherImprovements,
-    ...presentation.cautions
-  ];
-}
-
 const situational = analyzeAdvisorTeam(
   ["dragonite", "garchomp", "gliscor"],
   "standard"

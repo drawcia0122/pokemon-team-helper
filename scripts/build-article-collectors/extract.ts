@@ -14,7 +14,6 @@ import {
 import { classifyBuildArticle } from "./classify";
 import {
   decodeHtml,
-  normalizeComparableText,
   normalizeUrl,
   sourceArticleIdFromUrl,
   stripHtml
@@ -779,61 +778,6 @@ function extractTags(posting: JsonLdRecord | null): string[] {
         .filter((tag) => tag.length > 0 && tag.length <= 40)
     )
   ].slice(0, 8);
-}
-
-function formatInScope(scope: string): BattleFormat | "ambiguous" | null {
-  const single = /シングル(?:バトル)?|singles?/i.test(scope);
-  const double = /ダブル(?:バトル)?|doubles?|\bVGC\b/i.test(scope);
-  if (single && double) return "ambiguous";
-  if (single) return "single";
-  if (double) return "double";
-  return null;
-}
-
-function extractBattleFormat(
-  title: string,
-  tags: string[],
-  introduction: string,
-  teamContext: string,
-  text: string
-): BattleFormat | null {
-  for (const scope of [
-    tags.join(" "),
-    title,
-    introduction,
-    teamContext,
-    text
-  ]) {
-    const result = formatInScope(scope);
-    if (result === "ambiguous") return null;
-    if (result) return result;
-  }
-  return null;
-}
-
-function seasonIdsInScope(scope: string, appMeta: AppMeta): string[] {
-  const values = new Set<string>();
-  for (const match of scope.normalize("NFKC").matchAll(
-    /(?:シーズン|season)?\s*M\s*[-‐‑‒–—ー]?\s*([1-9]\d*)/gi
-  )) {
-    const id = `season-m${match[1]}`;
-    if (appMeta.seasonIds.includes(id)) values.add(id);
-  }
-  return [...values];
-}
-
-function extractSeason(
-  title: string,
-  introduction: string,
-  teamContext: string,
-  appMeta: AppMeta
-): string | null {
-  for (const scope of [title, introduction, teamContext]) {
-    const seasons = seasonIdsInScope(scope, appMeta);
-    if (seasons.length > 1) return null;
-    if (seasons.length === 1) return seasons[0];
-  }
-  return null;
 }
 
 function regulationIdsInScope(scope: string): string[] {

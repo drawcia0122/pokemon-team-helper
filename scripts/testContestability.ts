@@ -123,7 +123,7 @@ const engineSource = readFileSync(
 const integrationSource = readFileSync(
   "lib/recommendationBattleValueIntegration.ts",
   "utf8"
-);
+) + readFileSync("lib/recommendationIntegrationRuntime.ts", "utf8");
 const progressiveCardSource = readFileSync(
   "components/team/AdvisorNextCandidateCard.tsx",
   "utf8"

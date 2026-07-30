@@ -25,7 +25,6 @@ import {
 import { getAvailablePokemonBySeason } from "@/lib/regulations";
 import { TEAM_STORAGE_KEY } from "@/lib/teamStorage";
 import {
-  getAdvisorCompatibleThreatAnalysis,
   getThreatPokemonAnalysis,
   isThreatPokemonCandidate,
   MIN_THREAT_USAGE_RATE

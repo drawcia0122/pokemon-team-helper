@@ -299,7 +299,7 @@ async function main(): Promise<void> {
     }),
     article: null,
     blog: fixtureBlog,
-    fetchText: async (url, expected) => {
+    fetchText: async (url, _expected) => {
       networkCalls.push(url);
       if (url.endsWith("/robots.txt")) {
         return {

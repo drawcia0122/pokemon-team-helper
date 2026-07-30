@@ -1001,116 +1001,6 @@ function uniqueThreatAnswerLosses(
   });
 }
 
-function getCategoryScores({
-  improvementScore,
-  threatReduction,
-  issueReduction,
-  consistencyReduction,
-  defensiveImprovement,
-  offensiveImprovement,
-  speedRoleImprovement,
-  physicalWallImprovement,
-  specialWallImprovement,
-  physicalAttackerImprovement,
-  specialAttackerImprovement,
-  lostRoleCount,
-  uniqueImmunityLossCount,
-  uniqueResistanceLossCount,
-  newMajorWeaknessCount,
-  evidence,
-  profile,
-  counterplayScore
-}: {
-  improvementScore: number;
-  threatReduction: number;
-  issueReduction: number;
-  consistencyReduction: number;
-  defensiveImprovement: number;
-  offensiveImprovement: number;
-  speedRoleImprovement: number;
-  physicalWallImprovement: number;
-  specialWallImprovement: number;
-  physicalAttackerImprovement: number;
-  specialAttackerImprovement: number;
-  lostRoleCount: number;
-  uniqueImmunityLossCount: number;
-  uniqueResistanceLossCount: number;
-  newMajorWeaknessCount: number;
-  evidence: AdvisorCandidateEvidence;
-  profile: TeamProfile;
-  counterplayScore: number;
-}): Record<AdvisorRecommendationCategory, number> {
-  const defensiveLosses =
-    lostRoleCount + uniqueImmunityLossCount + uniqueResistanceLossCount;
-  const mainstreamAttackerRoleGain =
-    Math.max(0, physicalAttackerImprovement) *
-      Math.max(0, evidence.mainstreamPhysicalShare) +
-    Math.max(0, specialAttackerImprovement) *
-      Math.max(0, evidence.mainstreamSpecialShare);
-  const defensive = ADVISOR_CATEGORY_WEIGHTS.defensive;
-  const offensive = ADVISOR_CATEGORY_WEIGHTS.offensive;
-  const speed = ADVISOR_CATEGORY_WEIGHTS.speed;
-  const typeSpecific = ADVISOR_CATEGORY_WEIGHTS.typeSpecific;
-  const standardFallbackSupport =
-    profile === "trick-room"
-      ? evidence.standardSpeedAdvantageCount * 1.5 +
-        evidence.priorityMoveShare * 8
-      : Math.max(0, speedRoleImprovement) * offensive.speedSupport;
-
-  return {
-    overall: improvementScore,
-    defensive: Math.round(
-      counterplayScore * 0.3 +
-      threatReduction * defensive.threatReduction +
-        issueReduction * defensive.issueReduction +
-        defensiveImprovement * defensive.defensiveImprovement +
-        evidence.threatMoveImmunityCount * defensive.threatMoveImmunity +
-        evidence.threatMoveResistanceCount * defensive.threatMoveResistance +
-        evidence.stableCheckCount * defensive.stableCheck +
-        Math.max(0, physicalWallImprovement) * defensive.physicalWallGap +
-        Math.max(0, specialWallImprovement) * defensive.specialWallGap +
-        evidence.recoveryMoveShare * defensive.recoveryAccess +
-        evidence.defensiveAbilityShare * defensive.defensiveAbility -
-        defensiveLosses * defensive.roleLossPenalty -
-        newMajorWeaknessCount * defensive.newWeaknessPenalty
-    ),
-    offensive: Math.round(
-      counterplayScore * 0.4 +
-      threatReduction * offensive.threatReduction +
-        issueReduction * offensive.issueReduction +
-        offensiveImprovement * offensive.offensiveImprovement +
-        evidence.popularMoveCoverageCount *
-          offensive.popularMoveCoverage +
-        mainstreamAttackerRoleGain * offensive.attackerRoleGap +
-        standardFallbackSupport -
-        defensiveLosses * offensive.defensiveLossPenalty -
-        newMajorWeaknessCount * offensive.newWeaknessPenalty
-    ),
-    speed: Math.round(
-      counterplayScore * 0.25 +
-      threatReduction * speed.threatReduction +
-        issueReduction * speed.issueReduction +
-        evidence.profileSpeedAdvantageCount *
-          speed.speedAdvantageThreat +
-        Math.max(0, speedRoleImprovement) *
-          speed.speedRoleImprovement +
-        evidence.popularMoveCoverageCount * speed.popularMoveCoverage -
-        lostRoleCount * speed.roleLossPenalty -
-        newMajorWeaknessCount * speed.newWeaknessPenalty
-    ),
-    typeSpecific: Math.round(
-      counterplayScore * 0.35 +
-      threatReduction * typeSpecific.threatReduction +
-        issueReduction * typeSpecific.issueReduction +
-        consistencyReduction * typeSpecific.consistencyReduction +
-        defensiveImprovement * typeSpecific.defensiveImprovement +
-        offensiveImprovement * typeSpecific.offensiveImprovement -
-        defensiveLosses * typeSpecific.roleLossPenalty -
-        newMajorWeaknessCount * typeSpecific.newWeaknessPenalty
-    )
-  };
-}
-
 function getRecommendationRoles(
   metrics: Pick<
     AdvisorSwapPlanMetrics,
@@ -2144,8 +2034,6 @@ export function evaluateAdvisorSwapPlan(
     !hasPracticalTrickRoomValue
       ? 0
       : rawSpeedRoleImprovement;
-  const overallSpeedRoleImprovement =
-    profile === "trick-room" ? 0 : speedRoleImprovement;
   const lostRoles = uniqueText([
     ...collectLostRoles(beforeMetrics.roles, afterMetrics.roles, profile),
     ...collectLostProfileRoles(

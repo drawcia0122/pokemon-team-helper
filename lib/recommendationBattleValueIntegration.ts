@@ -1,20 +1,18 @@
 import {
-  analyzeRecommendations,
-  analyzeRecommendationPlan,
   RECOMMENDATION_CONTRIBUTION_CATEGORIES,
   type RecommendationContributionCategory
-} from "@/lib/recommendationAnalyzer";
-import { analyzeBattleValue } from "@/lib/battleValueEngine";
-import { battleValueEnvironmentSnapshot } from "@/lib/battleValueEnvironmentAdapter";
-import { analyzeContestabilityCandidate } from "@/lib/contestabilityEngine";
+} from "@/lib/recommendationContribution";
 import { CONTESTABILITY_CONFIG } from "@/lib/contestabilityConfig";
 import {
   getAdvisorSwapSimulation,
-  rebuildAdvisorSwapSimulationWithPlans,
   type AdvisorSwapPlan,
   type AdvisorSwapSimulation,
   type AdvisorSwapSimulationInput
 } from "@/lib/advisorSwapSimulator";
+import {
+  buildIntegratedRecommendationRuntime,
+  getIntegratedAdvisorSwapSimulation as getRuntimeIntegratedAdvisorSwapSimulation
+} from "@/lib/recommendationIntegrationRuntime";
 import {
   BATTLE_VALUE_AXIS_EXPLANATIONS,
   BATTLE_VALUE_AXIS_LABELS,
@@ -42,40 +40,6 @@ const REPRESENTATIVES = [
 function round(value: number, digits = 3): number {
   const factor = 10 ** digits;
   return Math.round((value + Number.EPSILON) * factor) / factor;
-}
-
-function normalizePercentiles(
-  entries: Array<{ key: string; value: number }>
-): Map<string, number> {
-  if (entries.length === 0) return new Map();
-  if (entries.length === 1) return new Map([[entries[0].key, 100]]);
-  const sorted = [...entries].sort(
-    (left, right) =>
-      left.value - right.value || left.key.localeCompare(right.key)
-  );
-  const result = new Map<string, number>();
-  for (let index = 0; index < sorted.length; ) {
-    let end = index + 1;
-    while (end < sorted.length && sorted[end].value === sorted[index].value) {
-      end += 1;
-    }
-    const averageIndex = (index + end - 1) / 2;
-    const normalized = round(
-      (averageIndex / Math.max(1, sorted.length - 1)) * 100,
-      6
-    );
-    for (let cursor = index; cursor < end; cursor += 1) {
-      result.set(sorted[cursor].key, normalized);
-    }
-    index = end;
-  }
-  return result;
-}
-
-function planKey(plan: AdvisorSwapPlan, index: number): string {
-  return `${index}:${plan.candidate.pokemon.slug}:${plan.action.kind}:${
-    plan.action.removedSlotId ?? "add"
-  }`;
 }
 
 function battleValueExplanation(
@@ -151,11 +115,8 @@ function bestBySpecies(
 
 export function integrateBattleValueRecommendation({
   input,
-  baseline = getAdvisorSwapSimulation(input),
-  environmentSnapshot =
-    input.environmentDataset === null
-      ? null
-      : battleValueEnvironmentSnapshot(input.environmentDataset)
+  baseline,
+  environmentSnapshot
 }: {
   input: AdvisorSwapSimulationInput;
   baseline?: AdvisorSwapSimulation;
@@ -164,237 +125,30 @@ export function integrateBattleValueRecommendation({
   simulation: AdvisorSwapSimulation;
   analysis: RecommendationIntegrationResult | null;
 } {
+  const resolvedBaseline = baseline ?? getAdvisorSwapSimulation(input);
   const dataset = input.environmentDataset;
-  if (
-    !dataset ||
-    !environmentSnapshot ||
-    baseline.evaluatedPlans.length === 0
-  ) {
-    return { simulation: baseline, analysis: null };
+  const runtime = buildIntegratedRecommendationRuntime({
+    input,
+    baseline: resolvedBaseline,
+    environmentSnapshot
+  });
+  if (!dataset || !runtime) {
+    return { simulation: resolvedBaseline, analysis: null };
   }
   const profile = input.profile ?? "standard";
-  const team = input.team.flatMap((slot) =>
-    slot.mode === "pokemon" ? [slot.pokemonSlug] : []
-  );
-  const context = {
-    team,
-    regulation: dataset.regulationId,
-    profile,
-    datasetId: dataset.snapshotId,
-    period: dataset.period,
-    ratingCutoff: dataset.ratingCutoff
-  };
-  const recommendation = analyzeRecommendations({
-    context,
-    plans: baseline.evaluatedPlans,
-    environmentDataset: dataset,
-    environmentSnapshot,
-    availablePokemon: input.availablePokemon,
-    topLimit: 50
-  });
-  const battleValue = analyzeBattleValue({
-    recommendation,
-    environmentSnapshot,
-    availablePokemon: input.availablePokemon,
-    recommendationUnchanged: false
-  });
-  const battleBySlug = new Map(
-    battleValue.candidates.map((candidate) => [candidate.slug, candidate])
-  );
-  const semanticBySlug = new Map(
-    recommendation.semanticProfiles.map((candidate) => [
-      candidate.slug,
-      candidate
-    ])
-  );
-  const teamProfiles = team.flatMap((slug) => {
-    const candidate = semanticBySlug.get(slug);
-    return candidate ? [candidate] : [];
-  });
-  const environmentBySlug = new Map(
-    environmentSnapshot.pokemon.map((candidate) => [
-      candidate.slug,
-      candidate
-    ])
-  );
-  const battleRanks = new Map(
-    battleValue.battleValueRanking.map((candidate, index) => [
-      candidate.slug,
-      index + 1
-    ])
-  );
-  const battleNormalized = normalizePercentiles(
-    battleValue.battleValueRanking.map((candidate) => ({
-      key: candidate.slug,
-      value: candidate.finalBattleValue
-    }))
-  );
-  const planAnalyses = baseline.evaluatedPlans.map((plan, index) => {
-    const key = planKey(plan, index);
-    return {
-      key,
-      plan,
-      analysis: analyzeRecommendationPlan(plan, index + 1, dataset)
-    };
-  });
-  const baselineNormalized = normalizePercentiles(
-    planAnalyses.map(({ key, plan }) => ({
-      key,
-      value: plan.baselineRecommendationScore
-    }))
-  );
-  const contributionNormalized = Object.fromEntries(
-    RECOMMENDATION_CONTRIBUTION_CATEGORIES.map((category) => [
-      category,
-      normalizePercentiles(
-        planAnalyses.map(({ key, analysis }) => ({
-          key,
-          value: analysis.contributions[category]
-        }))
-      )
-    ])
-  ) as Record<
-    RecommendationContributionCategory,
-    Map<string, number>
-  >;
-  const weight = RECOMMENDATION_INTEGRATION_CONFIG.battleValueWeight;
-  const recommendationWeight =
-    RECOMMENDATION_INTEGRATION_CONFIG.recommendationWeight;
-  const contestabilityWeight = CONTESTABILITY_CONFIG.weight;
-  const integrationWeightTotal =
-    recommendationWeight + weight + contestabilityWeight;
-  if (Math.abs(integrationWeightTotal - 1) > 0.000001) {
-    throw new Error(
-      `Recommendation integration weights must total 1: ${integrationWeightTotal}`
-    );
-  }
-  const integratedPlans = planAnalyses.map(({ key, plan, analysis }) => {
-    const normalized = Object.fromEntries(
-      RECOMMENDATION_CONTRIBUTION_CATEGORIES.map((category) => [
-        category,
-        contributionNormalized[category].get(key) ?? 0
-      ])
-    ) as Record<RecommendationContributionCategory, number>;
-    const contributionScore = RECOMMENDATION_CONTRIBUTION_CATEGORIES.reduce(
-      (total, category) =>
-        total +
-        normalized[category] *
-          RECOMMENDATION_INTEGRATION_CONFIG.contributionWeights[category],
-      0
-    );
-    const recommendationNormalized =
-      (baselineNormalized.get(key) ?? 0) *
-        RECOMMENDATION_INTEGRATION_CONFIG.baselineContinuityWeight +
-      contributionScore *
-        RECOMMENDATION_INTEGRATION_CONFIG.contributionWeight;
-    const battle = battleBySlug.get(plan.candidate.pokemon.slug);
-    const normalizedBattle = battle
-      ? battleNormalized.get(battle.slug) ?? 0
-      : 0;
-    const semantic = semanticBySlug.get(plan.candidate.pokemon.slug);
-    const contestability =
-      battle && semantic
-        ? analyzeContestabilityCandidate({
-            plan,
-            candidate: battle,
-            profile: semantic,
-            teamProfiles,
-            environment:
-              environmentBySlug.get(plan.candidate.pokemon.slug) ?? null
-          })
-        : null;
-    const contestabilityScore = contestability?.score ?? 0;
-    const recommendationConfidence =
-      contestability?.recommendationConfidence ?? 0;
-    const confidenceAdjustedRecommendation = round(
-      Math.min(
-        100,
-        recommendationNormalized * recommendationConfidence
-      )
-    );
-    const finalRecommendation = round(
-      confidenceAdjustedRecommendation * recommendationWeight +
-        normalizedBattle * weight +
-        contestabilityScore * contestabilityWeight
-    );
-    const battleValueContribution = round(normalizedBattle * weight);
-    const contestabilityContribution = round(
-      contestabilityScore * contestabilityWeight
-    );
-    const preContestabilityRecommendation = round(
-      recommendationNormalized * (1 - weight) +
-        normalizedBattle * weight
-    );
-    const explanations = battle ? battleValueExplanation(battle) : [];
-    const contributionTotal = RECOMMENDATION_CONTRIBUTION_CATEGORIES.reduce(
-      (total, category) =>
-        total +
-        normalized[category] *
-          RECOMMENDATION_INTEGRATION_CONFIG.contributionWeights[category],
-      0
-    );
-    const contributionRatios = Object.fromEntries(
-      RECOMMENDATION_CONTRIBUTION_CATEGORIES.map((category) => [
-        category,
-        contributionTotal === 0
-          ? 0
-          : round(
-              (normalized[category] *
-                RECOMMENDATION_INTEGRATION_CONFIG.contributionWeights[
-                  category
-                ]) /
-                contributionTotal
-            )
-      ])
-    );
-    return {
-      ...plan,
-      improvementScore: finalRecommendation,
-      baselineRecommendationScore: plan.baselineRecommendationScore,
-      categoryScores: {
-        ...plan.categoryScores,
-        overall: finalRecommendation
-      },
-      battleValueContribution,
-      battleValueExplanation: explanations
-        .slice(0, 3)
-        .map((entry) => entry.text),
-      contestability,
-      contestabilityContribution,
-      contestabilityExplanation:
-        contestability?.reasons.map((entry) => entry.text) ?? [],
-      preContestabilityRecommendation,
-      finalRecommendation,
-      recommendationIntegration: {
-        weight,
-        contestabilityWeight,
-        recommendationNormalized: round(recommendationNormalized),
-        recommendationConfidence,
-        confidenceAdjustedRecommendation,
-        contributionNormalized: normalized,
-        contributionRatios,
-        battleValue: battle?.finalBattleValue ?? 0,
-        battleValueNormalized: round(normalizedBattle),
-        battleValueRatio:
-          finalRecommendation === 0
-            ? 0
-            : round(battleValueContribution / finalRecommendation),
-        battleValueAxes: battle?.axisBreakdown ?? {},
-        contestabilityNormalized: contestabilityScore,
-        contestabilityRatio:
-          finalRecommendation === 0
-            ? 0
-            : round(contestabilityContribution / finalRecommendation)
-      }
-    } satisfies AdvisorSwapPlan;
-  });
-  const simulation = rebuildAdvisorSwapSimulationWithPlans(
-    baseline,
+  const {
+    simulation,
+    baseline: runtimeBaseline,
     integratedPlans,
-    profile
-  );
+    battleBySlug,
+    battleRanks,
+    team,
+    recommendationWeight,
+    battleValueWeight: weight,
+    contestabilityWeight
+  } = runtime;
   const baselineRanked = bestBySpecies(
-    baseline.evaluatedPlans,
+    runtimeBaseline.evaluatedPlans,
     (plan) => plan.baselineRecommendationScore
   );
   const integratedRanked = bestBySpecies(
@@ -569,7 +323,7 @@ export function integrateBattleValueRecommendation({
         return candidate ? [candidate] : [];
       }),
       megaConstraintsPreserved: integratedPlans.every((plan, index) => {
-        const before = baseline.evaluatedPlans[index];
+        const before = runtimeBaseline.evaluatedPlans[index];
         return (
           before.metrics.megaLimitPassed ===
             plan.metrics.megaLimitPassed &&
@@ -587,7 +341,7 @@ export function integrateBattleValueRecommendation({
 export function getIntegratedAdvisorSwapSimulation(
   input: AdvisorSwapSimulationInput
 ): AdvisorSwapSimulation {
-  return integrateBattleValueRecommendation({ input }).simulation;
+  return getRuntimeIntegratedAdvisorSwapSimulation(input);
 }
 
 export function formatRecommendationIntegrationReport(

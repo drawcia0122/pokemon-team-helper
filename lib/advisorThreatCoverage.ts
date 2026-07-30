@@ -11,7 +11,6 @@ import type { ThreatPokemonAnalysis } from "@/lib/teamThreats";
 import { getPokemonBySlug } from "@/lib/typeChart";
 import type {
   ThreatEnvironmentDataset,
-  ThreatEnvironmentMove,
   ThreatEnvironmentPokemon
 } from "@/types/environmentThreat";
 import type { PokemonEntry, TeamSlot } from "@/types/pokemon";

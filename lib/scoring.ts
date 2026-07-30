@@ -15,7 +15,6 @@ function toRowMap(summary: TeamSummary): Map<TypeName, DefensiveSummaryRow> {
 }
 
 function calculateDelta(beforeSummary: TeamSummary, afterSummary: TeamSummary): CandidateDelta {
-  const beforeMap = toRowMap(beforeSummary);
   const afterMap = toRowMap(afterSummary);
 
   const improvedTypes: TypeName[] = [];

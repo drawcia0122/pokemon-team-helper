@@ -277,7 +277,7 @@ assert(
   "追加・交換・無効理由・UndoのUI統合が不足しています"
 );
 assert(
-  inputSource.includes("filterPokemonSelectionByTypes") &&
+  inputSource.includes("filterPokemonSelectionIndexByTypes") &&
     inputSource.includes("第1タイプ") &&
     inputSource.includes("第2タイプ") &&
     inputSource.includes("このタイプ条件に一致する使用可能なポケモンはいません") &&

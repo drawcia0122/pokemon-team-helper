@@ -1,6 +1,6 @@
 import type {
   RecommendationContributionCategory
-} from "@/lib/recommendationAnalyzer";
+} from "@/lib/recommendationContribution";
 import type {
   BattleTag,
   SemanticCategory,

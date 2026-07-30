@@ -66,7 +66,7 @@ function environmentEntry({
 function threat(
   entry: PokemonEntry,
   environment: ThreatEnvironmentPokemon,
-  rank: number,
+  _rank: number,
   score: number
 ): ThreatPokemonAnalysis {
   return {

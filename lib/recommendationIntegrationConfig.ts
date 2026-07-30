@@ -1,6 +1,6 @@
 import type {
   RecommendationContributionCategory
-} from "@/lib/recommendationAnalyzer";
+} from "@/lib/recommendationContribution";
 
 export const RECOMMENDATION_INTEGRATION_CONFIG = {
   recommendationWeight: 0.75,

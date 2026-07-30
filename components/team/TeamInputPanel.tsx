@@ -9,9 +9,6 @@ import {
 } from "@/lib/pokemonBaseStats";
 import {
   getFormOptionLabel,
-  getSelectableForms,
-  searchPokemonSpeciesRepresentatives,
-  selectInitialFormForSpecies,
   switchTeamSlotForm
 } from "@/lib/pokemonForms";
 import {
@@ -25,7 +22,14 @@ import {
   TEAM_PROFILE_CONFIG,
   type TeamProfile
 } from "@/lib/teamProfile";
-import { filterPokemonSelectionByTypes } from "@/lib/teamCandidateSelection";
+import {
+  createPokemonSelectionIndex,
+  filterPokemonSelectionIndexByTypes,
+  getPokemonSelectionForms,
+  getPokemonSelectionInitialForm,
+  searchPokemonSelectionIndex,
+  type PokemonSelectionIndex
+} from "@/lib/teamCandidateSelection";
 import { getAllPokemon, getPokemonBySlug, getTypeLabel } from "@/lib/typeChart";
 import type { PokemonEntry, TeamSlot, TypeEntry, TypeName } from "@/types/pokemon";
 import styles from "./TeamWorkspace.module.css";
@@ -48,6 +52,11 @@ export function TeamInputPanel({
   allTypes: TypeEntry[];
 }) {
   const positionedTeam = getTeamSlotsByPosition(team);
+  const allPokemon = useMemo(() => getAllPokemon(), []);
+  const selectionIndex = useMemo(
+    () => createPokemonSelectionIndex(allPokemon, availablePokemon),
+    [allPokemon, availablePokemon]
+  );
   const [typeFilterPositions, setTypeFilterPositions] = useState<number[]>([]);
 
   function setTypeFilterActive(position: number, active: boolean) {
@@ -146,7 +155,7 @@ export function TeamInputPanel({
                 position={position}
                 initialSlot={slot?.mode === "type" ? slot : null}
                 allTypes={allTypes}
-                availablePokemon={availablePokemon}
+                selectionIndex={selectionIndex}
                 onSelect={(pokemon) => {
                   updateSlot(position, {
                     mode: "pokemon",
@@ -160,6 +169,7 @@ export function TeamInputPanel({
                 position={position}
                 slot={slot?.mode === "pokemon" ? slot : null}
                 availablePokemon={availablePokemon}
+                selectionIndex={selectionIndex}
                 onChange={(nextSlot) => updateSlot(position, nextSlot)}
               />
             )}
@@ -197,29 +207,26 @@ function PokemonSlotEditor({
   position,
   slot,
   availablePokemon,
+  selectionIndex,
   onChange
 }: {
   position: number;
   slot: Extract<TeamSlot, { mode: "pokemon" }> | null;
   availablePokemon: PokemonEntry[];
+  selectionIndex: PokemonSelectionIndex;
   onChange: (nextSlot: Omit<Extract<TeamSlot, { mode: "pokemon" }>, "id"> | Extract<TeamSlot, { mode: "pokemon" }>) => void;
 }) {
-  const allPokemon = getAllPokemon();
   const selectedPokemon = slot ? getPokemonBySlug(slot.pokemonSlug) ?? null : null;
-  const availableSlugs = new Set(availablePokemon.map((pokemon) => pokemon.slug));
   const selectableForms = selectedPokemon
-    ? getSelectableForms(allPokemon, selectedPokemon.speciesId).filter(
-        (form) => availableSlugs.has(form.slug)
-      )
+    ? getPokemonSelectionForms(selectionIndex, selectedPokemon.speciesId)
     : [];
   const selectedFormIsSelectable = Boolean(
     selectedPokemon && selectableForms.some((form) => form.slug === selectedPokemon.slug)
   );
 
   function selectSpecies(representative: PokemonEntry) {
-    const nextPokemon = selectInitialFormForSpecies(
-      allPokemon,
-      availablePokemon,
+    const nextPokemon = getPokemonSelectionInitialForm(
+      selectionIndex,
       representative.speciesId
     );
     if (!nextPokemon) return;
@@ -235,8 +242,7 @@ function PokemonSlotEditor({
     <>
       <PokemonSearchCombobox
         position={position}
-        allPokemon={allPokemon}
-        pokemonInputOptions={availablePokemon}
+        selectionIndex={selectionIndex}
         selectedPokemon={selectedPokemon}
         onSelect={selectSpecies}
       />
@@ -323,14 +329,12 @@ function PokemonCardBaseStats({ pokemon }: { pokemon: PokemonEntry }) {
 
 function PokemonSearchCombobox({
   position,
-  allPokemon,
-  pokemonInputOptions,
+  selectionIndex,
   selectedPokemon,
   onSelect
 }: {
   position: number;
-  allPokemon: PokemonEntry[];
-  pokemonInputOptions: PokemonEntry[];
+  selectionIndex: PokemonSelectionIndex;
   selectedPokemon: PokemonEntry | null;
   onSelect: (pokemon: PokemonEntry) => void;
 }) {
@@ -339,12 +343,12 @@ function PokemonSearchCombobox({
   const [isEditing, setIsEditing] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const suggestions = useMemo(
-    () => searchPokemonSpeciesRepresentatives(
-      allPokemon,
-      pokemonInputOptions,
-      isEditing ? draft : ""
-    ).slice(0, SUGGESTION_LIMIT),
-    [allPokemon, draft, isEditing, pokemonInputOptions]
+    () =>
+      searchPokemonSelectionIndex(
+        selectionIndex,
+        isEditing ? draft : ""
+      ).slice(0, SUGGESTION_LIMIT),
+    [draft, isEditing, selectionIndex]
   );
 
   useEffect(() => {
@@ -459,13 +463,13 @@ function TypePokemonFilter({
   position,
   initialSlot,
   allTypes,
-  availablePokemon,
+  selectionIndex,
   onSelect
 }: {
   position: number;
   initialSlot: Extract<TeamSlot, { mode: "type" }> | null;
   allTypes: TypeEntry[];
-  availablePokemon: PokemonEntry[];
+  selectionIndex: PokemonSelectionIndex;
   onSelect: (pokemon: PokemonEntry) => void;
 }) {
   const listboxId = useId();
@@ -480,22 +484,22 @@ function TypePokemonFilter({
   const [activeIndex, setActiveIndex] = useState(0);
   const filteredPokemon = useMemo(
     () =>
-      filterPokemonSelectionByTypes({
-        pokemon: availablePokemon,
+      filterPokemonSelectionIndexByTypes({
+        index: selectionIndex,
         primaryType,
         secondaryType
       }),
-    [availablePokemon, primaryType, secondaryType]
+    [primaryType, secondaryType, selectionIndex]
   );
   const suggestions = useMemo(
     () =>
-      filterPokemonSelectionByTypes({
-        pokemon: availablePokemon,
+      filterPokemonSelectionIndexByTypes({
+        index: selectionIndex,
         primaryType,
         secondaryType,
         query: draft
       }).slice(0, SUGGESTION_LIMIT),
-    [availablePokemon, draft, primaryType, secondaryType]
+    [draft, primaryType, secondaryType, selectionIndex]
   );
 
   useEffect(() => {
