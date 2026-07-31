@@ -153,13 +153,33 @@ if (options.json) {
     matchup
       ? `Survival=${matchup.survivalScore} Return Pressure=${matchup.returnPressure} Speed=${matchup.speedRelation}`
       : "",
+    offensiveProfile
+      ? `Offensive Profile: physical=${offensiveProfile.physicalUsageProbability} special=${offensiveProfile.specialUsageProbability} mixed=${offensiveProfile.mixedUsageProbability} confidence=${offensiveProfile.evidenceConfidence}`
+      : "",
+    defensiveResponseProfile
+      ? `Defensive Response: physical=${defensiveResponseProfile.physicalBulk.toFixed(2)} special=${defensiveResponseProfile.specialBulk.toFixed(2)} recovery=${Math.round(defensiveResponseProfile.recoveryAdoptionRate * 100)}% hazard=${defensiveResponseProfile.hazardSensitivity.toFixed(2)}`
+      : "",
     `Ability Matchup Value: ${result.abilityMatchupValue ?? "candidate未指定"}`,
+    candidateAbility
+      ? `Ability Denial: ${
+          candidateAbility.entries
+            .map(
+              (entry) =>
+                `${entry.abilityName} ${Math.round(entry.adoptionRate * 100)}% [${entry.denialCategories.join(",") || "戦闘補助"}]`
+            )
+            .join(" / ") || "Unclassified"
+        }`
+      : "",
     `Defensive Core: ${core.members.join(", ")}`,
     `Core Synergy=${core.coreSynergy} Cycle Viability=${core.cycleViability}`,
     `Denial: Setup=${core.setupDenial} Residual=${core.residualDamageDenial} Stat drop=${core.statDropDenial} Diversity=${core.denialDiversity}`,
     `Shared vulnerabilities: ${core.sharedVulnerabilities.join(", ") || "none"}`,
     `Common breakers: ${core.commonBreakers.join(", ") || "none"}`,
+    result.recommendationImpact
+      ? `Recommendation: ${result.recommendationImpact.baselineRank} -> ${result.recommendationImpact.integratedRank} (Δ${result.recommendationImpact.rankDelta >= 0 ? "+" : ""}${result.recommendationImpact.rankDelta}) Final=${result.recommendationImpact.finalRecommendation} Ability=${result.recommendationImpact.abilityContribution}`
+      : "",
     `Unclassified: ${result.unclassified.join(", ") || "none"}`,
+    `Cache: offense=${context.metrics.offensiveProfileBuilds} defense=${context.metrics.defensiveProfileBuilds} matchup=${context.metrics.matchupBuilds} hits=${context.metrics.cacheHits}`,
     ...result.explanation.map((text) => `- ${text}`)
   ].filter(Boolean);
   process.stdout.write(`${lines.join("\n")}\n`);
