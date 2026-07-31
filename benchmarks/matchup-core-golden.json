@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "minimumOverallScore": 90,
+  "maximumFailCount": 0,
+  "requiredCases": ["mc001", "mc002", "mc003"]
+}

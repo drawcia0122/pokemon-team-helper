@@ -8,7 +8,7 @@ import {
   type TeamProfile
 } from "@/lib/teamProfile";
 import type { ThreatPokemonAnalysis } from "@/lib/teamThreats";
-import { getPokemonBySlug } from "@/lib/typeChart";
+import { getMultiplier, getPokemonBySlug } from "@/lib/typeChart";
 import type {
   ThreatEnvironmentDataset,
   ThreatEnvironmentPokemon
@@ -22,6 +22,12 @@ import {
   type AdvisorAttackPressureTier
 } from "@/lib/advisorMoveQuality";
 import type { AdvisorEvidenceConfidence } from "@/lib/advisorEvidence";
+import {
+  getMatchupVerdictContext,
+  evaluateMatchupVerdict,
+  type MatchupVerdictContext
+} from "@/lib/matchupVerdictEngine";
+import type { MatchupEvidence } from "@/types/matchupCore";
 
 export const ADVISOR_USAGE_THRESHOLDS = {
   normalCandidate: 0.01,
@@ -98,7 +104,10 @@ export type AdvisorThreatAnswer = {
   failureReasons: string[];
   confidence: AdvisorEvidenceConfidence;
   bestPressureTier: AdvisorAttackPressureTier | null;
+  matchup: MatchupEvidence | null;
 };
+
+const COMPLETE_OPTIMIZATION_TEAM_SIZE = 5;
 
 export type AdvisorThreatCoverage = {
   threatAnswers: AdvisorThreatAnswer[];
@@ -130,6 +139,7 @@ type CounterplayEvaluation = {
   failureReasons: string[];
   confidence: AdvisorEvidenceConfidence;
   bestPressureTier: AdvisorAttackPressureTier | null;
+  matchup: MatchupEvidence | null;
 };
 
 const METHOD_STRENGTH: Record<AdvisorCounterplayMethod, number> = {
@@ -277,9 +287,193 @@ function hasCredibleOffensivePressure(
 function evaluateCounterplay(
   candidate: PokemonEntry,
   threat: ThreatPokemonAnalysis,
-  environmentBySlug: Map<string, ThreatEnvironmentPokemon>,
-  profile: TeamProfile
+  matchupContext: MatchupVerdictContext | null,
+  profile: TeamProfile,
+  legacyEnvironmentBySlug?: Map<string, ThreatEnvironmentPokemon>,
+  allowLegacySoftCheck = false
 ): CounterplayEvaluation {
+  if (matchupContext) {
+    const matchup = evaluateMatchupVerdict({
+      candidate,
+      threat: threat.pokemon,
+      context: matchupContext
+    });
+    const legacy = evaluateCounterplay(
+      candidate,
+      threat,
+      null,
+      profile,
+      matchupContext.environmentBySlug,
+      false
+    );
+    const candidateEnvironment = matchupContext.environmentBySlug.get(
+      candidate.slug
+    );
+    const hasPriority = matchup.candidateCommonMoves.some(
+      (move) =>
+        TRICK_ROOM_RECOMMENDATION_CONFIG.priorityMoveIds.includes(
+          move.id as (typeof TRICK_ROOM_RECOMMENDATION_CONFIG.priorityMoveIds)[number]
+        ) && getMultiplier(move.type, threat.pokemon.types) >= 1
+    );
+    const hasCoverage = matchup.candidateCommonMoves.some(
+      (move) => getMultiplier(move.type, threat.pokemon.types) > 1
+    );
+    const isRevengeKill =
+      matchup.verdict === "soft-check" &&
+      legacy.answerClass === "revengeKill" &&
+      (hasPriority || matchup.speedRelation === "favored");
+    if (
+      matchup.verdict === "soft-check" &&
+      legacy.answerClass === "revengeKill" &&
+      isRevengeKill
+    ) {
+      return {
+        ...legacy,
+        primaryReason: matchup.explanation.join(" "),
+        failureReasons: legacy.failureReasons,
+        confidence: matchup.confidence,
+        matchup
+      };
+    }
+    if (
+      allowLegacySoftCheck &&
+      matchup.verdict === "soft-check" &&
+      legacy.answerClass === "softCheck"
+    ) {
+      return {
+        ...legacy,
+        primaryReason: matchup.explanation.join(" "),
+        confidence: matchup.confidence,
+        matchup
+      };
+    }
+    if (
+      matchup.verdict === "emergency-check" &&
+      legacy.answerClass === "revengeKill" &&
+      hasPriority
+    ) {
+      return {
+        ...legacy,
+        primaryReason: matchup.explanation.join(" "),
+        failureReasons: [
+          ...matchup.explanation,
+          `${threat.pokemon.nameJa}への緊急時の対処に限られます。`
+        ],
+        confidence: matchup.confidence,
+        matchup
+      };
+    }
+    if (
+      allowLegacySoftCheck &&
+      matchup.verdict === "emergency-check" &&
+      legacy.answerClass === "softCheck"
+    ) {
+      return {
+        ...legacy,
+        primaryReason: matchup.explanation.join(" "),
+        confidence: matchup.confidence,
+        matchup
+      };
+    }
+    if (
+      (matchup.verdict === "hard-answer" ||
+        matchup.verdict === "favorable") &&
+      legacy.answerClass === "stableSwitch"
+    ) {
+      return {
+        ...legacy,
+        primaryReason: matchup.explanation.join(" "),
+        confidence: matchup.confidence,
+        matchup
+      };
+    }
+    const methods: AdvisorCounterplayMethod[] =
+      matchup.verdict === "hard-answer" || matchup.verdict === "favorable"
+        ? ["stable-switch"]
+        : matchup.verdict === "soft-check"
+          ? hasPriority
+            ? ["priority", "conditional"]
+            : (candidateEnvironment?.choiceScarfShare ?? 0) >=
+                ADVISOR_COUNTERPLAY_RULES.choiceScarfMinimumShare
+              ? ["choice-scarf", "conditional"]
+              : matchup.speedRelation === "favored"
+                ? ["outspeed", "conditional"]
+                : ["conditional"]
+          : matchup.verdict === "emergency-check"
+            ? ["priority", "conditional"]
+            : matchup.verdict === "utility-only" ||
+                matchup.verdict === "volatile"
+              ? ["conditional"]
+              : hasCoverage
+                ? ["offensive-pressure"]
+                : ["none"];
+    if (
+      (matchup.verdict === "soft-check" ||
+        matchup.verdict === "emergency-check") &&
+      (candidateEnvironment?.choiceScarfShare ?? 0) >=
+        ADVISOR_COUNTERPLAY_RULES.choiceScarfMinimumShare &&
+      !methods.includes("choice-scarf")
+    ) {
+      methods.unshift("choice-scarf");
+    }
+    const answerClass: AdvisorAnswerClass =
+      matchup.verdict === "hard-answer" || matchup.verdict === "favorable"
+        ? "stableSwitch"
+        : matchup.verdict === "soft-check"
+          ? isRevengeKill
+            ? "revengeKill"
+            : "softCheck"
+          : matchup.verdict === "emergency-check"
+            ? "softCheck"
+            : matchup.verdict === "utility-only" ||
+                matchup.verdict === "volatile"
+              ? "coverageOnly"
+              : hasCoverage
+                ? "coverageOnly"
+                : "notCounter";
+    const strength =
+      matchup.verdict === "hard-answer"
+        ? 1
+        : matchup.verdict === "favorable"
+          ? 0.82
+          : isRevengeKill
+            ? 0.78
+          : matchup.verdict === "soft-check"
+            ? 0.48
+            : matchup.verdict === "emergency-check"
+              ? 0.3
+              : 0;
+    return {
+      methods,
+      answerClass,
+      strength,
+      stableSwitch:
+        matchup.verdict === "hard-answer" || matchup.verdict === "favorable",
+      offensiveAnswer:
+        isRevengeKill,
+      primaryReason:
+        strength > 0 ? matchup.explanation.join(" ") : null,
+      failureReasons:
+        strength >= ADVISOR_COUNTERPLAY_RULES.clearAnswerStrength
+          ? []
+          : [
+              ...matchup.explanation,
+              `${threat.pokemon.nameJa}への安定した対策とは扱いません。`
+            ],
+      confidence: matchup.confidence,
+      bestPressureTier:
+        matchup.returnPressure >= 45
+          ? "high"
+          : matchup.returnPressure >= 30
+            ? "medium"
+            : matchup.returnPressure > 0
+              ? "low"
+              : "insufficient",
+      matchup
+    };
+  }
+  const environmentBySlug =
+    legacyEnvironmentBySlug ?? new Map<string, ThreatEnvironmentPokemon>();
   const candidateEnvironment = environmentBySlug.get(candidate.slug);
   const threatEnvironment = environmentBySlug.get(threat.pokemon.slug);
   const incomingMoves = getEnvironmentAttackingMoves(
@@ -530,7 +724,8 @@ function evaluateCounterplay(
     primaryReason,
     failureReasons,
     confidence,
-    bestPressureTier: bestMove?.pressure.tier ?? null
+    bestPressureTier: bestMove?.pressure.tier ?? null,
+    matchup: null
   };
 }
 
@@ -580,33 +775,50 @@ export function evaluateAdvisorThreatCoverage({
   threats,
   currentTeam,
   environmentDataset,
-  profile
+  profile,
+  validateMatchup = true
 }: {
   candidate: PokemonEntry;
   threats: ThreatPokemonAnalysis[];
   currentTeam: TeamSlot[];
   environmentDataset: ThreatEnvironmentDataset | null;
   profile: TeamProfile;
+  validateMatchup?: boolean;
 }): AdvisorThreatCoverage {
   const topThreats = threats;
   const environmentBySlug = new Map(
     environmentDataset?.pokemon.map((entry) => [entry.slug, entry]) ?? []
   );
   const currentMembers = getCurrentTeamPokemon(currentTeam);
+  const matchupContext =
+    validateMatchup && environmentDataset && currentMembers.length >= 6
+    ? getMatchupVerdictContext(environmentDataset, profile)
+    : null;
+  const allowLegacySoftCheck =
+    currentMembers.length >= COMPLETE_OPTIMIZATION_TEAM_SIZE;
   const candidateUsage = environmentBySlug.get(candidate.slug)?.usageRate ?? null;
   const usageEligibility = getUsageEligibility(candidateUsage);
 
   const threatAnswers = topThreats.map((threat, index) => {
     const currentTeamHasAnswer = currentMembers.some(
       (member) =>
-        evaluateCounterplay(member, threat, environmentBySlug, profile)
+        evaluateCounterplay(
+          member,
+          threat,
+          matchupContext,
+          profile,
+          environmentBySlug,
+          allowLegacySoftCheck
+        )
           .strength >= ADVISOR_COUNTERPLAY_RULES.clearAnswerStrength
     );
     const answer = evaluateCounterplay(
       candidate,
       threat,
+      matchupContext,
+      profile,
       environmentBySlug,
-      profile
+      allowLegacySoftCheck
     );
     const threatRank = index + 1;
     return {
@@ -631,7 +843,8 @@ export function evaluateAdvisorThreatCoverage({
       primaryReason: answer.primaryReason,
       failureReasons: answer.failureReasons,
       confidence: answer.confidence,
-      bestPressureTier: answer.bestPressureTier
+      bestPressureTier: answer.bestPressureTier,
+      matchup: answer.matchup
     } satisfies AdvisorThreatAnswer;
   });
   const totalImportance = threatAnswers.reduce(

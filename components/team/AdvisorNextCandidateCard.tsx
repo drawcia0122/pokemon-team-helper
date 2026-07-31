@@ -1,5 +1,6 @@
 import { PokemonVisual } from "@/components/pokemon/PokemonVisual";
 import { AdvisorCandidateActionButton } from "@/components/team/AdvisorCandidateActionButton";
+import { AbilityMatchupDetails } from "@/components/team/AbilityMatchupDetails";
 import type { AdvisorSwapPlan } from "@/lib/advisorSwapSimulator";
 import {
   PROGRESSIVE_ADVISOR_MODE_LABELS,
@@ -271,6 +272,7 @@ export function AdvisorNextCandidateCard({
           ) : null}
         </details>
       ) : null}
+      <AbilityMatchupDetails plan={plan} />
 
       <AdvisorCandidateActionButton
         plan={plan}

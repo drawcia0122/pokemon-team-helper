@@ -49,6 +49,9 @@ export type RecommendationCandidateAnalysis = {
   contestabilityBreakdown: ContestabilityCandidate["axes"] | null;
   contestabilityReasons: string[];
   contestabilityContribution: number;
+  abilityMatchupValue: number;
+  abilityContribution: number;
+  abilityExplanation: string[];
   contestabilityRatio: number;
   preContestabilityRecommendation: number;
   finalRecommendation: number;
@@ -256,6 +259,9 @@ export function analyzeRecommendationPlan(
       : null,
     contestabilityReasons: [...plan.contestabilityExplanation],
     contestabilityContribution: plan.contestabilityContribution,
+    abilityMatchupValue: plan.abilityMatchupValue,
+    abilityContribution: plan.abilityContribution,
+    abilityExplanation: [...plan.abilityExplanation],
     contestabilityRatio:
       plan.recommendationIntegration?.contestabilityRatio ?? 0,
     preContestabilityRecommendation:

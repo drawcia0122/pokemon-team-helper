@@ -2,6 +2,7 @@
 
 import { PokemonVisual } from "@/components/pokemon/PokemonVisual";
 import { AdvisorCandidateActionButton } from "@/components/team/AdvisorCandidateActionButton";
+import { AbilityMatchupDetails } from "@/components/team/AbilityMatchupDetails";
 import { AdvisorNextCandidateList } from "@/components/team/AdvisorNextCandidateList";
 import { AdvisorPhaseHeader } from "@/components/team/AdvisorPhaseHeader";
 import {
@@ -893,6 +894,7 @@ function AdvisorThreatCandidateCard({
         <>
           <ContestabilityDetails plan={plan} />
           <BattleValueDetails plan={plan} />
+          <AbilityMatchupDetails plan={plan} />
         </>
       ) : null}
       <AdvisorCandidateActionButton
@@ -1103,6 +1105,7 @@ function AdvisorRecommendationCard({
         <>
           <ContestabilityDetails plan={plan} />
           <BattleValueDetails plan={plan} />
+          <AbilityMatchupDetails plan={plan} />
         </>
       ) : null}
       <AdvisorCandidateActionButton

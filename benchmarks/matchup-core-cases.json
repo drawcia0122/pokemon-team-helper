@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {"id":"mc001","title":"Sylveon vs Mega Charizard Y","candidate":"sylveon","threat":"charizard-mega-y","forbiddenVerdicts":["hard-answer","favorable"],"minimumConfidence":"medium","explanationContains":["先に動きにくい","半減","妨害","晴れ"],"explanationForbids":["確定1発","安定した受け先"]},
+    {"id":"mc002","title":"Sylveon vs Mega Delphox","candidate":"sylveon","threat":"delphox-mega","forbiddenVerdicts":["hard-answer","favorable"],"minimumConfidence":"medium","explanationContains":["先に動きにくい","半減","妨害"],"explanationForbids":["確定1発","安定した受け先"]},
+    {"id":"mc003","title":"Ability defensive core","team":["corviknight","clefable","skeledirge"],"minimumCoreSynergy":50,"requiredDenialCategories":["SetupDenial","ResidualDamageDenial","StatDropDenial"],"explanationContains":["サイクル","特性"]},
+    {"id":"mc004","title":"Unaware setup denial","ability":"unaware","requiredDenialCategories":["SetupDenial","DefensiveSnowballControl"]},
+    {"id":"mc005","title":"Magic Guard residual denial","ability":"magicguard","requiredDenialCategories":["ResidualDamageDenial","HazardDenial"],"forbiddenDenialCategories":["StatusDenial"]},
+    {"id":"mc006","title":"Mirror Armor stat drop denial","ability":"mirrorarmor","requiredDenialCategories":["StatDropDenial","Reflection"]},
+    {"id":"mc007","title":"Magic Bounce distinction","ability":"magicbounce","requiredDenialCategories":["Reflection","StatusDenial","HazardDenial"],"forbiddenDenialCategories":["ResidualDamageDenial"]},
+    {"id":"mc008","title":"Unaware diminishing returns","team":["clefable","skeledirge"],"maximumRedundancyBonus":35,"maximumRoleOverlap":35},
+    {"id":"mc009","title":"No recovery pseudo core","team":["avalugg","blissey"],"maximumCycleViability":75},
+    {"id":"mc010","title":"Hazard-sensitive cycle","team":["volcarona","charizard","weavile"],"maximumCycleViability":75},
+    {"id":"mc011","title":"Low adoption ability","ability":"mirrorarmor","abilityAdoptionRate":0.1,"maximumAbilityMatchupValue":10},
+    {"id":"mc012","title":"Ability bypass safety","attacker":"excadrill","defender":"rotom-wash","attackerAbility":"moldbreaker","defenderAbility":"levitate","requiredAbilityBypass":true}
+  ]
+}

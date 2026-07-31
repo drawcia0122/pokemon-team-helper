@@ -43,6 +43,10 @@ export type RecommendationIntegrationCandidate = {
   contestabilityReasons: ContestabilityReason[];
   contestabilityContribution: number;
   contestabilityRatio: number;
+  abilityMatchupValue: number;
+  abilityContribution: number;
+  abilityExplanation: string[];
+  defensiveCoreSynergy: number;
   recommendationConfidence: number;
   confidenceAdjustedRecommendation: number;
   preContestabilityRecommendation: number;

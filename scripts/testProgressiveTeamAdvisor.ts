@@ -460,12 +460,10 @@ assert(
     .join("|") ===
     [
       "floette-mega:slot-5:15",
-      "umbreon:slot-4:9",
-      "hydreigon:slot-4:8",
-      "kingambit:slot-4:8",
-      "volcarona:slot-1:6"
+      "delphox-mega:slot-6:13",
+      "sylveon:slot-5:5"
     ].join("|"),
-  "Golden: 6体時のTASK037順位・入れ替え元・スコアが変化しました"
+  "Golden: 6体時のEvidence検証済み順位・入れ替え元・スコアが変化しました"
 );
 assert(
   caseE.base.simulation.plans.every(

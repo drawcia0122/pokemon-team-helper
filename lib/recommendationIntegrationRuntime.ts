@@ -4,6 +4,12 @@ import { battleValueEnvironmentSnapshot } from "@/lib/battleValueEnvironmentAdap
 import { analyzeContestabilityCandidate } from "@/lib/contestabilityEngine";
 import { CONTESTABILITY_CONFIG } from "@/lib/contestabilityConfig";
 import {
+  buildAbilityDenialProfile,
+  buildAbilityEnvironmentDemand
+} from "@/lib/abilityDenialProfile";
+import { findBestDefensiveCore } from "@/lib/defensiveCoreEvaluation";
+import { getMatchupVerdictContext } from "@/lib/matchupVerdictEngine";
+import {
   getAdvisorSwapSimulation,
   rebuildAdvisorSwapSimulationWithPlans,
   type AdvisorSwapPlan,
@@ -25,6 +31,8 @@ import {
 } from "@/lib/recommendationRuntimeAnalysis";
 import type { EnvironmentSnapshot } from "@/types/environmentData";
 import type { BattleValueCandidate } from "@/types/battleValue";
+import type { AbilityDenialCategory } from "@/types/matchupCore";
+import { getPokemonBySlug } from "@/lib/typeChart";
 
 const MAX_SIMULATION_CACHE_ENTRIES = 4;
 const simulationCache = new BoundedCache<string, AdvisorSwapSimulation>(
@@ -164,12 +172,122 @@ export function buildIntegratedRecommendationRuntime({
       value: candidate.finalBattleValue
     }))
   );
+  const matchupContext = getMatchupVerdictContext(dataset, profile);
+  const abilityDemand = buildAbilityEnvironmentDemand(dataset);
+  const currentMembers = team.flatMap((slug) => {
+    const pokemon = getPokemonBySlug(slug);
+    return pokemon ? [pokemon] : [];
+  });
+  const teamAbilityCoverageCache = new Map<
+    string,
+    Partial<Record<AbilityDenialCategory, number>>
+  >();
+  const getTeamAbilityCoverage = (
+    members: typeof currentMembers
+  ): Partial<Record<AbilityDenialCategory, number>> => {
+    const key = members
+      .map((member) => member.slug)
+      .sort()
+      .join(",");
+    const cached = teamAbilityCoverageCache.get(key);
+    if (cached) return cached;
+    const coverage: Partial<Record<AbilityDenialCategory, number>> = {};
+    for (const member of members) {
+      const memberProfile = buildAbilityDenialProfile({
+        pokemonSlug: member.slug,
+        environment: matchupContext.environmentBySlug.get(member.slug),
+        demand: abilityDemand
+      });
+      for (const [category, value] of Object.entries(
+        memberProfile.categoryCoverage
+      )) {
+        const categoryKey = category as AbilityDenialCategory;
+        coverage[categoryKey] =
+          1 -
+          (1 - (coverage[categoryKey] ?? 0)) *
+            (1 - (value ?? 0));
+      }
+    }
+    teamAbilityCoverageCache.set(key, coverage);
+    return coverage;
+  };
   const planAnalyses = baseline.evaluatedPlans.map((plan, index) => {
     const key = planKey(plan, index);
+    if (currentMembers.length === 0) {
+      return {
+        key,
+        plan,
+        analysis: analyzeRecommendationPlan(plan, index + 1, dataset),
+        abilityDenialProfile: null,
+        defensiveCoreProfile: null,
+        abilityMatchupValue: 0,
+        abilityExplanation: []
+      };
+    }
+    const postActionMembers = plan.afterTeam.flatMap((slot) => {
+      if (slot.mode !== "pokemon") return [];
+      const member = getPokemonBySlug(slot.pokemonSlug);
+      return member ? [member] : [];
+    });
+    const corePartners = postActionMembers.filter(
+      (member) => member.slug !== plan.candidate.pokemon.slug
+    );
+    const abilityDenialProfile = buildAbilityDenialProfile({
+      pokemonSlug: plan.candidate.pokemon.slug,
+      environment: matchupContext.environmentBySlug.get(
+        plan.candidate.pokemon.slug
+      ),
+      demand: abilityDemand,
+      teamCoverage: getTeamAbilityCoverage(corePartners)
+    });
+    const defensiveCoreProfile = findBestDefensiveCore(
+      plan.candidate.pokemon,
+      corePartners,
+      matchupContext
+    );
+    const abilityMatchupValue = round(
+      abilityDenialProfile.expectedValue * 0.6 +
+        defensiveCoreProfile.coreSynergy * 0.4
+    );
+    const abilityExplanation = abilityDenialProfile.entries
+      .filter((entry) => entry.matchupValue > 0)
+      .sort(
+        (left, right) =>
+          right.matchupValue - left.matchupValue ||
+          left.ability.localeCompare(right.ability)
+      )
+      .slice(0, 2)
+      .flatMap((entry) =>
+        entry.explanations.slice(0, 1).map(
+          (text) =>
+            `${entry.abilityName}型（採用率${Math.round(entry.adoptionRate * 100)}%）は、${text}`
+        )
+      );
+    const analysis = analyzeRecommendationPlan(plan, index + 1, dataset);
+    const abilitySignal =
+      currentMembers.length < 6 ? 0 : round(abilityMatchupValue / 10);
+    if (abilitySignal > 0) {
+      analysis.contributions.Ability = round(
+        analysis.contributions.Ability + abilitySignal
+      );
+      analysis.evidenceByCategory.Ability.push({
+        id: "ability:environment-matchup",
+        text:
+          abilityExplanation[0] ??
+          "特性による追加の拒否性能は確認できません。",
+        points: abilitySignal,
+        dimension: "context",
+        confidence: abilityDenialProfile.confidence
+      });
+    }
     return {
       key,
       plan,
-      analysis: analyzeRecommendationPlan(plan, index + 1, dataset)
+      analysis,
+      abilityDenialProfile,
+      defensiveCoreProfile,
+      abilityMatchupValue,
+      abilityExplanation
     };
   });
   const baselineNormalized = normalizePercentiles(
@@ -202,7 +320,14 @@ export function buildIntegratedRecommendationRuntime({
     );
   }
 
-  const integratedPlans = planAnalyses.map(({ key, plan }) => {
+  const integratedPlans = planAnalyses.map(({
+    key,
+    plan,
+    abilityDenialProfile,
+    defensiveCoreProfile,
+    abilityMatchupValue,
+    abilityExplanation
+  }) => {
     const normalized = Object.fromEntries(
       RECOMMENDATION_CONTRIBUTION_CATEGORIES.map((category) => [
         category,
@@ -279,6 +404,12 @@ export function buildIntegratedRecommendationRuntime({
             )
       ])
     );
+    const abilityContribution = round(
+      normalized.Ability *
+        RECOMMENDATION_INTEGRATION_CONFIG.contributionWeights.Ability *
+        RECOMMENDATION_INTEGRATION_CONFIG.contributionWeight *
+        recommendationWeight
+    );
     return {
       ...plan,
       improvementScore: finalRecommendation,
@@ -293,6 +424,11 @@ export function buildIntegratedRecommendationRuntime({
       contestabilityContribution,
       contestabilityExplanation:
         contestability?.reasons.map((entry) => entry.text) ?? [],
+      abilityMatchupValue,
+      abilityContribution,
+      abilityExplanation,
+      abilityDenialProfile,
+      defensiveCoreProfile,
       preContestabilityRecommendation,
       finalRecommendation,
       recommendationIntegration: {

@@ -157,25 +157,25 @@ export function integrateBattleValueRecommendation({
   );
   const baselineRank = new Map(
     baselineRanked.map((plan, index) => [
-      plan.candidate.pokemon.slug,
+      plan.candidate.pokemon.speciesId,
       index + 1
     ])
   );
   const integratedRank = new Map(
     integratedRanked.map((plan, index) => [
-      plan.candidate.pokemon.slug,
+      plan.candidate.pokemon.speciesId,
       index + 1
     ])
   );
-  const baselinePlanBySlug = new Map(
-    baselineRanked.map((plan) => [plan.candidate.pokemon.slug, plan])
+  const baselinePlanBySpecies = new Map(
+    baselineRanked.map((plan) => [plan.candidate.pokemon.speciesId, plan])
   );
   const integratedCandidates = integratedRanked.flatMap(
     (plan): RecommendationIntegrationCandidate[] => {
       const integration = plan.recommendationIntegration;
       const battle = battleBySlug.get(plan.candidate.pokemon.slug);
-      const before = baselineRank.get(plan.candidate.pokemon.slug);
-      const after = integratedRank.get(plan.candidate.pokemon.slug);
+      const before = baselineRank.get(plan.candidate.pokemon.speciesId);
+      const after = integratedRank.get(plan.candidate.pokemon.speciesId);
       if (!integration || !battle || !before || !after) return [];
       const explanation = battleValueExplanation(battle);
       return [
@@ -187,7 +187,7 @@ export function integrateBattleValueRecommendation({
           integratedRank: after,
           rankDelta: before - after,
           baselineRecommendation:
-            baselinePlanBySlug.get(plan.candidate.pokemon.slug)
+            baselinePlanBySpecies.get(plan.candidate.pokemon.speciesId)
               ?.baselineRecommendationScore ?? 0,
           recommendationNormalized: integration.recommendationNormalized,
           contributionNormalized:
@@ -219,6 +219,11 @@ export function integrateBattleValueRecommendation({
           contestabilityReasons: plan.contestability?.reasons ?? [],
           contestabilityContribution: plan.contestabilityContribution,
           contestabilityRatio: integration.contestabilityRatio,
+          abilityMatchupValue: plan.abilityMatchupValue,
+          abilityContribution: plan.abilityContribution,
+          abilityExplanation: [...plan.abilityExplanation],
+          defensiveCoreSynergy:
+            plan.defensiveCoreProfile?.coreSynergy ?? 0,
           recommendationConfidence:
             integration.recommendationConfidence,
           confidenceAdjustedRecommendation:

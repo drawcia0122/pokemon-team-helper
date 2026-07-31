@@ -40,6 +40,10 @@ import {
 import type { ThreatEnvironmentDataset } from "@/types/environmentThreat";
 import type { ContestabilityCandidate } from "@/types/contestability";
 import type {
+  AbilityDenialProfile,
+  DefensiveCoreProfile
+} from "@/types/matchupCore";
+import type {
   PokemonEntry,
   TeamSlot,
   TeamSummary,
@@ -335,6 +339,11 @@ export type AdvisorSwapPlan = {
   contestability: ContestabilityCandidate | null;
   contestabilityContribution: number;
   contestabilityExplanation: string[];
+  abilityMatchupValue: number;
+  abilityContribution: number;
+  abilityExplanation: string[];
+  abilityDenialProfile: AbilityDenialProfile | null;
+  defensiveCoreProfile: DefensiveCoreProfile | null;
   preContestabilityRecommendation: number;
   finalRecommendation: number;
   recommendationIntegration: {
@@ -2272,6 +2281,11 @@ export function evaluateAdvisorSwapPlan(
     contestability: null,
     contestabilityContribution: 0,
     contestabilityExplanation: [],
+    abilityMatchupValue: 0,
+    abilityContribution: 0,
+    abilityExplanation: [],
+    abilityDenialProfile: null,
+    defensiveCoreProfile: null,
     preContestabilityRecommendation: improvementScore,
     finalRecommendation: improvementScore,
     recommendationIntegration: null,
@@ -2447,7 +2461,8 @@ function preselectSimulationCandidates(
         threats: currentThreats,
         currentTeam: input.team,
         environmentDataset: input.environmentDataset,
-        profile
+        profile,
+        validateMatchup: false
       })
     }))
     .sort(
@@ -2677,13 +2692,13 @@ function selectCategoryPlans(
     if (isSlowRecommendation(plan)) slowCount += 1;
     if (selected.length >= ADVISOR_RECOMMENDATION_RULES.maxPerCategory) break;
   }
-  if (profile === "trick-room" && selected.length > 0) {
+  if (profile === "trick-room") {
     const needsDefensiveFallback =
       category === "defensive" &&
       !selected.some(
         (plan) =>
           (plan.candidate.pokemon.baseStats?.speed ?? 0) >=
-            TEAM_SPEED_THRESHOLDS.fastMinimum
+            TEAM_SPEED_THRESHOLDS.mediumMinimum
       );
     const needsOffensiveFallback =
       category === "offensive" &&
@@ -2692,7 +2707,30 @@ function selectCategoryPlans(
           plan.profileRoles.includes("fastFallback") ||
           plan.profileRoles.includes("priorityUser")
       );
-    const fallback = ranked.find((plan) => {
+    const fallbackPool =
+      needsDefensiveFallback || needsOffensiveFallback
+        ? plans
+            .filter(
+              (plan) =>
+                plan.action.kind !== "form-change" &&
+                plan.metrics.megaLimitPassed &&
+                plan.metrics.megaRecommendationPassed &&
+                plan.metrics.newMajorWeaknessCount === 0 &&
+                plan.threatCoverage.usageEligibility !== "below-minimum" &&
+                plan.threatCoverage.usageEligibility !== "unknown" &&
+                (needsDefensiveFallback
+                  ? plan.profileRoles.includes("defensiveSupport") &&
+                    (plan.metrics.stableCheckCount > 0 ||
+                      plan.metrics.threatMoveResistanceCount > 0 ||
+                      plan.metrics.threatMoveImmunityCount > 0)
+                  : plan.profileRoles.includes("fastFallback") ||
+                    plan.profileRoles.includes("priorityUser"))
+            )
+            .sort((left, right) =>
+              comparePlansForCategory("defensive", left, right)
+            )
+        : ranked;
+    const fallback = fallbackPool.find((plan) => {
       if (
         selected.some(
           (entry) =>
@@ -2712,7 +2750,7 @@ function selectCategoryPlans(
       if (needsDefensiveFallback) {
         return (
           (plan.candidate.pokemon.baseStats?.speed ?? 0) >=
-            TEAM_SPEED_THRESHOLDS.fastMinimum &&
+            TEAM_SPEED_THRESHOLDS.mediumMinimum &&
           (plan.metrics.stableCheckCount > 0 ||
             plan.metrics.threatMoveResistanceCount > 0 ||
             plan.metrics.threatMoveImmunityCount > 0)
@@ -2727,7 +2765,8 @@ function selectCategoryPlans(
       return false;
     });
     if (fallback && (needsDefensiveFallback || needsOffensiveFallback)) {
-      selected[selected.length - 1] = fallback;
+      if (selected.length === 0) selected.push(fallback);
+      else selected[selected.length - 1] = fallback;
     }
   }
   return selected;
