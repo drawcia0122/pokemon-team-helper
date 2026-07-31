@@ -69,7 +69,11 @@ function scoreFormula(plan: GoalOrientedCandidatePlan): number {
       plan.currentFit * weights.currentFit +
         plan.futurePotential * weights.futurePotential +
         plan.coreQuality.overall * weights.coreQuality -
-        plan.deadEndRisk * weights.deadEndRisk
+        plan.deadEndRisk * weights.deadEndRisk +
+        plan.identityGoalCompatibility *
+          weights.identityGoalCompatibility -
+        plan.identityConflictPenalty *
+          weights.identityConflictPenalty
     )
   );
 }

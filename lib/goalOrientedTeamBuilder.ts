@@ -1,6 +1,9 @@
 import { getAdvisorMegaRecommendationDecision } from "@/lib/advisorMegaRecommendation";
 import type { AdvisorSwapPlan } from "@/lib/advisorSwapSimulator";
+import { buildCandidateIdentity } from "@/lib/candidateIdentity";
 import {
+  CANDIDATE_IDENTITY_GOAL_COMPATIBILITY,
+  CANDIDATE_IDENTITY_LABELS,
   GOAL_ORIENTED_TEAM_BUILDER_CONFIG,
   TEAM_BUILDER_GOAL_AXIS_WEIGHTS,
   TEAM_BUILDER_GOAL_LABELS
@@ -9,13 +12,16 @@ import { getSemanticClassification } from "@/lib/semanticCombatRegistry";
 import { getAllTypes, getMultiplier, getPokemonBySlug } from "@/lib/typeChart";
 import type { BattleValueCandidate } from "@/types/battleValue";
 import type {
+  CandidateIdentity,
+  CandidateIdentityProfile,
   GoalOrientedCandidatePlan,
   GoalOrientedTeamBuilderResult,
   TeamBuilderChainStep,
   TeamBuilderCoreAxis,
   TeamBuilderCoreQuality,
   TeamBuilderGoal,
-  TeamBuilderGoalInference
+  TeamBuilderGoalInference,
+  TeamBuilderGoalRole
 } from "@/types/goalOrientedTeamBuilder";
 import type {
   SemanticCandidateProfile
@@ -33,6 +39,7 @@ type CandidateSignals = {
   plan: AdvisorSwapPlan | null;
   battle: BattleValueCandidate | null;
   semantic: SemanticCandidateProfile | null;
+  identity: CandidateIdentityProfile;
   core: Record<TeamBuilderCoreAxis, number>;
   rain: number;
   sand: number;
@@ -228,6 +235,15 @@ function rawSignalsFor(
     new Set(["trickroom"]),
     "moves"
   );
+  const contestability =
+    plan?.contestability?.score ?? (battle?.reliability ?? 0) * 100;
+  const identity = buildCandidateIdentity({
+    pokemon,
+    semantic,
+    battle,
+    environment,
+    contestability
+  });
   const slowFit = pokemon.baseStats
     ? clamp(((90 - pokemon.baseStats.speed) / 70) * 100)
     : 0;
@@ -237,6 +253,7 @@ function rawSignalsFor(
     plan,
     battle,
     semantic,
+    identity,
     rawCore,
     rain: diminishing(
       evidenceShare(environment, WEATHER_EVIDENCE.rain.moves, "moves"),
@@ -266,8 +283,7 @@ function rawSignalsFor(
     hazard: hazardPresence,
     reliability:
       (battle?.reliability ?? 0) * 70 +
-      (plan?.contestability?.axes.reliability ??
-        (battle?.reliability ?? 0) * 100) *
+      (plan?.contestability?.axes.reliability ?? contestability) *
         0.3,
     usageRate: environment?.usageRate ?? 0,
     unclassifiedRate: semantic?.unclassifiedRate ?? 1
@@ -575,12 +591,166 @@ function directGoalReason(
   return "";
 }
 
+function identityGoalEvaluation(
+  signal: CandidateSignals,
+  goal: TeamBuilderGoal,
+  conditionEstablished = false
+): {
+  compatibility: number;
+  conflictPenalty: number;
+  role: TeamBuilderGoalRole;
+} {
+  const primaryLink =
+    CANDIDATE_IDENTITY_GOAL_COMPATIBILITY[signal.identity.primary][goal];
+  const secondaryLink = signal.identity.secondary
+    ? CANDIDATE_IDENTITY_GOAL_COMPATIBILITY[signal.identity.secondary][goal]
+    : undefined;
+  let compatibility = Math.max(
+    (primaryLink?.compatibility ?? 0.16) * 100,
+    (secondaryLink?.compatibility ?? 0) * 72
+  );
+  let role: TeamBuilderGoalRole =
+    primaryLink?.role ?? secondaryLink?.role ?? "support";
+  let conflictPenalty = 0;
+  const directAffinity = goalAffinity(signal, goal);
+  const isWeather = goal === "rain" || goal === "sand" || goal === "sun";
+  if (isWeather) {
+    compatibility = Math.max(
+      compatibility,
+      Math.min(100, directAffinity * 1.25)
+    );
+    if (!conditionEstablished) {
+      compatibility = Math.max(
+        compatibility * Math.min(1, directAffinity / 20),
+        Math.min(92, directAffinity * 1.25)
+      );
+      if (directAffinity < 12) conflictPenalty = 78;
+    } else if (
+      signal.identity.primary === "weather-enabler" &&
+      directAffinity < 12
+    ) {
+      compatibility = 0;
+      conflictPenalty = 78;
+    }
+  }
+  if (goal === "trick-room") {
+    compatibility = Math.max(
+      compatibility,
+      Math.min(100, directAffinity * 1.2)
+    );
+    if (!conditionEstablished) {
+      compatibility = Math.max(
+        compatibility * Math.min(1, directAffinity / 20),
+        Math.min(92, directAffinity * 1.2)
+      );
+      if (
+        directAffinity < 12 &&
+        signal.identity.primary !== "trick-room-enabler"
+      ) {
+        conflictPenalty = 68;
+      }
+    }
+  }
+  if (goal === "hazard-stack") {
+    if (signal.hazard >= 18) {
+      compatibility = Math.max(compatibility, Math.min(100, signal.hazard));
+      if (signal.identity.primary === "hazard-setter") role = "primary";
+    } else if (signal.identity.primary === "setup-sweeper") {
+      conflictPenalty = 74;
+      role = "support";
+    } else if (signal.identity.primary !== "hazard-setter") {
+      conflictPenalty = Math.max(conflictPenalty, 36);
+    }
+  }
+  if (goal === "pivot-cycle" && signal.core.pivotCore < 18) {
+    conflictPenalty = Math.max(conflictPenalty, 62);
+  }
+  if (
+    goal === "hyper-offense" &&
+    signal.identity.primary === "defensive-anchor"
+  ) {
+    conflictPenalty = Math.max(conflictPenalty, 58);
+    role = "support";
+  }
+  if (
+    goal === "stall" &&
+    (signal.identity.primary === "setup-sweeper" ||
+      signal.identity.primary === "cleaner" ||
+      signal.identity.primary === "wall-breaker")
+  ) {
+    conflictPenalty = Math.max(conflictPenalty, 48);
+  }
+  if (conflictPenalty >= 60) role = "conflict";
+  return {
+    compatibility: round(clamp(compatibility)),
+    conflictPenalty: round(clamp(conflictPenalty)),
+    role
+  };
+}
+
+function goalSupportFeasibility(
+  currentCore: Record<TeamBuilderCoreAxis, number>,
+  goal: TeamBuilderGoal,
+  remainingSlots: number
+): number {
+  const importantDeficits = CORE_AXES.filter(
+    (axis) =>
+      TEAM_BUILDER_GOAL_AXIS_WEIGHTS[goal][axis] >= 0.12 &&
+      currentCore[axis] < 48
+  ).length;
+  const capacity = Math.max(0, remainingSlots) * 2;
+  return clamp(88 - Math.max(0, importantDeficits - capacity) * 22);
+}
+
+function identityAwareGoalLabel(
+  goal: TeamBuilderGoal,
+  identity: CandidateIdentityProfile
+): string {
+  const primary = identity.primary;
+  if (primary === "setup-sweeper" || primary === "hybrid") {
+    if (goal === "hyper-offense") {
+      return "起点作成から積みエースを通す構築";
+    }
+    if (goal === "bulky-offense") {
+      return "積みエースを勝ち筋にした耐久寄りの攻撃構築";
+    }
+    if (goal === "balance") {
+      return "積みエースを勝ち筋にしたバランス構築";
+    }
+    if (goal === "hazard-stack") {
+      return "設置ダメージで積みエースを通す構築";
+    }
+  }
+  if (primary === "cleaner" && goal === "hazard-stack") {
+    return "設置ダメージから終盤の掃除役を通す構築";
+  }
+  if (primary === "wall-breaker" && goal === "pivot-cycle") {
+    return "対面操作から崩し役を通す構築";
+  }
+  return TEAM_BUILDER_GOAL_LABELS[goal];
+}
+
+function identityGoalReason(
+  identity: CandidateIdentityProfile,
+  goal: TeamBuilderGoalInference
+): string {
+  const identityLabel = CANDIDATE_IDENTITY_LABELS[identity.primary];
+  if (goal.candidateRole === "primary") {
+    return `${identityLabel}としての強みを主軸にできます。`;
+  }
+  if (goal.candidateRole === "support") {
+    return `${identityLabel}として完成形を支えられます。`;
+  }
+  return `${identityLabel}としての強みと完成形が噛み合いにくいです。`;
+}
+
 function goalInference(
   signal: CandidateSignals,
   currentCore: Record<TeamBuilderCoreAxis, number>,
   team: string[],
   environmentBySlug: Map<string, ThreatEnvironmentPokemon>,
-  profile: "standard" | "trick-room"
+  profile: "standard" | "trick-room",
+  remainingSlots: number
 ): TeamBuilderGoalInference[] {
   const teamRain = aggregateAffinity(team, environmentBySlug, "rain");
   const teamSand = aggregateAffinity(team, environmentBySlug, "sand");
@@ -601,7 +771,7 @@ function goalInference(
   const establishedWeather = Math.max(teamRain, teamSand, teamSun);
   return GOALS.map((goal) => {
     const base = weightedCoreScore(currentCore, goal);
-    let score = base;
+    let connectionScore = base;
     let goalEvidence = 50;
     if (goal === "rain" || goal === "sand" || goal === "sun") {
       goalEvidence = special[goal];
@@ -611,7 +781,7 @@ function goalInference(
           .filter((weather) => weather !== goal)
           .map((weather) => teamWeather[weather])
       );
-      score =
+      connectionScore =
         goalEvidence >=
         GOAL_ORIENTED_TEAM_BUILDER_CONFIG.minimumGoalEvidence * 100
           ? establishedWeather >= 25
@@ -624,25 +794,27 @@ function goalInference(
     } else if (goal === "trick-room") {
       goalEvidence =
         profile === "trick-room" ? Math.max(80, trickRoom) : trickRoom;
-      score =
+      connectionScore =
         base * (profile === "trick-room" ? 0.55 : 0.62) +
         goalEvidence * (profile === "trick-room" ? 0.45 : 0.38) +
         (profile === "trick-room" ? 5 : 0);
-      if (profile !== "trick-room" && goalEvidence < 12) score *= 0.55;
+      if (profile !== "trick-room" && goalEvidence < 12) {
+        connectionScore *= 0.55;
+      }
     } else if (goal === "hazard-stack") {
       goalEvidence = hazard;
-      score = base * 0.7 + goalEvidence * 0.3;
-      if (goalEvidence < 10) score *= 0.72;
+      connectionScore = base * 0.7 + goalEvidence * 0.3;
+      if (goalEvidence < 10) connectionScore *= 0.72;
     } else if (goal === "pivot-cycle") {
       goalEvidence = signal.core.pivotCore;
-      score = base * 0.75 + goalEvidence * 0.25;
+      connectionScore = base * 0.75 + goalEvidence * 0.25;
     } else if (goal === "stall") {
       goalEvidence = average([
         currentCore.defensiveCore,
         currentCore.abilityCore,
         currentCore.cycleViability
       ]);
-      score = base * 0.8 + goalEvidence * 0.2;
+      connectionScore = base * 0.8 + goalEvidence * 0.2;
     } else if (goal === "balance") {
       goalEvidence =
         Math.min(
@@ -656,14 +828,14 @@ function goalInference(
             currentCore.offensiveCore - currentCore.defensiveCore
           )) *
           0.35;
-      score = base * 0.72 + goalEvidence * 0.28;
+      connectionScore = base * 0.72 + goalEvidence * 0.28;
     } else if (goal === "bulky-offense") {
       goalEvidence = average([
         currentCore.offensiveCore,
         currentCore.defensiveCore,
         currentCore.winCondition
       ]);
-      score = base * 0.78 + goalEvidence * 0.22;
+      connectionScore = base * 0.78 + goalEvidence * 0.22;
     } else if (goal === "hyper-offense") {
       goalEvidence = average([
         currentCore.offensiveCore,
@@ -671,7 +843,7 @@ function goalInference(
         currentCore.cleanupCore,
         currentCore.winCondition
       ]);
-      score =
+      connectionScore =
         base * 0.82 +
         goalEvidence * 0.18 -
         average([
@@ -680,6 +852,71 @@ function goalInference(
         ]) *
           0.08;
     }
+    const conditionEstablished =
+      (goal === "rain" || goal === "sand" || goal === "sun")
+        ? teamWeather[goal] >= 25
+        : goal === "trick-room" && profile === "trick-room";
+    let identityEvaluation = identityGoalEvaluation(
+      signal,
+      goal,
+      conditionEstablished
+    );
+    if (
+      (goal === "rain" || goal === "sand" || goal === "sun") &&
+      teamWeather[goal] >= 25
+    ) {
+      const establishedLink =
+        CANDIDATE_IDENTITY_GOAL_COMPATIBILITY[signal.identity.primary][goal] ??
+        (signal.identity.secondary
+          ? CANDIDATE_IDENTITY_GOAL_COMPATIBILITY[
+              signal.identity.secondary
+            ][goal]
+          : undefined);
+      if (establishedLink && establishedLink.compatibility >= 0.58) {
+        if (
+          signal.identity.primary !== "weather-enabler" ||
+          goalAffinity(signal, goal) >=
+            GOAL_ORIENTED_TEAM_BUILDER_CONFIG.minimumDirectGoalAffinity
+        ) {
+          identityEvaluation = {
+            compatibility: Math.max(
+              identityEvaluation.compatibility,
+              establishedLink.compatibility * 100
+            ),
+            conflictPenalty: 0,
+            role: establishedLink.role
+          };
+        }
+      }
+    }
+    if (
+      goal === "trick-room" &&
+      profile === "trick-room" &&
+      signal.trickRoom >=
+        GOAL_ORIENTED_TEAM_BUILDER_CONFIG.minimumDirectGoalAffinity
+    ) {
+      identityEvaluation = {
+        compatibility: Math.max(
+          identityEvaluation.compatibility,
+          signal.identity.primary === "trick-room-enabler" ? 100 : 82
+        ),
+        conflictPenalty: 0,
+        role: "primary"
+      };
+    }
+    const supportFeasibility = goalSupportFeasibility(
+      currentCore,
+      goal,
+      remainingSlots
+    );
+    const identityFirstScore = clamp(
+      identityEvaluation.compatibility * 0.5 +
+        clamp(connectionScore) * 0.18 +
+        base * 0.12 +
+        goalEvidence * 0.12 +
+        supportFeasibility * 0.08 -
+        identityEvaluation.conflictPenalty * 0.42
+    );
     const missingAxes = CORE_AXES.filter(
       (axis) =>
         TEAM_BUILDER_GOAL_AXIS_WEIGHTS[goal][axis] >= 0.12 &&
@@ -701,7 +938,12 @@ function goalInference(
         : "",
       goal === "trick-room" && profile === "trick-room"
         ? "現在の低速重視設定と噛み合います。"
-        : ""
+        : "",
+      identityEvaluation.role === "primary"
+        ? `${CANDIDATE_IDENTITY_LABELS[signal.identity.primary]}として主軸になれます。`
+        : identityEvaluation.role === "support"
+          ? `${CANDIDATE_IDENTITY_LABELS[signal.identity.primary]}として補助できます。`
+          : "候補の主な強みとこの完成形にはずれがあります。"
     ].filter(Boolean);
     const confidence: TeamBuilderGoalInference["confidence"] =
       goalEvidence >= 60 && signal.reliability >= 60
@@ -711,11 +953,23 @@ function goalInference(
           : "low";
     return {
       goal,
-      label: TEAM_BUILDER_GOAL_LABELS[goal],
-      score: round(clamp(score)),
+      label: identityAwareGoalLabel(goal, signal.identity),
+      score: round(identityFirstScore),
       confidence,
       missingAxes,
-      evidence
+      evidence,
+      identityGoalCompatibility: identityEvaluation.compatibility,
+      identityConflictPenalty: identityEvaluation.conflictPenalty,
+      candidateRole: identityEvaluation.role,
+      scoreBreakdown: {
+        identityCompatibility: identityEvaluation.compatibility,
+        currentTeamConnection: round(clamp(connectionScore)),
+        coreFit: round(base),
+        goalEvidence: round(clamp(goalEvidence)),
+        supportFeasibility: round(supportFeasibility),
+        identityConflictPenalty: identityEvaluation.conflictPenalty,
+        total: round(identityFirstScore)
+      }
     };
   }).sort(
     (left, right) =>
@@ -862,6 +1116,108 @@ function isAllowedFutureCandidate(
   return decision.allowed && members.length < 6;
 }
 
+function identitySupportForSeed(
+  seed: CandidateSignals,
+  next: CandidateSignals
+): { score: number; reason: string } {
+  if (
+    seed.identity.primary === "setup-sweeper" ||
+    seed.identity.secondary === "setup-sweeper"
+  ) {
+    const hazardRemoval = tagPresence(next.semantic, "HazardRemoval");
+    const hazardSetter = tagPresence(next.semantic, "HazardSetter");
+    const tempo = tagPresence(next.semantic, "Tempo");
+    const pivot = tagPresence(next.semantic, "Pivot");
+    const anchor = tagPresence(next.semantic, "DefensiveAnchor");
+    const utility = tagPresence(next.semantic, "Utility");
+    const supportScore = clamp(
+      Math.max(
+        hazardRemoval,
+        hazardSetter * 0.78,
+        tempo,
+        pivot * 0.92,
+        anchor * 0.86,
+        utility * 0.82
+      )
+    );
+    const choices = [
+      {
+        value: hazardRemoval,
+        reason: "設置技を取り除き、積みエースを動かしやすくできます。"
+      },
+      {
+        value: tempo,
+        reason: "起点作成や妨害で積みエースが動ける状況を作れます。"
+      },
+      {
+        value: pivot * 0.92,
+        reason: "対面操作から積みエースを安全につなぎやすくできます。"
+      },
+      {
+        value: anchor * 0.86,
+        reason: "苦手な相手を受け、積みエースの再展開を支えられます。"
+      },
+      {
+        value: hazardSetter * 0.78,
+        reason: "設置ダメージで積みエースの攻撃圏内を作れます。"
+      },
+      {
+        value: utility * 0.82,
+        reason: "妨害や補助によって積みエースの展開を支えられます。"
+      }
+    ].sort(
+      (left, right) => right.value - left.value || left.reason.localeCompare(right.reason)
+    );
+    return {
+      score: round(supportScore),
+      reason: choices[0]?.value >= 12 ? choices[0].reason : ""
+    };
+  }
+  if (seed.identity.primary === "cleaner") {
+    const chip = Math.max(
+      tagPresence(next.semantic, "HazardSetter"),
+      tagPresence(next.semantic, "WallBreak"),
+      tagPresence(next.semantic, "Tempo")
+    );
+    return {
+      score: round(clamp(chip)),
+      reason:
+        chip >= 12
+          ? "相手を終盤の処理圏内へ入れる役割を補えます。"
+          : ""
+    };
+  }
+  if (
+    seed.identity.primary === "wall-breaker" ||
+    seed.identity.primary === "trapper"
+  ) {
+    const support = Math.max(
+      next.identity.scores["defensive-anchor"] * 0.82 +
+        next.core.cycleViability * 0.18,
+      next.identity.scores.pivot * 0.72,
+      next.identity.scores["tempo-support"] * 0.62,
+      next.identity.scores["utility-support"] * 0.52
+    );
+    return {
+      score: round(clamp(support)),
+      reason:
+        support >= 12
+          ? "崩し役が苦手な相手を受け、再び攻める機会を作れます。"
+          : ""
+    };
+  }
+  return {
+    score: round(
+      average([
+        tagPresence(next.semantic, "Utility"),
+        tagPresence(next.semantic, "Pivot"),
+        tagPresence(next.semantic, "Tempo")
+      ])
+    ),
+    reason: ""
+  };
+}
+
 function futureStep(
   seed: CandidateSignals,
   next: CandidateSignals,
@@ -870,10 +1226,17 @@ function futureStep(
   environmentBySlug: Map<string, ThreatEnvironmentPokemon>,
   pairCache: PlannerPairCache,
   existingMembers: PokemonEntry[],
-  step: number
+  step: number,
+  conditionEstablished = false
 ): TeamBuilderChainStep {
   const combined = combineCore(currentCore, next.core);
   const directAffinity = goalAffinity(next, goal);
+  const nextGoalEvaluation = identityGoalEvaluation(
+    next,
+    goal,
+    conditionEstablished
+  );
+  const identitySupport = identitySupportForSeed(seed, next);
   const goalFit = clamp(
     weightedCoreScore(next.core, goal) * 0.65 +
       directAffinity * 0.35
@@ -935,23 +1298,29 @@ function futureStep(
     next.pokemon.types.filter((type) => existingTypes.has(type)).length * 4;
   const score = clamp(
     (usesDirectGoalAffinity(goal)
-      ? goalFit * 0.18 +
-        directAffinity * 0.16 +
+      ? goalFit * 0.15 +
+        directAffinity * 0.14 +
         coreGain * 0.14 +
-        combinedQuality * 0.12 +
+        combinedQuality * 0.1 +
         naturalness * 0.08 +
         complement * 0.1 +
         roleDiversity * 0.1 +
         next.reliability * 0.04 +
-        battleReadiness * 0.08
-      : goalFit * 0.22 +
-        coreGain * 0.2 +
-        combinedQuality * 0.14 +
+        battleReadiness * 0.07 +
+        nextGoalEvaluation.compatibility * 0.04 +
+        identitySupport.score * 0.04
+      : goalFit * 0.18 +
+        coreGain * 0.17 +
+        combinedQuality * 0.12 +
         naturalness * 0.08 +
         complement * 0.12 +
-        roleDiversity * 0.14 +
+        roleDiversity * 0.11 +
         next.reliability * 0.03 +
-        battleReadiness * 0.07) - typeOverlapPenalty
+        battleReadiness * 0.07 +
+        nextGoalEvaluation.compatibility * 0.06 +
+        identitySupport.score * 0.06) -
+      typeOverlapPenalty -
+      nextGoalEvaluation.conflictPenalty * 0.08
   );
   const strongestGain = [...CORE_AXES].sort(
     (left, right) =>
@@ -968,7 +1337,16 @@ function futureStep(
     goalAffinity: round(directAffinity),
     coreGain: round(coreGain),
     naturalness: round(naturalness),
+    goal,
+    goalLabel: identityAwareGoalLabel(goal, seed.identity),
+    goalCompatibility: nextGoalEvaluation.compatibility,
+    goalRole: nextGoalEvaluation.role,
+    identitySupport: identitySupport.score,
+    primaryIdentity: next.identity.primary,
+    secondaryIdentity: next.identity.secondary,
+    identityConfidence: next.identity.confidence,
     reasons: [
+      identitySupport.reason,
       directGoalReason(goal, directAffinity),
       `${coreAxisLabel(strongestGain)}を補えます。`,
       naturalness >= 20
@@ -1019,7 +1397,8 @@ function selectFuturePool({
   currentCore,
   baseTeam,
   environmentBySlug,
-  pairCache
+  pairCache,
+  conditionEstablished
 }: {
   seed: CandidateSignals;
   signals: CandidateSignals[];
@@ -1028,6 +1407,7 @@ function selectFuturePool({
   baseTeam: PokemonEntry[];
   environmentBySlug: Map<string, ThreatEnvironmentPokemon>;
   pairCache: PlannerPairCache;
+  conditionEstablished: boolean;
 }): CandidateSignals[] {
   const allowed = signals.filter(
     (next) =>
@@ -1055,20 +1435,32 @@ function selectFuturePool({
         entry.pokemon,
         pairCache
       );
+      const identityGoal = identityGoalEvaluation(
+        entry,
+        goal,
+        conditionEstablished
+      );
+      const identitySupport = identitySupportForSeed(seed, entry);
       const score = usesDirectGoalAffinity(goal)
-        ? recommendation * 0.2 +
-          (entry.battle?.finalBattleValue ?? 0) * 0.15 +
-          contestability * 0.12 +
-          weightedCoreScore(entry.core, goal) * 0.14 +
-          affinity * 0.19 +
-          deficitClosure(currentCore, entry.core, goal) * 0.12 +
-          naturalness * 0.08
-        : recommendation * 0.3 +
-          (entry.battle?.finalBattleValue ?? 0) * 0.2 +
-          contestability * 0.18 +
-          weightedCoreScore(entry.core, goal) * 0.15 +
-          deficitClosure(currentCore, entry.core, goal) * 0.1 +
-          naturalness * 0.07;
+        ? recommendation * 0.16 +
+          (entry.battle?.finalBattleValue ?? 0) * 0.13 +
+          contestability * 0.1 +
+          weightedCoreScore(entry.core, goal) * 0.12 +
+          affinity * 0.17 +
+          deficitClosure(currentCore, entry.core, goal) * 0.11 +
+          naturalness * 0.07 +
+          identityGoal.compatibility * 0.08 +
+          identitySupport.score * 0.06 -
+          identityGoal.conflictPenalty * 0.08
+        : recommendation * 0.23 +
+          (entry.battle?.finalBattleValue ?? 0) * 0.16 +
+          contestability * 0.14 +
+          weightedCoreScore(entry.core, goal) * 0.13 +
+          deficitClosure(currentCore, entry.core, goal) * 0.09 +
+          naturalness * 0.06 +
+          identityGoal.compatibility * 0.1 +
+          identitySupport.score * 0.09 -
+          identityGoal.conflictPenalty * 0.08;
       return [
         entry.slug,
         { affinity, naturalness, complement, score }
@@ -1123,6 +1515,17 @@ function selectFuturePool({
         left.slug.localeCompare(right.slug)
     )
     .slice(0, 10)
+    .forEach(add);
+  [...allowed]
+    .sort(
+      (left, right) =>
+        identitySupportForSeed(seed, right).score -
+          identitySupportForSeed(seed, left).score ||
+        (poolMetrics.get(right.slug)?.score ?? 0) -
+          (poolMetrics.get(left.slug)?.score ?? 0) ||
+        left.slug.localeCompare(right.slug)
+    )
+    .slice(0, 8)
     .forEach(add);
   [...CORE_AXES]
     .sort(
@@ -1212,6 +1615,7 @@ export function buildGoalOrientedTeamBuilder({
   let chainStepCount = 0;
 
   const candidates = seedSignals.map((seed) => {
+    const remainingSlotsAfterCandidate = Math.max(0, 6 - team.length - 1);
     const currentCore = addSeedToCurrentCore(
       baseTeamCore,
       seed.core,
@@ -1222,10 +1626,31 @@ export function buildGoalOrientedTeamBuilder({
       currentCore,
       team,
       environmentBySlug,
-      profile
+      profile,
+      remainingSlotsAfterCandidate
     ).slice(0, 3);
     const selectedGoal = inferredGoals[0];
-    const remainingSlotsAfterCandidate = Math.max(0, 6 - team.length - 1);
+    const selectedGoalTeamAffinity =
+      selectedGoal.goal === "trick-room"
+        ? profile === "trick-room"
+          ? 100
+          : aggregateAffinity(team, environmentBySlug, "trickRoom")
+        : selectedGoal.goal === "rain" ||
+            selectedGoal.goal === "sand" ||
+            selectedGoal.goal === "sun"
+          ? aggregateAffinity(team, environmentBySlug, selectedGoal.goal)
+          : selectedGoal.goal === "hazard-stack"
+            ? aggregateAffinity(team, environmentBySlug, "hazard")
+            : selectedGoal.goal === "pivot-cycle"
+              ? baseTeamCore.pivotCore
+              : 0;
+    const conditionEstablished =
+      (selectedGoal.goal === "rain" ||
+        selectedGoal.goal === "sand" ||
+        selectedGoal.goal === "sun" ||
+        selectedGoal.goal === "trick-room") &&
+      selectedGoalTeamAffinity >=
+        GOAL_ORIENTED_TEAM_BUILDER_CONFIG.minimumDirectGoalAffinity;
     const dynamicFuturePool =
       remainingSlotsAfterCandidate > 0
         ? selectFuturePool({
@@ -1235,7 +1660,8 @@ export function buildGoalOrientedTeamBuilder({
             currentCore,
             baseTeam,
             environmentBySlug,
-            pairCache
+            pairCache,
+            conditionEstablished
           })
         : [];
     const immediate = dynamicFuturePool
@@ -1252,7 +1678,8 @@ export function buildGoalOrientedTeamBuilder({
           environmentBySlug,
           pairCache,
           [...baseTeam, seed.pokemon],
-          1
+          1,
+          conditionEstablished
         );
       })
       .sort(
@@ -1263,15 +1690,103 @@ export function buildGoalOrientedTeamBuilder({
       0,
       GOAL_ORIENTED_TEAM_BUILDER_CONFIG.maximumImmediatePreviews
     );
+    if (
+      (seed.identity.primary === "setup-sweeper" ||
+        seed.identity.secondary === "setup-sweeper" ||
+        seed.identity.primary === "wall-breaker" ||
+        seed.identity.primary === "trapper") &&
+      nextCandidates.length ===
+        GOAL_ORIENTED_TEAM_BUILDER_CONFIG.maximumImmediatePreviews
+    ) {
+      const strongestSupport = [...immediate].sort(
+        (left, right) =>
+          right.identitySupport * 0.55 +
+            right.score * 0.25 +
+            right.coreGain * 0.2 -
+            (left.identitySupport * 0.55 +
+              left.score * 0.25 +
+              left.coreGain * 0.2) ||
+          left.slug.localeCompare(right.slug)
+      )[0];
+      if (
+        strongestSupport &&
+        strongestSupport.identitySupport >= 18 &&
+        !nextCandidates.some(
+          (candidate) => candidate.slug === strongestSupport.slug
+        )
+      ) {
+        nextCandidates[nextCandidates.length - 1] = strongestSupport;
+      }
+    }
+    if (
+      usesDirectGoalAffinity(selectedGoal.goal) &&
+      nextCandidates.length ===
+        GOAL_ORIENTED_TEAM_BUILDER_CONFIG.maximumImmediatePreviews
+    ) {
+      const directGoalSupport = [...immediate].sort(
+        (left, right) =>
+          right.goalAffinity - left.goalAffinity ||
+          right.score - left.score ||
+          left.slug.localeCompare(right.slug)
+      )[0];
+      if (
+        directGoalSupport &&
+        directGoalSupport.goalAffinity >=
+          GOAL_ORIENTED_TEAM_BUILDER_CONFIG.minimumDirectGoalAffinity &&
+        !nextCandidates.some(
+          (candidate) => candidate.slug === directGoalSupport.slug
+        )
+      ) {
+        nextCandidates[nextCandidates.length - 1] = directGoalSupport;
+      }
+    }
     const chain: TeamBuilderChainStep[] = [];
     const selectedSignals: CandidateSignals[] = [seed];
     let chainCore = currentCore;
+    let activeGoal = selectedGoal;
     const maximumDepth = Math.min(
       GOAL_ORIENTED_TEAM_BUILDER_CONFIG.maximumChainDepth,
       remainingSlotsAfterCandidate
     );
     for (let step = 1; step <= maximumDepth; step += 1) {
-      const options = dynamicFuturePool
+      const reassessedGoals = goalInference(
+        seed,
+        chainCore,
+        [
+          ...team,
+          ...selectedSignals.slice(1).map((entry) => entry.slug)
+        ],
+        environmentBySlug,
+        profile,
+        Math.max(0, remainingSlotsAfterCandidate - step + 1)
+      );
+      const proposedGoal = reassessedGoals[0];
+      const retainedGoal =
+        reassessedGoals.find((entry) => entry.goal === activeGoal.goal) ??
+        activeGoal;
+      const switchDelta =
+        seed.identity.confidence === "high"
+          ? GOAL_ORIENTED_TEAM_BUILDER_CONFIG.highConfidenceGoalSwitchDelta
+          : GOAL_ORIENTED_TEAM_BUILDER_CONFIG.normalGoalSwitchDelta;
+      if (
+        proposedGoal.goal === retainedGoal.goal ||
+        proposedGoal.score >= retainedGoal.score + switchDelta
+      ) {
+        activeGoal = proposedGoal;
+      } else {
+        activeGoal = retainedGoal;
+      }
+      const stepFuturePool = selectFuturePool({
+        seed,
+        signals,
+        goal: activeGoal.goal,
+        currentCore: chainCore,
+          baseTeam,
+          environmentBySlug,
+          pairCache,
+          conditionEstablished
+      });
+      const options = stepFuturePool
         .filter(
           (next) =>
             !selectedSignals.some((entry) => entry.slug === next.slug) &&
@@ -1283,14 +1798,15 @@ export function buildGoalOrientedTeamBuilder({
             seed,
             next,
             chainCore,
-            selectedGoal.goal,
+            activeGoal.goal,
             environmentBySlug,
             pairCache,
             [
               ...baseTeam,
               ...selectedSignals.map((entry) => entry.pokemon)
             ],
-            step
+            step,
+            conditionEstablished
           );
         })
         .sort(
@@ -1346,23 +1862,29 @@ export function buildGoalOrientedTeamBuilder({
             )
         : total;
     }, 0);
-    const deadEndRisk = clamp(
+    const rawDeadEndRisk =
       (viableFutureCount >= 6
         ? 0
         : ((6 - viableFutureCount) / 6) * 42) +
-        missingAfterChain * 8 +
+        missingAfterChain * (conditionEstablished ? 4 : 8) +
         (remainingSlotsAfterCandidate > 0 && chain.length < maximumDepth
           ? 22
           : 0) +
-        (conditionDependent && conditionSupportCount < 2 ? 18 : 0) +
+        (conditionDependent &&
+        !conditionEstablished &&
+        conditionSupportCount < 2
+          ? 18
+          : 0) +
         (conditionDependent &&
         remainingSlotsAfterCandidate > 0 &&
-        plannedGoalAffinity <
+        Math.max(plannedGoalAffinity, selectedGoalTeamAffinity) <
           GOAL_ORIENTED_TEAM_BUILDER_CONFIG.minimumDirectGoalAffinity
           ? 16
           : 0) +
         sharedRisk * 0.08 +
-        seed.unclassifiedRate * 12
+        seed.unclassifiedRate * 12;
+    const deadEndRisk = clamp(
+      rawDeadEndRisk * (conditionEstablished ? 0.35 : 1)
     );
     const futurePotential =
       remainingSlotsAfterCandidate === 0
@@ -1373,9 +1895,17 @@ export function buildGoalOrientedTeamBuilder({
                   weightedCoreScore(chainCore, selectedGoal.goal) * 0.25 +
                   average(chain.map((entry) => entry.naturalness)) *
                     0.1 +
-                  average(
-                    nextCandidates.map((entry) => entry.goalAffinity)
-                  ) *
+                  (conditionEstablished
+                    ? average(
+                        nextCandidates.map(
+                          (entry) => entry.goalCompatibility
+                        )
+                      )
+                    : average(
+                        nextCandidates.map(
+                          (entry) => entry.goalAffinity
+                        )
+                      )) *
                     0.2
               : average(nextCandidates.map((entry) => entry.score)) * 0.55 +
                   weightedCoreScore(chainCore, selectedGoal.goal) * 0.3 +
@@ -1388,10 +1918,11 @@ export function buildGoalOrientedTeamBuilder({
     );
     const currentFit = clamp(
       usesDirectGoalAffinity(selectedGoal.goal)
-        ? selectedGoal.score * 0.7 +
-            (seed.battle?.finalBattleValue ?? 0) * 0.15 +
-            (seed.plan.contestability?.score ?? 0) * 0.1 +
-            seedGoalAffinity * 0.05
+        ? selectedGoal.score * 0.65 +
+            selectedGoal.identityGoalCompatibility * 0.15 +
+            seedGoalAffinity * 0.1 +
+            (seed.battle?.finalBattleValue ?? 0) * 0.05 +
+            (seed.plan.contestability?.score ?? 0) * 0.05
         : selectedGoal.score * 0.75 +
             (seed.battle?.finalBattleValue ?? 0) * 0.15 +
             (seed.plan.contestability?.score ?? 0) * 0.1
@@ -1401,15 +1932,36 @@ export function buildGoalOrientedTeamBuilder({
       currentFit * weights.currentFit +
         futurePotential * weights.futurePotential +
         coreQuality.overall * weights.coreQuality -
-        deadEndRisk * weights.deadEndRisk
+        deadEndRisk * weights.deadEndRisk +
+        selectedGoal.identityGoalCompatibility *
+          weights.identityGoalCompatibility -
+        selectedGoal.identityConflictPenalty *
+          weights.identityConflictPenalty
     );
+    const goalScoreBreakdown = {
+      currentFit: round(currentFit * weights.currentFit),
+      futurePotential: round(
+        futurePotential * weights.futurePotential
+      ),
+      coreQuality: round(coreQuality.overall * weights.coreQuality),
+      identityGoalCompatibility: round(
+        selectedGoal.identityGoalCompatibility *
+          weights.identityGoalCompatibility
+      ),
+      deadEndRisk: round(-deadEndRisk * weights.deadEndRisk),
+      identityConflictPenalty: round(
+        -selectedGoal.identityConflictPenalty *
+          weights.identityConflictPenalty
+      )
+    };
     const strongestAxis = [...CORE_AXES].sort(
       (left, right) =>
         coreQuality[right] - coreQuality[left] ||
         left.localeCompare(right)
     )[0];
     const explanations = [
-      `${TEAM_BUILDER_GOAL_LABELS[selectedGoal.goal]}の完成形へ向かいやすい候補です。`,
+      identityGoalReason(seed.identity, selectedGoal),
+      `${selectedGoal.label}の完成形へ向かいやすい候補です。`,
       `${coreAxisLabel(strongestAxis)}を伸ばせます。`,
       nextCandidates[0]
         ? `この後、${nextCandidates[0].name}などへ自然につなげられます。`
@@ -1424,17 +1976,22 @@ export function buildGoalOrientedTeamBuilder({
         : ""
     ].filter(Boolean);
     return {
-      schemaVersion: 1,
+      schemaVersion: 2,
       candidateSlug: seed.slug,
+      candidateIdentity: seed.identity,
       inferredGoals,
       selectedGoal,
       goalAffinity: round(seedGoalAffinity),
+      identityGoalCompatibility:
+        selectedGoal.identityGoalCompatibility,
+      identityConflictPenalty: selectedGoal.identityConflictPenalty,
       currentFit: round(currentFit),
       futurePotential: round(futurePotential),
       currentCoreQuality,
       coreQuality,
       deadEndRisk: round(deadEndRisk),
       goalScore: round(goalScore),
+      goalScoreBreakdown,
       nextCandidates,
       chain,
       explanations,
@@ -1450,8 +2007,9 @@ export function buildGoalOrientedTeamBuilder({
   );
   return {
     metadata: {
-      schemaVersion: 1,
+      schemaVersion: 2,
       mode: "core-goal-planning",
+      planningPriority: "candidate-identity-first",
       deterministic: true,
       maximumChainDepth:
         GOAL_ORIENTED_TEAM_BUILDER_CONFIG.maximumChainDepth,

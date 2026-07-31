@@ -75,11 +75,17 @@ const lines = [
 for (const [index, candidate] of candidates.entries()) {
   lines.push(
     `${index + 1}. ${candidate.candidateSlug} Goal=${candidate.selectedGoal.label} Score=${candidate.goalScore} Affinity=${candidate.goalAffinity}`,
+    `   Identity: primary=${candidate.candidateIdentity.primary} secondary=${candidate.candidateIdentity.secondary ?? "none"} confidence=${candidate.candidateIdentity.confidence} adoption=${candidate.candidateIdentity.adoptionRate}`,
+    `   Identity scores: ${Object.entries(candidate.candidateIdentity.scores).map(([identity, score]) => `${identity}=${score}`).join(" ")}`,
+    `   Identity evidence: ${candidate.candidateIdentity.evidence.map((entry) => `${entry.key}:${entry.strength}:${entry.adoptionRate ?? "n/a"}`).join(" / ") || "none"}`,
+    `   Goal identity: compatibility=${candidate.identityGoalCompatibility} conflict=${candidate.identityConflictPenalty} role=${candidate.selectedGoal.candidateRole}`,
+    `   Goal breakdown: ${Object.entries(candidate.selectedGoal.scoreBreakdown).map(([key, value]) => `${key}=${value}`).join(" ")}`,
+    `   Final breakdown: ${Object.entries(candidate.goalScoreBreakdown).map(([key, value]) => `${key}=${value}`).join(" ")}`,
     `   Current=${candidate.currentFit} Future=${candidate.futurePotential} Core=${candidate.coreQuality.overall} DeadEnd=${candidate.deadEndRisk}`,
     `   Current axes: ${Object.entries(candidate.currentCoreQuality).map(([axis, value]) => `${axis}=${value}`).join(" ")}`,
     `   Projected axes: ${Object.entries(candidate.coreQuality).map(([axis, value]) => `${axis}=${value}`).join(" ")}`,
     `   Next: ${candidate.nextCandidates.map((entry) => `${entry.name}(${entry.score}; affinity=${entry.goalAffinity})`).join(" / ") || "なし"}`,
-    `   Chain: ${candidate.chain.map((entry) => `${entry.step}:${entry.name}`).join(" -> ") || "なし"}`,
+    `   Chain: ${candidate.chain.map((entry) => `${entry.step}:${entry.name}[identity=${entry.primaryIdentity}; goal=${entry.goal}; compatibility=${entry.goalCompatibility}; role=${entry.goalRole}]`).join(" -> ") || "なし"}`,
     `   Reasons: ${candidate.explanations.join(" / ")}`
   );
 }

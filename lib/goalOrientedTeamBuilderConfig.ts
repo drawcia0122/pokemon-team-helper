@@ -1,7 +1,138 @@
 import type {
+  CandidateIdentity,
   TeamBuilderCoreAxis,
-  TeamBuilderGoal
+  TeamBuilderGoal,
+  TeamBuilderGoalRole
 } from "@/types/goalOrientedTeamBuilder";
+
+export const CANDIDATE_IDENTITY_LABELS: Record<CandidateIdentity, string> = {
+  "setup-sweeper": "積みエース",
+  cleaner: "終盤の掃除役",
+  "wall-breaker": "崩し役",
+  trapper: "相手を逃がさない崩し役",
+  pivot: "対面操作役",
+  "defensive-anchor": "守りの軸",
+  "hazard-setter": "設置技による削り役",
+  "hazard-remover": "設置技の除去役",
+  "tempo-support": "展開補助役",
+  "weather-enabler": "天候の起点役",
+  "trick-room-enabler": "トリックルームの起点役",
+  "utility-support": "補助役",
+  hybrid: "複数の役割を持つ候補"
+};
+
+type IdentityGoalLink = {
+  compatibility: number;
+  role: Exclude<TeamBuilderGoalRole, "conflict">;
+};
+
+const link = (
+  compatibility: number,
+  role: IdentityGoalLink["role"] = "primary"
+): IdentityGoalLink => ({ compatibility, role });
+
+export const CANDIDATE_IDENTITY_GOAL_COMPATIBILITY: Record<
+  CandidateIdentity,
+  Partial<Record<TeamBuilderGoal, IdentityGoalLink>>
+> = {
+  "setup-sweeper": {
+    "hyper-offense": link(1),
+    "bulky-offense": link(0.9),
+    balance: link(0.78),
+    "hazard-stack": link(0.45, "support"),
+    rain: link(0.42, "support"),
+    sand: link(0.42, "support"),
+    sun: link(0.5, "support"),
+    "trick-room": link(0.48, "support")
+  },
+  cleaner: {
+    "hyper-offense": link(0.92),
+    "bulky-offense": link(0.86),
+    balance: link(0.7),
+    "hazard-stack": link(0.62, "support"),
+    rain: link(0.68),
+    sand: link(0.68),
+    sun: link(0.68)
+  },
+  "wall-breaker": {
+    "hyper-offense": link(0.94),
+    "bulky-offense": link(0.9),
+    balance: link(0.76),
+    "hazard-stack": link(0.66, "support"),
+    "pivot-cycle": link(0.55, "support")
+  },
+  trapper: {
+    "bulky-offense": link(0.84),
+    "hyper-offense": link(0.8),
+    balance: link(0.78),
+    "pivot-cycle": link(0.65, "support"),
+    stall: link(0.45, "support")
+  },
+  pivot: {
+    "pivot-cycle": link(1),
+    balance: link(0.92),
+    "bulky-offense": link(0.86),
+    rain: link(0.62, "support"),
+    sun: link(0.62, "support"),
+    sand: link(0.58, "support")
+  },
+  "defensive-anchor": {
+    stall: link(1),
+    balance: link(0.94),
+    "bulky-offense": link(0.82, "support"),
+    "pivot-cycle": link(0.72, "support"),
+    "hyper-offense": link(0.18, "support")
+  },
+  "hazard-setter": {
+    "hazard-stack": link(1),
+    balance: link(0.78, "support"),
+    "bulky-offense": link(0.8, "support"),
+    "pivot-cycle": link(0.66, "support"),
+    "hyper-offense": link(0.72, "support")
+  },
+  "hazard-remover": {
+    balance: link(0.94, "support"),
+    "pivot-cycle": link(0.88, "support"),
+    "bulky-offense": link(0.84, "support"),
+    stall: link(0.82, "support"),
+    "hyper-offense": link(0.55, "support")
+  },
+  "tempo-support": {
+    "hyper-offense": link(0.88, "support"),
+    "pivot-cycle": link(0.9, "support"),
+    balance: link(0.78, "support"),
+    "bulky-offense": link(0.82, "support"),
+    "hazard-stack": link(0.72, "support")
+  },
+  "weather-enabler": {
+    rain: link(1),
+    sand: link(1),
+    sun: link(1),
+    "bulky-offense": link(0.42, "support"),
+    balance: link(0.38, "support")
+  },
+  "trick-room-enabler": {
+    "trick-room": link(1),
+    "bulky-offense": link(0.55, "support"),
+    balance: link(0.5, "support")
+  },
+  "utility-support": {
+    balance: link(0.86, "support"),
+    "pivot-cycle": link(0.82, "support"),
+    stall: link(0.78, "support"),
+    "bulky-offense": link(0.7, "support"),
+    "hyper-offense": link(0.58, "support"),
+    "hazard-stack": link(0.62, "support")
+  },
+  hybrid: {
+    balance: link(0.86),
+    "bulky-offense": link(0.82),
+    "hyper-offense": link(0.68),
+    "pivot-cycle": link(0.7, "support"),
+    "hazard-stack": link(0.6, "support"),
+    stall: link(0.58, "support")
+  }
+};
 
 export const TEAM_BUILDER_GOAL_LABELS: Record<TeamBuilderGoal, string> = {
   balance: "バランス",
@@ -123,19 +254,25 @@ export const TEAM_BUILDER_GOAL_AXIS_WEIGHTS: Record<
 };
 
 export const GOAL_ORIENTED_TEAM_BUILDER_CONFIG = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   maximumChainDepth: 3,
   maximumImmediatePreviews: 3,
   futurePoolSize: 48,
   minimumViableFutureScore: 48,
   minimumDirectGoalAffinity: 18,
   minimumGoalEvidence: 0.12,
+  minimumIdentityEvidence: 0.18,
+  minimumSecondaryIdentityScore: 24,
+  highConfidenceGoalSwitchDelta: 10,
+  normalGoalSwitchDelta: 6,
   scoreWeights: {
-    currentFit: 0.5,
-    futurePotential: 0.18,
-    coreQuality: 0.32,
-    deadEndRisk: 0.2
+    currentFit: 0.46,
+    futurePotential: 0.14,
+    coreQuality: 0.2,
+    identityGoalCompatibility: 0.2,
+    deadEndRisk: 0.16,
+    identityConflictPenalty: 0.18
   },
   formula:
-    "currentFit*0.50 + futurePotential*0.18 + coreQuality*0.32 - deadEndRisk*0.20"
+    "currentFit*0.46 + futurePotential*0.14 + coreQuality*0.20 + identityGoalCompatibility*0.20 - deadEndRisk*0.16 - identityConflictPenalty*0.18"
 } as const;
