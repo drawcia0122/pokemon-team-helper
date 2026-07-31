@@ -226,7 +226,7 @@
 .advisorSwapSummary strong { overflow-wrap: anywhere; color: #1f5034; font-size: .78rem; line-height: 1.45; }
 .advisorSwapSummary small { margin-left: 4px; font-size: .68rem; }
 .advisorThreatCoverageSummary small { margin: 1px 0 0; overflow-wrap: anywhere; color: #5d7165; line-height: 1.45; }
-.advisorChangeGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); flex: 1; gap: 8px; margin-top: 10px; }
+.advisorChangeGrid { display: grid; grid-template-columns: 1fr; flex: 1; gap: 12px; margin-top: 10px; }
 .advisorChangeList { min-width: 0; padding: 9px 10px; border-radius: 8px; }
 .advisorChangeImprove { background: #edf7f0; }
 .advisorChangeOther { background: #f1f5f3; }
