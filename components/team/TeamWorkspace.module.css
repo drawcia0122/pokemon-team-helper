@@ -268,6 +268,28 @@
 .advisorDiagnosticCard .advisorDiagnosticAttention dd { color: #8a5a0e; }
 .advisorDiagnosticCard .advisorDiagnosticPositive { background: #e9f5ed; }
 .advisorDiagnosticCard .advisorDiagnosticPositive dd { color: #1b6d43; }
+.advisorBuilderPreview { display: grid; min-width: 0; gap: 9px; margin-top: 12px; padding: 12px; border: 1px solid #bfd5c5; border-radius: 10px; background: linear-gradient(145deg,#f0f8f2,#fff); }
+.advisorBuilderHeading { display: flex; min-width: 0; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
+.advisorBuilderHeading h4 { margin: 0; color: #24583a; font-size: .76rem; }
+.advisorBuilderHeading span { padding: 3px 7px; border-radius: 999px; background: #dceee1; color: #276443; font-size: .58rem; font-weight: 900; }
+.advisorBuilderGoal { display: flex; min-width: 0; align-items: baseline; flex-wrap: wrap; gap: 5px 8px; margin: 0; }
+.advisorBuilderGoal span { color: #68776e; font-size: .62rem; font-weight: 850; }
+.advisorBuilderGoal strong { overflow-wrap: anywhere; color: #174f32; font-size: .8rem; }
+.advisorBuilderReasons { display: grid; gap: 4px; margin: 0; padding-left: 17px; color: #52665a; font-size: .65rem; line-height: 1.5; }
+.advisorBuilderNext { display: grid; min-width: 0; gap: 6px; padding-top: 8px; border-top: 1px dashed #c8d9ce; }
+.advisorBuilderNext > strong { color: #315f43; font-size: .68rem; }
+.advisorBuilderNext ol { display: grid; gap: 5px; margin: 0; padding-left: 19px; }
+.advisorBuilderNext li { min-width: 0; padding-left: 2px; color: #2d5540; font-size: .68rem; font-weight: 800; }
+.advisorBuilderNext li span,.advisorBuilderNext li small { display: block; overflow-wrap: anywhere; }
+.advisorBuilderNext li small { margin-top: 1px; color: #6a796f; font-size: .6rem; font-weight: 500; line-height: 1.4; }
+.advisorBuilderDetails > summary { width: fit-content; cursor: pointer; color: #315f43; font-size: .66rem; font-weight: 850; }
+.advisorBuilderDetails dl { display: grid; gap: 4px; margin: 8px 0; }
+.advisorBuilderDetails dl > div { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; padding: 5px 7px; border-radius: 6px; background: rgba(255,255,255,.8); }
+.advisorBuilderDetails dt,.advisorBuilderDetails dd { overflow-wrap: anywhere; color: #53655a; font-size: .63rem; line-height: 1.4; }
+.advisorBuilderDetails dd { margin: 0; color: #2d5540; font-weight: 900; }
+.advisorBuilderDetails > strong { color: #315f43; font-size: .65rem; }
+.advisorBuilderDetails ol { margin: 5px 0 0; padding-left: 18px; color: #53655a; font-size: .63rem; line-height: 1.5; }
+.advisorBuilderCaution { margin: 0; padding: 7px 8px; border-radius: 6px; background: #fff6e4; color: #775820; font-size: .63rem; line-height: 1.45; }
 .advisorNote { max-width: 90ch; margin: 12px 2px 0; color: #718078; font-size: .66rem; line-height: 1.5; }
 
 .offenseSection { background: #fbfdfc; }
@@ -302,7 +324,7 @@
 .offenseDetailGrid > div { display: grid; padding: 8px; border-radius: 7px; background: #f1f6f3; }
 .offenseDetailGrid span { color: #68776e; font-size: .7rem; }
 
-.modeTabs button:focus-visible,.comboboxList button:focus-visible,.statsTabs button:focus-visible,.removeButton:focus-visible,.primaryButton:focus-visible,.secondaryButton:focus-visible,.textButton:focus-visible,.addCandidate:focus-visible,.advisorInputLink:focus-visible,.advisorUndoNotice button:focus-visible,.inlineDetails summary:focus-visible,.detailPanel summary:focus-visible,.advisorCategoryControls select:focus-visible,.advisorExplorer summary:focus-visible,.advisorExplorerControls select:focus-visible,.teamProfileControl select:focus-visible { outline: 3px solid rgba(22,115,72,.28); outline-offset: 2px; }
+.modeTabs button:focus-visible,.comboboxList button:focus-visible,.statsTabs button:focus-visible,.removeButton:focus-visible,.primaryButton:focus-visible,.secondaryButton:focus-visible,.textButton:focus-visible,.addCandidate:focus-visible,.advisorInputLink:focus-visible,.advisorUndoNotice button:focus-visible,.inlineDetails summary:focus-visible,.detailPanel summary:focus-visible,.advisorCategoryControls select:focus-visible,.advisorExplorer summary:focus-visible,.advisorExplorerControls select:focus-visible,.advisorBuilderDetails summary:focus-visible,.teamProfileControl select:focus-visible { outline: 3px solid rgba(22,115,72,.28); outline-offset: 2px; }
 
 @media (max-width:1100px) {
   .seasonBar { grid-template-columns: 1fr 1fr; }

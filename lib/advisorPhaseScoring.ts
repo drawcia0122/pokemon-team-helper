@@ -14,6 +14,7 @@ import type { AdvisorSwapPlan } from "@/lib/advisorSwapSimulator";
 
 export type ProgressiveAdvisorMode =
   | "overall"
+  | "future"
   | "defensive"
   | "offensive"
   | "role"
@@ -24,6 +25,7 @@ export const PROGRESSIVE_ADVISOR_MODE_LABELS: Record<
   string
 > = {
   overall: "総合",
+  future: "完成形との相性",
   defensive: "防御補完",
   offensive: "攻撃補完",
   role: "役割補完",
@@ -187,6 +189,9 @@ function getModeScores(
     clamp(fitScore * 0.35 + signal * 100 * 0.65);
   return {
     overall: fitScore,
+    future: plan.goalBuilderPlan
+      ? clamp(plan.goalBuilderPlan.goalScore)
+      : fitScore,
     defensive: blend(defensiveSignal),
     offensive: blend(offensiveSignal),
     role: blend(roleSignal),
@@ -492,6 +497,7 @@ export function scoreAdvisorPhasePlan({
     (
       [
         "overall",
+        "future",
         "defensive",
         "offensive",
         "role",
@@ -502,7 +508,7 @@ export function scoreAdvisorPhasePlan({
       buildAdvisorExplanationPresentation({
         phase,
         plan,
-        mode,
+        mode: mode === "future" ? "overall" : mode,
         evidence
       })
     ])
@@ -511,6 +517,7 @@ export function scoreAdvisorPhasePlan({
     (
       [
         "overall",
+        "future",
         "defensive",
         "offensive",
         "role",
@@ -521,6 +528,9 @@ export function scoreAdvisorPhasePlan({
       explanationsByMode[mode].primaryReasons
     ])
   ) as Record<ProgressiveAdvisorMode, string[]>;
+  if (plan.goalBuilderPlan?.explanations.length) {
+    reasonsByMode.future = [...plan.goalBuilderPlan.explanations];
+  }
   return {
     plan,
     phase,

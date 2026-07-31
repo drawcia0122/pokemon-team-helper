@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "minimumOverallScore": 100,
+  "maximumFailCount": 0,
+  "requiredCases": [
+    "GOAL001",
+    "GOAL002",
+    "GOAL003",
+    "GOAL004",
+    "GOAL005",
+    "GOAL006",
+    "GOAL007",
+    "GOAL008"
+  ]
+}

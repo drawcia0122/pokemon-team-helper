@@ -1,6 +1,7 @@
 import { PokemonVisual } from "@/components/pokemon/PokemonVisual";
 import { AdvisorCandidateActionButton } from "@/components/team/AdvisorCandidateActionButton";
 import { AbilityMatchupDetails } from "@/components/team/AbilityMatchupDetails";
+import { AdvisorBuilderPreview } from "@/components/team/AdvisorBuilderPreview";
 import type { AdvisorSwapPlan } from "@/lib/advisorSwapSimulator";
 import {
   PROGRESSIVE_ADVISOR_MODE_LABELS,
@@ -62,7 +63,7 @@ export function AdvisorNextCandidateCard({
   ].slice(0, 3);
   const partner = candidate.partnerSynergy;
   const explanation = candidate.explanationsByMode[mode];
-  const reasons = explanation.primaryReasons;
+  const reasons = candidate.reasonsByMode[mode];
 
   return (
     <article className={styles.advisorCandidateCard}>
@@ -273,6 +274,10 @@ export function AdvisorNextCandidateCard({
         </details>
       ) : null}
       <AbilityMatchupDetails plan={plan} />
+      <AdvisorBuilderPreview
+        plan={plan.goalBuilderPlan}
+        showExplanations={mode !== "future"}
+      />
 
       <AdvisorCandidateActionButton
         plan={plan}

@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "GOAL001",
+      "title": "攻守をつなぐ4体目と次の受け先",
+      "team": ["scizor-mega", "garchomp", "rotom-wash"],
+      "profile": "standard",
+      "candidate": "gengar-mega",
+      "candidateAbove": [
+        "sylveon",
+        "charizard-mega-y",
+        "floette-mega",
+        "staraptor-mega"
+      ],
+      "requiredNextCandidates": ["umbreon"],
+      "minimumChainLength": 2
+    },
+    {
+      "id": "GOAL002",
+      "title": "雨の継続候補",
+      "team": ["pelipper", "swampert"],
+      "profile": "standard",
+      "expectedGoalInTop": "rain",
+      "goalSearchLimit": 5,
+      "minimumGoalAffinity": 18,
+      "minimumDirectGoalSteps": 1,
+      "minimumNextGoalAffinity": 18,
+      "minimumChainLength": 2
+    },
+    {
+      "id": "GOAL003",
+      "title": "砂の継続候補",
+      "team": ["tyranitar", "excadrill"],
+      "profile": "standard",
+      "expectedGoalInTop": "sand",
+      "goalSearchLimit": 5,
+      "minimumGoalAffinity": 18,
+      "minimumDirectGoalSteps": 1,
+      "minimumNextGoalAffinity": 18,
+      "minimumChainLength": 2
+    },
+    {
+      "id": "GOAL004",
+      "title": "晴れの継続候補",
+      "team": ["torkoal", "venusaur"],
+      "profile": "standard",
+      "expectedGoalInTop": "sun",
+      "goalSearchLimit": 5,
+      "minimumGoalAffinity": 18,
+      "minimumDirectGoalSteps": 1,
+      "minimumNextGoalAffinity": 18,
+      "minimumChainLength": 2
+    },
+    {
+      "id": "GOAL005",
+      "title": "低速構築の完成形",
+      "team": ["hatterene", "slowbro"],
+      "profile": "trick-room",
+      "expectedGoalInTop": "trick-room",
+      "goalSearchLimit": 5,
+      "minimumGoalAffinity": 18,
+      "minimumDirectGoalSteps": 2,
+      "minimumNextGoalAffinity": 18,
+      "minimumChainLength": 2
+    },
+    {
+      "id": "GOAL006",
+      "title": "設置技を軸にした完成形",
+      "team": ["glimmora", "gholdengo"],
+      "profile": "standard",
+      "expectedGoalInTop": "hazard-stack",
+      "goalSearchLimit": 20,
+      "minimumGoalAffinity": 18,
+      "minimumDirectGoalSteps": 2,
+      "minimumNextGoalAffinity": 18,
+      "minimumChainLength": 2
+    },
+    {
+      "id": "GOAL007",
+      "title": "交代技を軸にしたサイクル",
+      "team": ["rotom-wash", "corviknight"],
+      "profile": "standard",
+      "expectedGoalInTop": "pivot-cycle",
+      "goalSearchLimit": 5,
+      "minimumGoalAffinity": 18,
+      "minimumDirectGoalSteps": 2,
+      "minimumNextGoalAffinity": 18,
+      "minimumChainLength": 2
+    },
+    {
+      "id": "GOAL008",
+      "title": "構築後半で合法になる2体目のメガ候補",
+      "team": ["scizor-mega"],
+      "profile": "standard",
+      "minimumChainLength": 2,
+      "requiresDeferredMega": true
+    }
+  ]
+}

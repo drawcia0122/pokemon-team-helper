@@ -68,6 +68,7 @@ export type ProgressiveTeamAdvisorInput = {
 function emptyModePlans(): ProgressiveTeamAdvisorAnalysis["candidatesByMode"] {
   return {
     overall: [],
+    future: [],
     defensive: [],
     offensive: [],
     role: []
@@ -101,11 +102,16 @@ function takeDisplayCandidates(
   const topScore = ranked[0]?.modeScores[mode] ?? 0;
   return ranked
     .filter((candidate) => {
-      const hasReason = candidate.reasonsByMode[mode].length > 0;
+      const isFutureMode = mode === "future";
+      const hasReason = isFutureMode
+        ? Boolean(candidate.plan.goalBuilderPlan?.explanations.length)
+        : candidate.reasonsByMode[mode].length > 0;
       if (
         !hasReason ||
         candidate.modeScores[mode] <= 0 ||
-        !candidate.explanationsByMode[mode].eligibleForPrimaryRecommendation
+        (!isFutureMode &&
+          !candidate.explanationsByMode[mode]
+            .eligibleForPrimaryRecommendation)
       ) {
         return false;
       }
@@ -289,6 +295,7 @@ export function getProgressiveTeamAdvisor(
     );
   const candidatesByMode = {
     overall: takeDisplayCandidates(scored, "overall", memberCount),
+    future: takeDisplayCandidates(scored, "future", memberCount),
     defensive: takeDisplayCandidates(scored, "defensive", memberCount),
     offensive: takeDisplayCandidates(scored, "offensive", memberCount),
     role: takeDisplayCandidates(scored, "role", memberCount)

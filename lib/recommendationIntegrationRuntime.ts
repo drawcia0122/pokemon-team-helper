@@ -8,6 +8,7 @@ import {
   buildAbilityEnvironmentDemand
 } from "@/lib/abilityDenialProfile";
 import { findBestDefensiveCore } from "@/lib/defensiveCoreEvaluation";
+import { buildGoalOrientedTeamBuilder } from "@/lib/goalOrientedTeamBuilder";
 import { getMatchupVerdictContext } from "@/lib/matchupVerdictEngine";
 import {
   getAdvisorSwapSimulation,
@@ -32,6 +33,9 @@ import {
 import type { EnvironmentSnapshot } from "@/types/environmentData";
 import type { BattleValueCandidate } from "@/types/battleValue";
 import type { AbilityDenialCategory } from "@/types/matchupCore";
+import type {
+  GoalOrientedTeamBuilderResult
+} from "@/types/goalOrientedTeamBuilder";
 import { getPokemonBySlug } from "@/lib/typeChart";
 
 const MAX_SIMULATION_CACHE_ENTRIES = 4;
@@ -105,6 +109,7 @@ export type IntegratedRecommendationRuntime = {
   recommendationWeight: number;
   battleValueWeight: number;
   contestabilityWeight: number;
+  goalBuilder: GoalOrientedTeamBuilderResult;
 };
 
 export function buildIntegratedRecommendationRuntime({
@@ -454,15 +459,36 @@ export function buildIntegratedRecommendationRuntime({
       }
     } satisfies AdvisorSwapPlan;
   });
+  const goalBuilder = buildGoalOrientedTeamBuilder({
+    team,
+    plans: integratedPlans,
+    battleBySlug,
+    semanticBySlug,
+    environmentDataset: dataset,
+    profile
+  });
+  const goalPlanBySlug = new Map(
+    goalBuilder.candidates.map((entry) => [
+      entry.candidateSlug,
+      entry
+    ])
+  );
+  const plannerPlans = integratedPlans.map((plan) => ({
+    ...plan,
+    goalBuilderPlan:
+      plan.action.kind === "add"
+        ? goalPlanBySlug.get(plan.candidate.pokemon.slug) ?? null
+        : null
+  }));
   const simulation = rebuildAdvisorSwapSimulationWithPlans(
     baseline,
-    integratedPlans,
+    plannerPlans,
     profile
   );
   return {
     simulation,
     baseline,
-    integratedPlans,
+    integratedPlans: plannerPlans,
     recommendation,
     battleValue,
     battleBySlug,
@@ -470,7 +496,8 @@ export function buildIntegratedRecommendationRuntime({
     team,
     recommendationWeight,
     battleValueWeight,
-    contestabilityWeight
+    contestabilityWeight,
+    goalBuilder
   };
 }
 

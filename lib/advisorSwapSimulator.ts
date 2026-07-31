@@ -44,6 +44,9 @@ import type {
   DefensiveCoreProfile
 } from "@/types/matchupCore";
 import type {
+  GoalOrientedCandidatePlan
+} from "@/types/goalOrientedTeamBuilder";
+import type {
   PokemonEntry,
   TeamSlot,
   TeamSummary,
@@ -344,6 +347,7 @@ export type AdvisorSwapPlan = {
   abilityExplanation: string[];
   abilityDenialProfile: AbilityDenialProfile | null;
   defensiveCoreProfile: DefensiveCoreProfile | null;
+  goalBuilderPlan?: GoalOrientedCandidatePlan | null;
   preContestabilityRecommendation: number;
   finalRecommendation: number;
   recommendationIntegration: {
