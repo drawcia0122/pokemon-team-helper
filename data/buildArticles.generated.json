@@ -3046,5 +3046,65 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-07-30T12:05:28.912Z"
+  },
+  {
+    "id": "note-nb2e8fa6cba0c",
+    "source": "note",
+    "sourceArticleId": "nb2e8fa6cba0c",
+    "sourceUrl": "https://note.com/eriyama_erk411/n/nb2e8fa6cba0c",
+    "canonicalUrl": "https://note.com/eriyama_erk411/n/nb2e8fa6cba0c",
+    "title": "【ポケモンチャンピオンズ】シーズンM-4 シングルでマスターボール級に到達した構築メモ",
+    "authorName": "エリヤマ エリコ",
+    "publishedAt": "2026-07-31T23:24:07.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "マスターボール級",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "マスターボール級",
+      "シングルバトル",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。マスターボール級。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/299306437/rectangle_large_type_2_59647e646a27cedcb327fb6391448b2a.png",
+      "source": "structured-data",
+      "alt": "【ポケモンチャンピオンズ】シーズンM-4 シングルでマスターボール級に到達した構築メモのサムネイル",
+      "width": 635,
+      "height": 332
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.7
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-07-31T23:46:00.390Z",
+    "lastCollectedAt": "2026-07-31T23:46:00.390Z",
+    "contentFingerprint": "fde633f761b2207f31958a8682117e77a9a493fe527ca9dca03dfb68574f6426",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-07-31T23:46:00.390Z"
   }
 ]
