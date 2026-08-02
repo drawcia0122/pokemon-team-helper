@@ -3166,5 +3166,65 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-01T23:13:47.730Z"
+  },
+  {
+    "id": "note-n1d1cac758848",
+    "source": "note",
+    "sourceArticleId": "n1d1cac758848",
+    "sourceUrl": "https://note.com/tefuvgc/n/n1d1cac758848",
+    "canonicalUrl": "https://note.com/tefuvgc/n/n1d1cac758848",
+    "title": "Victory Road July Challenge 上位構築分析",
+    "authorName": "てふ",
+    "publishedAt": "2026-08-02T06:32:01.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": "最終6位",
+    "pokemonSlugs": [],
+    "tags": [
+      "ダブルバトル",
+      "VGC",
+      "ポケモンチャンピオンズ",
+      "メガムクホーク",
+      "M-3",
+      "double"
+    ],
+    "summary": "M-3のダブル構築記事です。最終6位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/299748901/rectangle_large_type_2_d54eb2c0cbdb1af525773a5f24b9ad94.png",
+      "source": "structured-data",
+      "alt": "Victory Road July Challenge 上位構築分析のサムネイル",
+      "width": 1893,
+      "height": 990
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.9,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.605
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-02T06:46:55.230Z",
+    "lastCollectedAt": "2026-08-02T06:46:55.230Z",
+    "contentFingerprint": "7a49e24bcd4ed1d29f3d2e47bddd8d4056d921679f9af32a230d6f84eb76b3c8",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-02T06:46:55.230Z"
   }
 ]
