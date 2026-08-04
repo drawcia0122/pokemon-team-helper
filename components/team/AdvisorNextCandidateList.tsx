@@ -5,6 +5,7 @@ import type {
 } from "@/lib/advisorPhaseScoring";
 import type { AdvisorSwapPlan } from "@/lib/advisorSwapSimulator";
 import type { PokemonEntry, TeamSlot } from "@/types/pokemon";
+import type { GoalOrientedCandidatePlan } from "@/types/goalOrientedTeamBuilder";
 import styles from "./TeamWorkspace.module.css";
 
 export function AdvisorNextCandidateList({
@@ -13,6 +14,8 @@ export function AdvisorNextCandidateList({
   memberCount,
   team,
   availablePokemon,
+  goalBuilderPlans,
+  goalBuilderErrors,
   onApply
 }: {
   candidates: ProgressiveAdvisorCandidate[];
@@ -20,6 +23,8 @@ export function AdvisorNextCandidateList({
   memberCount: number;
   team: TeamSlot[];
   availablePokemon: PokemonEntry[];
+  goalBuilderPlans: ReadonlyMap<string, GoalOrientedCandidatePlan>;
+  goalBuilderErrors: ReadonlySet<string>;
   onApply: (plan: AdvisorSwapPlan) => void;
 }) {
   return (
@@ -32,6 +37,12 @@ export function AdvisorNextCandidateList({
             memberCount={memberCount}
             team={team}
             availablePokemon={availablePokemon}
+            goalBuilderPlan={goalBuilderPlans.get(
+              candidate.plan.candidate.pokemon.slug
+            )}
+            goalBuilderError={goalBuilderErrors.has(
+              candidate.plan.candidate.pokemon.slug
+            )}
             onApply={onApply}
           />
         </li>

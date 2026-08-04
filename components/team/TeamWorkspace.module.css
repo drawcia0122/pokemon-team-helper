@@ -290,6 +290,7 @@
 .advisorBuilderDetails > strong { color: #315f43; font-size: .65rem; }
 .advisorBuilderDetails ol { margin: 5px 0 0; padding-left: 18px; color: #53655a; font-size: .63rem; line-height: 1.5; }
 .advisorBuilderCaution { margin: 0; padding: 7px 8px; border-radius: 6px; background: #fff6e4; color: #775820; font-size: .63rem; line-height: 1.45; }
+.advisorBuilderStatus { margin: 12px 0 0; padding: 12px; border: 1px solid #d6e2d9; border-radius: 10px; background: #f7faf8; color: #52665a; font-size: .68rem; font-weight: 800; line-height: 1.5; }
 .advisorNote { max-width: 90ch; margin: 12px 2px 0; color: #718078; font-size: .66rem; line-height: 1.5; }
 
 .offenseSection { background: #fbfdfc; }

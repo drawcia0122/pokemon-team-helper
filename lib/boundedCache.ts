@@ -9,6 +9,10 @@ export class BoundedCache<Key, Value> {
     this.maximumSize = maximumSize;
   }
 
+  get size(): number {
+    return this.#values.size;
+  }
+
   get(key: Key): Value | undefined {
     const value = this.#values.get(key);
     if (value === undefined) return undefined;
@@ -25,5 +29,9 @@ export class BoundedCache<Key, Value> {
       if (oldestKey === undefined) break;
       this.#values.delete(oldestKey);
     }
+  }
+
+  clear(): void {
+    this.#values.clear();
   }
 }

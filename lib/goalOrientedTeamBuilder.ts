@@ -60,6 +60,25 @@ type PlannerPairCache = {
   teammateNaturalness: Map<string, number>;
 };
 
+export type GoalOrientedTeamBuilderInput = {
+  team: string[];
+  plans: AdvisorSwapPlan[];
+  battleBySlug: ReadonlyMap<string, BattleValueCandidate>;
+  semanticBySlug: ReadonlyMap<string, SemanticCandidateProfile>;
+  environmentDataset: ThreatEnvironmentDataset;
+  profile: "standard" | "trick-room";
+};
+
+export type GoalOrientedTeamBuilderContext = {
+  input: GoalOrientedTeamBuilderInput;
+  environmentBySlug: Map<string, ThreatEnvironmentPokemon>;
+  signals: CandidateSignals[];
+  seedSignals: Array<CandidateSignals & { plan: AdvisorSwapPlan }>;
+  baseTeam: PokemonEntry[];
+  baseTeamCore: Record<TeamBuilderCoreAxis, number>;
+  pairCache: PlannerPairCache;
+};
+
 const CORE_AXES: TeamBuilderCoreAxis[] = [
   "offensiveCore",
   "defensiveCore",
@@ -1551,21 +1570,16 @@ function selectFuturePool({
   return [...selected.values()];
 }
 
-export function buildGoalOrientedTeamBuilder({
-  team,
-  plans,
-  battleBySlug,
-  semanticBySlug,
-  environmentDataset,
-  profile
-}: {
-  team: string[];
-  plans: AdvisorSwapPlan[];
-  battleBySlug: ReadonlyMap<string, BattleValueCandidate>;
-  semanticBySlug: ReadonlyMap<string, SemanticCandidateProfile>;
-  environmentDataset: ThreatEnvironmentDataset;
-  profile: "standard" | "trick-room";
-}): GoalOrientedTeamBuilderResult {
+export function prepareGoalOrientedTeamBuilder(
+  input: GoalOrientedTeamBuilderInput
+): GoalOrientedTeamBuilderContext {
+  const {
+    team,
+    plans,
+    battleBySlug,
+    semanticBySlug,
+    environmentDataset
+  } = input;
   const additionPlans = uniqueAdditionPlans(plans);
   const environmentBySlug = new Map(
     environmentDataset.pokemon.map((entry) => [entry.slug, entry])
@@ -1611,6 +1625,47 @@ export function buildGoalOrientedTeamBuilder({
     typeComplement: new Map(),
     teammateNaturalness: new Map()
   };
+  return {
+    input,
+    environmentBySlug,
+    signals,
+    seedSignals,
+    baseTeam,
+    baseTeamCore,
+    pairCache
+  };
+}
+
+export function buildGoalOrientedTeamBuilder(
+  input:
+    | (GoalOrientedTeamBuilderInput & {
+        candidateSlugs?: readonly string[];
+      })
+    | {
+        context: GoalOrientedTeamBuilderContext;
+        candidateSlugs?: readonly string[];
+      }
+): GoalOrientedTeamBuilderResult {
+  const context =
+    "context" in input
+      ? input.context
+      : prepareGoalOrientedTeamBuilder(input);
+  const {
+    environmentBySlug,
+    signals,
+    baseTeam,
+    baseTeamCore,
+    pairCache
+  } = context;
+  const { team, environmentDataset, profile } = context.input;
+  const requestedCandidates = input.candidateSlugs
+    ? new Set(input.candidateSlugs)
+    : null;
+  const seedSignals = requestedCandidates
+    ? context.seedSignals.filter((seed) =>
+        requestedCandidates.has(seed.slug)
+      )
+    : context.seedSignals;
   let futureComparisonCount = 0;
   let chainStepCount = 0;
 
@@ -2030,4 +2085,19 @@ export function buildGoalOrientedTeamBuilder({
       chainStepCount
     }
   };
+}
+
+export function buildGoalOrientedCandidatePlan({
+  context,
+  candidateSlug
+}: {
+  context: GoalOrientedTeamBuilderContext;
+  candidateSlug: string;
+}): GoalOrientedCandidatePlan | null {
+  return (
+    buildGoalOrientedTeamBuilder({
+      context,
+      candidateSlugs: [candidateSlug]
+    }).candidates[0] ?? null
+  );
 }

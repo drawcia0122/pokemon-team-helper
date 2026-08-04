@@ -17,6 +17,7 @@ import {
 } from "@/lib/advisorMegaRecommendation";
 import { getTypeLabel } from "@/lib/typeChart";
 import type { PokemonEntry, TeamSlot } from "@/types/pokemon";
+import type { GoalOrientedCandidatePlan } from "@/types/goalOrientedTeamBuilder";
 import styles from "./TeamWorkspace.module.css";
 
 function countLabel(value: number): string {
@@ -35,6 +36,8 @@ export function AdvisorNextCandidateCard({
   memberCount,
   team,
   availablePokemon,
+  goalBuilderPlan,
+  goalBuilderError,
   onApply
 }: {
   candidate: ProgressiveAdvisorCandidate;
@@ -42,6 +45,8 @@ export function AdvisorNextCandidateCard({
   memberCount: number;
   team: TeamSlot[];
   availablePokemon: PokemonEntry[];
+  goalBuilderPlan: GoalOrientedCandidatePlan | undefined;
+  goalBuilderError: boolean;
   onApply: (plan: AdvisorSwapPlan) => void;
 }) {
   const plan = candidate.plan;
@@ -63,7 +68,10 @@ export function AdvisorNextCandidateCard({
   ].slice(0, 3);
   const partner = candidate.partnerSynergy;
   const explanation = candidate.explanationsByMode[mode];
-  const reasons = candidate.reasonsByMode[mode];
+  const reasons =
+    mode === "future" && goalBuilderPlan?.explanations.length
+      ? goalBuilderPlan.explanations
+      : candidate.reasonsByMode[mode];
 
   return (
     <article className={styles.advisorCandidateCard}>
@@ -274,10 +282,26 @@ export function AdvisorNextCandidateCard({
         </details>
       ) : null}
       <AbilityMatchupDetails plan={plan} />
-      <AdvisorBuilderPreview
-        plan={plan.goalBuilderPlan}
-        showExplanations={mode !== "future"}
-      />
+      {mode === "future" ? (
+        goalBuilderError ? (
+          <p className={styles.advisorBuilderStatus} role="status">
+            完成形を計算できませんでした
+          </p>
+        ) : goalBuilderPlan ? (
+          <AdvisorBuilderPreview
+            plan={goalBuilderPlan}
+            showExplanations={false}
+          />
+        ) : (
+          <p
+            className={styles.advisorBuilderStatus}
+            role="status"
+            aria-live="polite"
+          >
+            完成形を計算中…
+          </p>
+        )
+      ) : null}
 
       <AdvisorCandidateActionButton
         plan={plan}

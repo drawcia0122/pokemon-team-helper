@@ -5,6 +5,7 @@ import { AdvisorCandidateActionButton } from "@/components/team/AdvisorCandidate
 import { AbilityMatchupDetails } from "@/components/team/AbilityMatchupDetails";
 import { AdvisorNextCandidateList } from "@/components/team/AdvisorNextCandidateList";
 import { AdvisorPhaseHeader } from "@/components/team/AdvisorPhaseHeader";
+import { useDeferredGoalBuilder } from "@/components/team/useDeferredGoalBuilder";
 import {
   useEffect,
   useRef,
@@ -143,6 +144,7 @@ export function TeamAdvisorSection({
             {!isComplete ? (
               <ProgressiveAdvisorRecommendations
                 analysis={progressive}
+                simulation={simulation}
                 team={team}
                 availablePokemon={availablePokemon}
                 onApplyCandidate={onApplyCandidate}
@@ -231,11 +233,13 @@ function AdvisorEmptyStart() {
 
 function ProgressiveAdvisorRecommendations({
   analysis,
+  simulation,
   team,
   availablePokemon,
   onApplyCandidate
 }: {
   analysis: ProgressiveTeamAdvisorAnalysis;
+  simulation: AdvisorSwapSimulation;
   team: TeamSlot[];
   availablePokemon: PokemonEntry[];
   onApplyCandidate: (plan: AdvisorSwapPlan) => void;
@@ -257,6 +261,12 @@ function ProgressiveAdvisorRecommendations({
     mode,
     selectedType
   );
+  const deferredGoalBuilder = useDeferredGoalBuilder({
+    active: mode === "future",
+    simulation,
+    phase: analysis.phase,
+    candidates
+  });
   return (
     <section
       className={styles.advisorContentBlock}
@@ -313,6 +323,8 @@ function ProgressiveAdvisorRecommendations({
           memberCount={analysis.memberCount}
           team={team}
           availablePokemon={availablePokemon}
+          goalBuilderPlans={deferredGoalBuilder.plans}
+          goalBuilderErrors={deferredGoalBuilder.errors}
           onApply={onApplyCandidate}
         />
       ) : (

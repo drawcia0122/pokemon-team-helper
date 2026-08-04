@@ -293,9 +293,19 @@ export function getProgressiveTeamAdvisor(
             : null
       })
     );
+  const overallCandidates = takeDisplayCandidates(
+    scored,
+    "overall",
+    memberCount
+  );
+  const hasPreparedGoalPlans = scored.some(
+    (candidate) => candidate.plan.goalBuilderPlan
+  );
   const candidatesByMode = {
-    overall: takeDisplayCandidates(scored, "overall", memberCount),
-    future: takeDisplayCandidates(scored, "future", memberCount),
+    overall: overallCandidates,
+    future: hasPreparedGoalPlans
+      ? takeDisplayCandidates(scored, "future", memberCount)
+      : overallCandidates,
     defensive: takeDisplayCandidates(scored, "defensive", memberCount),
     offensive: takeDisplayCandidates(scored, "offensive", memberCount),
     role: takeDisplayCandidates(scored, "role", memberCount)

@@ -8,7 +8,15 @@ import {
   buildAbilityEnvironmentDemand
 } from "@/lib/abilityDenialProfile";
 import { findBestDefensiveCore } from "@/lib/defensiveCoreEvaluation";
-import { buildGoalOrientedTeamBuilder } from "@/lib/goalOrientedTeamBuilder";
+import type { AdvisorBuildPhase } from "@/lib/advisorBuildPhase";
+import {
+  buildGoalOrientedCandidatePlan,
+  buildGoalOrientedTeamBuilder,
+  prepareGoalOrientedTeamBuilder,
+  type GoalOrientedTeamBuilderContext,
+  type GoalOrientedTeamBuilderInput
+} from "@/lib/goalOrientedTeamBuilder";
+import { GOAL_ORIENTED_TEAM_BUILDER_CONFIG } from "@/lib/goalOrientedTeamBuilderConfig";
 import { getMatchupVerdictContext } from "@/lib/matchupVerdictEngine";
 import {
   getAdvisorSwapSimulation,
@@ -34,14 +42,55 @@ import type { EnvironmentSnapshot } from "@/types/environmentData";
 import type { BattleValueCandidate } from "@/types/battleValue";
 import type { AbilityDenialCategory } from "@/types/matchupCore";
 import type {
+  GoalOrientedCandidatePlan,
   GoalOrientedTeamBuilderResult
 } from "@/types/goalOrientedTeamBuilder";
 import { getPokemonBySlug } from "@/lib/typeChart";
 
 const MAX_SIMULATION_CACHE_ENTRIES = 4;
+export const MAX_GOAL_BUILDER_CONTEXT_CACHE_ENTRIES = 4;
+export const MAX_GOAL_BUILDER_RESULT_CACHE_ENTRIES = 96;
 const simulationCache = new BoundedCache<string, AdvisorSwapSimulation>(
   MAX_SIMULATION_CACHE_ENTRIES
 );
+const goalBuilderContextCache = new BoundedCache<
+  string,
+  GoalOrientedTeamBuilderContext
+>(MAX_GOAL_BUILDER_CONTEXT_CACHE_ENTRIES);
+const goalBuilderResultCache = new BoundedCache<
+  string,
+  GoalOrientedCandidatePlan
+>(MAX_GOAL_BUILDER_RESULT_CACHE_ENTRIES);
+
+type DeferredGoalBuilderSource = {
+  contextKey: string;
+  input: GoalOrientedTeamBuilderInput;
+};
+
+function getDeferredGoalBuilderContextKey(
+  input: GoalOrientedTeamBuilderInput
+): string {
+  return JSON.stringify({
+    teamSignature: input.team.join(","),
+    regulation: input.environmentDataset.regulationId,
+    profile: input.profile,
+    datasetId: input.environmentDataset.snapshotId,
+    datasetChecksum: input.environmentDataset.metadata.checksum
+  });
+}
+
+const deferredGoalBuilderSources = new WeakMap<
+  AdvisorSwapSimulation,
+  DeferredGoalBuilderSource
+>();
+
+let goalBuilderComputationCount = 0;
+let goalBuilderCacheHitCount = 0;
+
+export type DeferredGoalBuilderCalculation = {
+  plan: GoalOrientedCandidatePlan | null;
+  cacheHit: boolean;
+};
 
 function round(value: number, digits = 3): number {
   const factor = 10 ** digits;
@@ -118,11 +167,13 @@ export function buildIntegratedRecommendationRuntime({
   environmentSnapshot =
     input.environmentDataset === null
       ? null
-      : battleValueEnvironmentSnapshot(input.environmentDataset)
+      : battleValueEnvironmentSnapshot(input.environmentDataset),
+  deferGoalBuilder = false
 }: {
   input: AdvisorSwapSimulationInput;
   baseline?: AdvisorSwapSimulation;
   environmentSnapshot?: EnvironmentSnapshot | null;
+  deferGoalBuilder?: boolean;
 }): IntegratedRecommendationRuntime | null {
   const dataset = input.environmentDataset;
   if (!dataset || !environmentSnapshot || baseline.evaluatedPlans.length === 0) {
@@ -459,32 +510,47 @@ export function buildIntegratedRecommendationRuntime({
       }
     } satisfies AdvisorSwapPlan;
   });
-  const goalBuilder = buildGoalOrientedTeamBuilder({
+  const goalBuilderInput: GoalOrientedTeamBuilderInput = {
     team,
     plans: integratedPlans,
     battleBySlug,
     semanticBySlug,
     environmentDataset: dataset,
     profile
-  });
-  const goalPlanBySlug = new Map(
-    goalBuilder.candidates.map((entry) => [
-      entry.candidateSlug,
-      entry
-    ])
-  );
-  const plannerPlans = integratedPlans.map((plan) => ({
-    ...plan,
-    goalBuilderPlan:
-      plan.action.kind === "add"
-        ? goalPlanBySlug.get(plan.candidate.pokemon.slug) ?? null
-        : null
-  }));
+  };
+  let goalBuilderValue: GoalOrientedTeamBuilderResult | null = null;
+  const getGoalBuilder = () => {
+    if (!goalBuilderValue) {
+      goalBuilderValue = buildGoalOrientedTeamBuilder(goalBuilderInput);
+    }
+    return goalBuilderValue;
+  };
+  const plannerPlans = deferGoalBuilder
+    ? integratedPlans
+    : (() => {
+        const goalPlanBySlug = new Map(
+          getGoalBuilder().candidates.map((entry) => [
+            entry.candidateSlug,
+            entry
+          ])
+        );
+        return integratedPlans.map((plan) => ({
+          ...plan,
+          goalBuilderPlan:
+            plan.action.kind === "add"
+              ? goalPlanBySlug.get(plan.candidate.pokemon.slug) ?? null
+              : null
+        }));
+      })();
   const simulation = rebuildAdvisorSwapSimulationWithPlans(
     baseline,
     plannerPlans,
     profile
   );
+  deferredGoalBuilderSources.set(simulation, {
+    contextKey: getDeferredGoalBuilderContextKey(goalBuilderInput),
+    input: goalBuilderInput
+  });
   return {
     simulation,
     baseline,
@@ -497,7 +563,9 @@ export function buildIntegratedRecommendationRuntime({
     recommendationWeight,
     battleValueWeight,
     contestabilityWeight,
-    goalBuilder
+    get goalBuilder() {
+      return getGoalBuilder();
+    }
   };
 }
 
@@ -519,6 +587,100 @@ export function getRecommendationRuntimeCacheKey(
   });
 }
 
+function getGoalBuilderResultCacheKey({
+  source,
+  candidateSlug,
+  phase
+}: {
+  source: DeferredGoalBuilderSource;
+  candidateSlug: string;
+  phase: AdvisorBuildPhase;
+}): string {
+  return `${source.contextKey}|phase=${phase}|candidate=${candidateSlug}|goalBuilder=${GOAL_ORIENTED_TEAM_BUILDER_CONFIG.schemaVersion}`;
+}
+
+export function readDeferredGoalBuilderPlan({
+  simulation,
+  candidateSlug,
+  phase
+}: {
+  simulation: AdvisorSwapSimulation;
+  candidateSlug: string;
+  phase: AdvisorBuildPhase;
+}): GoalOrientedCandidatePlan | null {
+  const source = deferredGoalBuilderSources.get(simulation);
+  if (!source) return null;
+  return (
+    goalBuilderResultCache.get(
+      getGoalBuilderResultCacheKey({ source, candidateSlug, phase })
+    ) ?? null
+  );
+}
+
+export function getDeferredGoalBuilderScopeKey(
+  simulation: AdvisorSwapSimulation
+): string | null {
+  return deferredGoalBuilderSources.get(simulation)?.contextKey ?? null;
+}
+
+export function calculateDeferredGoalBuilderPlan({
+  simulation,
+  candidateSlug,
+  phase
+}: {
+  simulation: AdvisorSwapSimulation;
+  candidateSlug: string;
+  phase: AdvisorBuildPhase;
+}): DeferredGoalBuilderCalculation {
+  const source = deferredGoalBuilderSources.get(simulation);
+  if (!source) return { plan: null, cacheHit: false };
+  const resultKey = getGoalBuilderResultCacheKey({
+    source,
+    candidateSlug,
+    phase
+  });
+  const cached = goalBuilderResultCache.get(resultKey);
+  if (cached) {
+    goalBuilderCacheHitCount += 1;
+    return { plan: cached, cacheHit: true };
+  }
+  let context = goalBuilderContextCache.get(source.contextKey);
+  if (!context) {
+    context = prepareGoalOrientedTeamBuilder(source.input);
+    goalBuilderContextCache.set(source.contextKey, context);
+  }
+  const plan = buildGoalOrientedCandidatePlan({
+    context,
+    candidateSlug
+  });
+  if (plan) {
+    goalBuilderResultCache.set(resultKey, plan);
+    goalBuilderComputationCount += 1;
+  }
+  return { plan, cacheHit: false };
+}
+
+export function getDeferredGoalBuilderCacheMetrics(): {
+  computations: number;
+  cacheHits: number;
+  contextEntries: number;
+  resultEntries: number;
+} {
+  return {
+    computations: goalBuilderComputationCount,
+    cacheHits: goalBuilderCacheHitCount,
+    contextEntries: goalBuilderContextCache.size,
+    resultEntries: goalBuilderResultCache.size
+  };
+}
+
+export function resetDeferredGoalBuilderCacheForTests(): void {
+  goalBuilderContextCache.clear();
+  goalBuilderResultCache.clear();
+  goalBuilderComputationCount = 0;
+  goalBuilderCacheHitCount = 0;
+}
+
 export function getIntegratedAdvisorSwapSimulation(
   input: AdvisorSwapSimulationInput
 ): AdvisorSwapSimulation {
@@ -530,7 +692,11 @@ export function getIntegratedAdvisorSwapSimulation(
     }
   }
   const baseline = getAdvisorSwapSimulation(input);
-  const runtime = buildIntegratedRecommendationRuntime({ input, baseline });
+  const runtime = buildIntegratedRecommendationRuntime({
+    input,
+    baseline,
+    deferGoalBuilder: true
+  });
   const simulation = runtime?.simulation ?? baseline;
   if (key) simulationCache.set(key, simulation);
   return simulation;
