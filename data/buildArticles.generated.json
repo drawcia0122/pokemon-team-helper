@@ -3226,5 +3226,64 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-02T06:46:55.230Z"
+  },
+  {
+    "id": "note-n008d4b86860f",
+    "source": "note",
+    "sourceArticleId": "n008d4b86860f",
+    "sourceUrl": "https://note.com/kaito_fountain/n/n008d4b86860f",
+    "canonicalUrl": "https://note.com/kaito_fountain/n/n008d4b86860f",
+    "title": "M-Bダブル 壁ロンゲガルジュラス",
+    "authorName": "カイト",
+    "publishedAt": "2026-08-04T15:10:17.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": "最終レート1901.178",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "ダブルバトル",
+      "ポケモンチャンピオンズ",
+      "M-3",
+      "double"
+    ],
+    "summary": "M-3のダブル構築記事です。最終レート1901.178。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/300481305/rectangle_large_type_2_c911ccaa07c3a88a8ba73474db002599.jpg",
+      "source": "structured-data",
+      "alt": "M-Bダブル 壁ロンゲガルジュラスのサムネイル",
+      "width": 5760,
+      "height": 3011
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-too-many-7",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0.79,
+      "overallConfidence": 0.862
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 6,
+      "alias": 1,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-04T17:04:41.922Z",
+    "lastCollectedAt": "2026-08-04T17:04:41.922Z",
+    "contentFingerprint": "bee49b88e41dd95d35c29941db72b3f57193aeeab21dfdba2257e1be0d5d0dd2",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-04T17:04:41.922Z"
   }
 ]
