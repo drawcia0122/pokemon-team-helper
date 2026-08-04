@@ -9,13 +9,14 @@
 .kindFilters { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
 .kindFilters button { min-height: 36px; padding: 7px 12px; border: 1px solid #bfd5c6; border-radius: 999px; background: #f7fbf8; color: #355b45; cursor: pointer; font-size: .78rem; font-weight: 800; }
 .kindFilters button[aria-pressed="true"] { border-color: #176f42; background: #176f42; color: #fff; box-shadow: 0 4px 11px rgba(23,111,66,.18); }
-.kindFilters button:focus-visible,.reset:focus-visible,.pokemon button:focus-visible,.tags button:focus-visible,.cardBody > a:focus-visible { outline: 3px solid rgba(22,129,77,.3); outline-offset: 2px; }
+.kindFilters button:focus-visible,.reset:focus-visible,.pokemon button:focus-visible,.newsTags button:focus-visible,.cardBody > a:focus-visible { outline: 3px solid rgba(22,129,77,.3); outline-offset: 2px; }
 .filters { display: grid; grid-template-columns: minmax(260px,2fr) minmax(150px,1fr) auto; align-items: end; gap: 10px; }
 .filters label { display: grid; gap: 6px; min-width: 0; color: #53665a; font-size: .75rem; font-weight: 800; }
 .filters input,.filters select { width: 100%; min-width: 0; min-height: 42px; padding: 9px 11px; border: 1px solid #bed2c4; border-radius: 10px; outline: none; background: #fbfefc; color: #183126; }
 .filters input:focus,.filters select:focus { border-color: #16814d; box-shadow: 0 0 0 3px rgba(22,129,77,.16); }
 .reset { min-height: 42px; padding: 9px 12px; border: 1px solid #b7cdbf; border-radius: 10px; background: #fff; color: #286044; cursor: pointer; font-weight: 800; }
 .priority { display: grid; gap: 12px; padding: 18px; border: 1px solid #eed58a; border-radius: 20px; background: #fff9e6; }
+.scheduleSection { display: grid; gap: 12px; padding: 18px; border: 1px solid #bcd7e9; border-radius: 20px; background: #f3f9fd; }
 .sectionHeading > div > span { color: #a86400; font-size: .68rem; font-weight: 900; letter-spacing: .12em; }
 .priorityGrid,.grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; min-width: 0; }
 .card { display: grid; grid-template-columns: 110px minmax(0,1fr); min-width: 0; overflow: hidden; border-radius: 18px; }
@@ -27,12 +28,13 @@
 .cardVisual[data-kind="goods"] { background: #fff3cf; color: #8a5a00; }
 .cardVisual[data-kind="campaign"] { background: #fff0df; color: #9a5410; }
 .cardVisual > span:not([class]) { display: grid; width: 68px; height: 68px; place-items: center; border-radius: 50%; background: rgba(255,255,255,.65); font-size: 1rem; font-weight: 900; }
+.articleImage { width: 82px; height: 82px; border-radius: 13px; object-fit: cover; background: rgba(255,255,255,.7); }
 .cardVisual > strong { font-size: .7rem; text-align: center; }
 .cardBody { display: flex; flex-direction: column; min-width: 0; padding: 17px; }
-.meta,.statuses,.pokemon,.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.meta,.statuses,.pokemon,.newsTags { display: flex; flex-wrap: wrap; gap: 6px; }
 .meta { color: #67766d; font-size: .7rem; }
 .meta span,.meta time { padding: 4px 7px; border-radius: 999px; background: #edf3ef; }
-.meta .kind { color: #22658e; background: #e7f2fa; font-weight: 850; }
+.meta .official { color: #22658e; background: #e7f2fa; font-weight: 850; }
 .statuses { margin: 9px 0; }
 .status,.deadline,.ended { padding: 5px 8px; border-radius: 8px; font-size: .72rem; }
 .status { color: #17623b; background: #e8f5ec; }
@@ -46,11 +48,11 @@
 .endedCard .schedule div { background: #ecefed; }
 .schedule dt { color: #6b796f; font-size: .64rem; }
 .schedule dd { margin: 2px 0 0; overflow-wrap: anywhere; font-size: .73rem; font-weight: 800; }
-.pokemon button,.tags button { padding: 5px 8px; border-radius: 999px; cursor: pointer; font-size: .7rem; }
+.pokemon button,.newsTags button { max-width: 100%; padding: 5px 8px; overflow-wrap: anywhere; border-radius: 999px; cursor: pointer; font-size: .7rem; }
 .pokemon button { display: inline-flex; align-items: center; gap: 5px; border: 1px solid #c4dbc9; background: #f2faf4; color: #255f3e; }
 .pokemon button > span:first-child { width: 24px; height: 24px; flex-basis: 24px; font-size: .55rem; }
-.tags { margin: 7px 0 12px; }
-.tags button { border: 0; background: transparent; color: #337252; }
+.newsTags { margin: 7px 0 12px; }
+.newsTags button { border: 1px solid #d5e3d9; background: #f7fbf8; color: #337252; }
 .cardBody > a { align-self: flex-start; margin-top: auto; padding: 8px 11px; border-radius: 8px; background: #2771a9; color: #fff; font-size: .76rem; font-weight: 850; text-decoration: none; }
 .cardBody > a:hover { background: #1d5c8b; }
 .empty { padding: 50px 20px; border-radius: 18px; text-align: center; }
@@ -64,8 +66,10 @@
   .heading,.sectionHeading { align-items: flex-start; flex-direction: column; gap: 3px; }
   .filters { grid-template-columns: 1fr; }
   .priority { padding: 12px; border-radius: 16px; }
+  .scheduleSection { padding: 12px; border-radius: 16px; }
   .card { grid-template-columns: 80px minmax(0,1fr); border-radius: 15px; }
   .cardVisual { padding: 12px 5px; }
+  .articleImage { width: 62px; height: 62px; border-radius: 10px; }
   .cardVisual > strong { font-size: .62rem; }
   .cardBody { padding: 14px 12px; }
   .schedule { grid-template-columns: 1fr; }

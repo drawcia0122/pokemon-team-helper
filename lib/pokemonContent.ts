@@ -3,9 +3,11 @@ import manualContentData from "@/data/pokemonContent.manual.json";
 import pokemonData from "@/data/pokemon.json";
 import type {
   GeneratedPokemonContentItem,
-  PokemonContentItem
+  PokemonContentItem,
+  PokemonNewsArticle
 } from "@/types/pokemonContent";
 import type { PokemonEntry } from "@/types/pokemon";
+import { buildPokemonNewsFeed } from "@/lib/pokemonNews";
 
 const manualItems = manualContentData as PokemonContentItem[];
 const generatedItems = generatedContentData as GeneratedPokemonContentItem[];
@@ -45,8 +47,8 @@ export function mergePokemonContent(
   );
 }
 
-export function getPokemonContent(): PokemonContentItem[] {
-  return mergePokemonContent(manualItems, generatedItems);
+export function getPokemonContent(): PokemonNewsArticle[] {
+  return buildPokemonNewsFeed(mergePokemonContent(manualItems, generatedItems)).articles;
 }
 
 export function getContentPokemonLabels(): Record<string, string> {

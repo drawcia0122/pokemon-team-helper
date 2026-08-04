@@ -4,6 +4,26 @@ import type {
 } from "@/types/pokemonContent";
 
 const kinds = new Set(["news", "goods", "event", "campaign", "game-update"]);
+const categories = new Set([
+  "goods",
+  "game",
+  "event",
+  "card",
+  "anime-video",
+  "collaboration",
+  "competition"
+]);
+const gameTitles = new Set([
+  "ポケモン本編",
+  "Pokémon LEGENDS",
+  "Pokémon Champions",
+  "Pokémon GO",
+  "Pokémon UNITE",
+  "Pokémon Sleep",
+  "Pokémon Masters EX",
+  "ポケポケ",
+  "その他ゲーム"
+]);
 const dateKeys = [
   "publishedAt",
   "releaseDate",
@@ -99,6 +119,47 @@ export function validatePokemonContent(
       errors.push(`${context}: tags が不正です`);
     } else if (new Set(item.tags).size !== item.tags.length) {
       errors.push(`${context}: tags が重複しています`);
+    }
+    if (
+      item.categories !== undefined &&
+      (!Array.isArray(item.categories) ||
+        item.categories.length === 0 ||
+        item.categories.some((category) => !categories.has(category)) ||
+        new Set(item.categories).size !== item.categories.length)
+    ) {
+      errors.push(`${context}: categories が不正です`);
+    }
+    if (
+      item.gameTitles !== undefined &&
+      (!Array.isArray(item.gameTitles) ||
+        item.gameTitles.some((title) => !gameTitles.has(title)) ||
+        new Set(item.gameTitles).size !== item.gameTitles.length)
+    ) {
+      errors.push(`${context}: gameTitles が不正です`);
+    }
+    if (item.official !== undefined && typeof item.official !== "boolean") {
+      errors.push(`${context}: official が不正です`);
+    }
+    if (
+      item.importance !== undefined &&
+      (typeof item.importance !== "number" ||
+        !Number.isFinite(item.importance) ||
+        item.importance < 0 ||
+        item.importance > 100)
+    ) {
+      errors.push(`${context}: importance が不正です`);
+    }
+    for (const key of [
+      "imageUrl",
+      "thumbnailUrl",
+      "thumbnail",
+      "image",
+      "ogImage",
+      "twitterImage"
+    ] as const) {
+      if (item[key] !== undefined && !httpsUrl(item[key])) {
+        errors.push(`${context}: ${key} が不正です`);
+      }
     }
     if (item.priceLabel && !/^\d{1,3}(?:,\d{3})*円(?:（税込）)?$/.test(item.priceLabel)) {
       errors.push(`${context}: 価格形式が不正です`);

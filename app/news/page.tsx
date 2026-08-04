@@ -9,8 +9,8 @@ import {
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "ポケモンニュース・グッズ・イベント",
-  description: "ポケモン関連のニュース、グッズ、イベント、キャンペーン、ゲームアップデートを検索できます。"
+  title: "ポケモンニュース",
+  description: "公式情報を中心に、ポケモンのグッズ、ゲーム、イベント、カード、映像、コラボ、大会情報をまとめています。"
 };
 
 function todayInJapan(): string {
@@ -31,12 +31,12 @@ export default function NewsPage() {
       <section className={styles.hero}>
         <div className={styles.heroHeading}>
           <div>
-            <p className={styles.eyebrow}>POKÉMON INFORMATION INDEX</p>
-            <h1>ニュース・グッズ・イベント</h1>
+            <p className={styles.eyebrow}>POKÉMON NEWS</p>
+            <h1>ポケモンニュース</h1>
           </div>
           <strong>{items.length}件の情報</strong>
         </div>
-        <p>公式サイトなど出典が明確な情報を、日程と関連ポケモンから探せる形で整理しています。</p>
+        <p>グッズ、ゲーム、イベント、カード、映像、コラボ、大会の公式情報を、複数タグと日程で探せます。</p>
         <aside>
           このページは非公式です。情報の正確性や在庫を保証しません。
           購入・応募・参加前に、必ず元ページで最新条件をご確認ください。

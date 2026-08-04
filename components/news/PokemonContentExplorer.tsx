@@ -4,16 +4,14 @@ import { useEffect, useMemo, useState } from "react";
 import { PokemonVisual } from "@/components/pokemon/PokemonVisual";
 import { getContentStatuses } from "@/lib/contentStatus";
 import { formatJapaneseDate } from "@/lib/dateFormat";
-import type { ContentKind, ContentStatus, PokemonContentItem } from "@/types/pokemonContent";
+import { POKEMON_NEWS_CATEGORY_LABELS } from "@/lib/pokemonNews";
+import type {
+  ContentStatus,
+  PokemonNewsArticle,
+  PokemonNewsCategory
+} from "@/types/pokemonContent";
 import styles from "./PokemonContentExplorer.module.css";
 
-const kindLabels: Record<ContentKind, string> = {
-  news: "ニュース",
-  goods: "グッズ",
-  event: "イベント",
-  campaign: "キャンペーン",
-  "game-update": "ゲームアップデート"
-};
 const statusLabels: Record<ContentStatus, string> = {
   "preorder-before": "予約受付前",
   "preorder-open": "予約受付中",
@@ -28,6 +26,7 @@ const statusLabels: Record<ContentStatus, string> = {
 const priorityStatuses: ContentStatus[] = [
   "deadline-soon",
   "event-ongoing",
+  "event-upcoming",
   "release-upcoming"
 ];
 
@@ -45,13 +44,13 @@ export function PokemonContentExplorer({
   pokemonLabels,
   today
 }: {
-  items: PokemonContentItem[];
+  items: PokemonNewsArticle[];
   pokemonIds: Record<string, number>;
   pokemonLabels: Record<string, string>;
   today: string;
 }) {
   const [query, setQuery] = useState("");
-  const [kind, setKind] = useState<"all" | ContentKind>("all");
+  const [category, setCategory] = useState<"all" | PokemonNewsCategory>("all");
   const [tag, setTag] = useState("all");
   const [effectiveToday, setEffectiveToday] = useState(today);
 
@@ -66,40 +65,59 @@ export function PokemonContentExplorer({
     );
   }, []);
 
-  const tags = useMemo(() => [...new Set(items.flatMap((item) => item.tags))].sort(), [items]);
+  const tags = useMemo(
+    () => [...new Set(items.flatMap((item) => [...item.gameTitles, ...item.tags]))].sort(),
+    [items]
+  );
   const filtered = useMemo(() => {
     const q = normalize(query);
     return items.filter((item) => {
-      if (kind !== "all" && item.kind !== kind) return false;
-      if (tag !== "all" && !item.tags.includes(tag)) return false;
+      if (category !== "all" && !item.categories.includes(category)) return false;
+      if (
+        tag !== "all" &&
+        !item.tags.includes(tag) &&
+        !item.gameTitles.some((value) => value === tag)
+      ) return false;
       if (!q) return true;
       return normalize([
         item.title,
         item.summary,
         item.sourceName,
         item.targetGame ?? "",
+        ...item.categories.map((value) => POKEMON_NEWS_CATEGORY_LABELS[value]),
+        ...item.gameTitles,
         ...item.tags,
         ...item.pokemonSlugs.flatMap((slug) => [slug, pokemonLabels[slug] ?? ""])
       ].join(" ")).includes(q);
     });
-  }, [items, kind, pokemonLabels, query, tag]);
+  }, [category, items, pokemonLabels, query, tag]);
 
-  const priorityItems = filtered.filter((item) =>
+  const featuredItems = filtered.filter((item) => item.importance >= 75).slice(0, 4);
+  const featuredIds = new Set(featuredItems.map((item) => item.id));
+  const scheduleItems = filtered.filter((item) =>
+    !featuredIds.has(item.id) &&
     getContentStatuses(item, effectiveToday).some((status) => priorityStatuses.includes(status))
   ).slice(0, 5);
-  const priorityIds = new Set(priorityItems.map((item) => item.id));
-  const regularItems = filtered.filter((item) => !priorityIds.has(item.id));
+  const promotedIds = new Set([...featuredIds, ...scheduleItems.map((item) => item.id)]);
+  const regularItems = filtered.filter((item) => !promotedIds.has(item.id));
 
   const reset = () => {
     setQuery("");
-    setKind("all");
+    setCategory("all");
     setTag("all");
   };
 
-  function renderCard(item: PokemonContentItem, featured = false) {
+  function renderCard(item: PokemonNewsArticle, featured = false) {
     const statuses = getContentStatuses(item, effectiveToday);
     const ended = isEnded(statuses);
     const firstPokemon = item.pokemonSlugs[0];
+    const primaryCategory = item.categories[0];
+    const visibleCategoryTags = item.categories.slice(0, 4);
+    const remainingTagSlots = Math.max(0, 4 - visibleCategoryTags.length);
+    const visibleDetailTags = [...new Set([...item.gameTitles, ...item.tags])].slice(
+      0,
+      remainingTagSlots
+    );
 
     return (
       <article
@@ -107,7 +125,11 @@ export function PokemonContentExplorer({
         key={item.id}
       >
         <div className={styles.cardVisual} data-kind={item.kind}>
-          {firstPokemon ? (
+          {item.imageUrl ? (
+            // The feed is static and may contain official remote images; fallback content remains available.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className={styles.articleImage} src={item.imageUrl} alt="" loading="lazy" />
+          ) : firstPokemon ? (
             <PokemonVisual
               name={pokemonLabels[firstPokemon] ?? firstPokemon}
               slug={firstPokemon}
@@ -115,13 +137,13 @@ export function PokemonContentExplorer({
               size="large"
             />
           ) : (
-            <span aria-hidden="true">{kindLabels[item.kind].slice(0, 2)}</span>
+            <span aria-hidden="true">{POKEMON_NEWS_CATEGORY_LABELS[primaryCategory].slice(0, 2)}</span>
           )}
-          <strong>{kindLabels[item.kind]}</strong>
+          <strong>{POKEMON_NEWS_CATEGORY_LABELS[primaryCategory]}</strong>
         </div>
         <div className={styles.cardBody}>
           <div className={styles.meta}>
-            <span className={styles.kind}>{kindLabels[item.kind]}</span>
+            {item.official ? <span className={styles.official}>公式</span> : null}
             <span>{item.sourceName}</span>
             <time dateTime={item.publishedAt}>公開 {formatJapaneseDate(item.publishedAt)}</time>
           </div>
@@ -149,7 +171,8 @@ export function PokemonContentExplorer({
             {item.preorderDeadlineDate ? <div><dt>予約締切</dt><dd>{formatJapaneseDate(item.preorderDeadlineDate)}</dd></div> : null}
             {item.eventStartDate && item.eventEndDate ? <div><dt>開催期間</dt><dd>{formatJapaneseDate(item.eventStartDate)}〜{formatJapaneseDate(item.eventEndDate)}</dd></div> : null}
             {item.priceLabel ? <div><dt>価格</dt><dd>{item.priceLabel}</dd></div> : null}
-            {item.salesLocation ? <div><dt>場所</dt><dd>{item.salesLocation}</dd></div> : null}
+            {item.salesLocation || item.location ? <div><dt>場所</dt><dd>{item.salesLocation ?? item.location}</dd></div> : null}
+            {item.isOnline ? <div><dt>開催形式</dt><dd>オンライン</dd></div> : null}
             {item.targetGame ? <div><dt>対象</dt><dd>{item.targetGame}{item.platforms?.length ? ` / ${item.platforms.join("・")}` : ""}</dd></div> : null}
           </dl>
           {item.pokemonSlugs.length ? (
@@ -167,12 +190,17 @@ export function PokemonContentExplorer({
               ))}
             </div>
           ) : null}
-          <div className={styles.tags}>
-            {item.tags.map((value) => (
+          <div className={styles.newsTags} aria-label="記事の分類">
+            {visibleCategoryTags.map((value) => (
+              <button type="button" key={value} onClick={() => setCategory(value)}>
+                {POKEMON_NEWS_CATEGORY_LABELS[value]}
+              </button>
+            ))}
+            {visibleDetailTags.map((value) => (
               <button type="button" key={value} onClick={() => setTag(value)}>#{value}</button>
             ))}
           </div>
-          <a href={item.url} target="_blank" rel="noreferrer">元ページを確認 <span aria-hidden="true">↗</span></a>
+          <a href={item.sourceUrl} target="_blank" rel="noreferrer">元ページを確認 <span aria-hidden="true">↗</span></a>
         </div>
       </article>
     );
@@ -182,17 +210,17 @@ export function PokemonContentExplorer({
     <section className={styles.explorer} aria-labelledby="content-list-heading">
       <div className={styles.toolbar}>
         <div className={styles.heading}>
-          <h2 id="content-list-heading">情報を探す</h2>
+          <h2 id="content-list-heading">ポケモンニュースを探す</h2>
           <p aria-live="polite">{filtered.length}件を表示中</p>
         </div>
-        <div className={styles.kindFilters} aria-label="種類で絞り込む">
-          <button type="button" aria-pressed={kind === "all"} onClick={() => setKind("all")}>すべて</button>
-          {Object.entries(kindLabels).map(([value, label]) => (
+        <div className={styles.kindFilters} aria-label="カテゴリで絞り込む">
+          <button type="button" aria-pressed={category === "all"} onClick={() => setCategory("all")}>すべて</button>
+          {Object.entries(POKEMON_NEWS_CATEGORY_LABELS).map(([value, label]) => (
             <button
               type="button"
-              aria-pressed={kind === value}
+              aria-pressed={category === value}
               key={value}
-              onClick={() => setKind(value as ContentKind)}
+              onClick={() => setCategory(value as PokemonNewsCategory)}
             >
               {label}
             </button>
@@ -216,22 +244,34 @@ export function PokemonContentExplorer({
 
       {filtered.length ? (
         <>
-          {priorityItems.length ? (
+          {featuredItems.length ? (
             <section className={styles.priority} aria-labelledby="priority-heading">
               <div className={styles.sectionHeading}>
                 <div>
                   <span>CHECK NOW</span>
-                  <h2 id="priority-heading">注目の情報</h2>
+                  <h2 id="priority-heading">注目ニュース</h2>
                 </div>
-                <p>締切間近・開催中・発売予定</p>
+                <p>新作・大型イベント・重要なお知らせ</p>
               </div>
-              <div className={styles.priorityGrid}>{priorityItems.map((item) => renderCard(item, true))}</div>
+              <div className={styles.priorityGrid}>{featuredItems.map((item) => renderCard(item, true))}</div>
+            </section>
+          ) : null}
+          {scheduleItems.length ? (
+            <section className={styles.scheduleSection} aria-labelledby="schedule-heading">
+              <div className={styles.sectionHeading}>
+                <div>
+                  <span>COMING SOON</span>
+                  <h2 id="schedule-heading">まもなく開始・終了</h2>
+                </div>
+                <p>発売・予約・イベントの日程</p>
+              </div>
+              <div className={styles.grid}>{scheduleItems.map((item) => renderCard(item))}</div>
             </section>
           ) : null}
           {regularItems.length ? (
             <section aria-labelledby="all-content-heading">
               <div className={styles.sectionHeading}>
-                <h2 id="all-content-heading">新着・その他の情報</h2>
+                <h2 id="all-content-heading">新着ニュース</h2>
               </div>
               <div className={styles.grid}>{regularItems.map((item) => renderCard(item))}</div>
             </section>

@@ -5,6 +5,11 @@ import type {
   GeneratedPokemonContentItem
 } from "../../types/pokemonContent";
 import { CONTENT_COLLECTOR_VERSION } from "./types";
+import {
+  classifyPokemonNews,
+  extractReliablePokemonNewsDates,
+  inferPokemonNewsImportance
+} from "../../lib/pokemonNews";
 
 export type PokemonGoFeedCandidate = {
   sourceArticleId: string;
@@ -150,7 +155,9 @@ function tagsFor(kind: ContentKind, title: string): string[] {
 export function contentFingerprint(
   item: Pick<
     GeneratedPokemonContentItem,
-    "kind" | "title" | "summary" | "url" | "publishedAt" | "pokemonSlugs" | "tags"
+    "kind" | "title" | "summary" | "url" | "publishedAt" | "pokemonSlugs" | "tags" |
+      "categories" | "gameTitles" | "official" | "importance" | "releaseDate" |
+      "preorderStartDate" | "preorderDeadlineDate" | "eventStartDate" | "eventEndDate"
   >
 ): string {
   const normalized = {
@@ -160,7 +167,16 @@ export function contentFingerprint(
     url: item.url,
     publishedAt: item.publishedAt,
     pokemonSlugs: item.pokemonSlugs,
-    tags: item.tags
+    tags: item.tags,
+    categories: item.categories,
+    gameTitles: item.gameTitles,
+    official: item.official,
+    importance: item.importance,
+    releaseDate: item.releaseDate,
+    preorderStartDate: item.preorderStartDate,
+    preorderDeadlineDate: item.preorderDeadlineDate,
+    eventStartDate: item.eventStartDate,
+    eventEndDate: item.eventEndDate
   };
   return createHash("sha256")
     .update(JSON.stringify(normalized))
@@ -174,25 +190,35 @@ export function createPokemonGoContentItem(input: {
   existing?: GeneratedPokemonContentItem;
 }): { item: GeneratedPokemonContentItem; change: "new" | "updated" | "unchanged" } {
   const kind = classify(input.candidate.title);
-  const base = {
+  const summary =
+    "Pokémon GO公式RSSで案内された情報です。内容と最新の日程は元ページでご確認ください。";
+  const draft = {
+    id: input.existing?.id ?? `pokemon-go-${input.candidate.sourceArticleId}`,
     kind,
     title: input.candidate.title,
-    summary:
-      "Pokémon GO公式RSSで案内された情報です。内容と最新の日程は元ページでご確認ください。",
+    summary,
     sourceName: "Pokémon GO公式",
     url: input.candidate.canonicalUrl,
     publishedAt: input.candidate.publishedAt,
     pokemonSlugs: exactPokemonSlugs(input.candidate.title, input.pokemon),
     tags: tagsFor(kind, input.candidate.title),
     targetGame: "Pokémon GO",
-    platforms: ["iOS", "Android"]
+    platforms: ["iOS", "Android"],
+    official: true,
+    ...extractReliablePokemonNewsDates(input.candidate.title, summary)
+  };
+  const classification = classifyPokemonNews(draft);
+  const base = {
+    ...draft,
+    categories: classification.categories,
+    gameTitles: classification.gameTitles,
+    importance: inferPokemonNewsImportance(draft, classification.categories)
   };
   const fingerprint = contentFingerprint(base);
   if (input.existing?.contentFingerprint === fingerprint) {
     return { item: input.existing, change: "unchanged" };
   }
   const item: GeneratedPokemonContentItem = {
-    id: input.existing?.id ?? `pokemon-go-${input.candidate.sourceArticleId}`,
     ...base,
     source: "pokemon-go-official-rss",
     sourceArticleId: input.candidate.sourceArticleId,

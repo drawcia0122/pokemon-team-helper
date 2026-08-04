@@ -57,6 +57,9 @@ jobs:
           fi
           npm run collect:content -- "${collector_args[@]}"
 
+      - name: Report Pokémon news quality
+        run: npm run analyze:pokemon-news
+
       - name: Validate application
         run: npm run check
 
