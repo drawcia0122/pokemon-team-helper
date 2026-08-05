@@ -3403,5 +3403,67 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-05T04:31:35.935Z"
+  },
+  {
+    "id": "note-n22d3ccea6a69",
+    "source": "note",
+    "sourceArticleId": "n22d3ccea6a69",
+    "sourceUrl": "https://note.com/s_s_p_y/n/n22d3ccea6a69",
+    "canonicalUrl": "https://note.com/s_s_p_y/n/n22d3ccea6a69",
+    "title": "ポケチャンシーズンM-4結果",
+    "authorName": "しんぺー",
+    "publishedAt": "2026-08-05T09:50:24.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "ニンフィア",
+      "Nintendo_Switch",
+      "ポケモン対戦",
+      "ポケチャン",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/300697924/rectangle_large_type_2_7501f5d2e97ba8fc3cac44d576552e44.png",
+      "source": "structured-data",
+      "alt": "ポケチャンシーズンM-4結果のサムネイル",
+      "width": 5070,
+      "height": 2658
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.6,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.62
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-05T10:16:42.091Z",
+    "lastCollectedAt": "2026-08-05T10:16:42.091Z",
+    "contentFingerprint": "a40ee6a790927eb584ac7edb1dc9e22861acd8fa5b49be044e7c5e1294dabfe5",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-05T10:16:42.091Z"
   }
 ]
