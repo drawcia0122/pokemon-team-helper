@@ -5,6 +5,7 @@ import type {
   GeneratedPokemonContentItem,
   PokemonContentSource,
   PokemonNewsContentType,
+  PokemonNewsImageSource,
   PokemonNewsSourceId
 } from "../../types/pokemonContent";
 import {
@@ -29,6 +30,9 @@ export type MediaFeedCandidate = {
   summary: string;
   publishedAt: string;
   imageUrl?: string;
+  imageSource?: Extract<PokemonNewsImageSource, "rss" | "api">;
+  imageWidth?: number;
+  imageHeight?: number;
   sourceName: string;
   sourceId: Extract<PokemonNewsSourceId, "4gamer-rss" | "inside-rss" | "gnews-api">;
   matchedQuery?: string;
@@ -109,18 +113,30 @@ function withinCollectionWindow(value: string, now: Date): boolean {
   return age >= -1 && age <= POKEMON_NEWS_COLLECTION_WINDOW_DAYS;
 }
 
-function feedImage(xml: string): string | undefined {
-  const candidate =
-    attributeValue(xml, "media:content", "url") ??
-    attributeValue(xml, "media:thumbnail", "url") ??
-    attributeValue(xml, "enclosure", "url");
-  if (!candidate) return undefined;
-  try {
-    const url = new URL(candidate);
-    return url.protocol === "https:" ? url.toString() : undefined;
-  } catch {
-    return undefined;
+function numericAttribute(xml: string, tag: string, attribute: string): number | undefined {
+  const value = attributeValue(xml, tag, attribute);
+  if (!value || !/^\d+$/.test(value)) return undefined;
+  const number = Number(value);
+  return Number.isSafeInteger(number) && number > 0 ? number : undefined;
+}
+
+function feedImage(xml: string): { url: string; width?: number; height?: number } | undefined {
+  for (const tag of ["media:content", "media:thumbnail", "enclosure"]) {
+    const candidate = attributeValue(xml, tag, "url");
+    if (!candidate) continue;
+    try {
+      const url = new URL(candidate);
+      if (url.protocol !== "https:") continue;
+      return {
+        url: url.toString(),
+        width: numericAttribute(xml, tag, "width"),
+        height: numericAttribute(xml, tag, "height")
+      };
+    } catch {
+      continue;
+    }
   }
+  return undefined;
 }
 
 export function parseMediaRss(
@@ -180,13 +196,17 @@ export function parseMediaRss(
       excludedReasons.push("pokemon-relevance-below-threshold");
       continue;
     }
+    const image = feedImage(itemXml);
     candidates.push({
       sourceArticleId: candidateId(canonicalUrl),
       canonicalUrl,
       title: title.slice(0, 200),
       summary: description.slice(0, 160),
       publishedAt,
-      imageUrl: feedImage(itemXml),
+      imageUrl: image?.url,
+      imageSource: image ? "rss" : undefined,
+      imageWidth: image?.width,
+      imageHeight: image?.height,
       sourceName: options.sourceName,
       sourceId: options.sourceId,
       relevanceScore: relevance.score,
@@ -267,12 +287,23 @@ export function parseGNewsResponse(
       excludedReasons.push("pokemon-relevance-below-threshold");
       continue;
     }
+    let apiImage: string | undefined;
+    if (typeof article.image === "string") {
+      try {
+        const imageUrl = new URL(article.image);
+        if (imageUrl.protocol === "https:") apiImage = imageUrl.toString();
+      } catch {
+        // Invalid API images are ignored without excluding the article.
+      }
+    }
     candidates.push({
       sourceArticleId: candidateId(canonicalUrl),
       canonicalUrl,
       title: article.title.slice(0, 200),
       summary: textValue(article.description).slice(0, 160),
       publishedAt,
+      imageUrl: apiImage,
+      imageSource: apiImage ? "api" : undefined,
       sourceName,
       sourceId: "gnews-api",
       matchedQuery,
@@ -321,6 +352,10 @@ export function createMediaContentItem(input: {
   const source = POKEMON_NEWS_SOURCE_REGISTRY[input.candidate.sourceId];
   const fallbackSummary = `${source.name}の公開${source.sourceType === "rss" ? "RSS" : "API"}に掲載された記事です。続きは元記事でご確認ください。`;
   const summary = input.candidate.summary || fallbackSummary;
+  const extractedPokemonSlugs = exactPokemonSlugs(
+    `${input.candidate.title} ${summary}`,
+    input.pokemon
+  );
   const draft = {
     id: input.existing?.id ?? `${input.candidate.sourceId}-${input.candidate.sourceArticleId}`,
     kind: "news" as ContentKind,
@@ -333,10 +368,17 @@ export function createMediaContentItem(input: {
     relevanceScore: input.candidate.relevanceScore,
     url: input.candidate.canonicalUrl,
     publishedAt: input.candidate.publishedAt,
-    pokemonSlugs: exactPokemonSlugs(input.candidate.title, input.pokemon),
+    pokemonSlugs: extractedPokemonSlugs,
     tags: [source.name],
     official: false,
-    ...(input.candidate.imageUrl ? { imageUrl: input.candidate.imageUrl } : {}),
+    ...(input.candidate.imageUrl && input.candidate.imageSource === "rss"
+      ? { rssImageUrl: input.candidate.imageUrl, imageSource: "rss" as const }
+      : {}),
+    ...(input.candidate.imageUrl && input.candidate.imageSource === "api"
+      ? { apiImageUrl: input.candidate.imageUrl, imageSource: "api" as const }
+      : {}),
+    ...(input.candidate.imageWidth ? { imageWidth: input.candidate.imageWidth } : {}),
+    ...(input.candidate.imageHeight ? { imageHeight: input.candidate.imageHeight } : {}),
     ...extractReliablePokemonNewsDates(input.candidate.title, summary)
   };
   const classification = classifyPokemonNews(draft);

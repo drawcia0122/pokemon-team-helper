@@ -11,6 +11,12 @@ import {
   scorePokemonNewsRelevance
 } from "@/lib/pokemonNews";
 import {
+  buildPokemonNewsInsight,
+  calculatePokemonNewsImportance,
+  inferPokemonNewsEventTypes,
+  resolvePokemonNewsImageSelection
+} from "@/lib/pokemonNewsIntelligence";
+import {
   getPokemonNewsSourceFreshness,
   listPokemonNewsSources,
   type PokemonNewsAutomationStatus,
@@ -323,7 +329,9 @@ const gnewsParsed = parseGNewsResponse(gnewsJson, "ポケモン", testNow);
 assert(
   gnewsParsed.candidates.length === 2 &&
     gnewsParsed.excludedReasons.includes("pokemon-relevance-below-threshold") &&
-    gnewsParsed.candidates.every((article) => article.imageUrl === undefined),
+    gnewsParsed.candidates.some(
+      (article) => article.imageSource === "api" && article.imageUrl?.includes("pokemon.jpg")
+    ),
   "GNews responseの解析・弱い一致除外が不正です"
 );
 assert(buildGNewsSearchUrls(undefined, testNow).length === 0, "API keyなしでGNews通信先を生成しています");
@@ -399,8 +407,130 @@ assert(
   "画像優先順位またはfavicon除外が不正です"
 );
 assert(
-  buildPokemonNewsFeed([fixture({ id: "no-image" })]).articles[0]?.imageUrl === undefined,
-  "画像なし記事へ推測画像を設定しています"
+  buildPokemonNewsFeed([
+    fixture({ id: "no-image", kind: "game-update", categories: ["game"] })
+  ]).articles[0]?.imageSource === "fallback",
+  "画像なし記事へ既存fallbackを設定できません"
+);
+
+const intelligentGame = fixture({
+  id: "intelligent-game",
+  kind: "game-update",
+  title: "ポケモン新作ゲームを発表、新シーズンも開始",
+  summary: "大型アップデートで新たなイベントが始まります。",
+  categories: ["game"]
+});
+const intelligentEventTypes = inferPokemonNewsEventTypes(
+  intelligentGame,
+  ["game"],
+  "current"
+);
+assert(
+  intelligentEventTypes.includes("new-title") &&
+    intelligentEventTypes.includes("new-season") &&
+    intelligentEventTypes.includes("update") &&
+    intelligentEventTypes.includes("new-event"),
+  "ゲーム記事へ複数Event Typeを付与できません"
+);
+assert(
+  calculatePokemonNewsImportance(intelligentGame, intelligentEventTypes) >= 90,
+  "新作発表のImportanceを高く評価できません"
+);
+assert(
+  buildPokemonNewsInsight(intelligentGame, intelligentEventTypes, ["game"]) ===
+    "新作タイトルの発表です。",
+  "Event Typeから自然なInsightを生成できません"
+);
+const goodsEvents = inferPokemonNewsEventTypes(
+  fixture({
+    kind: "goods",
+    title: "ポケモン新商品の予約受付を開始",
+    summary: "受注販売商品です。",
+    categories: ["goods"]
+  }),
+  ["goods"],
+  "current"
+);
+assert(
+  goodsEvents.includes("new-product") &&
+    goodsEvents.includes("reservation-start") &&
+    goodsEvents.includes("made-to-order"),
+  "グッズ記事のEvent Typeが不正です"
+);
+const cardEvents = inferPokemonNewsEventTypes(
+  fixture({ title: "ポケカ新拡張パックの大会を開催", categories: ["card", "competition"] }),
+  ["card", "competition"],
+  "current"
+);
+assert(
+  cardEvents.includes("new-expansion") && cardEvents.includes("tournament"),
+  "カード記事のEvent Typeが不正です"
+);
+assert(
+  inferPokemonNewsEventTypes(
+    fixture({ title: "ポケモンイベント開催", eventEndDate: "2026-08-09" }),
+    ["event"],
+    "ending-soon"
+  ).includes("ending-soon"),
+  "Ending SoonをEvent Typeへ反映できません"
+);
+
+const rssPriority = resolvePokemonNewsImageSelection(
+  fixture({
+    rssImageUrl: "https://example.com/rss-news.jpg",
+    apiImageUrl: "https://example.com/api-news.jpg",
+    imageUrl: "https://example.com/existing-news.jpg"
+  })
+);
+assert(
+  rssPriority.source === "rss" && rssPriority.imageUrl?.includes("rss-news.jpg"),
+  "RSS画像を最優先できません"
+);
+const apiPriority = resolvePokemonNewsImageSelection(
+  fixture({
+    rssImageUrl: "https://example.com/favicon.png",
+    apiImageUrl: "https://example.com/api-news.jpg",
+    imageUrl: "https://example.com/existing-news.jpg"
+  })
+);
+assert(
+  apiPriority.source === "api" &&
+    apiPriority.evidence.includes("rejected:rss:favicon-or-icon"),
+  "faviconを除外してAPI画像へフォールバックできません"
+);
+const logoExcluded = resolvePokemonNewsImageSelection(
+  fixture({ rssImageUrl: "https://example.com/assets/site-logo.png" })
+);
+assert(
+  logoExcluded.source === "fallback" &&
+    logoExcluded.evidence.includes("rejected:rss:site-logo"),
+  "サイトロゴ画像を除外できません"
+);
+const smallImageExcluded = resolvePokemonNewsImageSelection(
+  fixture({
+    rssImageUrl: "https://example.com/small-news.jpg",
+    imageWidth: 199,
+    imageHeight: 119
+  })
+);
+assert(
+  smallImageExcluded.source === "fallback" &&
+    smallImageExcluded.evidence.includes("rejected:rss:too-narrow"),
+  "小さすぎる画像を除外できません"
+);
+assert(
+  resolvePokemonNewsImageSelection(
+    fixture({ pokemonSlugs: ["pikachu"] })
+  ).source === "pokemon-db",
+  "1匹だけ特定できた記事をポケモン画像で補完できません"
+);
+const multipleSpecies = resolvePokemonNewsImageSelection(
+  fixture({ pokemonSlugs: ["pikachu", "eevee"] })
+);
+assert(
+  multipleSpecies.source === "fallback" &&
+    multipleSpecies.evidence.includes("rejected:pokemon-db:multiple-species"),
+  "複数匹の記事をポケモン画像で補完しています"
 );
 
 const uiSource = readFileSync(
@@ -413,11 +543,17 @@ for (const label of [
   "新着ニュース",
   "カテゴリで絞り込む",
   "情報元で絞り込む",
-  "メディア"
+  "メディア",
+  "item.insight",
+  "POKEMON_NEWS_EVENT_TYPE_LABELS"
 ]) {
   assert(uiSource.includes(label), `ニュースUIに必要な表示がありません: ${label}`);
 }
-assert(uiSource.includes("item.categories.slice(0, 4)"), "カードの表示タグ数を制限していません");
+assert(
+  uiSource.includes("Math.max(0, 4 - visibleCategoryTags.length") &&
+    uiSource.includes("remainingTagSlots"),
+  "カードの表示タグ数を制限していません"
+);
 assert(
   uiSource.includes('item.freshness !== "expired"') &&
     uiSource.includes('item.freshness !== "archived"'),
@@ -426,5 +562,5 @@ assert(
 assert(uiSource.includes("過去のお知らせ"), "終了済み記事を保持する表示がありません");
 
 console.log(
-  `[ok] TASK060 Pokémon News media aggregation: sources=${sources.length}, existingOfficial=${productionFeed.articles.length}, rss/api fixtures=passed`
+  `[ok] TASK061 Pokémon News Intelligence: sources=${sources.length}, existingOfficial=${productionFeed.articles.length}, event/image fixtures=passed`
 );

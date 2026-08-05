@@ -157,7 +157,8 @@ export function contentFingerprint(
     GeneratedPokemonContentItem,
     "kind" | "title" | "summary" | "sourceId" | "sourceKind" | "contentType" | "relevanceScore" | "url" | "publishedAt" | "pokemonSlugs" | "tags" |
       "categories" | "gameTitles" | "official" | "importance" | "releaseDate" |
-      "preorderStartDate" | "preorderDeadlineDate" | "eventStartDate" | "eventEndDate" | "imageUrl"
+      "preorderStartDate" | "preorderDeadlineDate" | "eventStartDate" | "eventEndDate" | "imageUrl" |
+      "rssImageUrl" | "apiImageUrl" | "imageSource" | "imageWidth" | "imageHeight"
   >
 ): string {
   const normalized = {
@@ -181,7 +182,12 @@ export function contentFingerprint(
     preorderDeadlineDate: item.preorderDeadlineDate,
     eventStartDate: item.eventStartDate,
     eventEndDate: item.eventEndDate,
-    imageUrl: item.imageUrl
+    imageUrl: item.imageUrl,
+    rssImageUrl: item.rssImageUrl,
+    apiImageUrl: item.apiImageUrl,
+    imageSource: item.imageSource,
+    imageWidth: item.imageWidth,
+    imageHeight: item.imageHeight
   };
   return createHash("sha256")
     .update(JSON.stringify(normalized))

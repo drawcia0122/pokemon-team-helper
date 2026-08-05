@@ -15,6 +15,12 @@ import {
   POKEMON_NEWS_STRONG_TERMS
 } from "@/lib/pokemonNewsSearchConfig";
 import { POKEMON_NEWS_SOURCE_REGISTRY } from "@/lib/pokemonNewsSources";
+import {
+  buildPokemonNewsInsight,
+  calculatePokemonNewsImportance,
+  inferPokemonNewsEventTypes,
+  resolvePokemonNewsImageSelection
+} from "@/lib/pokemonNewsIntelligence";
 
 export const POKEMON_NEWS_CATEGORY_LABELS: Record<PokemonNewsCategory, string> = {
   goods: "グッズ",
@@ -169,25 +175,7 @@ export function inferPokemonNewsContentType(
 export function resolvePokemonNewsImage(
   item: PokemonContentItem
 ): string | undefined {
-  for (const value of [
-    item.thumbnailUrl,
-    item.thumbnail,
-    item.image,
-    item.ogImage,
-    item.twitterImage,
-    item.imageUrl
-  ]) {
-    if (typeof value !== "string" || value.trim() === "") continue;
-    try {
-      const url = new URL(value);
-      if (url.protocol !== "https:") continue;
-      if (/favicon|(?:^|[\/_-])logo(?:[\/_\.-]|$)/i.test(url.pathname)) continue;
-      return url.toString();
-    } catch {
-      continue;
-    }
-  }
-  return undefined;
+  return resolvePokemonNewsImageSelection(item).imageUrl;
 }
 
 export function classifyPokemonNews(item: PokemonContentItem): {
@@ -261,16 +249,8 @@ export function inferPokemonNewsImportance(
   item: PokemonContentItem,
   categories: PokemonNewsCategory[]
 ): number {
-  if (typeof item.importance === "number") {
-    return Math.max(0, Math.min(100, Math.round(item.importance)));
-  }
-  const text = normalizedText(item);
-  let score = 45;
-  if (/新作|初公開|Pok[eé]mon Presents|大型アップデート|重要なお知らせ/i.test(text)) score += 35;
-  if (/WCS\d*|世界大会|チャンピオンシップ|新商品シリーズ/i.test(text)) score += 25;
-  if (categories.length >= 2) score += 8;
-  if (item.eventStartDate || item.releaseDate || item.preorderDeadlineDate) score += 8;
-  return Math.max(0, Math.min(100, score));
+  const eventTypes = inferPokemonNewsEventTypes(item, categories, "current");
+  return calculatePokemonNewsImportance(item, eventTypes);
 }
 
 export function normalizePokemonNewsItem(
@@ -285,6 +265,9 @@ export function normalizePokemonNewsItem(
   const relevance = official
     ? { score: item.relevanceScore ?? 100, evidence: [] as string[] }
     : scorePokemonNewsRelevance(item);
+  const freshness = getPokemonNewsArticleFreshness(item, now);
+  const eventTypes = inferPokemonNewsEventTypes(item, classification.categories, freshness);
+  const image = resolvePokemonNewsImageSelection(item);
   return {
     ...item,
     sourceUrl: item.url,
@@ -295,10 +278,14 @@ export function normalizePokemonNewsItem(
     contentType: item.contentType ?? inferPokemonNewsContentType(item.title, item.summary),
     relevanceScore: item.relevanceScore ?? relevance.score,
     relatedSources: item.relatedSources ?? [],
-    importance: inferPokemonNewsImportance(item, classification.categories),
-    imageUrl: resolvePokemonNewsImage(item),
+    importance: calculatePokemonNewsImportance(item, eventTypes),
+    eventTypes,
+    insight: buildPokemonNewsInsight(item, eventTypes, classification.categories),
+    imageUrl: image.imageUrl,
+    imageSource: image.source,
+    imageQualityEvidence: image.evidence,
     classificationEvidence: unique([...classification.evidence, ...relevance.evidence]),
-    freshness: getPokemonNewsArticleFreshness(item, now)
+    freshness
   };
 }
 

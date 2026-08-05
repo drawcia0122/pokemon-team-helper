@@ -5,6 +5,7 @@ import { PokemonVisual } from "@/components/pokemon/PokemonVisual";
 import { getContentStatuses } from "@/lib/contentStatus";
 import { formatJapaneseDate } from "@/lib/dateFormat";
 import { POKEMON_NEWS_CATEGORY_LABELS } from "@/lib/pokemonNews";
+import { POKEMON_NEWS_EVENT_TYPE_LABELS } from "@/lib/pokemonNewsIntelligence";
 import type {
   ContentStatus,
   PokemonNewsArticle,
@@ -36,6 +37,43 @@ function normalize(value: string) {
 
 function isEnded(statuses: ContentStatus[]) {
   return statuses.some((status) => status === "preorder-ended" || status === "event-ended");
+}
+
+function SmartNewsVisual({
+  item,
+  pokemonIds,
+  pokemonLabels
+}: {
+  item: PokemonNewsArticle;
+  pokemonIds: Record<string, number>;
+  pokemonLabels: Record<string, string>;
+}) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const pokemonSlug = item.pokemonSlugs.length === 1 ? item.pokemonSlugs[0] : undefined;
+  if (item.imageUrl && !imageFailed) {
+    return (
+      // RSS/API metadata images are used without requesting the article page.
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        className={styles.articleImage}
+        src={item.imageUrl}
+        alt=""
+        loading="lazy"
+        onError={() => setImageFailed(true)}
+      />
+    );
+  }
+  if (pokemonSlug) {
+    return (
+      <PokemonVisual
+        name={pokemonLabels[pokemonSlug] ?? pokemonSlug}
+        slug={pokemonSlug}
+        pokemonId={pokemonIds[pokemonSlug]}
+        size="large"
+      />
+    );
+  }
+  return <span aria-hidden="true">{POKEMON_NEWS_CATEGORY_LABELS[item.categories[0]].slice(0, 2)}</span>;
 }
 
 export function PokemonContentExplorer({
@@ -87,6 +125,7 @@ export function PokemonContentExplorer({
         item.sourceName,
         item.targetGame ?? "",
         ...item.categories.map((value) => POKEMON_NEWS_CATEGORY_LABELS[value]),
+        ...item.eventTypes.map((value) => POKEMON_NEWS_EVENT_TYPE_LABELS[value]),
         ...item.gameTitles,
         ...item.tags,
         ...item.pokemonSlugs.flatMap((slug) => [slug, pokemonLabels[slug] ?? ""])
@@ -133,10 +172,10 @@ export function PokemonContentExplorer({
   function renderCard(item: PokemonNewsArticle, featured = false) {
     const statuses = getContentStatuses(item, effectiveToday);
     const ended = isEnded(statuses);
-    const firstPokemon = item.pokemonSlugs[0];
     const primaryCategory = item.categories[0];
-    const visibleCategoryTags = item.categories.slice(0, 4);
-    const remainingTagSlots = Math.max(0, 4 - visibleCategoryTags.length);
+    const visibleCategoryTags = item.categories.slice(0, 2);
+    const visibleEventTypes = item.eventTypes.slice(0, Math.max(0, 4 - visibleCategoryTags.length));
+    const remainingTagSlots = Math.max(0, 4 - visibleCategoryTags.length - visibleEventTypes.length);
     const visibleDetailTags = [...new Set([...item.gameTitles, ...item.tags])].slice(
       0,
       remainingTagSlots
@@ -147,21 +186,8 @@ export function PokemonContentExplorer({
         className={`${styles.card} ${featured ? styles.featuredCard : ""} ${ended ? styles.endedCard : ""}`}
         key={item.id}
       >
-        <div className={styles.cardVisual} data-kind={item.kind}>
-          {item.imageUrl ? (
-            // The feed is static and may contain official remote images; fallback content remains available.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img className={styles.articleImage} src={item.imageUrl} alt="" loading="lazy" />
-          ) : firstPokemon ? (
-            <PokemonVisual
-              name={pokemonLabels[firstPokemon] ?? firstPokemon}
-              slug={firstPokemon}
-              pokemonId={pokemonIds[firstPokemon]}
-              size="large"
-            />
-          ) : (
-            <span aria-hidden="true">{POKEMON_NEWS_CATEGORY_LABELS[primaryCategory].slice(0, 2)}</span>
-          )}
+        <div className={styles.cardVisual} data-kind={item.kind} data-image-source={item.imageSource}>
+          <SmartNewsVisual item={item} pokemonIds={pokemonIds} pokemonLabels={pokemonLabels} />
           <strong>{POKEMON_NEWS_CATEGORY_LABELS[primaryCategory]}</strong>
         </div>
         <div className={styles.cardBody}>
@@ -170,6 +196,7 @@ export function PokemonContentExplorer({
               {item.sourceKind === "official" ? "公式" : "メディア"}
             </span>
             {item.contentType === "editorial" ? <span className={styles.editorial}>読みもの</span> : null}
+            {item.importance >= 70 ? <span className={styles.important}>注目</span> : null}
             <span>{item.sourceName}</span>
             <time dateTime={item.publishedAt}>公開 {formatJapaneseDate(item.publishedAt)}</time>
           </div>
@@ -190,6 +217,7 @@ export function PokemonContentExplorer({
             ))}
           </div>
           <h3>{item.title}</h3>
+          <p className={styles.insight}>{item.insight}</p>
           <p className={styles.summary}>{item.summary}</p>
           <dl className={styles.schedule}>
             {item.releaseDate ? <div><dt>発売日</dt><dd>{formatJapaneseDate(item.releaseDate)}</dd></div> : null}
@@ -221,6 +249,11 @@ export function PokemonContentExplorer({
               <button type="button" key={value} onClick={() => setCategory(value)}>
                 {POKEMON_NEWS_CATEGORY_LABELS[value]}
               </button>
+            ))}
+            {visibleEventTypes.map((value) => (
+              <span className={styles.eventType} key={value}>
+                {POKEMON_NEWS_EVENT_TYPE_LABELS[value]}
+              </span>
             ))}
             {visibleDetailTags.map((value) => (
               <button type="button" key={value} onClick={() => setTag(value)}>#{value}</button>

@@ -3,7 +3,7 @@ import type {
   PokemonContentSource
 } from "../../types/pokemonContent";
 
-export const CONTENT_COLLECTOR_VERSION = "2.0.0";
+export const CONTENT_COLLECTOR_VERSION = "2.1.0";
 
 export type ContentSourceConfig = {
   id: PokemonContentSource;

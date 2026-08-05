@@ -48,6 +48,50 @@ export type PokemonContentSource =
 export type PokemonNewsSourceKind = "official" | "media";
 export type PokemonNewsContentType = "news" | "editorial" | "unknown";
 
+export type PokemonNewsEventType =
+  | "new-title"
+  | "update"
+  | "maintenance"
+  | "new-event"
+  | "new-season"
+  | "distribution"
+  | "balance-adjustment"
+  | "new-pokemon"
+  | "dlc"
+  | "issue"
+  | "new-product"
+  | "reservation-start"
+  | "release"
+  | "restock"
+  | "lottery"
+  | "made-to-order"
+  | "new-expansion"
+  | "deck"
+  | "tournament"
+  | "campaign"
+  | "rule-change"
+  | "event-announcement"
+  | "event-ongoing"
+  | "ending-soon"
+  | "real-event"
+  | "stream"
+  | "pokemon-presents"
+  | "new-pv"
+  | "new-video"
+  | "new-anime"
+  | "food-collaboration"
+  | "apparel-collaboration"
+  | "convenience-store-collaboration"
+  | "corporate-collaboration";
+
+export type PokemonNewsImageSource =
+  | "rss"
+  | "api"
+  | "existing"
+  | "pokemon-db"
+  | "fallback"
+  | "none";
+
 export type PokemonNewsRelatedSource = {
   sourceName: string;
   sourceUrl: string;
@@ -82,7 +126,14 @@ export type PokemonContentItem = {
   gameTitles?: PokemonNewsGameTitle[];
   official?: boolean;
   importance?: number;
+  eventTypes?: PokemonNewsEventType[];
+  insight?: string;
+  rssImageUrl?: string;
+  apiImageUrl?: string;
   imageUrl?: string;
+  imageSource?: PokemonNewsImageSource;
+  imageWidth?: number;
+  imageHeight?: number;
   thumbnailUrl?: string;
   thumbnail?: string;
   image?: string;
@@ -111,7 +162,11 @@ export type PokemonNewsArticle = PokemonContentItem & {
   relevanceScore: number;
   relatedSources: PokemonNewsRelatedSource[];
   importance: number;
+  eventTypes: PokemonNewsEventType[];
+  insight: string;
   imageUrl?: string;
+  imageSource: PokemonNewsImageSource;
+  imageQualityEvidence: string[];
   classificationEvidence: string[];
   freshness: PokemonNewsArticleFreshness;
 };

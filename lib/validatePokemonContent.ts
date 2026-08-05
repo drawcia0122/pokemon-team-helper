@@ -27,6 +27,16 @@ const gameTitles = new Set([
 ]);
 const sourceKinds = new Set(["official", "media"]);
 const contentTypes = new Set(["news", "editorial", "unknown"]);
+const eventTypes = new Set([
+  "new-title", "update", "maintenance", "new-event", "new-season", "distribution",
+  "balance-adjustment", "new-pokemon", "dlc", "issue", "new-product",
+  "reservation-start", "release", "restock", "lottery", "made-to-order",
+  "new-expansion", "deck", "tournament", "campaign", "rule-change",
+  "event-announcement", "event-ongoing", "ending-soon", "real-event", "stream",
+  "pokemon-presents", "new-pv", "new-video", "new-anime", "food-collaboration",
+  "apparel-collaboration", "convenience-store-collaboration", "corporate-collaboration"
+]);
+const imageSources = new Set(["rss", "api", "existing", "pokemon-db", "fallback", "none"]);
 const dateKeys = [
   "publishedAt",
   "releaseDate",
@@ -150,6 +160,28 @@ export function validatePokemonContent(
       errors.push(`${context}: contentType が不正です`);
     }
     if (
+      item.eventTypes !== undefined &&
+      (!Array.isArray(item.eventTypes) ||
+        item.eventTypes.some((eventType) => !eventTypes.has(eventType)) ||
+        new Set(item.eventTypes).size !== item.eventTypes.length)
+    ) {
+      errors.push(`${context}: eventTypes が不正です`);
+    }
+    if (item.insight !== undefined && (typeof item.insight !== "string" || item.insight.trim() === "")) {
+      errors.push(`${context}: insight が不正です`);
+    }
+    if (item.imageSource !== undefined && !imageSources.has(item.imageSource)) {
+      errors.push(`${context}: imageSource が不正です`);
+    }
+    for (const key of ["imageWidth", "imageHeight"] as const) {
+      if (
+        item[key] !== undefined &&
+        (typeof item[key] !== "number" || !Number.isSafeInteger(item[key]) || item[key]! <= 0)
+      ) {
+        errors.push(`${context}: ${key} が不正です`);
+      }
+    }
+    if (
       item.relevanceScore !== undefined &&
       (typeof item.relevanceScore !== "number" ||
         !Number.isFinite(item.relevanceScore) ||
@@ -187,6 +219,8 @@ export function validatePokemonContent(
     }
     for (const key of [
       "imageUrl",
+      "rssImageUrl",
+      "apiImageUrl",
       "thumbnailUrl",
       "thumbnail",
       "image",

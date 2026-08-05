@@ -5,6 +5,7 @@ import {
   POKEMON_NEWS_CATEGORY_LABELS,
   buildPokemonNewsFeed
 } from "@/lib/pokemonNews";
+import { POKEMON_NEWS_EVENT_TYPE_LABELS } from "@/lib/pokemonNewsIntelligence";
 import {
   getPokemonNewsSourceFreshness,
   listPokemonNewsSources,
@@ -37,6 +38,10 @@ function ageInDays(value: string, now: Date): number {
   return Math.floor(
     (now.getTime() - new Date(`${value}T00:00:00Z`).getTime()) / 86_400_000
   );
+}
+
+function percentage(value: number, total: number): number {
+  return total === 0 ? 0 : Number(((value / total) * 100).toFixed(1));
 }
 
 const now = new Date();
@@ -108,6 +113,40 @@ const report = {
   mediaCount: feed.articles.filter((article) => article.sourceKind === "media").length,
   sourceKindCounts: counts(feed.articles.map((article) => article.sourceKind)),
   contentTypeCounts: counts(feed.articles.map((article) => article.contentType)),
+  eventTypeCounts: counts(
+    feed.articles.flatMap((article) =>
+      article.eventTypes.map((eventType) => POKEMON_NEWS_EVENT_TYPE_LABELS[eventType])
+    )
+  ),
+  importanceDistribution: {
+    "90-100": feed.articles.filter((article) => article.importance >= 90).length,
+    "70-89": feed.articles.filter((article) => article.importance >= 70 && article.importance < 90).length,
+    "40-69": feed.articles.filter((article) => article.importance >= 40 && article.importance < 70).length,
+    "20-39": feed.articles.filter((article) => article.importance >= 20 && article.importance < 40).length,
+    "0-19": feed.articles.filter((article) => article.importance < 20).length
+  },
+  insightCount: feed.articles.filter((article) => article.insight.trim().length > 0).length,
+  imageSourceCounts: counts(feed.articles.map((article) => article.imageSource)),
+  rssImageCount: feed.articles.filter((article) => article.imageSource === "rss").length,
+  apiImageCount: feed.articles.filter((article) => article.imageSource === "api").length,
+  pokemonImageFallbackCount: feed.articles.filter((article) => article.imageSource === "pokemon-db").length,
+  fallbackImageCount: feed.articles.filter((article) => article.imageSource === "fallback").length,
+  imageUrlMissingCount: feed.articles.filter((article) => !article.imageUrl).length,
+  imageSourceRates: {
+    rss: percentage(feed.articles.filter((article) => article.imageSource === "rss").length, articleCount),
+    api: percentage(feed.articles.filter((article) => article.imageSource === "api").length, articleCount),
+    "pokemon-db": percentage(feed.articles.filter((article) => article.imageSource === "pokemon-db").length, articleCount),
+    fallback: percentage(feed.articles.filter((article) => article.imageSource === "fallback").length, articleCount)
+  },
+  faviconExcludedCount: feed.articles.filter((article) =>
+    article.imageQualityEvidence.some((evidence) => evidence.includes("favicon-or-icon"))
+  ).length,
+  logoExcludedCount: feed.articles.filter((article) =>
+    article.imageQualityEvidence.some((evidence) => evidence.includes("site-logo"))
+  ).length,
+  multipleSpeciesFallbackCount: feed.articles.filter((article) =>
+    article.imageQualityEvidence.includes("rejected:pokemon-db:multiple-species")
+  ).length,
   relevanceScoreDistribution: {
     "0-44": feed.articles.filter((article) => article.relevanceScore < 45).length,
     "45-59": feed.articles.filter((article) => article.relevanceScore >= 45 && article.relevanceScore < 60).length,
@@ -143,6 +182,7 @@ const report = {
   articlesWithin30Days: recent30,
   articleFreshnessCounts: counts(feed.articles.map((article) => article.freshness)),
   upcomingCount: feed.articles.filter((article) => article.freshness === "upcoming").length,
+  endingSoonCount: feed.articles.filter((article) => article.freshness === "ending-soon").length,
   expiredCount: feed.articles.filter((article) => article.freshness === "expired").length,
   duplicateCount: feed.duplicateCount,
   officialPreferredDuplicateCount: feed.officialPreferredDuplicateCount,
@@ -210,6 +250,10 @@ const report = {
     contentType: article.contentType,
     relevanceScore: article.relevanceScore,
     importance: article.importance,
+    eventTypes: article.eventTypes,
+    insight: article.insight,
+    imageSource: article.imageSource,
+    imageQualityEvidence: article.imageQualityEvidence,
     freshness: article.freshness,
     classificationEvidence: article.classificationEvidence
   }))
@@ -223,6 +267,7 @@ if (process.argv.includes("--json")) {
   console.log(`重複排除後: ${report.afterDeduplication}`);
   console.log(`7日以内: ${report.articlesWithin7Days} / 30日以内: ${report.articlesWithin30Days}`);
   console.log(`upcoming: ${report.upcomingCount} / expired: ${report.expiredCount}`);
+  console.log(`ending soon: ${report.endingSoonCount}`);
   console.log(`RSS取得: ${report.rssFetchedCount} / API取得: ${report.apiFetchedCount} / relevance除外: ${report.relevanceExcludedCount}`);
   console.log(`official: ${report.officialCount} / media: ${report.mediaCount}`);
   console.log(`有効collector: ${report.enabledCollectorCount} / 成功source: ${report.successfulSourceCount} / 失敗source: ${report.failedSourceCount}`);
@@ -234,6 +279,16 @@ if (process.argv.includes("--json")) {
   console.log("gameTitle別:", report.gameTitleCounts);
   console.log("sourceKind別:", report.sourceKindCounts);
   console.log("contentType別:", report.contentTypeCounts);
+  console.log("Event Type別:", report.eventTypeCounts);
+  console.log("Importance分布:", report.importanceDistribution);
+  console.log(`Insight生成: ${report.insightCount}`);
+  console.log(
+    `画像: RSS=${report.rssImageCount}, API=${report.apiImageCount}, Pokémon補完=${report.pokemonImageFallbackCount}, fallback=${report.fallbackImageCount}, URLなし=${report.imageUrlMissingCount}`
+  );
+  console.log("画像取得率(%):", report.imageSourceRates);
+  console.log(
+    `画像除外: favicon/icon=${report.faviconExcludedCount}, logo=${report.logoExcludedCount}, 複数匹補完なし=${report.multipleSpeciesFallbackCount}`
+  );
   console.log("relevance Score分布:", report.relevanceScoreDistribution);
   console.log(`公式優先統合: ${report.officialPreferredDuplicateCount} / media間重複: ${report.mediaDuplicateCount}`);
   console.log("rate limit:", report.rateLimitSources.length ? report.rateLimitSources : "none");
