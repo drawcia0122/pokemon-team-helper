@@ -3182,6 +3182,7 @@
     "result": "最終6位",
     "pokemonSlugs": [],
     "tags": [
+      "4",
       "ダブルバトル",
       "VGC",
       "ポケモンチャンピオンズ",
@@ -3220,12 +3221,12 @@
       "unresolved": 0
     },
     "firstCollectedAt": "2026-08-02T06:46:55.230Z",
-    "lastCollectedAt": "2026-08-02T06:46:55.230Z",
-    "contentFingerprint": "7a49e24bcd4ed1d29f3d2e47bddd8d4056d921679f9af32a230d6f84eb76b3c8",
+    "lastCollectedAt": "2026-08-05T01:07:36.919Z",
+    "contentFingerprint": "53f179710cf3e4d3e721dc25c7e82055955261155388d43f95259ba774e4120c",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-08-02T06:46:55.230Z"
+    "lastSuccessfulFetchAt": "2026-08-05T01:07:36.919Z"
   },
   {
     "id": "note-n008d4b86860f",
@@ -3285,5 +3286,63 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-04T17:04:41.922Z"
+  },
+  {
+    "id": "note-n993998e6419b",
+    "source": "note",
+    "sourceArticleId": "n993998e6419b",
+    "sourceUrl": "https://note.com/yasuke0610/n/n993998e6419b",
+    "canonicalUrl": "https://note.com/yasuke0610/n/n993998e6419b",
+    "title": "【ポケモンチャンピオンズ】マスボ1への道①(ダブル)(使用パーティー: BIG6もどき)",
+    "authorName": "やすけ",
+    "publishedAt": "2026-08-04T23:21:55.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモンチャンピオンズ",
+      "マスボ1への道",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/300558809/rectangle_large_type_2_ffefd81ba7c40bbc3d92392fb5a2e03e.jpg",
+      "source": "structured-data",
+      "alt": "【ポケモンチャンピオンズ】マスボ1への道①(ダブル)(使用パーティー: BIG6もどき)のサムネイル",
+      "width": 5079,
+      "height": 2657
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.625
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-05T01:07:36.919Z",
+    "lastCollectedAt": "2026-08-05T01:07:36.919Z",
+    "contentFingerprint": "f2d3ff714623a3ca79bf65e7eb588b7cd25604a1edeb8a0f13f651e95c38a160",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-05T01:07:36.919Z"
   }
 ]
