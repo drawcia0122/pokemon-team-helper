@@ -12,6 +12,7 @@ import {
 } from "@/lib/pokemonNewsSources";
 import type {
   GeneratedPokemonContentItem,
+  PokemonContentSource,
   PokemonContentItem,
   PokemonNewsSourceId
 } from "@/types/pokemonContent";
@@ -103,7 +104,30 @@ const report = {
   ),
   collectionModeCounts: counts(articleModes),
   collectionModeRatios: ratios(articleModes, articleCount),
-  officialCount: feed.articles.filter((article) => article.official).length,
+  officialCount: feed.articles.filter((article) => article.sourceKind === "official").length,
+  mediaCount: feed.articles.filter((article) => article.sourceKind === "media").length,
+  sourceKindCounts: counts(feed.articles.map((article) => article.sourceKind)),
+  contentTypeCounts: counts(feed.articles.map((article) => article.contentType)),
+  relevanceScoreDistribution: {
+    "0-44": feed.articles.filter((article) => article.relevanceScore < 45).length,
+    "45-59": feed.articles.filter((article) => article.relevanceScore >= 45 && article.relevanceScore < 60).length,
+    "60-79": feed.articles.filter((article) => article.relevanceScore >= 60 && article.relevanceScore < 80).length,
+    "80-100": feed.articles.filter((article) => article.relevanceScore >= 80).length
+  },
+  rssFetchedCount: registry
+    .filter((source) => source.sourceType === "rss")
+    .reduce((sum, source) => sum + (collectionState.sources[source.id as PokemonContentSource]?.lastCandidateCount ?? 0), 0),
+  apiFetchedCount: registry
+    .filter((source) => source.sourceType === "official-api" && source.sourceKind === "media")
+    .reduce((sum, source) => sum + (collectionState.sources[source.id as PokemonContentSource]?.lastCandidateCount ?? 0), 0),
+  relevanceExcludedCount: registry.reduce(
+    (sum, source) =>
+      sum +
+      (collectionState.sources[source.id as PokemonContentSource]?.lastExclusionReasons?.[
+        "pokemon-relevance-below-threshold"
+      ] ?? 0),
+    0
+  ),
   manualCount: articleModes.filter((mode) => mode === "manual").length,
   automaticCount: articleModes.filter((mode) => mode === "automatic").length,
   scheduleCount: feed.articles.filter((article) =>
@@ -121,6 +145,8 @@ const report = {
   upcomingCount: feed.articles.filter((article) => article.freshness === "upcoming").length,
   expiredCount: feed.articles.filter((article) => article.freshness === "expired").length,
   duplicateCount: feed.duplicateCount,
+  officialPreferredDuplicateCount: feed.officialPreferredDuplicateCount,
+  mediaDuplicateCount: feed.mediaDuplicateCount,
   excludedCount: feed.excluded.length,
   excludedArticles: feed.excluded,
   unclassifiedCount: feed.unclassified.length,
@@ -142,12 +168,17 @@ const report = {
   collectorErrors: registry
     .filter((source) => source.lastError)
     .map((source) => ({ id: source.id, error: source.lastError })),
+  rateLimitSources: registry
+    .filter((source) => collectionState.sources[source.id as PokemonContentSource]?.lastStatus === "rate-limited")
+    .map((source) => source.id),
   sources: registry.map((source) => ({
     id: source.id,
     name: source.name,
     homepageUrl: source.homepageUrl,
     feedUrl: source.feedUrl,
     sourceType: source.sourceType,
+    sourceKind: source.sourceKind,
+    sourcePriority: source.sourcePriority,
     categories: source.categories,
     gameTitles: source.gameTitles,
     rssAvailable: source.rssAvailable,
@@ -175,6 +206,9 @@ const report = {
     categories: article.categories,
     gameTitles: article.gameTitles,
     official: article.official,
+    sourceKind: article.sourceKind,
+    contentType: article.contentType,
+    relevanceScore: article.relevanceScore,
     importance: article.importance,
     freshness: article.freshness,
     classificationEvidence: article.classificationEvidence
@@ -189,6 +223,8 @@ if (process.argv.includes("--json")) {
   console.log(`重複排除後: ${report.afterDeduplication}`);
   console.log(`7日以内: ${report.articlesWithin7Days} / 30日以内: ${report.articlesWithin30Days}`);
   console.log(`upcoming: ${report.upcomingCount} / expired: ${report.expiredCount}`);
+  console.log(`RSS取得: ${report.rssFetchedCount} / API取得: ${report.apiFetchedCount} / relevance除外: ${report.relevanceExcludedCount}`);
+  console.log(`official: ${report.officialCount} / media: ${report.mediaCount}`);
   console.log(`有効collector: ${report.enabledCollectorCount} / 成功source: ${report.successfulSourceCount} / 失敗source: ${report.failedSourceCount}`);
   console.log(`manual source: ${report.manualSourceCount} / stale source: ${report.staleSourceCount}`);
   console.log(`新規記事: 0 / 重複排除: ${report.duplicateCount} / 除外: ${report.excludedCount} / 最終記事: ${report.afterDeduplication}`);
@@ -196,6 +232,11 @@ if (process.argv.includes("--json")) {
   console.log("source別比率:", report.sourceRatios);
   console.log("category別:", report.categoryCounts);
   console.log("gameTitle別:", report.gameTitleCounts);
+  console.log("sourceKind別:", report.sourceKindCounts);
+  console.log("contentType別:", report.contentTypeCounts);
+  console.log("relevance Score分布:", report.relevanceScoreDistribution);
+  console.log(`公式優先統合: ${report.officialPreferredDuplicateCount} / media間重複: ${report.mediaDuplicateCount}`);
+  console.log("rate limit:", report.rateLimitSources.length ? report.rateLimitSources : "none");
   console.log("source registry:");
   for (const source of report.sources) {
     console.log(

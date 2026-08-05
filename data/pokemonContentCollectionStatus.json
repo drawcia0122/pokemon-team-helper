@@ -1,5 +1,65 @@
 {
   "version": 1,
-  "collectorVersion": "1.1.0",
-  "sources": {}
+  "collectorVersion": "2.0.0",
+  "sources": {
+    "4gamer-rss": {
+      "feedFingerprint": "1d33e8626e00dcc58d428f802fba39b44048ff86208da44107dec8ba0f520f5c",
+      "articleIds": [
+        "04a51cb0ecee910efa31",
+        "135362655c426ed3bb99",
+        "31b8565490a6cb03e016",
+        "96533be8262c1f487be2",
+        "a41c45ab97ef7f11791f"
+      ],
+      "itemFingerprints": {
+        "04a51cb0ecee910efa31": "484ed12a25c1be732f74792becabcc03c503e5bd23b43dd28df33c47dde6815e",
+        "135362655c426ed3bb99": "15e1f2c12baec34ca8dfdc4ebe7d64948b981f7af637ca8aa299eeca3b9acb51",
+        "31b8565490a6cb03e016": "e6516b240a5ad5c486f0e6b9f2536db581a8390deffa1a24dca2ceb10f38a568",
+        "96533be8262c1f487be2": "361d155c1c850c571f6931d166a8e88bbebdacc6cc4954b121656215b0e84d54",
+        "a41c45ab97ef7f11791f": "bdf85c49d55d066a0a36acb9ad720417ce547939b4211e130dd62bf9bef2807b"
+      },
+      "lastSuccessfulFetchAt": "2026-08-05T06:00:40.491Z",
+      "lastArticlePublishedAt": "2026-08-05",
+      "consecutiveFailures": 0,
+      "lastStatus": "success",
+      "lastCandidateCount": 100,
+      "lastAcceptedCount": 5,
+      "lastExcludedCount": 95,
+      "lastDuplicateCount": 0,
+      "lastExclusionReasons": {
+        "pokemon-relevance-below-threshold": 95
+      }
+    },
+    "inside-rss": {
+      "feedFingerprint": "38fabd39e73ba5cff928e5911b13a692a35d30798e1de5adfdbbc7f45ac5e74a",
+      "articleIds": [
+        "0db38e96e4ba6671852a",
+        "1d82bc92ba4f38e90dca",
+        "78a25c25ef56d76672c6",
+        "b25dfd717f178e406e1c",
+        "cb4edd076594f97245c4",
+        "cf4e86d4c6856f761905"
+      ],
+      "itemFingerprints": {
+        "0db38e96e4ba6671852a": "ed4f045948fb8dc5d5376c61e70c96c078db98aab4e7f7d5956d2092997baf86",
+        "1d82bc92ba4f38e90dca": "b4cae315182a93adebc8826e3228ae6508e0c0d71a5ec026093596b1d1105d55",
+        "78a25c25ef56d76672c6": "72f4e928e3e5682019c50050a2bf8e887e813e9bce6f864c95a6b11cd9b9a2e4",
+        "b25dfd717f178e406e1c": "42910b8c6183b9e28340bdcef82932ca98964d816b7e173be966a947ddfbd78e",
+        "cb4edd076594f97245c4": "c8a182bd341b0b5d8ad7160cca910d8119ab0e7c3521c67df29cad087713f700",
+        "cf4e86d4c6856f761905": "1c73f4599f693a85b50a08809cb94fcab357d607697e82f87d1a653391bc7d41"
+      },
+      "lastSuccessfulFetchAt": "2026-08-05T06:10:32.999Z",
+      "lastArticlePublishedAt": "2026-08-05",
+      "consecutiveFailures": 0,
+      "lastStatus": "success",
+      "lastCandidateCount": 150,
+      "lastAcceptedCount": 6,
+      "lastExcludedCount": 144,
+      "lastDuplicateCount": 0,
+      "lastExclusionReasons": {
+        "pokemon-relevance-below-threshold": 45,
+        "outside-collection-window": 99
+      }
+    }
+  }
 }

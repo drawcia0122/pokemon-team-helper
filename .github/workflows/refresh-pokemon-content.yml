@@ -15,6 +15,9 @@ on:
         options:
           - all
           - pokemon-go-official-rss
+          - 4gamer-rss
+          - inside-rss
+          - gnews-api
         default: all
 
 permissions:
@@ -47,6 +50,8 @@ jobs:
         env:
           CONTENT_BACKFILL: ${{ github.event_name == 'workflow_dispatch' && inputs.backfill && 'true' || 'false' }}
           CONTENT_SOURCE: ${{ github.event_name == 'workflow_dispatch' && inputs.source || 'all' }}
+          GNEWS_API_KEY: ${{ secrets.GNEWS_API_KEY }}
+          GNEWS_PLAN: ${{ secrets.GNEWS_PLAN }}
         run: |
           collector_args=()
           if [[ "$CONTENT_BACKFILL" == "true" ]]; then

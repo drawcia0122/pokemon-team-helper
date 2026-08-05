@@ -34,9 +34,25 @@ export type PokemonNewsSourceId =
   | "pokemon-official-anime"
   | "pokemon-official-events"
   | "pokemon-company-press"
-  | "pokemon-legends-news";
+  | "pokemon-legends-news"
+  | "4gamer-rss"
+  | "inside-rss"
+  | "gnews-api";
 
-export type PokemonContentSource = "pokemon-go-official-rss";
+export type PokemonContentSource =
+  | "pokemon-go-official-rss"
+  | "4gamer-rss"
+  | "inside-rss"
+  | "gnews-api";
+
+export type PokemonNewsSourceKind = "official" | "media";
+export type PokemonNewsContentType = "news" | "editorial" | "unknown";
+
+export type PokemonNewsRelatedSource = {
+  sourceName: string;
+  sourceUrl: string;
+  publishedAt: string;
+};
 
 export type PokemonNewsArticleFreshness =
   | "current"
@@ -58,6 +74,10 @@ export type PokemonContentItem = {
   pokemonSlugs: string[];
   tags: string[];
   sourceId?: PokemonNewsSourceId;
+  sourceKind?: PokemonNewsSourceKind;
+  contentType?: PokemonNewsContentType;
+  relevanceScore?: number;
+  relatedSources?: PokemonNewsRelatedSource[];
   categories?: PokemonNewsCategory[];
   gameTitles?: PokemonNewsGameTitle[];
   official?: boolean;
@@ -86,6 +106,10 @@ export type PokemonNewsArticle = PokemonContentItem & {
   categories: PokemonNewsCategory[];
   gameTitles: PokemonNewsGameTitle[];
   official: boolean;
+  sourceKind: PokemonNewsSourceKind;
+  contentType: PokemonNewsContentType;
+  relevanceScore: number;
+  relatedSources: PokemonNewsRelatedSource[];
   importance: number;
   imageUrl?: string;
   classificationEvidence: string[];

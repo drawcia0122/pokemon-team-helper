@@ -1,1 +1,360 @@
-[]
+[
+  {
+    "id": "4gamer-rss-a41c45ab97ef7f11791f",
+    "kind": "event",
+    "title": "「ぽこ あ ポケモン」の世界へつながるゲートが横浜赤レンガ倉庫に開通！ 「リアル『ぽこポケ』体験！『ブクブクうみぞこの街』」を先行体験",
+    "summary": "ぽこポケの世界につながるゲートが横浜に！ 横浜赤レンガ倉庫で2026年8月6日から8月9日までの期間限定で開催されるイベント「リアル『ぽこポケ』体験！『ブクブクうみぞこの街』」で，海の世界へ出かけてきた。",
+    "sourceName": "4Gamer.net",
+    "sourceId": "4gamer-rss",
+    "sourceKind": "media",
+    "contentType": "news",
+    "relevanceScore": 60,
+    "url": "https://www.4gamer.net/games/945/G094534/20260805001",
+    "publishedAt": "2026-08-05",
+    "pokemonSlugs": [],
+    "tags": [
+      "4Gamer.net"
+    ],
+    "official": false,
+    "categories": [
+      "event"
+    ],
+    "gameTitles": [],
+    "importance": 45,
+    "source": "4gamer-rss",
+    "sourceArticleId": "a41c45ab97ef7f11791f",
+    "canonicalUrl": "https://www.4gamer.net/games/945/G094534/20260805001",
+    "firstCollectedAt": "2026-08-05T06:00:40.491Z",
+    "lastCollectedAt": "2026-08-05T06:00:40.491Z",
+    "contentFingerprint": "bdf85c49d55d066a0a36acb9ad720417ce547939b4211e130dd62bf9bef2807b",
+    "collectorVersion": "2.0.0",
+    "status": "active"
+  },
+  {
+    "id": "inside-rss-cb4edd076594f97245c4",
+    "kind": "news",
+    "title": "しまむらで『ポケカ』が抽選販売！拡張パック「ストームエメラルダ」「アビスアイ」各1BOXをラインナップ",
+    "summary": "インサイドの公開RSSに掲載された記事です。続きは元記事でご確認ください。",
+    "sourceName": "インサイド",
+    "sourceId": "inside-rss",
+    "sourceKind": "media",
+    "contentType": "unknown",
+    "relevanceScore": 65,
+    "url": "https://www.inside-games.jp/article/2026/08/05/185771.html",
+    "publishedAt": "2026-08-05",
+    "pokemonSlugs": [],
+    "tags": [
+      "インサイド"
+    ],
+    "official": false,
+    "categories": [
+      "card"
+    ],
+    "gameTitles": [],
+    "importance": 45,
+    "source": "inside-rss",
+    "sourceArticleId": "cb4edd076594f97245c4",
+    "canonicalUrl": "https://www.inside-games.jp/article/2026/08/05/185771.html",
+    "firstCollectedAt": "2026-08-05T06:00:50.976Z",
+    "lastCollectedAt": "2026-08-05T06:10:32.999Z",
+    "contentFingerprint": "c8a182bd341b0b5d8ad7160cca910d8119ab0e7c3521c67df29cad087713f700",
+    "collectorVersion": "2.0.0",
+    "status": "active"
+  },
+  {
+    "id": "4gamer-rss-135362655c426ed3bb99",
+    "kind": "goods",
+    "title": "「ポケモンカードゲーム」30周年記念商品の抽選応募受付を8月10日より順次開始。本人認証を完了させると当選しやすい",
+    "summary": "ポケモンは2026年8月3日，「ポケモンカードゲーム」関連の抽選販売の情報を公開した。今回販売されるのはポケモン30周年を記念した商品だ。抽選販売では，「プレイヤーズクラブ：本人認証済み枠」と「プレイヤーズクラブ：本人未認証枠」の2つの応募枠があり，認証を完了したほうが当選しやすい仕組みとなっている。",
+    "sourceName": "4Gamer.net",
+    "sourceId": "4gamer-rss",
+    "sourceKind": "media",
+    "contentType": "news",
+    "relevanceScore": 100,
+    "url": "https://www.4gamer.net/games/256/G025620/20260804019",
+    "publishedAt": "2026-08-04",
+    "pokemonSlugs": [],
+    "tags": [
+      "4Gamer.net"
+    ],
+    "official": false,
+    "categories": [
+      "goods",
+      "game",
+      "card"
+    ],
+    "gameTitles": [],
+    "importance": 53,
+    "source": "4gamer-rss",
+    "sourceArticleId": "135362655c426ed3bb99",
+    "canonicalUrl": "https://www.4gamer.net/games/256/G025620/20260804019",
+    "firstCollectedAt": "2026-08-05T06:00:40.491Z",
+    "lastCollectedAt": "2026-08-05T06:00:40.491Z",
+    "contentFingerprint": "15e1f2c12baec34ca8dfdc4ebe7d64948b981f7af637ca8aa299eeca3b9acb51",
+    "collectorVersion": "2.0.0",
+    "status": "active"
+  },
+  {
+    "id": "4gamer-rss-31b8565490a6cb03e016",
+    "kind": "event",
+    "title": "「Pokémon Sleep」，ミュウツーが登場するイベントが2026年9月に開催。ミュウと出会えるイベントも実施",
+    "summary": "ポケモンは本日（2026年8月4日），睡眠アプリ「PokémonSleep」で伝説のポケモン・ミュウツーと出会えるゲーム内イベントを，2026年9月に開催すると発表した。期間中はエスパータイプのポケモンが特に活躍する。幻のポケモンであるミュウも，ミュウツーの寝顔リサーチに協力してくれる可能性があるとのことだ。",
+    "sourceName": "4Gamer.net",
+    "sourceId": "4gamer-rss",
+    "sourceKind": "media",
+    "contentType": "news",
+    "relevanceScore": 100,
+    "url": "https://www.4gamer.net/games/462/G046207/20260804010",
+    "publishedAt": "2026-08-04",
+    "pokemonSlugs": [
+      "mewtwo",
+      "mew"
+    ],
+    "tags": [
+      "4Gamer.net"
+    ],
+    "official": false,
+    "categories": [
+      "game",
+      "event"
+    ],
+    "gameTitles": [
+      "Pokémon Sleep"
+    ],
+    "importance": 53,
+    "source": "4gamer-rss",
+    "sourceArticleId": "31b8565490a6cb03e016",
+    "canonicalUrl": "https://www.4gamer.net/games/462/G046207/20260804010",
+    "firstCollectedAt": "2026-08-05T06:00:40.491Z",
+    "lastCollectedAt": "2026-08-05T06:00:40.491Z",
+    "contentFingerprint": "e6516b240a5ad5c486f0e6b9f2536db581a8390deffa1a24dca2ceb10f38a568",
+    "collectorVersion": "2.0.0",
+    "status": "active"
+  },
+  {
+    "id": "4gamer-rss-96533be8262c1f487be2",
+    "kind": "event",
+    "title": "「伝説のポケモンと出会う レジェンドリサーチ in 日本橋＆八重洲」，9月9日から11月29日まで開催決定",
+    "summary": "三井不動産は2026年8月4日，「伝説のポケモンと出会うレジェンドリサーチin日本橋＆八重洲」を9月9日から11月29日まで開催すると発表した。今回は，東京の日本橋・八重洲エリアでポケモンたちに出会えるほか，有料の謎解きイベントも開催される。",
+    "sourceName": "4Gamer.net",
+    "sourceId": "4gamer-rss",
+    "sourceKind": "media",
+    "contentType": "news",
+    "relevanceScore": 74,
+    "url": "https://www.4gamer.net/games/897/G089789/20260804022",
+    "publishedAt": "2026-08-04",
+    "pokemonSlugs": [],
+    "tags": [
+      "4Gamer.net"
+    ],
+    "official": false,
+    "categories": [
+      "event"
+    ],
+    "gameTitles": [],
+    "importance": 45,
+    "source": "4gamer-rss",
+    "sourceArticleId": "96533be8262c1f487be2",
+    "canonicalUrl": "https://www.4gamer.net/games/897/G089789/20260804022",
+    "firstCollectedAt": "2026-08-05T06:00:40.491Z",
+    "lastCollectedAt": "2026-08-05T06:00:40.491Z",
+    "contentFingerprint": "361d155c1c850c571f6931d166a8e88bbebdacc6cc4954b121656215b0e84d54",
+    "collectorVersion": "2.0.0",
+    "status": "active"
+  },
+  {
+    "id": "inside-rss-0db38e96e4ba6671852a",
+    "kind": "news",
+    "title": "『ポケカ』30周年記念拡張パック「30th CELEBRATION」がホビーステーションで抽選販売！応募期間は8月6日23時59分まで",
+    "summary": "インサイドの公開RSSに掲載された記事です。続きは元記事でご確認ください。",
+    "sourceName": "インサイド",
+    "sourceId": "inside-rss",
+    "sourceKind": "media",
+    "contentType": "unknown",
+    "relevanceScore": 65,
+    "url": "https://www.inside-games.jp/article/2026/08/04/185730.html",
+    "publishedAt": "2026-08-04",
+    "pokemonSlugs": [],
+    "tags": [
+      "インサイド"
+    ],
+    "official": false,
+    "categories": [
+      "card"
+    ],
+    "gameTitles": [],
+    "importance": 45,
+    "source": "inside-rss",
+    "sourceArticleId": "0db38e96e4ba6671852a",
+    "canonicalUrl": "https://www.inside-games.jp/article/2026/08/04/185730.html",
+    "firstCollectedAt": "2026-08-05T06:00:50.976Z",
+    "lastCollectedAt": "2026-08-05T06:10:32.999Z",
+    "contentFingerprint": "ed4f045948fb8dc5d5376c61e70c96c078db98aab4e7f7d5956d2092997baf86",
+    "collectorVersion": "2.0.0",
+    "status": "active"
+  },
+  {
+    "id": "inside-rss-1d82bc92ba4f38e90dca",
+    "kind": "goods",
+    "title": "『ぽこ あ ポケモン』ブロックを模したポーチが気になる！「ピカチュウ（うすいろ）」のマスコットなど、新グッズが発売",
+    "summary": "インサイドの公開RSSに掲載された記事です。続きは元記事でご確認ください。",
+    "sourceName": "インサイド",
+    "sourceId": "inside-rss",
+    "sourceKind": "media",
+    "contentType": "news",
+    "relevanceScore": 60,
+    "url": "https://www.inside-games.jp/article/2026/08/04/185740.html",
+    "publishedAt": "2026-08-04",
+    "pokemonSlugs": [
+      "pikachu"
+    ],
+    "tags": [
+      "インサイド"
+    ],
+    "official": false,
+    "categories": [
+      "goods"
+    ],
+    "gameTitles": [],
+    "importance": 45,
+    "source": "inside-rss",
+    "sourceArticleId": "1d82bc92ba4f38e90dca",
+    "canonicalUrl": "https://www.inside-games.jp/article/2026/08/04/185740.html",
+    "firstCollectedAt": "2026-08-05T06:00:50.976Z",
+    "lastCollectedAt": "2026-08-05T06:10:32.999Z",
+    "contentFingerprint": "b4cae315182a93adebc8826e3228ae6508e0c0d71a5ec026093596b1d1105d55",
+    "collectorVersion": "2.0.0",
+    "status": "active"
+  },
+  {
+    "id": "inside-rss-78a25c25ef56d76672c6",
+    "kind": "campaign",
+    "title": "『ポケモン』がNYのバッグブランド「VASIC」とコラボ！大人向けに洗練されたピカチュウやイーブイに注目",
+    "summary": "インサイドの公開RSSに掲載された記事です。続きは元記事でご確認ください。",
+    "sourceName": "インサイド",
+    "sourceId": "inside-rss",
+    "sourceKind": "media",
+    "contentType": "news",
+    "relevanceScore": 60,
+    "url": "https://www.inside-games.jp/article/2026/08/04/185737.html",
+    "publishedAt": "2026-08-04",
+    "pokemonSlugs": [
+      "pikachu",
+      "eevee"
+    ],
+    "tags": [
+      "インサイド"
+    ],
+    "official": false,
+    "categories": [
+      "collaboration"
+    ],
+    "gameTitles": [],
+    "importance": 45,
+    "source": "inside-rss",
+    "sourceArticleId": "78a25c25ef56d76672c6",
+    "canonicalUrl": "https://www.inside-games.jp/article/2026/08/04/185737.html",
+    "firstCollectedAt": "2026-08-05T06:00:50.976Z",
+    "lastCollectedAt": "2026-08-05T06:10:32.999Z",
+    "contentFingerprint": "72f4e928e3e5682019c50050a2bf8e887e813e9bce6f864c95a6b11cd9b9a2e4",
+    "collectorVersion": "2.0.0",
+    "status": "active"
+  },
+  {
+    "id": "inside-rss-b25dfd717f178e406e1c",
+    "kind": "goods",
+    "title": "水ポケモンたちのヒレが「ぱたぱたっ！」と動く！マンタイン、ミズゴロウなど全4匹の“ギミック付きぬいぐるみ”に癒されちゃう",
+    "summary": "インサイドの公開RSSに掲載された記事です。続きは元記事でご確認ください。",
+    "sourceName": "インサイド",
+    "sourceId": "inside-rss",
+    "sourceKind": "media",
+    "contentType": "unknown",
+    "relevanceScore": 60,
+    "url": "https://www.inside-games.jp/article/2026/08/05/185743.html",
+    "publishedAt": "2026-08-04",
+    "pokemonSlugs": [
+      "mantine",
+      "mudkip"
+    ],
+    "tags": [
+      "インサイド"
+    ],
+    "official": false,
+    "categories": [
+      "goods"
+    ],
+    "gameTitles": [],
+    "importance": 45,
+    "source": "inside-rss",
+    "sourceArticleId": "b25dfd717f178e406e1c",
+    "canonicalUrl": "https://www.inside-games.jp/article/2026/08/05/185743.html",
+    "firstCollectedAt": "2026-08-05T06:00:50.976Z",
+    "lastCollectedAt": "2026-08-05T06:10:32.999Z",
+    "contentFingerprint": "42910b8c6183b9e28340bdcef82932ca98964d816b7e173be966a947ddfbd78e",
+    "collectorVersion": "2.0.0",
+    "status": "active"
+  },
+  {
+    "id": "inside-rss-cf4e86d4c6856f761905",
+    "kind": "goods",
+    "title": "“伝説のポケモン”と東京・日本橋＆八重洲エリアで出会える！謎解きイベントや描き下ろしイラストを使ったオリジナルグッズも販売",
+    "summary": "インサイドの公開RSSに掲載された記事です。続きは元記事でご確認ください。",
+    "sourceName": "インサイド",
+    "sourceId": "inside-rss",
+    "sourceKind": "media",
+    "contentType": "news",
+    "relevanceScore": 60,
+    "url": "https://www.inside-games.jp/article/2026/08/04/185739.html",
+    "publishedAt": "2026-08-04",
+    "pokemonSlugs": [],
+    "tags": [
+      "インサイド"
+    ],
+    "official": false,
+    "categories": [
+      "goods",
+      "event"
+    ],
+    "gameTitles": [],
+    "importance": 53,
+    "source": "inside-rss",
+    "sourceArticleId": "cf4e86d4c6856f761905",
+    "canonicalUrl": "https://www.inside-games.jp/article/2026/08/04/185739.html",
+    "firstCollectedAt": "2026-08-05T06:00:50.976Z",
+    "lastCollectedAt": "2026-08-05T06:10:32.999Z",
+    "contentFingerprint": "1c73f4599f693a85b50a08809cb94fcab357d607697e82f87d1a653391bc7d41",
+    "collectorVersion": "2.0.0",
+    "status": "active"
+  },
+  {
+    "id": "4gamer-rss-04a51cb0ecee910efa31",
+    "kind": "news",
+    "title": "［プレイレポ］「ぽこ あ ポケモン」のあそびが水のなかへ！ 無料アップデートと有料追加コンテンツ第1弾「ブクブクうみぞこの街」を先行体験",
+    "summary": "2026年8月5日，「ぽこあポケモン」のあそびが海のなかへ広がる！ 無料アップデートの「ダイビング」と，有料追加コンテンツ第1弾「ブクブクうみぞこの街」をひと足先に体験。街づくりや探索，ポケモンとの出会い，みんなで泳ぐ楽しさを伝えよう。",
+    "sourceName": "4Gamer.net",
+    "sourceId": "4gamer-rss",
+    "sourceKind": "media",
+    "contentType": "editorial",
+    "relevanceScore": 74,
+    "url": "https://www.4gamer.net/games/945/G094534/20260803002",
+    "publishedAt": "2026-08-03",
+    "pokemonSlugs": [],
+    "tags": [
+      "4Gamer.net"
+    ],
+    "official": false,
+    "categories": [
+      "game"
+    ],
+    "gameTitles": [],
+    "importance": 45,
+    "source": "4gamer-rss",
+    "sourceArticleId": "04a51cb0ecee910efa31",
+    "canonicalUrl": "https://www.4gamer.net/games/945/G094534/20260803002",
+    "firstCollectedAt": "2026-08-05T06:00:40.491Z",
+    "lastCollectedAt": "2026-08-05T06:00:40.491Z",
+    "contentFingerprint": "484ed12a25c1be732f74792becabcc03c503e5bd23b43dd28df33c47dde6815e",
+    "collectorVersion": "2.0.0",
+    "status": "active"
+  }
+]

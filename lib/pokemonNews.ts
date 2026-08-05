@@ -3,8 +3,18 @@ import type {
   PokemonNewsArticle,
   PokemonNewsArticleFreshness,
   PokemonNewsCategory,
+  PokemonNewsContentType,
   PokemonNewsGameTitle
 } from "@/types/pokemonContent";
+import {
+  POKEMON_NEWS_EDITORIAL_PATTERN,
+  POKEMON_NEWS_EVENT_TERMS,
+  POKEMON_NEWS_NEWS_PATTERN,
+  POKEMON_NEWS_RELEVANCE_THRESHOLD,
+  POKEMON_NEWS_SERVICE_TERMS,
+  POKEMON_NEWS_STRONG_TERMS
+} from "@/lib/pokemonNewsSearchConfig";
+import { POKEMON_NEWS_SOURCE_REGISTRY } from "@/lib/pokemonNewsSources";
 
 export const POKEMON_NEWS_CATEGORY_LABELS: Record<PokemonNewsCategory, string> = {
   goods: "グッズ",
@@ -66,6 +76,94 @@ function normalizedText(item: PokemonContentItem): string {
 
 function unique<T>(values: T[]): T[] {
   return [...new Set(values)];
+}
+
+function includesTerm(value: string, term: string): boolean {
+  return value.toLocaleLowerCase("ja").includes(term.toLocaleLowerCase("ja"));
+}
+
+export function scorePokemonNewsRelevance(
+  item: PokemonContentItem,
+  options: { dedicatedPokemonFeed?: boolean; matchedQuery?: string } = {}
+): { score: number; relevant: boolean; evidence: string[] } {
+  const title = item.title.normalize("NFKC");
+  const description = item.summary.normalize("NFKC");
+  const evidence: string[] = [];
+  let score = 0;
+  const titleStrong = POKEMON_NEWS_STRONG_TERMS.filter((term) => includesTerm(title, term));
+  const titleServices = POKEMON_NEWS_SERVICE_TERMS.filter((term) => includesTerm(title, term));
+  const titleEvents = POKEMON_NEWS_EVENT_TERMS.filter((term) => includesTerm(title, term));
+  const incidentalDeveloperReference =
+    /(?:開発元|開発会社|開発チーム|を手がけた|を手掛けた)/i.test(title) &&
+    titleServices.length === 0 &&
+    titleEvents.length === 0;
+  const descriptionStrong = POKEMON_NEWS_STRONG_TERMS.filter((term) => includesTerm(description, term));
+  const descriptionServices = POKEMON_NEWS_SERVICE_TERMS.filter((term) => includesTerm(description, term));
+
+  if (titleStrong.length > 0) {
+    score += 55;
+    evidence.push(`title:strong:${titleStrong[0]}`);
+  }
+  if (titleServices.length > 0) {
+    score += 60;
+    evidence.push(`title:service:${titleServices[0]}`);
+  }
+  if (titleEvents.length > 0) {
+    score += 55;
+    evidence.push(`title:event:${titleEvents[0]}`);
+  }
+  if (descriptionServices.length > 0) {
+    score += 24;
+    evidence.push(`description:service:${descriptionServices[0]}`);
+  } else if (descriptionStrong.length > 0) {
+    score += 14;
+    evidence.push(`description:strong:${descriptionStrong[0]}`);
+  }
+  if (options.dedicatedPokemonFeed) {
+    score += 45;
+    evidence.push("feed:pokemon-dedicated");
+  }
+  if (
+    options.matchedQuery &&
+    (titleStrong.length > 0 || titleServices.length > 0 || titleEvents.length > 0)
+  ) {
+    score += 10;
+    evidence.push("query:title-match");
+  }
+  if (item.sourceKind === "media") {
+    score += 5;
+    evidence.push("source:game-media");
+  }
+  if (incidentalDeveloperReference) {
+    score -= 50;
+    evidence.push("exclude:incidental-developer-reference");
+  }
+  if (
+    titleStrong.length === 0 &&
+    titleServices.length === 0 &&
+    titleEvents.length === 0 &&
+    descriptionStrong.length + descriptionServices.length < 2 &&
+    !options.dedicatedPokemonFeed
+  ) {
+    score = Math.min(score, POKEMON_NEWS_RELEVANCE_THRESHOLD - 1);
+    evidence.push("penalty:description-only");
+  }
+  const bounded = Math.max(0, Math.min(100, score));
+  return {
+    score: bounded,
+    relevant: bounded >= POKEMON_NEWS_RELEVANCE_THRESHOLD,
+    evidence
+  };
+}
+
+export function inferPokemonNewsContentType(
+  title: string,
+  summary = ""
+): PokemonNewsContentType {
+  const text = `${title} ${summary}`.normalize("NFKC");
+  if (POKEMON_NEWS_EDITORIAL_PATTERN.test(text)) return "editorial";
+  if (POKEMON_NEWS_NEWS_PATTERN.test(text)) return "news";
+  return "unknown";
 }
 
 export function resolvePokemonNewsImage(
@@ -140,7 +238,9 @@ export function classifyPokemonNews(item: PokemonContentItem): {
   } catch {
     // URL validation reports malformed URLs separately.
   }
-  const official = item.official ?? OFFICIAL_HOSTS.has(hostname);
+  const official = item.sourceKind
+    ? item.sourceKind === "official"
+    : item.official ?? OFFICIAL_HOSTS.has(hostname);
   if (official) evidence.push("relevance:official-source");
   const strongPokemonEvidence =
     /ポケットモンスター|Pok[eé]mon (?:Center|GO|UNITE|Sleep|Masters|Champions|HOME|LEGENDS|Trading Card)|ポケモン(?:センター|カード|ゲーム|大会|イベント|グッズ|コラボ|キャンペーン|新商品)|ポケカ|WCS\d*/i.test(text) ||
@@ -148,11 +248,12 @@ export function classifyPokemonNews(item: PokemonContentItem): {
     gameTitles.length > 0;
   if (strongPokemonEvidence) evidence.push("relevance:explicit-pokemon-evidence");
 
+  const relevance = scorePokemonNewsRelevance(item);
   return {
     categories,
     gameTitles,
     evidence: unique(evidence),
-    relevant: official || strongPokemonEvidence
+    relevant: official || strongPokemonEvidence || relevance.relevant
   };
 }
 
@@ -178,15 +279,25 @@ export function normalizePokemonNewsItem(
 ): PokemonNewsArticle | null {
   const classification = classifyPokemonNews(item);
   if (!classification.relevant || classification.categories.length === 0) return null;
+  const official = item.sourceKind
+    ? item.sourceKind === "official"
+    : item.official ?? classification.evidence.includes("relevance:official-source");
+  const relevance = official
+    ? { score: item.relevanceScore ?? 100, evidence: [] as string[] }
+    : scorePokemonNewsRelevance(item);
   return {
     ...item,
     sourceUrl: item.url,
     categories: classification.categories,
     gameTitles: classification.gameTitles,
-    official: item.official ?? classification.evidence.includes("relevance:official-source"),
+    official,
+    sourceKind: official ? "official" : "media",
+    contentType: item.contentType ?? inferPokemonNewsContentType(item.title, item.summary),
+    relevanceScore: item.relevanceScore ?? relevance.score,
+    relatedSources: item.relatedSources ?? [],
     importance: inferPokemonNewsImportance(item, classification.categories),
     imageUrl: resolvePokemonNewsImage(item),
-    classificationEvidence: classification.evidence,
+    classificationEvidence: unique([...classification.evidence, ...relevance.evidence]),
     freshness: getPokemonNewsArticleFreshness(item, now)
   };
 }
@@ -260,10 +371,55 @@ function dayDistance(left: string, right: string): number {
   return Math.abs(leftTime - rightTime) / 86_400_000;
 }
 
+function titleBigrams(value: string): Set<string> {
+  const normalized = normalizePokemonNewsTitle(value);
+  if (normalized.length < 2) return new Set([normalized]);
+  return new Set(
+    Array.from({ length: normalized.length - 1 }, (_, index) =>
+      normalized.slice(index, index + 2)
+    )
+  );
+}
+
+export function pokemonNewsTitleSimilarity(left: string, right: string): number {
+  const leftPairs = titleBigrams(left);
+  const rightPairs = titleBigrams(right);
+  const union = new Set([...leftPairs, ...rightPairs]);
+  if (union.size === 0) return 0;
+  const intersection = [...leftPairs].filter((pair) => rightPairs.has(pair)).length;
+  return intersection / union.size;
+}
+
+function sourcePriority(item: PokemonNewsArticle | null): number {
+  if (!item) return 0;
+  return item.sourceId
+    ? POKEMON_NEWS_SOURCE_REGISTRY[item.sourceId]?.sourcePriority ?? 0
+    : item.official ? 100 : 0;
+}
+
+function sameAnnouncement(left: PokemonNewsArticle, right: PokemonNewsArticle): boolean {
+  if (dayDistance(left.publishedAt, right.publishedAt) > 3) return false;
+  if (left.releaseDate && right.releaseDate && left.releaseDate !== right.releaseDate) return false;
+  if (left.eventStartDate && right.eventStartDate && left.eventStartDate !== right.eventStartDate) return false;
+  const exactTitle = normalizePokemonNewsTitle(left.title) === normalizePokemonNewsTitle(right.title);
+  if (exactTitle) return true;
+  if (pokemonNewsTitleSimilarity(left.title, right.title) < 0.86) return false;
+  if (
+    left.contentType !== "unknown" &&
+    right.contentType !== "unknown" &&
+    left.contentType !== right.contentType
+  ) return false;
+  const sharedGame = left.gameTitles.some((title) => right.gameTitles.includes(title));
+  const sharedCategory = left.categories.some((category) => right.categories.includes(category));
+  return sharedGame || sharedCategory;
+}
+
 export type PokemonNewsFeedReport = {
   articles: PokemonNewsArticle[];
   fetchedCount: number;
   duplicateCount: number;
+  officialPreferredDuplicateCount: number;
+  mediaDuplicateCount: number;
   excluded: Array<{ id: string; reason: string }>;
   unclassified: string[];
 };
@@ -276,14 +432,16 @@ export function buildPokemonNewsFeed(
   const excluded: PokemonNewsFeedReport["excluded"] = [];
   const unclassified: string[] = [];
   const canonicalUrls = new Set<string>();
-  const titleCandidates = new Map<string, number>();
   let duplicateCount = 0;
+  let officialPreferredDuplicateCount = 0;
+  let mediaDuplicateCount = 0;
 
   const candidates = items
     .map((item) => ({ raw: item, normalized: normalizePokemonNewsItem(item, now) }))
     .sort((left, right) => {
       const officialDifference = Number(right.normalized?.official ?? false) - Number(left.normalized?.official ?? false);
-      return officialDifference || right.raw.publishedAt.localeCompare(left.raw.publishedAt);
+      const priorityDifference = sourcePriority(right.normalized) - sourcePriority(left.normalized);
+      return officialDifference || priorityDifference || right.raw.publishedAt.localeCompare(left.raw.publishedAt);
     });
 
   for (const { raw, normalized } of candidates) {
@@ -305,28 +463,45 @@ export function buildPokemonNewsFeed(
       excluded.push({ id: raw.id, reason: "invalid-url" });
       continue;
     }
-    const titleKey = normalizePokemonNewsTitle(normalized.title);
-    const titleMatchIndex = titleCandidates.get(titleKey);
-    const titleMatch = titleMatchIndex === undefined ? undefined : accepted[titleMatchIndex];
-    if (
-      canonicalUrls.has(canonicalUrl) ||
-      (titleMatch !== undefined &&
-        dayDistance(titleMatch.publishedAt, normalized.publishedAt) <= 3 &&
-        (!titleMatch.releaseDate || !normalized.releaseDate || titleMatch.releaseDate === normalized.releaseDate) &&
-        (!titleMatch.eventStartDate || !normalized.eventStartDate || titleMatch.eventStartDate === normalized.eventStartDate))
-    ) {
+    const duplicateIndex = accepted.findIndex(
+      (article) => article.sourceUrl === canonicalUrl || sameAnnouncement(article, normalized)
+    );
+    if (canonicalUrls.has(canonicalUrl) || duplicateIndex >= 0) {
       duplicateCount += 1;
+      const representative = accepted[duplicateIndex];
+      if (representative && representative.sourceUrl !== normalized.sourceUrl) {
+        representative.relatedSources = [
+          ...representative.relatedSources,
+          {
+            sourceName: normalized.sourceName,
+            sourceUrl: normalized.sourceUrl,
+            publishedAt: normalized.publishedAt
+          }
+        ];
+        if (representative.official && !normalized.official) {
+          officialPreferredDuplicateCount += 1;
+        } else if (!representative.official && !normalized.official) {
+          mediaDuplicateCount += 1;
+        }
+      }
       continue;
     }
     canonicalUrls.add(canonicalUrl);
-    titleCandidates.set(titleKey, accepted.length);
     accepted.push(normalized);
   }
 
   accepted.sort((left, right) =>
     right.publishedAt.localeCompare(left.publishedAt) || left.id.localeCompare(right.id)
   );
-  return { articles: accepted, fetchedCount: items.length, duplicateCount, excluded, unclassified };
+  return {
+    articles: accepted,
+    fetchedCount: items.length,
+    duplicateCount,
+    officialPreferredDuplicateCount,
+    mediaDuplicateCount,
+    excluded,
+    unclassified
+  };
 }
 
 function explicitDate(value: string): string | undefined {

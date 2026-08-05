@@ -6,7 +6,9 @@ import {
   classifyPokemonNews,
   extractReliablePokemonNewsDates,
   getPokemonNewsArticleFreshness,
-  resolvePokemonNewsImage
+  inferPokemonNewsContentType,
+  resolvePokemonNewsImage,
+  scorePokemonNewsRelevance
 } from "@/lib/pokemonNews";
 import {
   getPokemonNewsSourceFreshness,
@@ -16,6 +18,12 @@ import {
 } from "@/lib/pokemonNewsSources";
 import type { PokemonContentItem } from "@/types/pokemonContent";
 import { preservePreviousItemsForCollectionStatus } from "./content-collectors/collector";
+import {
+  buildGNewsSearchUrls,
+  isGNewsProductionPlanAllowed,
+  parseGNewsResponse,
+  parseMediaRss
+} from "./content-collectors/media";
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
@@ -46,6 +54,10 @@ assert(productionFeed.articles.some((article) => article.categories.includes("ev
 assert(productionFeed.articles.some((article) => article.categories.length > 1), "複数カテゴリ記事がありません");
 assert(productionFeed.articles.every((article) => article.official), "公式記事を公式として判定できません");
 assert(
+  productionFeed.articles.every((article) => article.sourceKind === "official"),
+  "既存7記事のsourceKindをofficialに維持できません"
+);
+assert(
   productionFeed.articles.some((article) => article.gameTitles.includes("Pokémon GO")),
   "Pokémon GO作品タグを付けられません"
 );
@@ -66,7 +78,7 @@ const automationStatuses = new Set<PokemonNewsAutomationStatus>([
 const policyStatuses = new Set<PokemonNewsPolicyStatus>([
   "approved", "pending-review", "disabled-by-policy"
 ]);
-assert(sources.length >= 14, "優先調査対象のsource registryが不足しています");
+assert(sources.length >= 17, "優先調査対象のsource registryが不足しています");
 assert(
   new Set(sources.map((source) => source.id)).size === sources.length,
   "source registryのIDが重複しています"
@@ -80,10 +92,16 @@ for (const source of sources) {
     assert(source.policyStatus === "approved", `${source.id}: 未承認sourceが自動化されています`);
   }
 }
-assert(
-  sources.every((source) => !source.enabled),
-  "利用許可を確認できていないsourceが有効化されています"
-);
+for (const sourceId of ["4gamer-rss", "inside-rss", "gnews-api"] as const) {
+  const source = sources.find((entry) => entry.id === sourceId);
+  assert(
+    source?.enabled &&
+      source.automationStatus === "automatic" &&
+      source.policyStatus === "approved" &&
+      source.sourceKind === "media",
+    `${sourceId}: メディアsource registryが不正です`
+  );
+}
 assert(
   getPokemonNewsSourceFreshness(
     { ...sources[0], automationStatus: "automatic", policyStatus: "approved", enabled: true, lastSuccessfulFetchAt: "2026-08-04", consecutiveFailures: 0 },
@@ -237,6 +255,125 @@ assert(
   "ポケモンの偶発的な単語一致だけで記事を採用しています"
 );
 
+const titleRelevance = scorePokemonNewsRelevance(
+  fixture({ title: "ポケモンの新作ゲームを発表", official: false, sourceKind: "media" })
+);
+assert(titleRelevance.relevant, "titleの強いPokémon語を通過できません");
+const serviceRelevance = scorePokemonNewsRelevance(
+  fixture({ title: "Pokémon Sleepに新機能が登場", official: false, sourceKind: "media" })
+);
+assert(serviceRelevance.relevant, "作品名titleを通過できません");
+const weakDescription = scorePokemonNewsRelevance(
+  fixture({
+    title: "今週のゲーム業界ニュース",
+    summary: "例としてポケモンにも一度触れます。",
+    official: false,
+    sourceKind: "media"
+  })
+);
+assert(!weakDescription.relevant, "descriptionだけの弱い一致を通過しています");
+const incidentalDeveloperArticle = scorePokemonNewsRelevance(
+  fixture({
+    title: "『ポケモン』開発元が手がける別タイトルのレビュー",
+    summary: "Pokémon作品自体の記事ではありません。",
+    official: false,
+    sourceKind: "media"
+  })
+);
+assert(
+  !incidentalDeveloperArticle.relevant,
+  "開発元への偶発的なPokémon言及だけの別作品記事を通過しています"
+);
+assert(
+  inferPokemonNewsContentType("ポケモン新作を発表", "配信情報") === "news" &&
+    inferPokemonNewsContentType("ポケモン新作レビュー", "プレイレポート") === "editorial",
+  "news/editorialの内容区分が不正です"
+);
+
+const fixtureRoot = path.join(process.cwd(), "scripts/fixtures/content-collection");
+const gamerRss = readFileSync(path.join(fixtureRoot, "4gamer-pokemon-feed.rdf"), "utf8");
+const insideRss = readFileSync(path.join(fixtureRoot, "inside-pokemon-feed.rdf"), "utf8");
+const gnewsJson = readFileSync(path.join(fixtureRoot, "gnews-pokemon-response.json"), "utf8");
+const gamerParsed = parseMediaRss(gamerRss, {
+  sourceId: "4gamer-rss",
+  sourceName: "4Gamer.net",
+  allowedHosts: ["www.4gamer.net"],
+  now: testNow,
+  limit: 20
+});
+assert(
+  gamerParsed.candidates.length === 2 &&
+    gamerParsed.candidates.some((article) => article.contentType === "editorial") &&
+    gamerParsed.excludedReasons.includes("pokemon-relevance-below-threshold"),
+  "4Gamer RSSの解析・関連判定が不正です"
+);
+const insideParsed = parseMediaRss(insideRss, {
+  sourceId: "inside-rss",
+  sourceName: "インサイド",
+  allowedHosts: ["www.inside-games.jp"],
+  now: testNow,
+  limit: 20
+});
+assert(
+  insideParsed.candidates.length === 1 &&
+    insideParsed.candidates[0]?.title.includes("ポケカ"),
+  "インサイドRSSの解析が不正です"
+);
+const gnewsParsed = parseGNewsResponse(gnewsJson, "ポケモン", testNow);
+assert(
+  gnewsParsed.candidates.length === 2 &&
+    gnewsParsed.excludedReasons.includes("pokemon-relevance-below-threshold") &&
+    gnewsParsed.candidates.every((article) => article.imageUrl === undefined),
+  "GNews responseの解析・弱い一致除外が不正です"
+);
+assert(buildGNewsSearchUrls(undefined, testNow).length === 0, "API keyなしでGNews通信先を生成しています");
+assert(
+  !isGNewsProductionPlanAllowed(undefined) &&
+    !isGNewsProductionPlanAllowed("free") &&
+    isGNewsProductionPlanAllowed("essential") &&
+    isGNewsProductionPlanAllowed("business") &&
+    isGNewsProductionPlanAllowed("enterprise"),
+  "GNewsの公開運用可能プラン判定が不正です"
+);
+const gnewsUrls = buildGNewsSearchUrls("fixture-secret", testNow);
+assert(
+  gnewsUrls.length > 1 &&
+    gnewsUrls.every((value) => value.includes("lang=ja") && value.includes("country=jp") && value.includes("sortby=publishedAt")),
+  "GNews検索パラメータが不正です"
+);
+
+const mediaDuplicate = fixture({
+  id: "media-duplicate",
+  title: duplicateTitle,
+  sourceName: "4Gamer.net",
+  sourceId: "4gamer-rss",
+  sourceKind: "media",
+  contentType: "news",
+  relevanceScore: 90,
+  url: "https://www.4gamer.net/games/fixture/news.shtml",
+  official: false
+});
+const officialPreferred = buildPokemonNewsFeed([mediaDuplicate, official]);
+assert(
+  officialPreferred.articles[0]?.id === "official" &&
+    officialPreferred.articles[0]?.relatedSources?.[0]?.sourceName === "4Gamer.net" &&
+    officialPreferred.officialPreferredDuplicateCount === 1,
+  "official優先またはrelatedSources保持が不正です"
+);
+const mediaDuplicateResult = buildPokemonNewsFeed([
+  mediaDuplicate,
+  { ...mediaDuplicate, id: "inside-duplicate", sourceId: "inside-rss", sourceName: "インサイド", url: "https://www.inside-games.jp/article/fixture.html" }
+]);
+assert(
+  mediaDuplicateResult.articles.length === 1 && mediaDuplicateResult.mediaDuplicateCount === 1,
+  "media間の重複を抑制できません"
+);
+const separateEditorial = buildPokemonNewsFeed([
+  mediaDuplicate,
+  { ...mediaDuplicate, id: "review", title: `${duplicateTitle}を実機レビュー`, contentType: "editorial", url: "https://www.inside-games.jp/article/review.html" }
+]);
+assert(separateEditorial.articles.length === 2, "別内容のレビューを過剰統合しています");
+
 const extracted = extractReliablePokemonNewsDates(
   "ポケモングッズを2026年8月8日発売",
   "2026年7月20日予約開始、2026年8月7日予約締切"
@@ -274,7 +411,9 @@ for (const label of [
   "注目ニュース",
   "まもなく開始・終了",
   "新着ニュース",
-  "カテゴリで絞り込む"
+  "カテゴリで絞り込む",
+  "情報元で絞り込む",
+  "メディア"
 ]) {
   assert(uiSource.includes(label), `ニュースUIに必要な表示がありません: ${label}`);
 }
@@ -287,5 +426,5 @@ assert(
 assert(uiSource.includes("過去のお知らせ"), "終了済み記事を保持する表示がありません");
 
 console.log(
-  `[ok] TASK059 Pokémon News sources/freshness: sources=${sources.length}, articles=${productionFeed.articles.length}, official=${productionFeed.articles.filter((article) => article.official).length}`
+  `[ok] TASK060 Pokémon News media aggregation: sources=${sources.length}, existingOfficial=${productionFeed.articles.length}, rss/api fixtures=passed`
 );

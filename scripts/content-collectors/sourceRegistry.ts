@@ -31,6 +31,9 @@ export const CONTENT_SOURCE_AUDIT = Object.fromEntries(
 
 const pokemonGo: PokemonNewsSourceDefinition =
   POKEMON_NEWS_SOURCE_REGISTRY["pokemon-go-official-rss"];
+const fourGamer = POKEMON_NEWS_SOURCE_REGISTRY["4gamer-rss"];
+const inside = POKEMON_NEWS_SOURCE_REGISTRY["inside-rss"];
+const gnews = POKEMON_NEWS_SOURCE_REGISTRY["gnews-api"];
 
 export const CONTENT_SOURCE_REGISTRY: Record<
   PokemonContentSource,
@@ -54,6 +57,62 @@ export const CONTENT_SOURCE_REGISTRY: Record<
     maxResponseBytes: 512_000,
     normalItemLimit: 20,
     backfillItemLimit: 50
+  },
+  "4gamer-rss": {
+    id: "4gamer-rss",
+    label: fourGamer.name,
+    feedUrl: fourGamer.feedUrl!,
+    feedUrls: [fourGamer.feedUrl!],
+    robotsUrl: "https://www.4gamer.net/robots.txt",
+    termsUrl: "https://www.4gamer.net/rss/rss.shtml",
+    allowedDomains: ["www.4gamer.net", "4gamer.net"],
+    automationAllowed: fourGamer.enabled && fourGamer.policyStatus === "approved",
+    policyNote: fourGamer.policyFinding,
+    requestDelayMs: 1_000,
+    timeoutMs: 15_000,
+    retries: 2,
+    maxResponseBytes: 2_000_000,
+    normalItemLimit: 250,
+    backfillItemLimit: 500
+  },
+  "inside-rss": {
+    id: "inside-rss",
+    label: inside.name,
+    feedUrl: inside.feedUrl!,
+    feedUrls: [
+      "https://www.inside-games.jp/rss/index.rdf",
+      "https://www.inside-games.jp/rss/nintendo.rdf",
+      "https://www.inside-games.jp/rss/mobile.rdf"
+    ],
+    robotsUrl: "https://www.inside-games.jp/robots.txt",
+    termsUrl: "https://www.inside-games.jp/rss/",
+    allowedDomains: ["www.inside-games.jp", "inside-games.jp"],
+    automationAllowed: inside.enabled && inside.policyStatus === "approved",
+    policyNote: inside.policyFinding,
+    requestDelayMs: 1_000,
+    timeoutMs: 15_000,
+    retries: 2,
+    maxResponseBytes: 1_000_000,
+    normalItemLimit: 100,
+    backfillItemLimit: 250
+  },
+  "gnews-api": {
+    id: "gnews-api",
+    label: gnews.name,
+    feedUrl: gnews.feedUrl!,
+    feedUrls: [gnews.feedUrl!],
+    robotsUrl: "https://gnews.io/robots.txt",
+    termsUrl: "https://gnews.io/legal/terms-of-service",
+    allowedDomains: ["gnews.io"],
+    automationAllowed: gnews.enabled && gnews.policyStatus === "approved",
+    policyNote: gnews.policyFinding,
+    requestDelayMs: 1_000,
+    timeoutMs: 15_000,
+    retries: 1,
+    maxResponseBytes: 1_000_000,
+    normalItemLimit: 100,
+    backfillItemLimit: 100,
+    requiresApiKey: true
   }
 };
 

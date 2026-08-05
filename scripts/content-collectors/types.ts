@@ -3,12 +3,13 @@ import type {
   PokemonContentSource
 } from "../../types/pokemonContent";
 
-export const CONTENT_COLLECTOR_VERSION = "1.1.0";
+export const CONTENT_COLLECTOR_VERSION = "2.0.0";
 
 export type ContentSourceConfig = {
   id: PokemonContentSource;
   label: string;
   feedUrl: string;
+  feedUrls?: string[];
   robotsUrl: string;
   termsUrl: string;
   allowedDomains: string[];
@@ -20,6 +21,7 @@ export type ContentSourceConfig = {
   maxResponseBytes: number;
   normalItemLimit: number;
   backfillItemLimit: number;
+  requiresApiKey?: boolean;
 };
 
 export type ContentSourceState = {
@@ -30,6 +32,12 @@ export type ContentSourceState = {
   lastArticlePublishedAt?: string | null;
   consecutiveFailures?: number;
   lastError?: string;
+  lastStatus?: ContentSourceStats["status"];
+  lastCandidateCount?: number;
+  lastAcceptedCount?: number;
+  lastExcludedCount?: number;
+  lastDuplicateCount?: number;
+  lastExclusionReasons?: Record<string, number>;
 };
 
 export type ContentCollectionState = {
@@ -39,7 +47,16 @@ export type ContentCollectionState = {
 };
 
 export type ContentSourceStats = {
-  status: "success" | "failed" | "disabled-by-policy" | "empty-preserved";
+  status:
+    | "success"
+    | "failed"
+    | "disabled-by-policy"
+    | "empty-preserved"
+    | "no-matches"
+    | "empty-feed"
+    | "rate-limited"
+    | "authentication-error"
+    | "disabled";
   candidateCount: number;
   acceptedCount: number;
   excludedCount: number;
@@ -78,5 +95,5 @@ export type HttpResult =
     };
 
 export type ContentFetchClient = {
-  fetchText(value: string, expected: "xml" | "text"): Promise<HttpResult>;
+  fetchText(value: string, expected: "xml" | "text" | "json"): Promise<HttpResult>;
 };

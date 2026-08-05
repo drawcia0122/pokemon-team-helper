@@ -25,6 +25,8 @@ const gameTitles = new Set([
   "ポケポケ",
   "その他ゲーム"
 ]);
+const sourceKinds = new Set(["official", "media"]);
+const contentTypes = new Set(["news", "editorial", "unknown"]);
 const dateKeys = [
   "publishedAt",
   "releaseDate",
@@ -141,6 +143,33 @@ export function validatePokemonContent(
     if (item.official !== undefined && typeof item.official !== "boolean") {
       errors.push(`${context}: official が不正です`);
     }
+    if (item.sourceKind !== undefined && !sourceKinds.has(item.sourceKind)) {
+      errors.push(`${context}: sourceKind が不正です`);
+    }
+    if (item.contentType !== undefined && !contentTypes.has(item.contentType)) {
+      errors.push(`${context}: contentType が不正です`);
+    }
+    if (
+      item.relevanceScore !== undefined &&
+      (typeof item.relevanceScore !== "number" ||
+        !Number.isFinite(item.relevanceScore) ||
+        item.relevanceScore < 0 ||
+        item.relevanceScore > 100)
+    ) {
+      errors.push(`${context}: relevanceScore が不正です`);
+    }
+    if (
+      item.relatedSources !== undefined &&
+      (!Array.isArray(item.relatedSources) ||
+        item.relatedSources.some(
+          (source) =>
+            typeof source.sourceName !== "string" ||
+            !httpsUrl(source.sourceUrl) ||
+            !validDate(source.publishedAt)
+        ))
+    ) {
+      errors.push(`${context}: relatedSources が不正です`);
+    }
     if (
       item.sourceId !== undefined &&
       !(item.sourceId in POKEMON_NEWS_SOURCE_REGISTRY)
@@ -174,7 +203,7 @@ export function validatePokemonContent(
 
     if ("source" in item) {
       const generated = item as Partial<GeneratedPokemonContentItem>;
-      if (generated.source !== "pokemon-go-official-rss") {
+      if (!(generated.source! in POKEMON_NEWS_SOURCE_REGISTRY)) {
         errors.push(`${context}: 自動収集sourceが不正です`);
       }
       for (const key of ["sourceArticleId", "canonicalUrl", "contentFingerprint", "collectorVersion", "status"] as const) {

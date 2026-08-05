@@ -23,9 +23,14 @@ export function parseContentCollectionArgs(argv: string[]): {
     }
     if (argument === "--source") {
       const value = argv[index + 1];
-      if (value !== "pokemon-go-official-rss") {
+      if (
+        value !== "pokemon-go-official-rss" &&
+        value !== "4gamer-rss" &&
+        value !== "inside-rss" &&
+        value !== "gnews-api"
+      ) {
         throw new Error(
-          "--source には pokemon-go-official-rss を指定してください"
+          "--source には登録済みcontent source IDを指定してください"
         );
       }
       source = value;

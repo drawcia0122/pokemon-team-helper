@@ -9,7 +9,10 @@
 .kindFilters { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
 .kindFilters button { min-height: 36px; padding: 7px 12px; border: 1px solid #bfd5c6; border-radius: 999px; background: #f7fbf8; color: #355b45; cursor: pointer; font-size: .78rem; font-weight: 800; }
 .kindFilters button[aria-pressed="true"] { border-color: #176f42; background: #176f42; color: #fff; box-shadow: 0 4px 11px rgba(23,111,66,.18); }
-.kindFilters button:focus-visible,.reset:focus-visible,.pokemon button:focus-visible,.newsTags button:focus-visible,.cardBody > a:focus-visible { outline: 3px solid rgba(22,129,77,.3); outline-offset: 2px; }
+.sourceFilters { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin: -5px 0 14px; color: #53665a; font-size: .75rem; font-weight: 800; }
+.sourceFilters button { min-height: 32px; padding: 5px 11px; border: 1px solid #c7d5de; border-radius: 999px; background: #f7fafc; color: #426070; cursor: pointer; font-size: .74rem; font-weight: 800; }
+.sourceFilters button[aria-pressed="true"] { border-color: #2771a9; background: #2771a9; color: #fff; }
+.kindFilters button:focus-visible,.sourceFilters button:focus-visible,.reset:focus-visible,.pokemon button:focus-visible,.newsTags button:focus-visible,.cardBody > a:focus-visible { outline: 3px solid rgba(22,129,77,.3); outline-offset: 2px; }
 .filters { display: grid; grid-template-columns: minmax(260px,2fr) minmax(150px,1fr) auto; align-items: end; gap: 10px; }
 .filters label { display: grid; gap: 6px; min-width: 0; color: #53665a; font-size: .75rem; font-weight: 800; }
 .filters input,.filters select { width: 100%; min-width: 0; min-height: 42px; padding: 9px 11px; border: 1px solid #bed2c4; border-radius: 10px; outline: none; background: #fbfefc; color: #183126; }
@@ -35,6 +38,8 @@
 .meta { color: #67766d; font-size: .7rem; }
 .meta span,.meta time { padding: 4px 7px; border-radius: 999px; background: #edf3ef; }
 .meta .official { color: #22658e; background: #e7f2fa; font-weight: 850; }
+.meta .media { color: #7a4b12; background: #fff0d5; font-weight: 850; }
+.meta .editorial { color: #6a4b86; background: #f3eafa; font-weight: 850; }
 .statuses { margin: 9px 0; }
 .status,.deadline,.ended { padding: 5px 8px; border-radius: 8px; font-size: .72rem; }
 .status { color: #17623b; background: #e8f5ec; }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns="http://purl.org/rss/1.0/">
+  <channel rdf:about="https://www.inside-games.jp/"><title>INSIDE</title></channel>
+  <item rdf:about="https://www.inside-games.jp/article/2026/08/05/100001.html">
+    <title>『ポケカ』新拡張パックが発売、記念イベントも開催</title>
+    <link>https://www.inside-games.jp/article/2026/08/05/100001.html</link>
+    <dc:date>2026-08-05T05:00:00Z</dc:date>
+  </item>
+  <item rdf:about="https://www.inside-games.jp/article/2026/08/05/100002.html">
+    <title>人気ゲームのアップデート情報</title>
+    <link>https://www.inside-games.jp/article/2026/08/05/100002.html</link>
+    <dc:date>2026-08-05T04:00:00Z</dc:date>
+  </item>
+</rdf:RDF>

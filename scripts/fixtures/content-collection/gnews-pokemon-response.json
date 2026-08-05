@@ -1,0 +1,28 @@
+{
+  "totalArticles": 3,
+  "articles": [
+    {
+      "title": "『Pokémon LEGENDS』最新映像と発売日を公開",
+      "description": "ポケモン最新作のゲーム情報が発表されました。",
+      "content": "保存してはいけない本文",
+      "url": "https://media.example.jp/pokemon-legends-news",
+      "image": "https://media.example.jp/images/pokemon.jpg",
+      "publishedAt": "2026-08-05T01:00:00Z",
+      "source": { "name": "ゲームニュース", "url": "https://media.example.jp/" }
+    },
+    {
+      "title": "新作ゲームの市場動向",
+      "description": "記事中でポケモンという作品を一度だけ例示しています。",
+      "url": "https://media.example.jp/general-market",
+      "publishedAt": "2026-08-05T00:30:00Z",
+      "source": { "name": "一般ニュース", "url": "https://media.example.jp/" }
+    },
+    {
+      "title": "『ポケモンGO』夏イベント攻略まとめ",
+      "description": "期間限定イベントの攻略ポイントを紹介します。",
+      "url": "https://media.example.jp/pokemon-go-guide",
+      "publishedAt": "2026-08-04T23:00:00Z",
+      "source": { "name": "ゲームニュース", "url": "https://media.example.jp/" }
+    }
+  ]
+}

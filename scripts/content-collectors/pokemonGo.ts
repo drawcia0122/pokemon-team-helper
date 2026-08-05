@@ -118,7 +118,7 @@ function classify(title: string): ContentKind {
   return "news";
 }
 
-function exactPokemonSlugs(title: string, pokemon: PokemonEntry[]): string[] {
+export function exactPokemonSlugs(title: string, pokemon: PokemonEntry[]): string[] {
   const byName = new Map<string, Set<string>>();
   for (const entry of pokemon) {
     for (const name of [entry.nameEn, entry.nameJa]) {
@@ -155,9 +155,9 @@ function tagsFor(kind: ContentKind, title: string): string[] {
 export function contentFingerprint(
   item: Pick<
     GeneratedPokemonContentItem,
-    "kind" | "title" | "summary" | "sourceId" | "url" | "publishedAt" | "pokemonSlugs" | "tags" |
+    "kind" | "title" | "summary" | "sourceId" | "sourceKind" | "contentType" | "relevanceScore" | "url" | "publishedAt" | "pokemonSlugs" | "tags" |
       "categories" | "gameTitles" | "official" | "importance" | "releaseDate" |
-      "preorderStartDate" | "preorderDeadlineDate" | "eventStartDate" | "eventEndDate"
+      "preorderStartDate" | "preorderDeadlineDate" | "eventStartDate" | "eventEndDate" | "imageUrl"
   >
 ): string {
   const normalized = {
@@ -165,6 +165,9 @@ export function contentFingerprint(
     title: item.title,
     summary: item.summary,
     sourceId: item.sourceId,
+    sourceKind: item.sourceKind,
+    contentType: item.contentType,
+    relevanceScore: item.relevanceScore,
     url: item.url,
     publishedAt: item.publishedAt,
     pokemonSlugs: item.pokemonSlugs,
@@ -177,7 +180,8 @@ export function contentFingerprint(
     preorderStartDate: item.preorderStartDate,
     preorderDeadlineDate: item.preorderDeadlineDate,
     eventStartDate: item.eventStartDate,
-    eventEndDate: item.eventEndDate
+    eventEndDate: item.eventEndDate,
+    imageUrl: item.imageUrl
   };
   return createHash("sha256")
     .update(JSON.stringify(normalized))
@@ -207,6 +211,9 @@ export function createPokemonGoContentItem(input: {
     targetGame: "Pokémon GO",
     platforms: ["iOS", "Android"],
     official: true,
+    sourceKind: "official" as const,
+    contentType: "news" as const,
+    relevanceScore: 100,
     ...extractReliablePokemonNewsDates(input.candidate.title, summary)
   };
   const classification = classifyPokemonNews(draft);

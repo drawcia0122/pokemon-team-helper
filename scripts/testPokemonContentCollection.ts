@@ -218,6 +218,7 @@ const disabledStatusBefore = await readFile(
 );
 const disabledClient = new CountingRejectClient();
 const disabled = await collectPokemonContent({
+  source: "pokemon-go-official-rss",
   rootDir: disabledTemp.root,
   paths: disabledTemp.paths,
   clients: { "pokemon-go-official-rss": disabledClient }
@@ -293,6 +294,45 @@ assert(
   "環境変数だけでpolicy gateを迂回できてしまいます"
 );
 
+const gnewsWithoutKeyClient = new CountingRejectClient();
+const previousGnewsKey = process.env.GNEWS_API_KEY;
+const previousGnewsPlan = process.env.GNEWS_PLAN;
+try {
+  delete process.env.GNEWS_API_KEY;
+  delete process.env.GNEWS_PLAN;
+  const gnewsWithoutKey = await collectPokemonContent({
+    source: "gnews-api",
+    rootDir: disabledTemp.root,
+    paths: disabledTemp.paths,
+    clients: { "gnews-api": gnewsWithoutKeyClient }
+  });
+  assert(
+    gnewsWithoutKey.sourceStats["gnews-api"]?.status === "disabled" &&
+      gnewsWithoutKeyClient.callCount === 0 &&
+      !gnewsWithoutKey.failed &&
+      !gnewsWithoutKey.wroteFiles,
+    "API keyなしのGNews collectorが無通信でRSS更新を妨げています"
+  );
+  process.env.GNEWS_API_KEY = "fixture-secret";
+  const gnewsUnconfirmedPlan = await collectPokemonContent({
+    source: "gnews-api",
+    rootDir: disabledTemp.root,
+    paths: disabledTemp.paths,
+    clients: { "gnews-api": gnewsWithoutKeyClient }
+  });
+  assert(
+    gnewsUnconfirmedPlan.sourceStats["gnews-api"]?.status === "disabled-by-policy" &&
+      gnewsWithoutKeyClient.callCount === 0 &&
+      !gnewsUnconfirmedPlan.wroteFiles,
+    "GNewsの公開運用プラン未確認時にcollectorを無通信停止できません"
+  );
+} finally {
+  if (previousGnewsKey === undefined) delete process.env.GNEWS_API_KEY;
+  else process.env.GNEWS_API_KEY = previousGnewsKey;
+  if (previousGnewsPlan === undefined) delete process.env.GNEWS_PLAN;
+  else process.env.GNEWS_PLAN = previousGnewsPlan;
+}
+
 const temp = await createTempRoot();
 const first = await collectPokemonContentForFixtureTest({
   rootDir: temp.root,
@@ -366,6 +406,66 @@ const compactFeedResult = await collectPokemonContentForFixtureTest({
   now: new Date("2026-07-21T12:00:00.000Z")
 }, [fixtureSourceConfig]);
 assert(!compactFeedResult.wroteFiles, "RSSの空白差だけで状態差分を生成しています");
+
+const mediaRss = await readFile(
+  path.join(fixtureRoot, "4gamer-pokemon-feed.rdf"),
+  "utf8"
+);
+const mediaTemp = await createTempRoot();
+const mediaFixtureResult = await collectPokemonContentForFixtureTest(
+  {
+    rootDir: mediaTemp.root,
+    paths: mediaTemp.paths,
+    clients: {
+      "4gamer-rss": new FixtureClient({
+        ok: true,
+        url: "https://www.4gamer.net/rss/index.xml",
+        status: 200,
+        contentType: "application/rdf+xml",
+        text: mediaRss
+      })
+    },
+    now: new Date("2026-08-05T00:00:00.000Z")
+  },
+  [CONTENT_SOURCE_REGISTRY["4gamer-rss"]]
+);
+assert(
+  mediaFixtureResult.generatedItems.length === 2 &&
+    mediaFixtureResult.generatedItems.every(
+      (item) => item.source === "4gamer-rss" && item.sourceKind === "media"
+    ) &&
+    mediaFixtureResult.generatedItems.every(
+      (item) => !item.categories?.includes("anime-video")
+    ) &&
+    mediaFixtureResult.sourceStats["4gamer-rss"]?.exclusionReasons[
+      "pokemon-relevance-below-threshold"
+    ] === 1,
+  "media RSSのmetadata生成または関連度除外が不正です"
+);
+const preservedMediaResult = await collectPokemonContentForFixtureTest(
+  {
+    rootDir: mediaTemp.root,
+    paths: mediaTemp.paths,
+    clients: {
+      "4gamer-rss": new FixtureClient({
+        ok: false,
+        url: "https://www.4gamer.net/rss/index.xml",
+        status: 503,
+        reason: "http-503",
+        permanent: false
+      })
+    },
+    writeFiles: false,
+    now: new Date("2026-08-06T00:00:00.000Z")
+  },
+  [CONTENT_SOURCE_REGISTRY["4gamer-rss"]]
+);
+assert(
+  preservedMediaResult.generatedItems.length === 2 &&
+    preservedMediaResult.sourceStats["4gamer-rss"]?.status === "failed" &&
+    preservedMediaResult.sourceStats["4gamer-rss"]?.preservedCount === 2,
+  "media RSS失敗時に前回の正常記事を維持できません"
+);
 
 const singleItemFeed = rss.replace(
   /<item>\s*<title>Lucario battle update<\/title>[\s\S]*?<\/item>/,
@@ -481,6 +581,12 @@ assert(
     "pokemon-go-official-rss",
   "source選択を解析できません"
 );
+for (const source of ["4gamer-rss", "inside-rss", "gnews-api"] as const) {
+  assert(
+    parseContentCollectionArgs(["--source", source]).source === source,
+    `${source}のsource選択を解析できません`
+  );
+}
 let unknownArgumentRejected = false;
 try {
   parseContentCollectionArgs(["--source", "https://example.com/feed"]);
@@ -494,20 +600,24 @@ assert(
 
 const configuredDomains = getContentSourceConfigs().flatMap((source) => source.allowedDomains);
 assert(
-  getContentSourceConfigs().every((source) => !source.automationAllowed),
-  "規約確認が完了していないソースが有効化されています"
+  !CONTENT_SOURCE_REGISTRY["pokemon-go-official-rss"].automationAllowed &&
+    CONTENT_SOURCE_REGISTRY["4gamer-rss"].automationAllowed &&
+    CONTENT_SOURCE_REGISTRY["inside-rss"].automationAllowed &&
+    CONTENT_SOURCE_REGISTRY["gnews-api"].automationAllowed,
+  "規約確認に基づくcollector有効状態が不正です"
 );
-assert(configuredDomains.length === 0, "ライブallowlistが空ではありません");
 assert(
-  Object.values(CONTENT_SOURCE_AUDIT).length >= 14 &&
+  Object.values(CONTENT_SOURCE_AUDIT).length >= 17 &&
     Object.values(CONTENT_SOURCE_AUDIT).every(
       (source) =>
         /^\d{4}-\d{2}-\d{2}$/.test(source.checkedAt) &&
-        !source.automationAllowed &&
-        source.automationDecision !== ("allowed" as string)
+        (!source.automationAllowed || source.automationDecision === "approved")
     ),
-  "規約監査レコードが不足しているか、allowedソースが混入しています"
+  "規約監査レコードが不足しているか、未承認sourceが有効化されています"
 );
+for (const domain of ["www.4gamer.net", "www.inside-games.jp", "gnews.io"]) {
+  assert(configuredDomains.includes(domain), `許可済み通信先がallowlistにありません: ${domain}`);
+}
 for (const forbidden of ["pokesol.app", "game8.jp", "gamewith.jp", "x.com", "youtube.com"]) {
   assert(!configuredDomains.includes(forbidden), `通信禁止ドメインが登録されています: ${forbidden}`);
 }
@@ -521,6 +631,11 @@ assert(/^\s*workflow_dispatch:/m.test(workflow), "workflow_dispatchがありま�
 assert(
   /source:\s*\n(?:\s+.*\n)*?\s+type: choice/.test(workflow) &&
     workflow.includes("- pokemon-go-official-rss") &&
+    workflow.includes("- 4gamer-rss") &&
+    workflow.includes("- inside-rss") &&
+    workflow.includes("- gnews-api") &&
+    workflow.includes("GNEWS_API_KEY") &&
+    workflow.includes("GNEWS_PLAN") &&
     !workflow.includes("type: string"),
   "workflowのsource入力が登録済みIDのchoiceに限定されていません"
 );

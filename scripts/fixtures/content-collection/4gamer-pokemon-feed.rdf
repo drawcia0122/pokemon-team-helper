@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/" xmlns="http://purl.org/rss/1.0/">
+  <channel rdf:about="https://www.4gamer.net"><title>4Gamer.net</title></channel>
+  <item rdf:about="https://www.4gamer.net/games/001/G000001/20260805001/">
+    <title>「Pokémon Champions」，新シーズンを8月10日に開始</title>
+    <link>https://www.4gamer.net/games/001/G000001/20260805001/</link>
+    <dc:date>2026-08-05T10:00:00+09:00</dc:date>
+    <description>対戦ゲーム「Pokémon Champions」の新シーズンと大会情報が発表された。</description>
+    <media:thumbnail url="https://www.4gamer.net/images/pokemon-champions.jpg" />
+  </item>
+  <item rdf:about="https://www.4gamer.net/games/001/G000001/20260804001/">
+    <title>［レビュー］「ポケモンGO」の大型イベントを遊んでみた</title>
+    <link>https://www.4gamer.net/games/001/G000001/20260804001/</link>
+    <dc:date>2026-08-04T10:00:00+09:00</dc:date>
+    <description>Pokémon GOのイベントを紹介するプレイレポート。</description>
+  </item>
+  <item rdf:about="https://www.4gamer.net/games/002/G000002/20260805002/">
+    <title>新作ファンタジーRPGの配信日が決定</title>
+    <link>https://www.4gamer.net/games/002/G000002/20260805002/</link>
+    <dc:date>2026-08-05T09:00:00+09:00</dc:date>
+    <description>ポケモンという言葉を例に挙げた一般的なゲーム紹介。</description>
+  </item>
+</rdf:RDF>

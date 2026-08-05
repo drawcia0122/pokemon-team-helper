@@ -19,6 +19,14 @@ import {
   createPokemonGoContentItem,
   parsePokemonGoRss
 } from "./pokemonGo";
+import {
+  buildGNewsSearchUrls,
+  createMediaContentItem,
+  isGNewsProductionPlanAllowed,
+  parseGNewsResponse,
+  parseMediaRss,
+  type MediaFeedCandidate
+} from "./media";
 import { getContentSourceConfigs } from "./sourceRegistry";
 import {
   CONTENT_COLLECTOR_VERSION,
@@ -62,7 +70,7 @@ export function preservePreviousItemsForCollectionStatus<T>(
   collected: T[],
   status: ContentSourceStats["status"]
 ): T[] {
-  return status === "failed" || status === "empty-preserved" ? previous : collected;
+  return status === "success" ? collected : previous;
 }
 
 function emptyStats(status: ContentSourceStats["status"]): ContentSourceStats {
@@ -318,6 +326,239 @@ async function collectPokemonGoSource(input: {
   };
 }
 
+function stateWithStats(input: {
+  state: ContentCollectionState;
+  source: PokemonContentSource;
+  previous: ContentCollectionState["sources"][PokemonContentSource];
+  stats: ContentSourceStats;
+  candidates: MediaFeedCandidate[];
+  items: GeneratedPokemonContentItem[];
+  nowIso: string;
+  successfulFetch: boolean;
+  error?: string;
+}): ContentCollectionState {
+  const nextFingerprint = feedFingerprint(input.candidates);
+  const itemFingerprints = Object.fromEntries(
+    input.items
+      .map((item) => [item.sourceArticleId, item.contentFingerprint] as const)
+      .sort(([a], [b]) => a.localeCompare(b))
+  );
+  const unchanged =
+    input.previous?.feedFingerprint === nextFingerprint &&
+    input.previous.articleIds.length === input.items.length &&
+    input.items.every(
+      (item) => input.previous?.itemFingerprints[item.sourceArticleId] === item.contentFingerprint
+    );
+  return {
+    ...input.state,
+    collectorVersion: CONTENT_COLLECTOR_VERSION,
+    sources: {
+      ...input.state.sources,
+      [input.source]: {
+        feedFingerprint: input.successfulFetch
+          ? nextFingerprint
+          : input.previous?.feedFingerprint ?? "",
+        articleIds: input.items.map((item) => item.sourceArticleId).sort(),
+        itemFingerprints,
+        lastSuccessfulFetchAt: input.successfulFetch
+          ? unchanged
+            ? input.previous?.lastSuccessfulFetchAt ?? input.nowIso
+            : input.nowIso
+          : input.previous?.lastSuccessfulFetchAt,
+        lastArticlePublishedAt:
+          input.items[0]?.publishedAt ?? input.previous?.lastArticlePublishedAt ?? null,
+        consecutiveFailures: input.successfulFetch
+          ? 0
+          : (input.previous?.consecutiveFailures ?? 0) + 1,
+        ...(input.error ? { lastError: input.error } : {}),
+        lastStatus: input.stats.status,
+        lastCandidateCount: input.stats.candidateCount,
+        lastAcceptedCount: input.stats.acceptedCount,
+        lastExcludedCount: input.stats.excludedCount,
+        lastDuplicateCount: input.stats.duplicateCount,
+        lastExclusionReasons: input.stats.exclusionReasons
+      }
+    }
+  };
+}
+
+function failureStatus(reason: string): ContentSourceStats["status"] {
+  if (reason.includes("http-429")) return "rate-limited";
+  if (reason.includes("http-401") || reason.includes("http-403")) {
+    return "authentication-error";
+  }
+  return "failed";
+}
+
+async function collectMediaSource(input: {
+  config: ContentSourceConfig;
+  client: ContentFetchClient;
+  existing: GeneratedPokemonContentItem[];
+  manual: PokemonContentItem[];
+  pokemon: PokemonEntry[];
+  state: ContentCollectionState;
+  now: Date;
+  nowIso: string;
+  backfill: boolean;
+}) {
+  const stats = emptyStats("success");
+  const previous = input.state.sources[input.config.id];
+  if (!input.config.automationAllowed) {
+    stats.status = "disabled-by-policy";
+    stats.preservedCount = input.existing.length;
+    return { items: input.existing, state: input.state, stats, communicatedDomains: [] };
+  }
+
+  const isGNews = input.config.id === "gnews-api";
+  const hasGNewsKey = Boolean(process.env.GNEWS_API_KEY?.trim());
+  const hasProductionGNewsPlan = isGNewsProductionPlanAllowed(process.env.GNEWS_PLAN);
+  if (isGNews && !hasGNewsKey) {
+    stats.status = "disabled";
+    stats.preservedCount = input.existing.length;
+    return { items: input.existing, state: input.state, stats, communicatedDomains: [] };
+  }
+  if (isGNews && !hasProductionGNewsPlan) {
+    stats.status = "disabled-by-policy";
+    stats.error = "gnews-production-plan-not-confirmed";
+    stats.preservedCount = input.existing.length;
+    return { items: input.existing, state: input.state, stats, communicatedDomains: [] };
+  }
+  const apiUrls = isGNews
+    ? buildGNewsSearchUrls(process.env.GNEWS_API_KEY, input.now)
+    : input.config.feedUrls ?? [input.config.feedUrl];
+
+  const candidates: MediaFeedCandidate[] = [];
+  const seenUrls = new Set<string>();
+  const errors: string[] = [];
+  const communicatedDomains = new Set<string>();
+  let rawCount = 0;
+  let successfulFetches = 0;
+  for (const url of apiUrls) {
+    communicatedDomains.add(new URL(url).hostname);
+    const response = await input.client.fetchText(url, isGNews ? "json" : "xml");
+    if (!response.ok) {
+      errors.push(response.reason);
+      continue;
+    }
+    successfulFetches += 1;
+    try {
+      const parsed = isGNews
+        ? parseGNewsResponse(
+            response.text,
+            new URL(url).searchParams.get("q") ?? "",
+            input.now
+          )
+        : parseMediaRss(response.text, {
+            sourceId: input.config.id as "4gamer-rss" | "inside-rss",
+            sourceName: input.config.label,
+            allowedHosts: input.config.allowedDomains,
+            now: input.now,
+            limit: input.backfill
+              ? input.config.backfillItemLimit
+              : input.config.normalItemLimit
+          });
+      rawCount += parsed.rawCount;
+      for (const reason of parsed.excludedReasons) addReason(stats, reason);
+      for (const candidate of parsed.candidates) {
+        if (seenUrls.has(candidate.canonicalUrl)) {
+          stats.duplicateCount += 1;
+          continue;
+        }
+        seenUrls.add(candidate.canonicalUrl);
+        candidates.push(candidate);
+      }
+    } catch (error) {
+      errors.push(error instanceof Error ? error.message : "parse-error");
+    }
+  }
+  stats.candidateCount = rawCount;
+
+  if (successfulFetches === 0 || (errors.length > 0 && candidates.length === 0 && rawCount === 0)) {
+    stats.status = failureStatus(errors.join(","));
+    stats.error = errors.join(",") || "collector-failed";
+    stats.preservedCount = input.existing.length;
+    return {
+      items: input.existing,
+      state: stateWithStats({
+        state: input.state,
+        source: input.config.id,
+        previous,
+        stats,
+        candidates: [],
+        items: input.existing,
+        nowIso: input.nowIso,
+        successfulFetch: false,
+        error: stats.error
+      }),
+      stats,
+      communicatedDomains: [...communicatedDomains]
+    };
+  }
+
+  if (rawCount === 0 || candidates.length === 0) {
+    stats.status = rawCount === 0 ? "empty-feed" : "no-matches";
+    stats.preservedCount = input.existing.length;
+    const partialError = errors.length > 0 ? `partial:${errors.join(",")}` : undefined;
+    return {
+      items: input.existing,
+      state: stateWithStats({
+        state: input.state,
+        source: input.config.id,
+        previous,
+        stats,
+        candidates,
+        items: input.existing,
+        nowIso: input.nowIso,
+        successfulFetch: true,
+        error: partialError
+      }),
+      stats,
+      communicatedDomains: [...communicatedDomains]
+    };
+  }
+
+  const existingByArticleId = new Map(
+    input.existing.map((item) => [item.sourceArticleId, item])
+  );
+  const collectedIds = new Set<string>();
+  const created: GeneratedPokemonContentItem[] = [];
+  for (const candidate of candidates) {
+    collectedIds.add(candidate.sourceArticleId);
+    const result = createMediaContentItem({
+      candidate,
+      pokemon: input.pokemon,
+      nowIso: input.nowIso,
+      existing: existingByArticleId.get(candidate.sourceArticleId)
+    });
+    created.push(result.item);
+    stats.acceptedCount += 1;
+    if (result.change === "new") stats.newCount += 1;
+    if (result.change === "updated") stats.updatedCount += 1;
+    if (result.change === "unchanged") stats.unchangedCount += 1;
+  }
+  const retained = input.existing.filter((item) => !collectedIds.has(item.sourceArticleId));
+  stats.preservedCount = retained.length;
+  const items = deduplicateAgainstManual([...created, ...retained], input.manual, stats)
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  const partialError = errors.length > 0 ? `partial:${errors.join(",")}` : undefined;
+  return {
+    items,
+    state: stateWithStats({
+      state: input.state,
+      source: input.config.id,
+      previous,
+      stats,
+      candidates,
+      items,
+      nowIso: input.nowIso,
+      successfulFetch: true,
+      error: partialError
+    }),
+    stats,
+    communicatedDomains: [...communicatedDomains]
+  };
+}
+
 async function collectPokemonContentWithConfigs(
   options: CollectPokemonContentOptions,
   configs: ContentSourceConfig[]
@@ -344,21 +585,34 @@ async function collectPokemonContentWithConfigs(
   let attemptedCount = 0;
 
   for (const config of configs) {
-    if (config.automationAllowed) attemptedCount += 1;
+    if (
+      config.automationAllowed &&
+      (!config.requiresApiKey ||
+        (Boolean(process.env.GNEWS_API_KEY?.trim()) &&
+          isGNewsProductionPlanAllowed(process.env.GNEWS_PLAN)))
+    ) attemptedCount += 1;
     const client = options.clients?.[config.id] ?? new SafeContentHttpClient(config);
-    const result = await collectPokemonGoSource({
+    const now = options.now ?? new Date();
+    const common = {
       config,
       client,
       existing: generatedBySource(nextGenerated, config.id),
       manual,
       pokemon,
       state,
-      nowIso: (options.now ?? new Date()).toISOString(),
+      nowIso: now.toISOString(),
       backfill: options.backfill ?? false
-    });
+    };
+    const result = config.id === "pokemon-go-official-rss"
+      ? await collectPokemonGoSource(common)
+      : await collectMediaSource({ ...common, now });
     sourceStats[config.id] = result.stats;
     result.communicatedDomains.forEach((domain) => communicatedDomains.add(domain));
-    if (result.stats.status === "success") successCount += 1;
+    if (
+      result.stats.status === "success" ||
+      result.stats.status === "no-matches" ||
+      result.stats.status === "empty-feed"
+    ) successCount += 1;
     state = result.state;
     nextGenerated = [
       ...nextGenerated.filter((item) => item.source !== config.id),

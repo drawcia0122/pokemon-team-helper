@@ -51,6 +51,7 @@ export function PokemonContentExplorer({
 }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<"all" | PokemonNewsCategory>("all");
+  const [sourceKind, setSourceKind] = useState<"all" | "official" | "media">("all");
   const [tag, setTag] = useState("all");
   const [effectiveToday, setEffectiveToday] = useState(today);
 
@@ -73,6 +74,7 @@ export function PokemonContentExplorer({
     const q = normalize(query);
     return items.filter((item) => {
       if (category !== "all" && !item.categories.includes(category)) return false;
+      if (sourceKind !== "all" && item.sourceKind !== sourceKind) return false;
       if (
         tag !== "all" &&
         !item.tags.includes(tag) &&
@@ -90,12 +92,13 @@ export function PokemonContentExplorer({
         ...item.pokemonSlugs.flatMap((slug) => [slug, pokemonLabels[slug] ?? ""])
       ].join(" ")).includes(q);
     });
-  }, [category, items, pokemonLabels, query, tag]);
+  }, [category, items, pokemonLabels, query, sourceKind, tag]);
 
   const featuredItems = filtered
     .filter(
       (item) =>
         item.importance >= 75 &&
+        item.contentType !== "editorial" &&
         item.freshness !== "expired" &&
         item.freshness !== "archived"
     )
@@ -111,6 +114,9 @@ export function PokemonContentExplorer({
       !promotedIds.has(item.id) &&
       item.freshness !== "expired" &&
       item.freshness !== "archived"
+  ).sort((left, right) =>
+    Number(left.contentType === "editorial") - Number(right.contentType === "editorial") ||
+    right.publishedAt.localeCompare(left.publishedAt)
   );
   const pastItems = filtered.filter(
     (item) =>
@@ -120,6 +126,7 @@ export function PokemonContentExplorer({
   const reset = () => {
     setQuery("");
     setCategory("all");
+    setSourceKind("all");
     setTag("all");
   };
 
@@ -159,7 +166,10 @@ export function PokemonContentExplorer({
         </div>
         <div className={styles.cardBody}>
           <div className={styles.meta}>
-            {item.official ? <span className={styles.official}>公式</span> : null}
+            <span className={item.sourceKind === "official" ? styles.official : styles.media}>
+              {item.sourceKind === "official" ? "公式" : "メディア"}
+            </span>
+            {item.contentType === "editorial" ? <span className={styles.editorial}>読みもの</span> : null}
             <span>{item.sourceName}</span>
             <time dateTime={item.publishedAt}>公開 {formatJapaneseDate(item.publishedAt)}</time>
           </div>
@@ -239,6 +249,19 @@ export function PokemonContentExplorer({
               onClick={() => setCategory(value as PokemonNewsCategory)}
             >
               {label}
+            </button>
+          ))}
+        </div>
+        <div className={styles.sourceFilters} aria-label="情報元で絞り込む">
+          <span>情報元</span>
+          {(["all", "official", "media"] as const).map((value) => (
+            <button
+              type="button"
+              aria-pressed={sourceKind === value}
+              key={value}
+              onClick={() => setSourceKind(value)}
+            >
+              {value === "all" ? "すべて" : value === "official" ? "公式" : "メディア"}
             </button>
           ))}
         </div>

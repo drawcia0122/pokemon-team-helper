@@ -137,7 +137,7 @@ export class SafeContentHttpClient implements ContentFetchClient {
 
   private async fetchOnce(
     value: string,
-    expected: "xml" | "text"
+    expected: "xml" | "text" | "json"
   ): Promise<HttpResult> {
     let url: URL;
     try {
@@ -164,9 +164,10 @@ export class SafeContentHttpClient implements ContentFetchClient {
           redirect: "manual",
           signal: controller.signal,
           headers: {
-            accept:
-              expected === "xml"
-                ? "application/rss+xml,application/xml,text/xml;q=0.9,*/*;q=0.1"
+            accept: expected === "xml"
+              ? "application/rss+xml,application/rdf+xml,application/xml,text/xml;q=0.9,*/*;q=0.1"
+              : expected === "json"
+                ? "application/json,*/*;q=0.1"
                 : "text/plain,*/*;q=0.1",
             "user-agent": USER_AGENT
           }
@@ -219,12 +220,14 @@ export class SafeContentHttpClient implements ContentFetchClient {
       const contentType = response.headers
         .get("content-type")
         ?.toLocaleLowerCase("en") ?? "";
-      const allowed =
-        expected === "xml"
+      const allowed = expected === "xml"
           ? contentType.includes("application/rss+xml") ||
+            contentType.includes("application/rdf+xml") ||
             contentType.includes("application/xml") ||
             contentType.includes("text/xml")
-          : contentType.includes("text/plain");
+          : expected === "json"
+            ? contentType.includes("application/json")
+            : contentType.includes("text/plain");
       if (!allowed) {
         return {
           ok: false,
@@ -263,7 +266,7 @@ export class SafeContentHttpClient implements ContentFetchClient {
     };
   }
 
-  async fetchText(value: string, expected: "xml" | "text") {
+  async fetchText(value: string, expected: "xml" | "text" | "json") {
     let last: HttpResult | null = null;
     for (let attempt = 0; attempt <= this.config.retries; attempt += 1) {
       const result = await this.fetchOnce(value, expected);
