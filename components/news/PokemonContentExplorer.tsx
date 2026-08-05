@@ -92,14 +92,30 @@ export function PokemonContentExplorer({
     });
   }, [category, items, pokemonLabels, query, tag]);
 
-  const featuredItems = filtered.filter((item) => item.importance >= 75).slice(0, 4);
+  const featuredItems = filtered
+    .filter(
+      (item) =>
+        item.importance >= 75 &&
+        item.freshness !== "expired" &&
+        item.freshness !== "archived"
+    )
+    .slice(0, 4);
   const featuredIds = new Set(featuredItems.map((item) => item.id));
   const scheduleItems = filtered.filter((item) =>
     !featuredIds.has(item.id) &&
     getContentStatuses(item, effectiveToday).some((status) => priorityStatuses.includes(status))
   ).slice(0, 5);
   const promotedIds = new Set([...featuredIds, ...scheduleItems.map((item) => item.id)]);
-  const regularItems = filtered.filter((item) => !promotedIds.has(item.id));
+  const regularItems = filtered.filter(
+    (item) =>
+      !promotedIds.has(item.id) &&
+      item.freshness !== "expired" &&
+      item.freshness !== "archived"
+  );
+  const pastItems = filtered.filter(
+    (item) =>
+      item.freshness === "expired" || item.freshness === "archived"
+  );
 
   const reset = () => {
     setQuery("");
@@ -274,6 +290,14 @@ export function PokemonContentExplorer({
                 <h2 id="all-content-heading">新着ニュース</h2>
               </div>
               <div className={styles.grid}>{regularItems.map((item) => renderCard(item))}</div>
+            </section>
+          ) : null}
+          {pastItems.length ? (
+            <section aria-labelledby="past-content-heading">
+              <div className={styles.sectionHeading}>
+                <h2 id="past-content-heading">過去のお知らせ</h2>
+              </div>
+              <div className={styles.grid}>{pastItems.map((item) => renderCard(item))}</div>
             </section>
           ) : null}
         </>

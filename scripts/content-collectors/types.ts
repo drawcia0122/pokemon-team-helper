@@ -26,6 +26,10 @@ export type ContentSourceState = {
   feedFingerprint: string;
   articleIds: string[];
   itemFingerprints: Record<string, string>;
+  lastSuccessfulFetchAt?: string;
+  lastArticlePublishedAt?: string | null;
+  consecutiveFailures?: number;
+  lastError?: string;
 };
 
 export type ContentCollectionState = {

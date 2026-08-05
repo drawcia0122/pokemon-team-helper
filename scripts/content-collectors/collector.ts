@@ -57,6 +57,14 @@ const DEFAULT_PATHS: CollectionPaths = {
   status: "data/pokemonContentCollectionStatus.json"
 };
 
+export function preservePreviousItemsForCollectionStatus<T>(
+  previous: T[],
+  collected: T[],
+  status: ContentSourceStats["status"]
+): T[] {
+  return status === "failed" || status === "empty-preserved" ? previous : collected;
+}
+
 function emptyStats(status: ContentSourceStats["status"]): ContentSourceStats {
   return {
     status,
@@ -161,6 +169,22 @@ async function collectPokemonGoSource(input: {
   backfill: boolean;
 }) {
   const stats = emptyStats("success");
+  const previousSourceState = input.state.sources["pokemon-go-official-rss"];
+  const updateFailureState = (error: string): ContentCollectionState => ({
+    ...input.state,
+    sources: {
+      ...input.state.sources,
+      "pokemon-go-official-rss": {
+        feedFingerprint: previousSourceState?.feedFingerprint ?? "",
+        articleIds: previousSourceState?.articleIds ?? input.existing.map((item) => item.sourceArticleId).sort(),
+        itemFingerprints: previousSourceState?.itemFingerprints ?? Object.fromEntries(input.existing.map((item) => [item.sourceArticleId, item.contentFingerprint])),
+        lastSuccessfulFetchAt: previousSourceState?.lastSuccessfulFetchAt,
+        lastArticlePublishedAt: previousSourceState?.lastArticlePublishedAt ?? input.existing[0]?.publishedAt ?? null,
+        consecutiveFailures: (previousSourceState?.consecutiveFailures ?? 0) + 1,
+        lastError: error
+      }
+    }
+  });
   if (!input.config.automationAllowed) {
     stats.status = "disabled-by-policy";
     stats.preservedCount = input.existing.length;
@@ -173,13 +197,13 @@ async function collectPokemonGoSource(input: {
     stats.status = "failed";
     stats.error = `robots:${robots.reason}`;
     stats.preservedCount = input.existing.length;
-    return { items: input.existing, state: input.state, stats, communicatedDomains };
+    return { items: preservePreviousItemsForCollectionStatus(input.existing, [], stats.status), state: updateFailureState(stats.error), stats, communicatedDomains };
   }
   if (!isContentPathAllowedByRobots(robots.text, input.config.feedUrl)) {
     stats.status = "failed";
     stats.error = "robots-disallowed";
     stats.preservedCount = input.existing.length;
-    return { items: input.existing, state: input.state, stats, communicatedDomains };
+    return { items: preservePreviousItemsForCollectionStatus(input.existing, [], stats.status), state: updateFailureState(stats.error), stats, communicatedDomains };
   }
 
   communicatedDomains.push(new URL(input.config.feedUrl).hostname);
@@ -188,7 +212,7 @@ async function collectPokemonGoSource(input: {
     stats.status = "failed";
     stats.error = `feed:${feed.reason}`;
     stats.preservedCount = input.existing.length;
-    return { items: input.existing, state: input.state, stats, communicatedDomains };
+    return { items: preservePreviousItemsForCollectionStatus(input.existing, [], stats.status), state: updateFailureState(stats.error), stats, communicatedDomains };
   }
 
   let parsed: ReturnType<typeof parsePokemonGoRss>;
@@ -201,7 +225,7 @@ async function collectPokemonGoSource(input: {
     stats.status = "failed";
     stats.error = error instanceof Error ? error.message : "invalid-feed";
     stats.preservedCount = input.existing.length;
-    return { items: input.existing, state: input.state, stats, communicatedDomains };
+    return { items: preservePreviousItemsForCollectionStatus(input.existing, [], stats.status), state: updateFailureState(stats.error), stats, communicatedDomains };
   }
 
   stats.candidateCount = parsed.candidates.length + parsed.excludedReasons.length;
@@ -209,7 +233,24 @@ async function collectPokemonGoSource(input: {
   if (parsed.candidates.length === 0) {
     stats.status = "empty-preserved";
     stats.preservedCount = input.existing.length;
-    return { items: input.existing, state: input.state, stats, communicatedDomains };
+    const nextState: ContentCollectionState = {
+      ...input.state,
+      sources: {
+        ...input.state.sources,
+        "pokemon-go-official-rss": {
+          feedFingerprint: feedFingerprint([]),
+          articleIds: previousSourceState?.articleIds ?? input.existing.map((item) => item.sourceArticleId).sort(),
+          itemFingerprints: previousSourceState?.itemFingerprints ?? Object.fromEntries(input.existing.map((item) => [item.sourceArticleId, item.contentFingerprint])),
+          lastSuccessfulFetchAt:
+            previousSourceState?.feedFingerprint === feedFingerprint([])
+              ? previousSourceState.lastSuccessfulFetchAt
+              : input.nowIso,
+          lastArticlePublishedAt: previousSourceState?.lastArticlePublishedAt ?? input.existing[0]?.publishedAt ?? null,
+          consecutiveFailures: 0
+        }
+      }
+    };
+    return { items: preservePreviousItemsForCollectionStatus(input.existing, [], stats.status), state: nextState, stats, communicatedDomains };
   }
 
   const existingByArticleId = new Map(
@@ -239,19 +280,33 @@ async function collectPokemonGoSource(input: {
   items.push(...retainedItems);
 
   const deduplicated = deduplicateAgainstManual(items, input.manual, stats);
+  const nextFeedFingerprint = feedFingerprint(parsed.candidates);
+  const previousItemsMatch =
+    previousSourceState?.feedFingerprint === nextFeedFingerprint &&
+    deduplicated.every(
+      (item) =>
+        previousSourceState.itemFingerprints[item.sourceArticleId] ===
+        item.contentFingerprint
+    ) &&
+    previousSourceState.articleIds.length === deduplicated.length;
   const nextState: ContentCollectionState = {
     ...input.state,
     collectorVersion: CONTENT_COLLECTOR_VERSION,
     sources: {
       ...input.state.sources,
       "pokemon-go-official-rss": {
-        feedFingerprint: feedFingerprint(parsed.candidates),
+        feedFingerprint: nextFeedFingerprint,
         articleIds: deduplicated.map((item) => item.sourceArticleId).sort(),
         itemFingerprints: Object.fromEntries(
           deduplicated
             .map((item) => [item.sourceArticleId, item.contentFingerprint] as const)
             .sort(([a], [b]) => a.localeCompare(b))
-        )
+        ),
+        lastSuccessfulFetchAt: previousItemsMatch
+          ? previousSourceState.lastSuccessfulFetchAt
+          : input.nowIso,
+        lastArticlePublishedAt: deduplicated[0]?.publishedAt ?? null,
+        consecutiveFailures: 0
       }
     }
   };

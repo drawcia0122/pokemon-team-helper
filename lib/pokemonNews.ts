@@ -1,6 +1,7 @@
 import type {
   PokemonContentItem,
   PokemonNewsArticle,
+  PokemonNewsArticleFreshness,
   PokemonNewsCategory,
   PokemonNewsGameTitle
 } from "@/types/pokemonContent";
@@ -172,7 +173,8 @@ export function inferPokemonNewsImportance(
 }
 
 export function normalizePokemonNewsItem(
-  item: PokemonContentItem
+  item: PokemonContentItem,
+  now = new Date()
 ): PokemonNewsArticle | null {
   const classification = classifyPokemonNews(item);
   if (!classification.relevant || classification.categories.length === 0) return null;
@@ -184,8 +186,64 @@ export function normalizePokemonNewsItem(
     official: item.official ?? classification.evidence.includes("relevance:official-source"),
     importance: inferPokemonNewsImportance(item, classification.categories),
     imageUrl: resolvePokemonNewsImage(item),
-    classificationEvidence: classification.evidence
+    classificationEvidence: classification.evidence,
+    freshness: getPokemonNewsArticleFreshness(item, now)
   };
+}
+
+function isoDay(date: Date): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).format(date);
+}
+
+function daysFromToday(value: string, today: string): number {
+  return (
+    new Date(`${value}T00:00:00Z`).getTime() -
+    new Date(`${today}T00:00:00Z`).getTime()
+  ) / 86_400_000;
+}
+
+export function getPokemonNewsArticleFreshness(
+  item: PokemonContentItem,
+  now = new Date()
+): PokemonNewsArticleFreshness {
+  const today = isoDay(now);
+  if (item.eventEndDate && daysFromToday(item.eventEndDate, today) < 0) {
+    return "expired";
+  }
+  const upcomingDates = [
+    item.releaseDate,
+    item.preorderStartDate,
+    item.eventStartDate
+  ].filter((value): value is string => Boolean(value));
+  if (upcomingDates.some((value) => daysFromToday(value, today) > 0)) {
+    return "upcoming";
+  }
+  const endingDates = [item.preorderDeadlineDate, item.eventEndDate].filter(
+    (value): value is string => Boolean(value)
+  );
+  if (
+    endingDates.some((value) => {
+      const days = daysFromToday(value, today);
+      return days >= 0 && days <= 7;
+    })
+  ) {
+    return "ending-soon";
+  }
+  if (
+    item.preorderDeadlineDate &&
+    daysFromToday(item.preorderDeadlineDate, today) < 0 &&
+    !item.releaseDate &&
+    !item.eventStartDate
+  ) {
+    return "expired";
+  }
+  if (daysFromToday(item.publishedAt, today) < -365) return "archived";
+  return "current";
 }
 
 export function normalizePokemonNewsTitle(value: string): string {
@@ -211,7 +269,8 @@ export type PokemonNewsFeedReport = {
 };
 
 export function buildPokemonNewsFeed(
-  items: PokemonContentItem[]
+  items: PokemonContentItem[],
+  now = new Date()
 ): PokemonNewsFeedReport {
   const accepted: PokemonNewsArticle[] = [];
   const excluded: PokemonNewsFeedReport["excluded"] = [];
@@ -221,7 +280,7 @@ export function buildPokemonNewsFeed(
   let duplicateCount = 0;
 
   const candidates = items
-    .map((item) => ({ raw: item, normalized: normalizePokemonNewsItem(item) }))
+    .map((item) => ({ raw: item, normalized: normalizePokemonNewsItem(item, now) }))
     .sort((left, right) => {
       const officialDifference = Number(right.normalized?.official ?? false) - Number(left.normalized?.official ?? false);
       return officialDifference || right.raw.publishedAt.localeCompare(left.raw.publishedAt);

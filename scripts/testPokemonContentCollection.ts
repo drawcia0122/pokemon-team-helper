@@ -499,7 +499,7 @@ assert(
 );
 assert(configuredDomains.length === 0, "ライブallowlistが空ではありません");
 assert(
-  Object.values(CONTENT_SOURCE_AUDIT).length === 6 &&
+  Object.values(CONTENT_SOURCE_AUDIT).length >= 14 &&
     Object.values(CONTENT_SOURCE_AUDIT).every(
       (source) =>
         /^\d{4}-\d{2}-\d{2}$/.test(source.checkedAt) &&

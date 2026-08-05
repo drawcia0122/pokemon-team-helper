@@ -2,6 +2,7 @@ import type {
   GeneratedPokemonContentItem,
   PokemonContentItem
 } from "@/types/pokemonContent";
+import { POKEMON_NEWS_SOURCE_REGISTRY } from "@/lib/pokemonNewsSources";
 
 const kinds = new Set(["news", "goods", "event", "campaign", "game-update"]);
 const categories = new Set([
@@ -139,6 +140,12 @@ export function validatePokemonContent(
     }
     if (item.official !== undefined && typeof item.official !== "boolean") {
       errors.push(`${context}: official が不正です`);
+    }
+    if (
+      item.sourceId !== undefined &&
+      !(item.sourceId in POKEMON_NEWS_SOURCE_REGISTRY)
+    ) {
+      errors.push(`${context}: sourceId がsource registryに存在しません`);
     }
     if (
       item.importance !== undefined &&

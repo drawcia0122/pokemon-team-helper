@@ -155,7 +155,7 @@ function tagsFor(kind: ContentKind, title: string): string[] {
 export function contentFingerprint(
   item: Pick<
     GeneratedPokemonContentItem,
-    "kind" | "title" | "summary" | "url" | "publishedAt" | "pokemonSlugs" | "tags" |
+    "kind" | "title" | "summary" | "sourceId" | "url" | "publishedAt" | "pokemonSlugs" | "tags" |
       "categories" | "gameTitles" | "official" | "importance" | "releaseDate" |
       "preorderStartDate" | "preorderDeadlineDate" | "eventStartDate" | "eventEndDate"
   >
@@ -164,6 +164,7 @@ export function contentFingerprint(
     kind: item.kind,
     title: item.title,
     summary: item.summary,
+    sourceId: item.sourceId,
     url: item.url,
     publishedAt: item.publishedAt,
     pokemonSlugs: item.pokemonSlugs,
@@ -198,6 +199,7 @@ export function createPokemonGoContentItem(input: {
     title: input.candidate.title,
     summary,
     sourceName: "Pokémon GO公式",
+    sourceId: "pokemon-go-official-rss" as const,
     url: input.candidate.canonicalUrl,
     publishedAt: input.candidate.publishedAt,
     pokemonSlugs: exactPokemonSlugs(input.candidate.title, input.pokemon),

@@ -5,9 +5,17 @@ import {
   buildPokemonNewsFeed,
   classifyPokemonNews,
   extractReliablePokemonNewsDates,
+  getPokemonNewsArticleFreshness,
   resolvePokemonNewsImage
 } from "@/lib/pokemonNews";
+import {
+  getPokemonNewsSourceFreshness,
+  listPokemonNewsSources,
+  type PokemonNewsAutomationStatus,
+  type PokemonNewsPolicyStatus
+} from "@/lib/pokemonNewsSources";
 import type { PokemonContentItem } from "@/types/pokemonContent";
+import { preservePreviousItemsForCollectionStatus } from "./content-collectors/collector";
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
@@ -29,7 +37,8 @@ function fixture(overrides: Partial<PokemonContentItem>): PokemonContentItem {
 }
 
 const manual = manualData as PokemonContentItem[];
-const productionFeed = buildPokemonNewsFeed(manual);
+const testNow = new Date("2026-08-05T00:00:00.000Z");
+const productionFeed = buildPokemonNewsFeed(manual, testNow);
 assert(productionFeed.articles.length === 7, "既存公式記事7件をニュースフィードへ統合できません");
 assert(productionFeed.articles.some((article) => article.categories.includes("goods")), "グッズ記事がありません");
 assert(productionFeed.articles.some((article) => article.categories.includes("game")), "ゲーム記事がありません");
@@ -44,6 +53,77 @@ assert(
   manual.map((item) => item.kind).join(",") ===
     "goods,goods,event,campaign,campaign,game-update,news",
   "既存ニュースのkind分類を変更しています"
+);
+assert(
+  manual.every((item) => item.sourceId === "pokemon-japan-news" || item.sourceId === "pokemon-center-japan"),
+  "既存7記事をsource registryへ紐付けられません"
+);
+
+const sources = listPokemonNewsSources();
+const automationStatuses = new Set<PokemonNewsAutomationStatus>([
+  "automatic", "manual", "pending", "disabled", "unsupported"
+]);
+const policyStatuses = new Set<PokemonNewsPolicyStatus>([
+  "approved", "pending-review", "disabled-by-policy"
+]);
+assert(sources.length >= 14, "優先調査対象のsource registryが不足しています");
+assert(
+  new Set(sources.map((source) => source.id)).size === sources.length,
+  "source registryのIDが重複しています"
+);
+for (const source of sources) {
+  assert(automationStatuses.has(source.automationStatus), `${source.id}: automationStatusが不正です`);
+  assert(policyStatuses.has(source.policyStatus), `${source.id}: policyStatusが不正です`);
+  assert(/^https:\/\//.test(source.homepageUrl), `${source.id}: 公式URLがHTTPSではありません`);
+  assert(source.staleAfterDays > 0, `${source.id}: staleAfterDaysが不正です`);
+  if (source.enabled || source.automationStatus === "automatic") {
+    assert(source.policyStatus === "approved", `${source.id}: 未承認sourceが自動化されています`);
+  }
+}
+assert(
+  sources.every((source) => !source.enabled),
+  "利用許可を確認できていないsourceが有効化されています"
+);
+assert(
+  getPokemonNewsSourceFreshness(
+    { ...sources[0], automationStatus: "automatic", policyStatus: "approved", enabled: true, lastSuccessfulFetchAt: "2026-08-04", consecutiveFailures: 0 },
+    testNow
+  ) === "fresh",
+  "自動sourceのfresh判定が不正です"
+);
+assert(
+  getPokemonNewsSourceFreshness(
+    { ...sources[0], automationStatus: "automatic", policyStatus: "approved", enabled: true, lastSuccessfulFetchAt: "2026-01-01", consecutiveFailures: 0 },
+    testNow
+  ) === "stale",
+  "自動sourceのstale判定が不正です"
+);
+assert(
+  getPokemonNewsSourceFreshness(
+    { ...sources[0], automationStatus: "manual", lastManualCheckedAt: null, consecutiveFailures: 0 },
+    testNow
+  ) === "manual-check-needed",
+  "manual-check-needed判定が不正です"
+);
+assert(
+  getPokemonNewsSourceFreshness(
+    { ...sources[0], consecutiveFailures: 2 },
+    testNow
+  ) === "failing",
+  "連続失敗sourceをfailingにできません"
+);
+const preservedFixture = [fixture({ id: "preserved" })];
+assert(
+  preservePreviousItemsForCollectionStatus(preservedFixture, [], "failed") === preservedFixture,
+  "collector失敗時に前回正常データを維持できません"
+);
+assert(
+  preservePreviousItemsForCollectionStatus(preservedFixture, [], "empty-preserved") === preservedFixture,
+  "0件取得時に前回正常データを維持できません"
+);
+assert(
+  preservePreviousItemsForCollectionStatus(preservedFixture, [], "success").length === 0,
+  "0件取得とcollectorエラーを区別できません"
 );
 
 const cardEvent = classifyPokemonNews(
@@ -97,6 +177,35 @@ const distinctSchedule = buildPokemonNewsFeed([
   }
 ]);
 assert(distinctSchedule.articles.length === 2, "発売日が異なる別発表を過剰統合しています");
+
+assert(
+  getPokemonNewsArticleFreshness(
+    fixture({ eventStartDate: "2026-08-10", eventEndDate: "2026-08-12" }),
+    testNow
+  ) === "upcoming",
+  "upcoming記事を判定できません"
+);
+assert(
+  getPokemonNewsArticleFreshness(
+    fixture({ eventStartDate: "2026-07-01", eventEndDate: "2026-07-31" }),
+    testNow
+  ) === "expired",
+  "終了済み記事をexpiredにできません"
+);
+assert(
+  getPokemonNewsArticleFreshness(
+    fixture({ publishedAt: "2026-01-01", eventStartDate: "2026-01-10" }),
+    testNow
+  ) === "current",
+  "終了日不明の記事をexpired扱いしています"
+);
+assert(
+  getPokemonNewsArticleFreshness(
+    fixture({ eventEndDate: "2026-08-09" }),
+    testNow
+  ) === "ending-soon",
+  "終了間近記事を判定できません"
+);
 
 const unrelated = fixture({
   id: "unrelated",
@@ -170,7 +279,13 @@ for (const label of [
   assert(uiSource.includes(label), `ニュースUIに必要な表示がありません: ${label}`);
 }
 assert(uiSource.includes("item.categories.slice(0, 4)"), "カードの表示タグ数を制限していません");
+assert(
+  uiSource.includes('item.freshness !== "expired"') &&
+    uiSource.includes('item.freshness !== "archived"'),
+  "終了済み・アーカイブ記事を新着上位から除外していません"
+);
+assert(uiSource.includes("過去のお知らせ"), "終了済み記事を保持する表示がありません");
 
 console.log(
-  `[ok] TASK058 Pokémon News MVP: articles=${productionFeed.articles.length}, official=${productionFeed.articles.filter((article) => article.official).length}, multiCategory=${productionFeed.articles.filter((article) => article.categories.length > 1).length}`
+  `[ok] TASK059 Pokémon News sources/freshness: sources=${sources.length}, articles=${productionFeed.articles.length}, official=${productionFeed.articles.filter((article) => article.official).length}`
 );
