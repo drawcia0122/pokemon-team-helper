@@ -3344,5 +3344,64 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-05T01:07:36.919Z"
+  },
+  {
+    "id": "note-n41d3683536d8",
+    "source": "note",
+    "sourceArticleId": "n41d3683536d8",
+    "sourceUrl": "https://note.com/matatabinyan27/n/n41d3683536d8",
+    "canonicalUrl": "https://note.com/matatabinyan27/n/n41d3683536d8",
+    "title": "​シンプルに強い！ガブリアス・ニンフィア・ギャラドス軸紹介【シーズンM-4 レート2109達成】",
+    "authorName": "咲真ユメ@寝かしつけたい系Vtuber",
+    "publishedAt": "2026-08-05T02:25:45.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "マスターボール級",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "構築記事",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。マスターボール級。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/300580681/rectangle_large_type_2_75834f2043e7e434ed1c427a9908667d.jpeg",
+      "source": "structured-data",
+      "alt": "​シンプルに強い！ガブリアス・ニンフィア・ギャラドス軸紹介【シーズンM-4 レート2109達成】のサムネイル",
+      "width": 857,
+      "height": 449
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.6,
+      "seasonConfidence": 1,
+      "teamConfidence": 0.79,
+      "overallConfidence": 0.857
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 5,
+      "ambiguous": 1,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-05T04:31:35.935Z",
+    "lastCollectedAt": "2026-08-05T04:31:35.935Z",
+    "contentFingerprint": "d3fbedfdf7daeaa9a456a7dd2a7306fffb90229377011df585f734c89616be34",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-05T04:31:35.935Z"
   }
 ]
