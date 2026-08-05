@@ -3523,5 +3523,118 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-05T12:20:17.253Z"
+  },
+  {
+    "id": "note-nd8517179d0d1",
+    "source": "note",
+    "sourceArticleId": "nd8517179d0d1",
+    "sourceUrl": "https://note.com/sukashi_butter/n/nd8517179d0d1",
+    "canonicalUrl": "https://note.com/sukashi_butter/n/nd8517179d0d1",
+    "title": "PokémonChampionsシーズンＭ４シングル∥最終ギリ３桁∥オーダイルさん絶対保護対面構築＆切り返しカビゴン∥忘備録∥",
+    "authorName": "スカしバター",
+    "publishedAt": "2026-08-05T12:53:24.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": null,
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.55
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-05T15:02:04.202Z",
+    "lastCollectedAt": "2026-08-05T15:02:04.202Z",
+    "contentFingerprint": "0914a3a2521635835fa4413d76b6178379a52e9349088543c00092a36527f4de",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-05T15:02:04.202Z"
+  },
+  {
+    "id": "note-ncb4d10e93635",
+    "source": "note",
+    "sourceArticleId": "ncb4d10e93635",
+    "sourceUrl": "https://note.com/fair_ferret658/n/ncb4d10e93635",
+    "canonicalUrl": "https://note.com/fair_ferret658/n/ncb4d10e93635",
+    "title": "ポケモンチャンピオンズM-4シングル最終33位最終レート2485欠陥スターピクシー",
+    "authorName": "hoosedeer",
+    "publishedAt": "2026-08-05T12:21:02.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終33位",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "ガブリアス",
+      "構築記事",
+      "ヒスイダイケンキ",
+      "サーフゴー",
+      "ブリジュラス",
+      "ポケモンチャンピオンズ",
+      "メガスターミー"
+    ],
+    "summary": "M-4のシングル構築記事です。最終33位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/300651847/rectangle_large_type_2_05f599ad878e5dcb8b70191307c5089d.jpeg",
+      "source": "structured-data",
+      "alt": "ポケモンチャンピオンズM-4シングル最終33位最終レート2485欠陥スターピクシーのサムネイル",
+      "width": 1920,
+      "height": 1005
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.55
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-05T15:02:04.202Z",
+    "lastCollectedAt": "2026-08-05T15:02:04.202Z",
+    "contentFingerprint": "b61ce4f61a225317e6a4b1b28cfea65eb84cb1d26342888eb5acabbb999a17ce",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-05T15:02:04.202Z"
   }
 ]
