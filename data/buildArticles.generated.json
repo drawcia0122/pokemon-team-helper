@@ -3636,5 +3636,77 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-05T15:02:04.202Z"
+  },
+  {
+    "id": "note-n9997d75b86e3",
+    "source": "note",
+    "sourceArticleId": "n9997d75b86e3",
+    "sourceUrl": "https://note.com/flyer_pokemon/n/n9997d75b86e3",
+    "canonicalUrl": "https://note.com/flyer_pokemon/n/n9997d75b86e3",
+    "title": "ポケモンチャンピオンズシーズンM-4ダブルチャンピオン級（196位）【おいかぜリザガブ】",
+    "authorName": "マモル",
+    "publishedAt": "2026-08-06T00:26:52.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "チャンピオン級",
+    "pokemonSlugs": [
+      "whimsicott",
+      "glimmora",
+      "charizard-mega-y",
+      "garchomp",
+      "floette-mega",
+      "dragonite"
+    ],
+    "tags": [
+      "ガブリアス",
+      "リザードン",
+      "構築記事",
+      "ダブルバトル",
+      "ポケモンチャンピオンズ",
+      "チャンピオン級",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブルで使用された、エルフーン入りの構築記事です。チャンピオン級。採用ポケモン6体と構築経緯を確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/300681719/rectangle_large_type_2_f946d8f3866fb3a8d2165206a61851f8.png",
+      "source": "structured-data",
+      "alt": "ポケモンチャンピオンズシーズンM-4ダブルチャンピオン級（196位）【おいかぜリザガブ】のサムネイル",
+      "width": 1692,
+      "height": 885
+    },
+    "collectionCompleteness": "complete",
+    "extractionConfidence": 1,
+    "missingFields": [],
+    "teamExtractionMethod": "section-headings",
+    "teamExtractionIssue": null,
+    "extractionEvidence": {
+      "extractionMethod": "section-headings",
+      "sourceHeading": "個別解説",
+      "resolvedCount": 6,
+      "confidence": "high"
+    },
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 1,
+      "overallConfidence": 0.95
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 6,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-06T01:07:20.231Z",
+    "lastCollectedAt": "2026-08-06T01:07:20.231Z",
+    "contentFingerprint": "b3785717df03b620cabf39f79e4c0d46ffe1ec0fdfecfe51fd1179de8cbeb212",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-06T01:07:20.231Z"
   }
 ]
