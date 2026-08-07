@@ -3955,5 +3955,61 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-07T03:40:22.842Z"
+  },
+  {
+    "id": "note-nceea57e1f4c7",
+    "source": "note",
+    "sourceArticleId": "nceea57e1f4c7",
+    "sourceUrl": "https://note.com/gentle_dog/n/nceea57e1f4c7",
+    "canonicalUrl": "https://note.com/gentle_dog/n/nceea57e1f4c7",
+    "title": "【Pokémon Champions】2026年7月対戦記録｜M-4⭐️ダブルバトル⭐️",
+    "authorName": "sakura",
+    "publishedAt": "2026-08-07T08:59:29.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "パーティー",
+      "ポケモン対戦",
+      "フラージェス",
+      "ドサイドン",
+      "ポケモンへの愛を語る",
+      "ポケモンチャンピオンズ",
+      "ポケモンチャンピオンズ構築記事"
+    ],
+    "summary": "M-4のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": null,
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.65
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-07T09:43:32.192Z",
+    "lastCollectedAt": "2026-08-07T09:43:32.192Z",
+    "contentFingerprint": "6a9344dfea3e17c485955194887a6b250d9e7e65624aeebda90ae0523fa03edc",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-07T09:43:32.192Z"
   }
 ]
