@@ -3643,7 +3643,7 @@
     "sourceArticleId": "n9997d75b86e3",
     "sourceUrl": "https://note.com/flyer_pokemon/n/n9997d75b86e3",
     "canonicalUrl": "https://note.com/flyer_pokemon/n/n9997d75b86e3",
-    "title": "ポケモンチャンピオンズシーズンM-4ダブルチャンピオン級（196位）【おいかぜリザガブ】",
+    "title": "ポケモンチャンピオンズM-4ダブル最終チャンピオン級（196位）【おいかぜリザガブ】",
     "authorName": "マモル",
     "publishedAt": "2026-08-06T00:26:52.000Z",
     "battleFormat": "double",
@@ -3672,7 +3672,7 @@
     "thumbnail": {
       "url": "https://assets.st-note.com/production/uploads/images/300681719/rectangle_large_type_2_f946d8f3866fb3a8d2165206a61851f8.png",
       "source": "structured-data",
-      "alt": "ポケモンチャンピオンズシーズンM-4ダブルチャンピオン級（196位）【おいかぜリザガブ】のサムネイル",
+      "alt": "ポケモンチャンピオンズM-4ダブル最終チャンピオン級（196位）【おいかぜリザガブ】のサムネイル",
       "width": 1692,
       "height": 885
     },
@@ -3702,12 +3702,12 @@
       "unresolved": 0
     },
     "firstCollectedAt": "2026-08-06T01:07:20.231Z",
-    "lastCollectedAt": "2026-08-06T01:07:20.231Z",
-    "contentFingerprint": "b3785717df03b620cabf39f79e4c0d46ffe1ec0fdfecfe51fd1179de8cbeb212",
+    "lastCollectedAt": "2026-08-07T17:10:06.266Z",
+    "contentFingerprint": "3f7a3815e003d101b527371ca5be3c6b31f1628656e665a94017a569d729be6d",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-08-06T01:07:20.231Z"
+    "lastSuccessfulFetchAt": "2026-08-07T17:10:06.266Z"
   },
   {
     "id": "note-n6fac687972d4",
