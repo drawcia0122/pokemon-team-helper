@@ -4011,5 +4011,69 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-07T09:43:32.192Z"
+  },
+  {
+    "id": "note-nfd14a0969438",
+    "source": "note",
+    "sourceArticleId": "nfd14a0969438",
+    "sourceUrl": "https://note.com/autumn_pkmn/n/nfd14a0969438",
+    "canonicalUrl": "https://note.com/autumn_pkmn/n/nfd14a0969438",
+    "title": "ヒスイバクフーン軸追い風パ【ポケモンチャンピオンズ ダブルバトル 構築記事 シーズンM-4 最終1809】",
+    "authorName": "おーたむ",
+    "publishedAt": "2026-08-07T11:19:02.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [
+      "typhlosion-hisui",
+      "whimsicott",
+      "garchomp",
+      "staraptor",
+      "sylveon",
+      "farigiraf"
+    ],
+    "tags": [
+      "ポケモン",
+      "ダブルバトル",
+      "ヒスイバクフーン",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブルで使用された、バクフーン(ヒスイ)入りの構築記事です。採用ポケモン6体と構築経緯を確認できます。",
+    "thumbnail": null,
+    "collectionCompleteness": "complete",
+    "extractionConfidence": 1,
+    "missingFields": [],
+    "teamExtractionMethod": "section-headings",
+    "teamExtractionIssue": null,
+    "extractionEvidence": {
+      "extractionMethod": "section-headings",
+      "sourceHeading": "個別解説",
+      "resolvedCount": 6,
+      "confidence": "high"
+    },
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.8,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 1,
+      "overallConfidence": 0.91
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 6,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-07T11:33:32.098Z",
+    "lastCollectedAt": "2026-08-07T11:33:32.098Z",
+    "contentFingerprint": "8ffe10529e7ce85161cf79a5baf994f5c9f5a69a218b625b42878303d5f3adac",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-07T11:33:32.098Z"
   }
 ]
