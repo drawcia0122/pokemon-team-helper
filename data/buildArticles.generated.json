@@ -3708,5 +3708,252 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-06T01:07:20.231Z"
+  },
+  {
+    "id": "note-n6fac687972d4",
+    "source": "note",
+    "sourceArticleId": "n6fac687972d4",
+    "sourceUrl": "https://note.com/halhalkiri/n/n6fac687972d4",
+    "canonicalUrl": "https://note.com/halhalkiri/n/n6fac687972d4",
+    "title": "【虫統一パ】シーズンM-4 最終レート2116（2992位）【構築記事/タイプ統一パ/レギュM-Bシングル】",
+    "authorName": "ハルキリ/hal-kiri",
+    "publishedAt": "2026-08-06T15:06:30.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終レート2116",
+    "pokemonSlugs": [
+      "kleavor",
+      "scizor-mega",
+      "araquanid",
+      "volcarona",
+      "pinsir-mega",
+      "scolipede"
+    ],
+    "tags": [
+      "ポケモン",
+      "構築記事",
+      "タイプ統一パ",
+      "虫統一パ",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングルで使用された、バサギリ入りの構築記事です。最終レート2116。採用ポケモン6体と構築経緯を確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/301076906/rectangle_large_type_2_111ff8832aff382e85bb921fddb87de5.png",
+      "source": "structured-data",
+      "alt": "【虫統一パ】シーズンM-4 最終レート2116（2992位）【構築記事/タイプ統一パ/レギュM-Bシングル】のサムネイル",
+      "width": 1794,
+      "height": 939
+    },
+    "collectionCompleteness": "complete",
+    "extractionConfidence": 1,
+    "missingFields": [],
+    "teamExtractionMethod": "section-paragraphs",
+    "teamExtractionIssue": null,
+    "extractionEvidence": {
+      "extractionMethod": "section-paragraphs",
+      "sourceHeading": "【個別解説】",
+      "resolvedCount": 6,
+      "confidence": "high"
+    },
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 1,
+      "teamConfidence": 1,
+      "overallConfidence": 0.9
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 6,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-07T03:40:22.842Z",
+    "lastCollectedAt": "2026-08-07T03:40:22.842Z",
+    "contentFingerprint": "0eff37ac3f633ec67651c23b0f3d324a3c8b36a53da5d5b454b1d3963cc72595",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-07T03:40:22.842Z"
+  },
+  {
+    "id": "note-n5adb7279e245",
+    "source": "note",
+    "sourceArticleId": "n5adb7279e245",
+    "sourceUrl": "https://note.com/rosy_squid2276/n/n5adb7279e245",
+    "canonicalUrl": "https://note.com/rosy_squid2276/n/n5adb7279e245",
+    "title": "[シーズン4 シングル 2400達成] メガバシャーモ入り展開構築",
+    "authorName": "天利優",
+    "publishedAt": "2026-08-06T14:51:23.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終順位23位",
+    "pokemonSlugs": [],
+    "tags": [
+      "シングルバトル",
+      "メガバシャーモ",
+      "ポケモンチャンピオンズ",
+      "PokemonChampions",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。最終順位23位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/301057463/rectangle_large_type_2_90ef24b9a003b4eb8dfcd4dc143824d3.png",
+      "source": "structured-data",
+      "alt": "[シーズン4 シングル 2400達成] メガバシャーモ入り展開構築のサムネイル",
+      "width": 640,
+      "height": 335
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.7
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-07T03:40:22.842Z",
+    "lastCollectedAt": "2026-08-07T03:40:22.842Z",
+    "contentFingerprint": "cb8c98bf4c0f7c505b859463924b172871726c4e1b7cec056a52eb0a1c203bd1",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-07T03:40:22.842Z"
+  },
+  {
+    "id": "note-ncd066fa71a2d",
+    "source": "note",
+    "sourceArticleId": "ncd066fa71a2d",
+    "sourceUrl": "https://note.com/dust_dutosu/n/ncd066fa71a2d",
+    "canonicalUrl": "https://note.com/dust_dutosu/n/ncd066fa71a2d",
+    "title": "ポケモンチャンピオンズ シーズンM-4 シングル 最終758位 雨と鋼鉄",
+    "authorName": "だすと",
+    "publishedAt": "2026-08-06T11:45:59.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終758位",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "構築記事",
+      "雨パ",
+      "シングルバトル",
+      "ポケモンチャンピオンズ",
+      "ポケモンチャンピオンズ構築記事",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。最終758位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/300700857/rectangle_large_type_2_fdad9253d2427abe8a3950d116edf57b.jpeg",
+      "source": "structured-data",
+      "alt": "ポケモンチャンピオンズ シーズンM-4 シングル 最終758位 雨と鋼鉄のサムネイル",
+      "width": 629,
+      "height": 329
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.8,
+      "seasonConfidence": 1,
+      "teamConfidence": 0.79,
+      "overallConfidence": 0.897
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 5,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 1
+    },
+    "firstCollectedAt": "2026-08-07T03:40:22.842Z",
+    "lastCollectedAt": "2026-08-07T03:40:22.842Z",
+    "contentFingerprint": "f738c14459ee97b1243da74a77873d44f8b677198cccd5a8ea95af1a009a61e2",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-07T03:40:22.842Z"
+  },
+  {
+    "id": "note-n913d773befc0",
+    "source": "note",
+    "sourceArticleId": "n913d773befc0",
+    "sourceUrl": "https://note.com/good_ferret3176/n/n913d773befc0",
+    "canonicalUrl": "https://note.com/good_ferret3176/n/n913d773befc0",
+    "title": "【ポケモンチャンピオンズ　ダブル バトル】　デコレーションふんか構築の結果",
+    "authorName": "佑っち",
+    "publishedAt": "2026-08-06T11:01:44.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "構築記事",
+      "ダブルバトル",
+      "ポケモンチャンピオンズ",
+      "ロマンギミック",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": null,
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.8,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.585
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-07T03:40:22.842Z",
+    "lastCollectedAt": "2026-08-07T03:40:22.842Z",
+    "contentFingerprint": "cbdd8bc46dbfad0d16efd2eb4d86e65a5bee79bd747cdffae3bc78349d1696f1",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-07T03:40:22.842Z"
   }
 ]
