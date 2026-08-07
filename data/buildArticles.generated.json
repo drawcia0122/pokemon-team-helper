@@ -4075,5 +4075,76 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-07T11:33:32.098Z"
+  },
+  {
+    "id": "note-n0ed6aa35fbaa",
+    "source": "note",
+    "sourceArticleId": "n0ed6aa35fbaa",
+    "sourceUrl": "https://note.com/ganfu_works/n/n0ed6aa35fbaa",
+    "canonicalUrl": "https://note.com/ganfu_works/n/n0ed6aa35fbaa",
+    "title": "ポケモンチャンピオンズ 壁ペリジュラス＋ラグラージ 構築メモ（シーズンM-4 ダブル）",
+    "authorName": "Gan-fu",
+    "publishedAt": "2026-08-07T13:00:01.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [
+      "archaludon",
+      "pelipper",
+      "swampert",
+      "grimmsnarl",
+      "staraptor",
+      "sinistcha"
+    ],
+    "tags": [
+      "ポケモン",
+      "ラグラージ",
+      "ムクホーク",
+      "ブリジュラス",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブルで使用された、ブリジュラス入りの構築記事です。採用ポケモン6体と構築経緯を確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/301089918/rectangle_large_type_2_d62ee0afbd8572af73f0d9a56ca6a4a0.jpg",
+      "source": "structured-data",
+      "alt": "ポケモンチャンピオンズ 壁ペリジュラス＋ラグラージ 構築メモ（シーズンM-4 ダブル）のサムネイル",
+      "width": 5075,
+      "height": 2656
+    },
+    "collectionCompleteness": "complete",
+    "extractionConfidence": 1,
+    "missingFields": [],
+    "teamExtractionMethod": "section-headings",
+    "teamExtractionIssue": null,
+    "extractionEvidence": {
+      "extractionMethod": "section-headings",
+      "sourceHeading": "個別解説",
+      "resolvedCount": 6,
+      "confidence": "high"
+    },
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 1,
+      "teamConfidence": 1,
+      "overallConfidence": 1
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 6,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-07T14:00:48.858Z",
+    "lastCollectedAt": "2026-08-07T14:00:48.858Z",
+    "contentFingerprint": "dbb4e22f93d019ee95a7f6691abb8eb9ca6a43d52e02ea506378b3ba4f68c426",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-07T14:00:48.858Z"
   }
 ]
