@@ -3,6 +3,7 @@ import type {
   PokemonNewsArticleFreshness,
   PokemonNewsCategory,
   PokemonNewsEventType,
+  PokemonNewsImageOrigin,
   PokemonNewsImageSource
 } from "@/types/pokemonContent";
 
@@ -224,6 +225,7 @@ type ImageCandidate = {
 export type PokemonNewsImageSelection = {
   imageUrl?: string;
   source: PokemonNewsImageSource;
+  origin: PokemonNewsImageOrigin;
   evidence: string[];
 };
 
@@ -235,6 +237,8 @@ function imageRejection(candidate: ImageCandidate): string | null {
     const path = `${url.hostname}${url.pathname}`;
     if (/favicon|apple-touch-icon|(?:^|[\/_\.-])icon(?:[\/_\.-]|$)/i.test(path)) return "favicon-or-icon";
     if (/(?:^|[\/_\.-])(?:site-?|header-?|brand-?)logo(?:[\/_\.-]|$)|logo\.(?:png|jpe?g|gif|webp|svg)$/i.test(path)) return "site-logo";
+    if (/(?:^|[\/_\.-])(?:ads?|advert(?:isement)?|tracking|pixel|spacer|sns|social)(?:[\/_\.-]|$)|(?:doubleclick|googlesyndication)/i.test(path)) return "advertising-or-tracking";
+    if (/(?:^|[\/_\.-])(?:transparent|blank|no-?image|placeholder|dummy)(?:[\/_\.-]|$)/i.test(path)) return "placeholder";
     if (candidate.width !== undefined && candidate.width < 200) return "too-narrow";
     if (candidate.height !== undefined && candidate.height < 120) return "too-short";
     return null;
@@ -263,13 +267,28 @@ export function resolvePokemonNewsImageSelection(item: PokemonContentItem): Poke
       continue;
     }
     evidence.push(`selected:${candidate.source}`);
-    return { imageUrl: new URL(candidate.url).toString(), source: candidate.source, evidence };
+    const defaultOrigin: PokemonNewsImageOrigin =
+      candidate.source === "rss"
+        ? "rss-image-field"
+        : candidate.source === "api"
+          ? "api-image"
+          : "existing-image";
+    const storedOriginMatches =
+      (candidate.source === "rss" && item.imageOrigin?.startsWith("rss-")) ||
+      (candidate.source === "api" && item.imageOrigin === "api-image") ||
+      (candidate.source === "existing" && item.imageOrigin === "existing-image");
+    return {
+      imageUrl: new URL(candidate.url).toString(),
+      source: candidate.source,
+      origin: storedOriginMatches ? item.imageOrigin! : defaultOrigin,
+      evidence: [...(item.imageExtractionEvidence ?? []), ...evidence]
+    };
   }
   if (item.pokemonSlugs.length === 1) {
     evidence.push(`selected:pokemon-db:${item.pokemonSlugs[0]}`);
-    return { source: "pokemon-db", evidence };
+    return { source: "pokemon-db", origin: "pokemon-db", evidence };
   }
   if (item.pokemonSlugs.length > 1) evidence.push("rejected:pokemon-db:multiple-species");
   evidence.push("selected:fallback");
-  return { source: "fallback", evidence };
+  return { source: "fallback", origin: "fallback", evidence };
 }

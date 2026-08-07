@@ -28,6 +28,7 @@ import {
   type MediaFeedCandidate
 } from "./media";
 import { getContentSourceConfigs } from "./sourceRegistry";
+import type { RssImageAudit } from "./rssImageExtraction";
 import {
   CONTENT_COLLECTOR_VERSION,
   type ContentCollectionResult,
@@ -376,7 +377,8 @@ function stateWithStats(input: {
         lastAcceptedCount: input.stats.acceptedCount,
         lastExcludedCount: input.stats.excludedCount,
         lastDuplicateCount: input.stats.duplicateCount,
-        lastExclusionReasons: input.stats.exclusionReasons
+        lastExclusionReasons: input.stats.exclusionReasons,
+        lastImageAudits: input.stats.imageAudits
       }
     }
   };
@@ -453,10 +455,17 @@ async function collectMediaSource(input: {
             sourceName: input.config.label,
             allowedHosts: input.config.allowedDomains,
             now: input.now,
+            feedUrl: url,
             limit: input.backfill
               ? input.config.backfillItemLimit
               : input.config.normalItemLimit
           });
+      if (!isGNews && "imageAudit" in parsed) {
+        stats.imageAudits = [
+          ...(stats.imageAudits ?? []),
+          parsed.imageAudit as RssImageAudit
+        ];
+      }
       rawCount += parsed.rawCount;
       for (const reason of parsed.excludedReasons) addReason(stats, reason);
       for (const candidate of parsed.candidates) {

@@ -2,8 +2,9 @@ import type {
   GeneratedPokemonContentItem,
   PokemonContentSource
 } from "../../types/pokemonContent";
+import type { RssImageAudit } from "./rssImageExtraction";
 
-export const CONTENT_COLLECTOR_VERSION = "2.1.0";
+export const CONTENT_COLLECTOR_VERSION = "2.2.0";
 
 export type ContentSourceConfig = {
   id: PokemonContentSource;
@@ -38,6 +39,7 @@ export type ContentSourceState = {
   lastExcludedCount?: number;
   lastDuplicateCount?: number;
   lastExclusionReasons?: Record<string, number>;
+  lastImageAudits?: RssImageAudit[];
 };
 
 export type ContentCollectionState = {
@@ -66,6 +68,7 @@ export type ContentSourceStats = {
   unchangedCount: number;
   preservedCount: number;
   exclusionReasons: Record<string, number>;
+  imageAudits?: RssImageAudit[];
   error?: string;
 };
 

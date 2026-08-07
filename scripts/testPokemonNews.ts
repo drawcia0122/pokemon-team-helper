@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import manualData from "@/data/pokemonContent.manual.json";
+import generatedData from "@/data/pokemonContent.generated.json";
 import {
   buildPokemonNewsFeed,
   classifyPokemonNews,
@@ -30,6 +31,8 @@ import {
   parseGNewsResponse,
   parseMediaRss
 } from "./content-collectors/media";
+import { extractRssImage } from "./content-collectors/rssImageExtraction";
+import type { GeneratedPokemonContentItem } from "@/types/pokemonContent";
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
@@ -53,6 +56,10 @@ function fixture(overrides: Partial<PokemonContentItem>): PokemonContentItem {
 const manual = manualData as PokemonContentItem[];
 const testNow = new Date("2026-08-05T00:00:00.000Z");
 const productionFeed = buildPokemonNewsFeed(manual, testNow);
+const completeProductionFeed = buildPokemonNewsFeed(
+  [...manual, ...(generatedData as GeneratedPokemonContentItem[])],
+  testNow
+);
 assert(productionFeed.articles.length === 7, "既存公式記事7件をニュースフィードへ統合できません");
 assert(productionFeed.articles.some((article) => article.categories.includes("goods")), "グッズ記事がありません");
 assert(productionFeed.articles.some((article) => article.categories.includes("game")), "ゲーム記事がありません");
@@ -75,6 +82,30 @@ assert(
 assert(
   manual.every((item) => item.sourceId === "pokemon-japan-news" || item.sourceId === "pokemon-center-japan"),
   "既存7記事をsource registryへ紐付けられません"
+);
+assert(completeProductionFeed.articles.length === 18, "既存本番18記事を維持できません");
+assert(
+  completeProductionFeed.articles.every(
+    (article) => article.insight.trim().length > 0
+  ) &&
+    completeProductionFeed.articles.reduce(
+      (sum, article) => sum + article.eventTypes.length,
+      0
+    ) === 22,
+  "既存18記事のEvent Type件数またはInsightが変化しています"
+);
+const productionImportanceBands = [
+  completeProductionFeed.articles.filter((article) => article.importance >= 90).length,
+  completeProductionFeed.articles.filter(
+    (article) => article.importance >= 70 && article.importance < 90
+  ).length,
+  completeProductionFeed.articles.filter(
+    (article) => article.importance >= 40 && article.importance < 70
+  ).length
+];
+assert(
+  productionImportanceBands.join(",") === "1,6,11",
+  "既存18記事のImportance分布を変更しています"
 );
 
 const sources = listPokemonNewsSources();
@@ -305,7 +336,8 @@ const gamerParsed = parseMediaRss(gamerRss, {
   sourceName: "4Gamer.net",
   allowedHosts: ["www.4gamer.net"],
   now: testNow,
-  limit: 20
+  limit: 20,
+  feedUrl: "https://www.4gamer.net/rss/index.xml"
 });
 assert(
   gamerParsed.candidates.length === 2 &&
@@ -318,7 +350,8 @@ const insideParsed = parseMediaRss(insideRss, {
   sourceName: "インサイド",
   allowedHosts: ["www.inside-games.jp"],
   now: testNow,
-  limit: 20
+  limit: 20,
+  feedUrl: "https://www.inside-games.jp/rss/index.rdf"
 });
 assert(
   insideParsed.candidates.length === 1 &&
@@ -333,6 +366,136 @@ assert(
       (article) => article.imageSource === "api" && article.imageUrl?.includes("pokemon.jpg")
     ),
   "GNews responseの解析・弱い一致除外が不正です"
+);
+assert(
+  gnewsParsed.candidates.find((article) => article.imageUrl)?.imageOrigin === "api-image",
+  "GNews API画像の出所を保持できません"
+);
+
+const extractionOptions = {
+  sourceId: "4gamer-rss" as const,
+  feedUrl: "https://www.4gamer.net/rss/index.xml"
+};
+const mediaContent = extractRssImage(
+  `<media:content url="//cdn.example.jp/pokemon-main.jpg?width=1200&amp;height=675" type="image/jpeg" width="1200" height="675" />
+   <media:thumbnail url="https://cdn.example.jp/thumb.jpg" width="640" height="360" />`,
+  extractionOptions
+);
+assert(
+  mediaContent.image?.origin === "rss-media-content" &&
+    mediaContent.image.url.startsWith("https://cdn.example.jp/") &&
+    mediaContent.audit.detected["media:content"] === 1,
+  "media:contentの抽出・優先・entity復元が不正です"
+);
+const mediaContentWithoutDimensions = extractRssImage(
+  `<media:content url="https://cdn.example.jp/news/unknown-size.jpg" type="image/jpeg" />`,
+  extractionOptions
+);
+assert(
+  mediaContentWithoutDimensions.image?.origin === "rss-media-content" &&
+    mediaContentWithoutDimensions.image.url.endsWith("/news/unknown-size.jpg") &&
+    mediaContentWithoutDimensions.image.width === undefined &&
+    mediaContentWithoutDimensions.image.height === undefined &&
+    mediaContentWithoutDimensions.audit.smallImageExcludedCount === 0,
+  "寸法情報のないmedia:content画像を小サイズとして除外しています"
+);
+const mediaThumbnail = extractRssImage(
+  `<media:thumbnail url="/images/pokemon-thumb.jpg" width="640" height="360" />`,
+  extractionOptions
+);
+assert(
+  mediaThumbnail.image?.origin === "rss-media-thumbnail" &&
+    mediaThumbnail.image.url === "https://www.4gamer.net/images/pokemon-thumb.jpg",
+  "media:thumbnailまたは相対URL解決が不正です"
+);
+const imageEnclosure = extractRssImage(
+  `<enclosure url="https://cdn.example.jp/audio.mp3" type="audio/mpeg" />
+   <enclosure url="https://cdn.example.jp/article.jpg" type="image/jpeg" width="800" height="450" />`,
+  extractionOptions
+);
+assert(
+  imageEnclosure.image?.origin === "rss-enclosure" &&
+    imageEnclosure.image.url.endsWith("article.jpg"),
+  "画像enclosureの抽出または非画像enclosure除外が不正です"
+);
+const contentHtml = extractRssImage(
+  `<content:encoded><![CDATA[<p>本文は保持しません</p><img data-src="/images/lazy.jpg" width="900" height="500" />]]></content:encoded>`,
+  extractionOptions
+);
+assert(
+  contentHtml.image?.origin === "rss-content-html" &&
+    contentHtml.image.url.endsWith("/images/lazy.jpg"),
+  "content:encoded内のdata-src画像を抽出できません"
+);
+const descriptionHtml = extractRssImage(
+  `<description><![CDATA[<img src="small.jpg" data-original="original.jpg" srcset="small.jpg 320w, medium.jpg 640w, /images/large.jpg 1280w" width="1280" height="720">]]></description>`,
+  extractionOptions
+);
+assert(
+  descriptionHtml.image?.origin === "rss-description-html" &&
+    descriptionHtml.image.url.endsWith("/images/large.jpg"),
+  "description内imgまたはsrcset最大候補を抽出できません"
+);
+const densitySrcset = extractRssImage(
+  `<description><![CDATA[<img srcset="one.jpg 1x, two.jpg 2x, //cdn.example.jp/news/three.jpg 3x">]]></description>`,
+  extractionOptions
+);
+assert(
+  densitySrcset.image?.url === "https://cdn.example.jp/news/three.jpg",
+  "srcsetのdensity descriptorから最大候補を選択できません"
+);
+const descriptorlessSrcset = extractRssImage(
+  `<description>&lt;img srcset=&quot;/images/single.jpg?variant=large&amp;amp;format=webp&quot;&gt;</description>`,
+  extractionOptions
+);
+assert(
+  descriptorlessSrcset.image?.url ===
+    "https://www.4gamer.net/images/single.jpg?variant=large&format=webp",
+  "descriptorなしの単一srcset画像またはHTML entity・相対URLを解決できません"
+);
+const htmlImageWithoutDimensions = extractRssImage(
+  `<description><![CDATA[<img src="https://cdn.example.jp/news/html-unknown-size.jpg">]]></description>`,
+  extractionOptions
+);
+assert(
+  htmlImageWithoutDimensions.image?.origin === "rss-description-html" &&
+    htmlImageWithoutDimensions.image.url.endsWith("/news/html-unknown-size.jpg") &&
+    htmlImageWithoutDimensions.image.width === undefined &&
+    htmlImageWithoutDimensions.image.height === undefined &&
+    htmlImageWithoutDimensions.audit.smallImageExcludedCount === 0,
+  "寸法情報のないHTML img画像を小サイズとして除外しています"
+);
+const filteredImages = extractRssImage(
+  `<media:content url="https://cdn.example.jp/favicon.png" type="image/png" width="512" height="512" />
+   <media:thumbnail url="https://cdn.example.jp/assets/4gamer-logo.png" width="800" height="400" />
+   <enclosure url="https://cdn.example.jp/tracking/pixel.gif" type="image/gif" width="1" height="1" />
+   <content:encoded><![CDATA[<img src="https://cdn.example.jp/news/too-small.jpg" width="199" height="119"><img data-original="https://cdn.example.jp/news/valid.jpg" width="800" height="450">]]></content:encoded>`,
+  extractionOptions
+);
+assert(
+    filteredImages.image?.url.endsWith("/news/valid.jpg") &&
+    filteredImages.audit.faviconExcludedCount === 1 &&
+    filteredImages.audit.logoExcludedCount === 1 &&
+    filteredImages.audit.advertisingOrTrackingExcludedCount === 1 &&
+    filteredImages.audit.smallImageExcludedCount === 1,
+  "favicon・sourceロゴ・tracking pixel・小サイズ画像の除外が不正です"
+);
+const descriptionDataOriginal = extractRssImage(
+  `<description>&lt;img data-original=&quot;//cdn.example.jp/news/entity.jpg&quot; width=&quot;800&quot; height=&quot;450&quot;&gt;</description>`,
+  extractionOptions
+);
+assert(
+  descriptionDataOriginal.image?.url === "https://cdn.example.jp/news/entity.jpg",
+  "descriptionのHTML entityまたはprotocol-relative URLを復元できません"
+);
+const genericImageField = extractRssImage(
+  `<image><url>/images/from-generic-field.jpg</url></image>`,
+  extractionOptions
+);
+assert(
+  genericImageField.image?.origin === "rss-image-field" &&
+    genericImageField.image.url.endsWith("/images/from-generic-field.jpg"),
+  "RSS独自image fieldを抽出できません"
 );
 assert(buildGNewsSearchUrls(undefined, testNow).length === 0, "API keyなしでGNews通信先を生成しています");
 assert(
@@ -478,13 +641,17 @@ assert(
 const rssPriority = resolvePokemonNewsImageSelection(
   fixture({
     rssImageUrl: "https://example.com/rss-news.jpg",
+    imageOrigin: "rss-media-content",
+    pokemonSlugs: ["pikachu"],
     apiImageUrl: "https://example.com/api-news.jpg",
     imageUrl: "https://example.com/existing-news.jpg"
   })
 );
 assert(
-  rssPriority.source === "rss" && rssPriority.imageUrl?.includes("rss-news.jpg"),
-  "RSS画像を最優先できません"
+  rssPriority.source === "rss" &&
+    rssPriority.origin === "rss-media-content" &&
+    rssPriority.imageUrl?.includes("rss-news.jpg"),
+  "RSS画像を最優先し、ポケモンDB補完を回避できません"
 );
 const apiPriority = resolvePokemonNewsImageSelection(
   fixture({
@@ -562,5 +729,5 @@ assert(
 assert(uiSource.includes("過去のお知らせ"), "終了済み記事を保持する表示がありません");
 
 console.log(
-  `[ok] TASK061 Pokémon News Intelligence: sources=${sources.length}, existingOfficial=${productionFeed.articles.length}, event/image fixtures=passed`
+  `[ok] TASK062 RSS Thumbnail Extraction: sources=${sources.length}, productionArticles=${completeProductionFeed.articles.length}, extraction fixtures=passed`
 );

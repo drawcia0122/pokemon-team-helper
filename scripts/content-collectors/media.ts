@@ -5,6 +5,7 @@ import type {
   GeneratedPokemonContentItem,
   PokemonContentSource,
   PokemonNewsContentType,
+  PokemonNewsImageOrigin,
   PokemonNewsImageSource,
   PokemonNewsSourceId
 } from "../../types/pokemonContent";
@@ -22,6 +23,12 @@ import {
 import { POKEMON_NEWS_SOURCE_REGISTRY } from "../../lib/pokemonNewsSources";
 import { CONTENT_COLLECTOR_VERSION } from "./types";
 import { contentFingerprint, exactPokemonSlugs } from "./pokemonGo";
+import {
+  createEmptyRssImageAudit,
+  extractRssImage,
+  mergeRssImageAudit,
+  type RssImageAudit
+} from "./rssImageExtraction";
 
 export type MediaFeedCandidate = {
   sourceArticleId: string;
@@ -31,8 +38,10 @@ export type MediaFeedCandidate = {
   publishedAt: string;
   imageUrl?: string;
   imageSource?: Extract<PokemonNewsImageSource, "rss" | "api">;
+  imageOrigin?: PokemonNewsImageOrigin;
   imageWidth?: number;
   imageHeight?: number;
+  imageExtractionEvidence?: string[];
   sourceName: string;
   sourceId: Extract<PokemonNewsSourceId, "4gamer-rss" | "inside-rss" | "gnews-api">;
   matchedQuery?: string;
@@ -47,6 +56,7 @@ type ParseFeedOptions = {
   allowedHosts: string[];
   now: Date;
   limit: number;
+  feedUrl: string;
 };
 
 function decodeXml(value: string): string {
@@ -113,43 +123,23 @@ function withinCollectionWindow(value: string, now: Date): boolean {
   return age >= -1 && age <= POKEMON_NEWS_COLLECTION_WINDOW_DAYS;
 }
 
-function numericAttribute(xml: string, tag: string, attribute: string): number | undefined {
-  const value = attributeValue(xml, tag, attribute);
-  if (!value || !/^\d+$/.test(value)) return undefined;
-  const number = Number(value);
-  return Number.isSafeInteger(number) && number > 0 ? number : undefined;
-}
-
-function feedImage(xml: string): { url: string; width?: number; height?: number } | undefined {
-  for (const tag of ["media:content", "media:thumbnail", "enclosure"]) {
-    const candidate = attributeValue(xml, tag, "url");
-    if (!candidate) continue;
-    try {
-      const url = new URL(candidate);
-      if (url.protocol !== "https:") continue;
-      return {
-        url: url.toString(),
-        width: numericAttribute(xml, tag, "width"),
-        height: numericAttribute(xml, tag, "height")
-      };
-    } catch {
-      continue;
-    }
-  }
-  return undefined;
-}
-
 export function parseMediaRss(
   xml: string,
   options: ParseFeedOptions
-): { candidates: MediaFeedCandidate[]; excludedReasons: string[]; rawCount: number } {
+): { candidates: MediaFeedCandidate[]; excludedReasons: string[]; rawCount: number; imageAudit: RssImageAudit } {
   if (!/<(?:rss|rdf:RDF)\b/i.test(xml)) throw new Error("invalid-rss");
   const entries = [...xml.matchAll(/<item\b[^>]*>([\s\S]*?)<\/item>/gi)];
   const candidates: MediaFeedCandidate[] = [];
   const excludedReasons: string[] = [];
   const seen = new Set<string>();
+  const imageAudit = createEmptyRssImageAudit(options.feedUrl);
   for (const entry of entries.slice(0, Math.max(0, options.limit))) {
     const itemXml = entry[1];
+    const extractedImage = extractRssImage(itemXml, {
+      sourceId: options.sourceId,
+      feedUrl: options.feedUrl
+    });
+    mergeRssImageAudit(imageAudit, extractedImage.audit);
     const title = tagValue(itemXml, "title");
     const link = tagValue(itemXml, "link") ?? attributeValue(entry[0], "item", "rdf:about");
     const dateValue = tagValue(itemXml, "dc:date") ?? tagValue(itemXml, "pubDate");
@@ -196,7 +186,7 @@ export function parseMediaRss(
       excludedReasons.push("pokemon-relevance-below-threshold");
       continue;
     }
-    const image = feedImage(itemXml);
+    const image = extractedImage.image;
     candidates.push({
       sourceArticleId: candidateId(canonicalUrl),
       canonicalUrl,
@@ -205,8 +195,10 @@ export function parseMediaRss(
       publishedAt,
       imageUrl: image?.url,
       imageSource: image ? "rss" : undefined,
+      imageOrigin: image?.origin,
       imageWidth: image?.width,
       imageHeight: image?.height,
+      imageExtractionEvidence: image?.evidence,
       sourceName: options.sourceName,
       sourceId: options.sourceId,
       relevanceScore: relevance.score,
@@ -214,7 +206,7 @@ export function parseMediaRss(
       contentType: inferPokemonNewsContentType(title, description)
     });
   }
-  return { candidates, excludedReasons, rawCount: entries.length };
+  return { candidates, excludedReasons, rawCount: entries.length, imageAudit };
 }
 
 type GNewsArticle = {
@@ -304,6 +296,7 @@ export function parseGNewsResponse(
       publishedAt,
       imageUrl: apiImage,
       imageSource: apiImage ? "api" : undefined,
+      imageOrigin: apiImage ? "api-image" : undefined,
       sourceName,
       sourceId: "gnews-api",
       matchedQuery,
@@ -372,10 +365,21 @@ export function createMediaContentItem(input: {
     tags: [source.name],
     official: false,
     ...(input.candidate.imageUrl && input.candidate.imageSource === "rss"
-      ? { rssImageUrl: input.candidate.imageUrl, imageSource: "rss" as const }
+      ? {
+          rssImageUrl: input.candidate.imageUrl,
+          imageSource: "rss" as const,
+          imageOrigin: input.candidate.imageOrigin
+        }
       : {}),
     ...(input.candidate.imageUrl && input.candidate.imageSource === "api"
-      ? { apiImageUrl: input.candidate.imageUrl, imageSource: "api" as const }
+      ? {
+          apiImageUrl: input.candidate.imageUrl,
+          imageSource: "api" as const,
+          imageOrigin: input.candidate.imageOrigin ?? ("api-image" as const)
+        }
+      : {}),
+    ...(input.candidate.imageExtractionEvidence
+      ? { imageExtractionEvidence: input.candidate.imageExtractionEvidence }
       : {}),
     ...(input.candidate.imageWidth ? { imageWidth: input.candidate.imageWidth } : {}),
     ...(input.candidate.imageHeight ? { imageHeight: input.candidate.imageHeight } : {}),

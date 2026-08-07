@@ -37,6 +37,11 @@ const eventTypes = new Set([
   "apparel-collaboration", "convenience-store-collaboration", "corporate-collaboration"
 ]);
 const imageSources = new Set(["rss", "api", "existing", "pokemon-db", "fallback", "none"]);
+const imageOrigins = new Set([
+  "rss-media-content", "rss-media-thumbnail", "rss-enclosure", "api-image",
+  "rss-content-html", "rss-description-html", "rss-image-field", "existing-image",
+  "pokemon-db", "fallback", "none"
+]);
 const dateKeys = [
   "publishedAt",
   "releaseDate",
@@ -172,6 +177,18 @@ export function validatePokemonContent(
     }
     if (item.imageSource !== undefined && !imageSources.has(item.imageSource)) {
       errors.push(`${context}: imageSource が不正です`);
+    }
+    if (item.imageOrigin !== undefined && !imageOrigins.has(item.imageOrigin)) {
+      errors.push(`${context}: imageOrigin が不正です`);
+    }
+    if (
+      item.imageExtractionEvidence !== undefined &&
+      (!Array.isArray(item.imageExtractionEvidence) ||
+        item.imageExtractionEvidence.some(
+          (evidence) => typeof evidence !== "string" || evidence.trim() === ""
+        ))
+    ) {
+      errors.push(`${context}: imageExtractionEvidence が不正です`);
     }
     for (const key of ["imageWidth", "imageHeight"] as const) {
       if (

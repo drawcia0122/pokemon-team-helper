@@ -92,6 +92,19 @@ export type PokemonNewsImageSource =
   | "fallback"
   | "none";
 
+export type PokemonNewsImageOrigin =
+  | "rss-media-content"
+  | "rss-media-thumbnail"
+  | "rss-enclosure"
+  | "api-image"
+  | "rss-content-html"
+  | "rss-description-html"
+  | "rss-image-field"
+  | "existing-image"
+  | "pokemon-db"
+  | "fallback"
+  | "none";
+
 export type PokemonNewsRelatedSource = {
   sourceName: string;
   sourceUrl: string;
@@ -132,6 +145,8 @@ export type PokemonContentItem = {
   apiImageUrl?: string;
   imageUrl?: string;
   imageSource?: PokemonNewsImageSource;
+  imageOrigin?: PokemonNewsImageOrigin;
+  imageExtractionEvidence?: string[];
   imageWidth?: number;
   imageHeight?: number;
   thumbnailUrl?: string;
@@ -166,6 +181,7 @@ export type PokemonNewsArticle = PokemonContentItem & {
   insight: string;
   imageUrl?: string;
   imageSource: PokemonNewsImageSource;
+  imageOrigin: PokemonNewsImageOrigin;
   imageQualityEvidence: string[];
   classificationEvidence: string[];
   freshness: PokemonNewsArticleFreshness;

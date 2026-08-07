@@ -18,6 +18,7 @@ import type {
   PokemonNewsSourceId
 } from "@/types/pokemonContent";
 import type { ContentCollectionState } from "./content-collectors/types";
+import { RSS_IMAGE_FIELD_KEYS } from "./content-collectors/rssImageExtraction";
 
 function counts(values: string[]): Record<string, number> {
   const result = new Map<string, number>();
@@ -84,6 +85,38 @@ const recent7 = feed.articles.filter(
 const recent30 = feed.articles.filter(
   (article) => ageInDays(article.publishedAt, now) >= 0 && ageInDays(article.publishedAt, now) <= 30
 ).length;
+const rssImageAudits = registry.flatMap((source) =>
+  (collectionState.sources[source.id as PokemonContentSource]?.lastImageAudits ?? []).map(
+    (audit) => ({ sourceId: source.id, sourceName: source.name, ...audit })
+  )
+);
+const imageFieldCounts = rssImageAudits.reduce(
+  (result, audit) => {
+    for (const [field, count] of Object.entries(audit.detected)) {
+      result[field] = (result[field] ?? 0) + count;
+    }
+    return result;
+  },
+  Object.fromEntries(RSS_IMAGE_FIELD_KEYS.map((key) => [key, 0])) as Record<string, number>
+);
+const sourceImageCoverage = Object.fromEntries(
+  registry
+    .filter((source) => source.sourceKind === "media")
+    .map((source) => {
+      const articles = feed.articles.filter((article) => article.sourceId === source.id);
+      const withArticleImage = articles.filter(
+        (article) => article.imageSource === "rss" || article.imageSource === "api"
+      ).length;
+      return [
+        source.id,
+        {
+          articleCount: articles.length,
+          articleImageCount: withArticleImage,
+          rate: percentage(withArticleImage, articles.length)
+        }
+      ];
+    })
+);
 
 const report = {
   generatedAt: now.toISOString(),
@@ -127,6 +160,22 @@ const report = {
   },
   insightCount: feed.articles.filter((article) => article.insight.trim().length > 0).length,
   imageSourceCounts: counts(feed.articles.map((article) => article.imageSource)),
+  finalImageOriginCounts: counts(feed.articles.map((article) => article.imageOrigin)),
+  feedImageAudits: rssImageAudits,
+  imageFieldCounts,
+  mediaContentImageCount: imageFieldCounts["media:content"] ?? 0,
+  mediaThumbnailImageCount: imageFieldCounts["media:thumbnail"] ?? 0,
+  enclosureImageCount: imageFieldCounts.enclosure ?? 0,
+  contentEncodedImageCount: imageFieldCounts["content:encoded-img"] ?? 0,
+  descriptionImageCount: imageFieldCounts["description-img"] ?? 0,
+  validRssImageAdoptionCount: rssImageAudits.reduce(
+    (sum, audit) => sum + audit.adoptedCount,
+    0
+  ),
+  smallImageExcludedCount: rssImageAudits.reduce(
+    (sum, audit) => sum + audit.smallImageExcludedCount,
+    0
+  ),
   rssImageCount: feed.articles.filter((article) => article.imageSource === "rss").length,
   apiImageCount: feed.articles.filter((article) => article.imageSource === "api").length,
   pokemonImageFallbackCount: feed.articles.filter((article) => article.imageSource === "pokemon-db").length,
@@ -144,6 +193,15 @@ const report = {
   logoExcludedCount: feed.articles.filter((article) =>
     article.imageQualityEvidence.some((evidence) => evidence.includes("site-logo"))
   ).length,
+  advertisingOrTrackingExcludedCount: rssImageAudits.reduce(
+    (sum, audit) => sum + audit.advertisingOrTrackingExcludedCount,
+    0
+  ),
+  imageUrlResolutionFailureCount: rssImageAudits.reduce(
+    (sum, audit) => sum + audit.invalidUrlCount,
+    0
+  ),
+  sourceImageCoverage,
   multipleSpeciesFallbackCount: feed.articles.filter((article) =>
     article.imageQualityEvidence.includes("rejected:pokemon-db:multiple-species")
   ).length,
@@ -253,6 +311,7 @@ const report = {
     eventTypes: article.eventTypes,
     insight: article.insight,
     imageSource: article.imageSource,
+    imageOrigin: article.imageOrigin,
     imageQualityEvidence: article.imageQualityEvidence,
     freshness: article.freshness,
     classificationEvidence: article.classificationEvidence
@@ -286,6 +345,12 @@ if (process.argv.includes("--json")) {
     `画像: RSS=${report.rssImageCount}, API=${report.apiImageCount}, Pokémon補完=${report.pokemonImageFallbackCount}, fallback=${report.fallbackImageCount}, URLなし=${report.imageUrlMissingCount}`
   );
   console.log("画像取得率(%):", report.imageSourceRates);
+  console.log("最終画像取得元:", report.finalImageOriginCounts);
+  console.log("Feed画像field:", report.imageFieldCounts);
+  console.log(
+    `Feed画像採用=${report.validRssImageAdoptionCount}, 小サイズ除外=${report.smallImageExcludedCount}, 広告/tracking除外=${report.advertisingOrTrackingExcludedCount}, URL解決失敗=${report.imageUrlResolutionFailureCount}`
+  );
+  console.log("source別画像取得率:", report.sourceImageCoverage);
   console.log(
     `画像除外: favicon/icon=${report.faviconExcludedCount}, logo=${report.logoExcludedCount}, 複数匹補完なし=${report.multipleSpeciesFallbackCount}`
   );

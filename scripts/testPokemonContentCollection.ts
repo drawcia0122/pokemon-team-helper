@@ -281,6 +281,7 @@ const previousEnvironmentSource = process.env.CONTENT_SOURCE;
 try {
   process.env.CONTENT_SOURCE = "pokemon-go-official-rss";
   await collectPokemonContent({
+    source: "pokemon-go-official-rss",
     rootDir: disabledTemp.root,
     paths: disabledTemp.paths,
     clients: { "pokemon-go-official-rss": environmentClient }

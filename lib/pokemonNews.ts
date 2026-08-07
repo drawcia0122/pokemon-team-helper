@@ -283,6 +283,7 @@ export function normalizePokemonNewsItem(
     insight: buildPokemonNewsInsight(item, eventTypes, classification.categories),
     imageUrl: image.imageUrl,
     imageSource: image.source,
+    imageOrigin: image.origin,
     imageQualityEvidence: image.evidence,
     classificationEvidence: unique([...classification.evidence, ...relevance.evidence]),
     freshness

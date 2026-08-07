@@ -158,7 +158,7 @@ export function contentFingerprint(
     "kind" | "title" | "summary" | "sourceId" | "sourceKind" | "contentType" | "relevanceScore" | "url" | "publishedAt" | "pokemonSlugs" | "tags" |
       "categories" | "gameTitles" | "official" | "importance" | "releaseDate" |
       "preorderStartDate" | "preorderDeadlineDate" | "eventStartDate" | "eventEndDate" | "imageUrl" |
-      "rssImageUrl" | "apiImageUrl" | "imageSource" | "imageWidth" | "imageHeight"
+      "rssImageUrl" | "apiImageUrl" | "imageSource" | "imageOrigin" | "imageExtractionEvidence" | "imageWidth" | "imageHeight"
   >
 ): string {
   const normalized = {
@@ -186,6 +186,8 @@ export function contentFingerprint(
     rssImageUrl: item.rssImageUrl,
     apiImageUrl: item.apiImageUrl,
     imageSource: item.imageSource,
+    imageOrigin: item.imageOrigin,
+    imageExtractionEvidence: item.imageExtractionEvidence,
     imageWidth: item.imageWidth,
     imageHeight: item.imageHeight
   };
