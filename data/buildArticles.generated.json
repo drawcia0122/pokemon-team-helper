@@ -4263,5 +4263,55 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-09T15:50:42.583Z"
+  },
+  {
+    "id": "hatena-blog-4418ee62e63289edcc65",
+    "source": "hatena-blog",
+    "sourceArticleId": "4418ee62e63289edcc65",
+    "sourceUrl": "https://chikaramochida.hatenablog.com/entry/2026/08/10/073720",
+    "canonicalUrl": "https://chikaramochida.hatenablog.com/entry/2026/08/10/073720",
+    "title": "【ポケモンチャンピオンズ】シングルバトル　シーズンM‐４　振り返り",
+    "authorName": "chikaramochida",
+    "publishedAt": "2026-08-09T22:37:20.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "マスターボール級",
+    "pokemonSlugs": [],
+    "tags": [
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。マスターボール級。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": null,
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.6
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-09T22:52:11.694Z",
+    "lastCollectedAt": "2026-08-09T22:52:11.694Z",
+    "contentFingerprint": "d1ff82ccdf45eaa28a887eea92890ae8a8ab3bdeaf0907c53f048bb5219fe303",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-09T22:52:11.694Z"
   }
 ]
