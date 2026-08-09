@@ -4205,5 +4205,63 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-09T13:37:27.967Z"
+  },
+  {
+    "id": "note-ncbcf39e9bed4",
+    "source": "note",
+    "sourceArticleId": "ncbcf39e9bed4",
+    "sourceUrl": "https://note.com/vivid_holly7811/n/ncbcf39e9bed4",
+    "canonicalUrl": "https://note.com/vivid_holly7811/n/ncbcf39e9bed4",
+    "title": "ポケモンチャンピオンズ シーズンM-4を遊んだ備忘録　2026-6−22～28程度",
+    "authorName": "ニタ",
+    "publishedAt": "2026-08-09T15:28:17.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/301977833/rectangle_large_type_2_0a35f20e0ba38030d06960e75deed737.png",
+      "source": "structured-data",
+      "alt": "ポケモンチャンピオンズ シーズンM-4を遊んだ備忘録　2026-6−22～28程度のサムネイル",
+      "width": 518,
+      "height": 271
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.6,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.57
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-09T15:50:42.583Z",
+    "lastCollectedAt": "2026-08-09T15:50:42.583Z",
+    "contentFingerprint": "61b72da1384479018b5e804b91eedd0a4102ccda160e72d4095ecf9db1139e9d",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-09T15:50:42.583Z"
   }
 ]
