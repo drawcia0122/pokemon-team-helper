@@ -4146,5 +4146,64 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-07T14:00:48.858Z"
+  },
+  {
+    "id": "note-nd4d586017316",
+    "source": "note",
+    "sourceArticleId": "nd4d586017316",
+    "sourceUrl": "https://note.com/gingakuwagata/n/nd4d586017316",
+    "canonicalUrl": "https://note.com/gingakuwagata/n/nd4d586017316",
+    "title": "環境総括：シーズンM-4（シングル）",
+    "authorName": "くわがた",
+    "publishedAt": "2026-08-09T13:13:18.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終45位",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "構築記事",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。最終45位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/301455565/rectangle_large_type_2_15af767054cc5c43ecea75cb4b9e8eee.jpeg",
+      "source": "structured-data",
+      "alt": "環境総括：シーズンM-4（シングル）のサムネイル",
+      "width": 1920,
+      "height": 1005
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.7,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.64
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-09T13:37:27.967Z",
+    "lastCollectedAt": "2026-08-09T13:37:27.967Z",
+    "contentFingerprint": "9f07297804072825cf940cc9c844ddfb46455a91672cc9a0c77aec34c68f34c8",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-09T13:37:27.967Z"
   }
 ]
