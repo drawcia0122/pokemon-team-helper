@@ -4375,7 +4375,7 @@
     "sourceArticleId": "nd2218299187b",
     "sourceUrl": "https://note.com/eriyama_erk411/n/nd2218299187b",
     "canonicalUrl": "https://note.com/eriyama_erk411/n/nd2218299187b",
-    "title": "【ポケモンチャンピオンズ】シーズンM-5 ダブルでマスターボール級に到達した構築メモ",
+    "title": "【ポケモンチャンピオンズ】M-5 ダブルでマスターボール級に到達した構築メモ",
     "authorName": "エリヤマ エリコ",
     "publishedAt": "2026-08-11T10:01:10.000Z",
     "battleFormat": "double",
@@ -4395,7 +4395,7 @@
     "thumbnail": {
       "url": "https://assets.st-note.com/production/uploads/images/302465403/rectangle_large_type_2_c7d71271cc21200fda1bb3f404347c2a.png",
       "source": "structured-data",
-      "alt": "【ポケモンチャンピオンズ】シーズンM-5 ダブルでマスターボール級に到達した構築メモのサムネイル",
+      "alt": "【ポケモンチャンピオンズ】M-5 ダブルでマスターボール級に到達した構築メモのサムネイル",
       "width": 606,
       "height": 317
     },
@@ -4422,12 +4422,12 @@
       "unresolved": 0
     },
     "firstCollectedAt": "2026-08-11T10:14:45.026Z",
-    "lastCollectedAt": "2026-08-11T10:14:45.026Z",
-    "contentFingerprint": "5a72579a987e0ff7e1041026fb1bbcb68c955e1eb8a299d03585c090326e038d",
+    "lastCollectedAt": "2026-08-11T19:48:41.754Z",
+    "contentFingerprint": "0f49d91c5a0d6936b60ed51d1b3631f0818eb3e835ca3f298564427b7c92e3f1",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-08-11T10:14:45.026Z"
+    "lastSuccessfulFetchAt": "2026-08-11T19:48:41.754Z"
   },
   {
     "id": "note-n3d3c4b5920c7",
