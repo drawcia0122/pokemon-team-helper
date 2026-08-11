@@ -3053,7 +3053,7 @@
     "sourceArticleId": "nb2e8fa6cba0c",
     "sourceUrl": "https://note.com/eriyama_erk411/n/nb2e8fa6cba0c",
     "canonicalUrl": "https://note.com/eriyama_erk411/n/nb2e8fa6cba0c",
-    "title": "【ポケモンチャンピオンズ】シーズンM-4 シングルでマスターボール級に到達した構築メモ",
+    "title": "【ポケモンチャンピオンズ】M-4 シングルでマスターボール級に到達した構築メモ",
     "authorName": "エリヤマ エリコ",
     "publishedAt": "2026-07-31T23:24:07.000Z",
     "battleFormat": "single",
@@ -3073,7 +3073,7 @@
     "thumbnail": {
       "url": "https://assets.st-note.com/production/uploads/images/299306437/rectangle_large_type_2_59647e646a27cedcb327fb6391448b2a.png",
       "source": "structured-data",
-      "alt": "【ポケモンチャンピオンズ】シーズンM-4 シングルでマスターボール級に到達した構築メモのサムネイル",
+      "alt": "【ポケモンチャンピオンズ】M-4 シングルでマスターボール級に到達した構築メモのサムネイル",
       "width": 635,
       "height": 332
     },
@@ -3100,12 +3100,12 @@
       "unresolved": 0
     },
     "firstCollectedAt": "2026-07-31T23:46:00.390Z",
-    "lastCollectedAt": "2026-07-31T23:46:00.390Z",
-    "contentFingerprint": "fde633f761b2207f31958a8682117e77a9a493fe527ca9dca03dfb68574f6426",
+    "lastCollectedAt": "2026-08-11T21:06:03.577Z",
+    "contentFingerprint": "345bf695e4bd535214763b895559fa713a92d145ed663f298e21174705cfc923",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-31T23:46:00.390Z"
+    "lastSuccessfulFetchAt": "2026-08-11T21:06:03.577Z"
   },
   {
     "id": "note-nc0c7d0e38829",
