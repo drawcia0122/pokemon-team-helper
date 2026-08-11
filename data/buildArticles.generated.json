@@ -4313,5 +4313,60 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-09T22:52:11.694Z"
+  },
+  {
+    "id": "note-n001e35347bcf",
+    "source": "note",
+    "sourceArticleId": "n001e35347bcf",
+    "sourceUrl": "https://note.com/sin0tancoscos/n/n001e35347bcf",
+    "canonicalUrl": "https://note.com/sin0tancoscos/n/n001e35347bcf",
+    "title": "ポケモンチャンピオンズ M-4シーズンシングルの初心者環境(47戦282匹集計)",
+    "authorName": "sin0",
+    "publishedAt": "2026-08-11T04:59:34.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "集計",
+      "ポケモンランクマッチ",
+      "シングルマッチ",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": null,
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.7
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-11T06:38:57.600Z",
+    "lastCollectedAt": "2026-08-11T06:38:57.600Z",
+    "contentFingerprint": "830097358227e59d4678f7317938cfd2652f25b0317b8a0e93af5ef462127bc1",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-11T06:38:57.600Z"
   }
 ]
