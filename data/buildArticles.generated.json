@@ -4428,5 +4428,64 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-11T10:14:45.026Z"
+  },
+  {
+    "id": "note-n3d3c4b5920c7",
+    "source": "note",
+    "sourceArticleId": "n3d3c4b5920c7",
+    "sourceUrl": "https://note.com/firm_finch9653/n/n3d3c4b5920c7",
+    "canonicalUrl": "https://note.com/firm_finch9653/n/n3d3c4b5920c7",
+    "title": "【M-Bダブル】メガメガタイレーツ大反省会",
+    "authorName": "あたま",
+    "publishedAt": "2026-08-11T10:56:34.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": "最終221位",
+    "pokemonSlugs": [],
+    "tags": [
+      "構築記事",
+      "ダブルバトル",
+      "ポケモンチャンピオンズ",
+      "M-3",
+      "double"
+    ],
+    "summary": "M-3のダブル構築記事です。最終221位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/302421540/rectangle_large_type_2_e4971ec323e6bc8e52485e98e648cb8d.png",
+      "source": "structured-data",
+      "alt": "【M-Bダブル】メガメガタイレーツ大反省会のサムネイル",
+      "width": 1347,
+      "height": 705
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.625
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-11T11:08:15.761Z",
+    "lastCollectedAt": "2026-08-11T11:08:15.761Z",
+    "contentFingerprint": "155f9e86e2092261c0b192f64feba5d27a6327159cc21197c25ad626d381bcfa",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-11T11:08:15.761Z"
   }
 ]
