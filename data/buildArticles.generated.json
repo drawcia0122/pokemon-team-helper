@@ -4467,11 +4467,11 @@
     "teamExtractionIssue": "team-section-not-found",
     "extractionEvidence": null,
     "qualityScore": {
-      "targetGameConfidence": 1,
+      "targetGameConfidence": 0.6,
       "formatConfidence": 1,
       "seasonConfidence": 0.625,
       "teamConfidence": 0,
-      "overallConfidence": 0.625
+      "overallConfidence": 0.505
     },
     "pokemonNameResolutionStats": {
       "exact": 0,
@@ -4481,11 +4481,11 @@
       "unresolved": 0
     },
     "firstCollectedAt": "2026-08-11T11:08:15.761Z",
-    "lastCollectedAt": "2026-08-11T11:08:15.761Z",
-    "contentFingerprint": "155f9e86e2092261c0b192f64feba5d27a6327159cc21197c25ad626d381bcfa",
+    "lastCollectedAt": "2026-08-12T09:33:06.521Z",
+    "contentFingerprint": "ff0475713350b789db2e18a38d7e96e8bb2f10cdbe230a8042da12511c886122",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-08-11T11:08:15.761Z"
+    "lastSuccessfulFetchAt": "2026-08-12T09:33:06.521Z"
   }
 ]
