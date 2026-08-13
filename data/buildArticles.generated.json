@@ -4543,5 +4543,67 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-12T15:16:21.541Z"
+  },
+  {
+    "id": "note-nb1959a7cd41e",
+    "source": "note",
+    "sourceArticleId": "nb1959a7cd41e",
+    "sourceUrl": "https://note.com/asukaze_office/n/nb1959a7cd41e",
+    "canonicalUrl": "https://note.com/asukaze_office/n/nb1959a7cd41e",
+    "title": "偏愛録#004 | ポケモン(02) | ポケチャン(M-5)のこだわりパーティ",
+    "authorName": "あすかぜ",
+    "publishedAt": "2026-08-13T02:23:51.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m1",
+    "result": "マスターボール級",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "パーティ",
+      "ロトム",
+      "構築",
+      "メタグロス",
+      "ポケモンバトル",
+      "ブラッキー",
+      "マスターボール級"
+    ],
+    "summary": "M-1のシングル構築記事です。マスターボール級。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/302820030/rectangle_large_type_2_d06260c6c0f684bb53fda293dbe57ced.png",
+      "source": "structured-data",
+      "alt": "偏愛録#004 | ポケモン(02) | ポケチャン(M-5)のこだわりパーティのサムネイル",
+      "width": 1334,
+      "height": 698
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.6,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.545
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-13T03:17:44.722Z",
+    "lastCollectedAt": "2026-08-13T03:17:44.722Z",
+    "contentFingerprint": "0477c04f516ff73a66061587a3d286c4bbafdaefddcf36e0dc12501e39e952f1",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-13T03:17:44.722Z"
   }
 ]
