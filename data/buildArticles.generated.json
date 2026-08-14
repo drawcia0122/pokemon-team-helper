@@ -4605,5 +4605,65 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-13T03:17:44.722Z"
+  },
+  {
+    "id": "note-nddc2457b332b",
+    "source": "note",
+    "sourceArticleId": "nddc2457b332b",
+    "sourceUrl": "https://note.com/sunsetcolight/n/nddc2457b332b",
+    "canonicalUrl": "https://note.com/sunsetcolight/n/nddc2457b332b",
+    "title": "ポケチャンダブルM-3【おにたんチクタク雨】",
+    "authorName": "JIN",
+    "publishedAt": "2026-08-14T08:28:15.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "ポケチャン",
+      "ポケモンチャンピオンズ",
+      "ダブルM3",
+      "M-3",
+      "double"
+    ],
+    "summary": "M-3のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/303075797/rectangle_large_type_2_5508a6955244f06c26f6d166725cdce9.png",
+      "source": "structured-data",
+      "alt": "ポケチャンダブルM-3【おにたんチクタク雨】のサムネイル",
+      "width": 1032,
+      "height": 540
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.7
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-14T09:29:18.876Z",
+    "lastCollectedAt": "2026-08-14T09:29:18.876Z",
+    "contentFingerprint": "267b1b2e6897246fec7fbee9337f715234dd8160cccff8f27a7aab664ac4da1b",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-14T09:29:18.876Z"
   }
 ]
