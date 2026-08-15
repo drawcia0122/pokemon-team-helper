@@ -4665,5 +4665,60 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-14T09:29:18.876Z"
+  },
+  {
+    "id": "note-n0ea893d31624",
+    "source": "note",
+    "sourceArticleId": "n0ea893d31624",
+    "sourceUrl": "https://note.com/massaru_00/n/n0ea893d31624",
+    "canonicalUrl": "https://note.com/massaru_00/n/n0ea893d31624",
+    "title": "【ポケモンチャンピオンズ シーズンM-4 ダブル/最終318位】メタグロスジャラランガ",
+    "authorName": "マッサル",
+    "publishedAt": "2026-08-15T03:19:40.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終318位",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "メタグロス",
+      "ジャラランガ",
+      "ポケモンダブルバトル",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。最終318位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": null,
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 1,
+      "teamConfidence": 0.6666666666666666,
+      "overallConfidence": 0.9
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 4,
+      "ambiguous": 2,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-15T03:56:16.777Z",
+    "lastCollectedAt": "2026-08-15T03:56:16.777Z",
+    "contentFingerprint": "500d35262d6dcf869c66c4e470960696261bab0fd7eac2ce8bd776634da2bc59",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-15T03:56:16.777Z"
   }
 ]
