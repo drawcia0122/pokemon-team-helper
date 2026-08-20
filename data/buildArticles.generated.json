@@ -4726,5 +4726,77 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-15T03:56:16.777Z"
+  },
+  {
+    "id": "note-n107e46bbf7d0",
+    "source": "note",
+    "sourceArticleId": "n107e46bbf7d0",
+    "sourceUrl": "https://note.com/clockrockcity/n/n107e46bbf7d0",
+    "canonicalUrl": "https://note.com/clockrockcity/n/n107e46bbf7d0",
+    "title": "【シーズンM-3】キラめく雨滅び #ポケモンチャンピオンズ",
+    "authorName": "ロック",
+    "publishedAt": "2026-08-20T12:30:35.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": null,
+    "pokemonSlugs": [
+      "swampert",
+      "pelipper",
+      "glimmora",
+      "sinistcha",
+      "gengar",
+      "incineroar"
+    ],
+    "tags": [
+      "構築記事",
+      "メガゲンガー",
+      "ダブルバトル",
+      "ランクバトル",
+      "雨パ",
+      "ポケチャン",
+      "ポケモン構築記事",
+      "メガラグラージ"
+    ],
+    "summary": "M-3のダブルで使用された、ラグラージ入りの構築記事です。採用ポケモン6体と構築経緯を確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/305248291/rectangle_large_type_2_d8fb7f5400e437a400c4939e3049bf84.jpeg",
+      "source": "structured-data",
+      "alt": "【シーズンM-3】キラめく雨滅び #ポケモンチャンピオンズのサムネイル",
+      "width": 1920,
+      "height": 1005
+    },
+    "collectionCompleteness": "complete",
+    "extractionConfidence": 1,
+    "missingFields": [],
+    "teamExtractionMethod": "section-headings",
+    "teamExtractionIssue": null,
+    "extractionEvidence": {
+      "extractionMethod": "section-headings",
+      "sourceHeading": "個別解説",
+      "resolvedCount": 6,
+      "confidence": "high"
+    },
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.9,
+      "seasonConfidence": 1,
+      "teamConfidence": 1,
+      "overallConfidence": 0.98
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 6,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-20T13:16:09.106Z",
+    "lastCollectedAt": "2026-08-20T13:16:09.106Z",
+    "contentFingerprint": "4e6746ea15d5a22d07d9224c103dd4967952f7cd724647225eb12f2c8d87b77d",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-20T13:16:09.106Z"
   }
 ]
