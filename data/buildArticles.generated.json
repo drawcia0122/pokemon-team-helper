@@ -4858,5 +4858,67 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-21T11:44:46.001Z"
+  },
+  {
+    "id": "note-nfd0b7e5fcecf",
+    "source": "note",
+    "sourceArticleId": "nfd0b7e5fcecf",
+    "sourceUrl": "https://note.com/right_sloth5107/n/nfd0b7e5fcecf",
+    "canonicalUrl": "https://note.com/right_sloth5107/n/nfd0b7e5fcecf",
+    "title": "【環境解説】今のポケチャンの環境の美しさについて",
+    "authorName": "こたこす！/ もふお【ポケモンチャンピオンズ解説・考察】",
+    "publishedAt": "2026-08-24T02:19:30.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "環境",
+      "ポケモン",
+      "ランクマ",
+      "メガシンカ",
+      "ポケモンSV",
+      "テラスタル",
+      "専用技",
+      "キョジオーン"
+    ],
+    "summary": "M-4のシングル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/306487225/rectangle_large_type_2_b521b3351ffe910344397629ce786274.jpeg",
+      "source": "structured-data",
+      "alt": "【環境解説】今のポケチャンの環境の美しさについてのサムネイル",
+      "width": 1699,
+      "height": 889
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.6,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.425
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-08-24T03:18:25.145Z",
+    "lastCollectedAt": "2026-08-24T03:18:25.145Z",
+    "contentFingerprint": "b21a22b1cee61c8ca7573753648fb309d823edc3479652fb5fd9757ed3640b20",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-08-24T03:18:25.145Z"
   }
 ]
