@@ -4920,5 +4920,67 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-08-24T03:18:25.145Z"
+  },
+  {
+    "id": "note-n07591ed684b6",
+    "source": "note",
+    "sourceArticleId": "n07591ed684b6",
+    "sourceUrl": "https://note.com/makura_games/n/n07591ed684b6",
+    "canonicalUrl": "https://note.com/makura_games/n/n07591ed684b6",
+    "title": "【ポケモンチャンピオンズ シーズンM-4】ダブル 滅びゲンガー+カメックスにチルタリスを添えて【現在R1800〜】",
+    "authorName": "まくら",
+    "publishedAt": "2026-09-03T02:29:27.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "マスターボール級",
+    "pokemonSlugs": [],
+    "tags": [
+      "ゲーム",
+      "ポケモン",
+      "ゲンガー",
+      "ガオガエン",
+      "ダブル",
+      "滅び",
+      "構築記事",
+      "カメックス"
+    ],
+    "summary": "M-4のダブル構築記事です。マスターボール級。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/309415393/rectangle_large_type_2_ad50b4da8977da0ae1463ca33c848b82.png",
+      "source": "structured-data",
+      "alt": "【ポケモンチャンピオンズ シーズンM-4】ダブル 滅びゲンガー+カメックスにチルタリスを添えて【現在R1800〜】のサムネイル",
+      "width": 877,
+      "height": 459
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.53
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 1
+    },
+    "firstCollectedAt": "2026-09-03T05:09:18.372Z",
+    "lastCollectedAt": "2026-09-03T05:09:18.372Z",
+    "contentFingerprint": "cd5493519e224eecdaab4fd6c3a67f033457fa5516d2f45888d8a32d7a53aabd",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-09-03T05:09:18.372Z"
   }
 ]
