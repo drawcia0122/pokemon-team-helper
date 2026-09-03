@@ -4982,5 +4982,59 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-09-03T05:09:18.372Z"
+  },
+  {
+    "id": "note-n61cc6e8957bd",
+    "source": "note",
+    "sourceArticleId": "n61cc6e8957bd",
+    "sourceUrl": "https://note.com/lush_turtle9029/n/n61cc6e8957bd",
+    "canonicalUrl": "https://note.com/lush_turtle9029/n/n61cc6e8957bd",
+    "title": "【初心者向け】ポケモンダブルバトルの立ち回り・考え方｜まず覚えたい勝ち筋の作り方",
+    "authorName": "たー。",
+    "publishedAt": "2026-09-03T09:36:56.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m1",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "ゲーム",
+      "ポケモン",
+      "ダブルバトル",
+      "ポケモンチャンピオンズ",
+      "M-1",
+      "double"
+    ],
+    "summary": "M-1のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": null,
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.625
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-09-03T09:53:43.293Z",
+    "lastCollectedAt": "2026-09-03T09:53:43.293Z",
+    "contentFingerprint": "459a8c26b996e346b2350c63ef67e9425f0620447d33a8728fdb52fdd5533f00",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-09-03T09:53:43.293Z"
   }
 ]
