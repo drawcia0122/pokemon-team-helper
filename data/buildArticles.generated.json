@@ -5036,5 +5036,66 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-09-03T09:53:43.293Z"
+  },
+  {
+    "id": "note-n23d5545ab0a9",
+    "source": "note",
+    "sourceArticleId": "n23d5545ab0a9",
+    "sourceUrl": "https://note.com/noringo_log/n/n23d5545ab0a9",
+    "canonicalUrl": "https://note.com/noringo_log/n/n23d5545ab0a9",
+    "title": "【チャンピオンズ ダブル M-B】メガクチート使いから見た環境ふりかえり【最高レート1930】",
+    "authorName": "のりんご Pokémon ダブルバトル",
+    "publishedAt": "2026-09-03T13:50:07.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": "最終15000位",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "推し活",
+      "ダブルバトル",
+      "メガクチート",
+      "ポケモンチャンピオンズ",
+      "M-3",
+      "double"
+    ],
+    "summary": "M-3のダブル構築記事です。最終15000位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/309829923/rectangle_large_type_2_f3b0b10dfe7e682f25d4e8b52b1b1a22.png",
+      "source": "structured-data",
+      "alt": "【チャンピオンズ ダブル M-B】メガクチート使いから見た環境ふりかえり【最高レート1930】のサムネイル",
+      "width": 5118,
+      "height": 2681
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.505
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-09-03T14:36:31.637Z",
+    "lastCollectedAt": "2026-09-03T14:36:31.637Z",
+    "contentFingerprint": "8bcf659eb6fe33052e4d508170963f614308a0546331012ad97419c07b3cb774",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-09-03T14:36:31.637Z"
   }
 ]
