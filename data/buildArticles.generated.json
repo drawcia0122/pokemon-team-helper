@@ -5097,5 +5097,67 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-09-03T14:36:31.637Z"
+  },
+  {
+    "id": "note-nafb84a240ebd",
+    "source": "note",
+    "sourceArticleId": "nafb84a240ebd",
+    "sourceUrl": "https://note.com/poru_kudu4696/n/nafb84a240ebd",
+    "canonicalUrl": "https://note.com/poru_kudu4696/n/nafb84a240ebd",
+    "title": "〈スマホ〉ポケモン・ダブルバトルのススメ入門編〈Switch〉",
+    "authorName": "poruporu8888",
+    "publishedAt": "2026-08-26T21:01:07.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m2",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "ゲーム",
+      "ポケモン",
+      "ポケットモンスター",
+      "Nintendo_Switch",
+      "ダブルバトル",
+      "ポケモン対戦",
+      "PokemonWCS",
+      "ポケモンチャンピオンズ"
+    ],
+    "summary": "M-2のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/298530185/rectangle_large_type_2_11a22597e95840bc9707ebd3fe65b32b.png",
+      "source": "structured-data",
+      "alt": "〈スマホ〉ポケモン・ダブルバトルのススメ入門編〈Switch〉のサムネイル",
+      "width": 1920,
+      "height": 1005
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.625
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-09-04T01:24:13.095Z",
+    "lastCollectedAt": "2026-09-04T01:24:13.095Z",
+    "contentFingerprint": "f72fe9fad4ccd9f703f38026cd43b09735da431a6c9d814a2fe8654c72a700a0",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-09-04T01:24:13.095Z"
   }
 ]
