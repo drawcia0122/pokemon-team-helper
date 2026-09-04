@@ -5159,5 +5159,64 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-09-04T01:24:13.095Z"
+  },
+  {
+    "id": "note-n887fe390573e",
+    "source": "note",
+    "sourceArticleId": "n887fe390573e",
+    "sourceUrl": "https://note.com/harumiy0305/n/n887fe390573e",
+    "canonicalUrl": "https://note.com/harumiy0305/n/n887fe390573e",
+    "title": "【過去シーズンを】ポケチャンシーズンＭー４【振り返る】",
+    "authorName": "春空　みやこ",
+    "publishedAt": "2026-09-04T09:18:23.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "ゲームプレイ日記",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/310216487/rectangle_large_type_2_912146163206a8dfec3d987f3d05f037.jpg",
+      "source": "structured-data",
+      "alt": "【過去シーズンを】ポケチャンシーズンＭー４【振り返る】のサムネイル",
+      "width": 5363,
+      "height": 2810
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.6,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.62
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-09-04T11:45:59.669Z",
+    "lastCollectedAt": "2026-09-04T11:45:59.669Z",
+    "contentFingerprint": "9906a9652745f31ffe032af41d7cf6ecbab13ccb15a2a9bfa656bc678a591cea",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-09-04T11:45:59.669Z"
   }
 ]
