@@ -5218,5 +5218,65 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-09-04T11:45:59.669Z"
+  },
+  {
+    "id": "note-n7c8e498b44b0",
+    "source": "note",
+    "sourceArticleId": "n7c8e498b44b0",
+    "sourceUrl": "https://note.com/morikamome/n/n7c8e498b44b0",
+    "canonicalUrl": "https://note.com/morikamome/n/n7c8e498b44b0",
+    "title": "ガチゴラス博士までの道のり(ポケモンチャンピオンズダブルM-B、シーズン5)",
+    "authorName": "森カモメ",
+    "publishedAt": "2026-09-07T11:33:09.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終64位",
+    "pokemonSlugs": [],
+    "tags": [
+      "ダブルバトル",
+      "ガチゴラス",
+      "ポケモンチャンピオンズ",
+      "MB環境",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。最終64位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/311302989/rectangle_large_type_2_d24bd6675699accebe918b23a53046f8.png",
+      "source": "structured-data",
+      "alt": "ガチゴラス博士までの道のり(ポケモンチャンピオンズダブルM-B、シーズン5)のサムネイル",
+      "width": 3840,
+      "height": 2009
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.625
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-09-07T12:39:42.803Z",
+    "lastCollectedAt": "2026-09-07T12:39:42.803Z",
+    "contentFingerprint": "530260e4fe777da4492d1bc3522201bae640c5ca7a826cd8e27a44413ecf220c",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-09-07T12:39:42.803Z"
   }
 ]
