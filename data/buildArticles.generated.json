@@ -5336,5 +5336,74 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-09-09T06:04:50.935Z"
+  },
+  {
+    "id": "note-ne5389d969bbb",
+    "source": "note",
+    "sourceArticleId": "ne5389d969bbb",
+    "sourceUrl": "https://note.com/kurak_0712/n/ne5389d969bbb",
+    "canonicalUrl": "https://note.com/kurak_0712/n/ne5389d969bbb",
+    "title": "【ポケモンチャンピオンズ】最終レート2170 651位 純正滅び構築 【シーズンM-5ダブル】",
+    "authorName": "kurake",
+    "publishedAt": "2026-09-09T06:24:17.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": "最終541位",
+    "pokemonSlugs": [
+      "gengar-mega",
+      "blastoise",
+      "primarina",
+      "grimmsnarl",
+      "altaria",
+      "tinkaton"
+    ],
+    "tags": [
+      "ポケモン",
+      "ダブルバトル",
+      "ポケモンチャンピオンズ",
+      "M-3",
+      "double"
+    ],
+    "summary": "M-3のダブルで使用された、ゲンガー(メガ)入りの構築記事です。最終541位。採用ポケモン6体と構築経緯を確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/311882149/rectangle_large_type_2_3730bf7c599c3af37b88d1c9f34b2375.jpeg",
+      "source": "structured-data",
+      "alt": "【ポケモンチャンピオンズ】最終レート2170 651位 純正滅び構築 【シーズンM-5ダブル】のサムネイル",
+      "width": 1920,
+      "height": 1005
+    },
+    "collectionCompleteness": "complete",
+    "extractionConfidence": 1,
+    "missingFields": [],
+    "teamExtractionMethod": "section-headings",
+    "teamExtractionIssue": null,
+    "extractionEvidence": {
+      "extractionMethod": "section-headings",
+      "sourceHeading": "個体紹介",
+      "resolvedCount": 6,
+      "confidence": "high"
+    },
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.8,
+      "seasonConfidence": 1,
+      "teamConfidence": 1,
+      "overallConfidence": 0.96
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 6,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-09-09T11:28:26.243Z",
+    "lastCollectedAt": "2026-09-09T11:28:26.243Z",
+    "contentFingerprint": "817500ffa2b2d218a8c0f476cf7248015a478a54069c5e2c0be2c78b41f11c30",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-09-09T11:28:26.243Z"
   }
 ]
