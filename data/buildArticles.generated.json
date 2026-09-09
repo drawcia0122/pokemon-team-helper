@@ -5278,5 +5278,63 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-09-07T12:39:42.803Z"
+  },
+  {
+    "id": "note-nfa96ed71f5bd",
+    "source": "note",
+    "sourceArticleId": "nfa96ed71f5bd",
+    "sourceUrl": "https://note.com/super_viper5249/n/nfa96ed71f5bd",
+    "canonicalUrl": "https://note.com/super_viper5249/n/nfa96ed71f5bd",
+    "title": "初心者がレート2000&4桁順位を達成するまで【ポケモンチャンピオンズ】",
+    "authorName": "五島列島",
+    "publishedAt": "2026-09-09T02:19:35.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終5位",
+    "pokemonSlugs": [],
+    "tags": [
+      "初心者",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。最終5位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/311821575/rectangle_large_type_2_cd40a015777c1e46a8195f0720ed76ca.jpeg",
+      "source": "structured-data",
+      "alt": "初心者がレート2000&4桁順位を達成するまで【ポケモンチャンピオンズ】のサムネイル",
+      "width": 672,
+      "height": 352
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.6,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.545
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-09-09T06:04:50.935Z",
+    "lastCollectedAt": "2026-09-09T06:04:50.935Z",
+    "contentFingerprint": "514839e4647693c6ceada713f29f119b2f80e8d3006ef5cd345a8d25ec62fd83",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-09-09T06:04:50.935Z"
   }
 ]
