@@ -5467,5 +5467,127 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-09-10T06:39:26.834Z"
+  },
+  {
+    "id": "note-nd875abed23b8",
+    "source": "note",
+    "sourceArticleId": "nd875abed23b8",
+    "sourceUrl": "https://note.com/serene_mink3663/n/nd875abed23b8",
+    "canonicalUrl": "https://note.com/serene_mink3663/n/nd875abed23b8",
+    "title": "【ポケモンチャンピオンズ】M-5 最終281位全員アタッカーメガサーナイト【ダブルバトル】",
+    "authorName": "serene_mink3663",
+    "publishedAt": "2026-09-10T14:02:46.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終281位",
+    "pokemonSlugs": [],
+    "tags": [
+      "ダブルバトル",
+      "メガサーナイト",
+      "ポケモンチャンピオンズ",
+      "PokemonChampions",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。最終281位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/312198057/rectangle_large_type_2_c1e889f25e7d206913c87ae6fb1e62c8.png",
+      "source": "structured-data",
+      "alt": "【ポケモンチャンピオンズ】M-5 最終281位全員アタッカーメガサーナイト【ダブルバトル】のサムネイル",
+      "width": 5089,
+      "height": 2662
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.8,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.585
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-09-10T16:27:15.845Z",
+    "lastCollectedAt": "2026-09-10T16:27:15.845Z",
+    "contentFingerprint": "50370b78cb57b466253e64c46026acaf9bf53c45722fa7a9d25cadf7b92ec27a",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-09-10T16:27:15.845Z"
+  },
+  {
+    "id": "note-nc5f6d0f1b317",
+    "source": "note",
+    "sourceArticleId": "nc5f6d0f1b317",
+    "sourceUrl": "https://note.com/dust_dutosu/n/nc5f6d0f1b317",
+    "canonicalUrl": "https://note.com/dust_dutosu/n/nc5f6d0f1b317",
+    "title": "ポケモンチャンピオンズ シーズンM-5 シングル 最終261位 雨と鋼鉄vol.2",
+    "authorName": "だすと",
+    "publishedAt": "2026-09-10T12:49:02.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終261位",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "雨パ",
+      "シングルバトル",
+      "ポケモンチャンピオンズ",
+      "チャンピオン級",
+      "ポケモンチャンピオンズ構築記事",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。最終261位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/311323331/rectangle_large_type_2_c169f8d817525dfda62849ca1457e773.png",
+      "source": "structured-data",
+      "alt": "ポケモンチャンピオンズ シーズンM-5 シングル 最終261位 雨と鋼鉄vol.2のサムネイル",
+      "width": 760,
+      "height": 398
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.8,
+      "seasonConfidence": 1,
+      "teamConfidence": 0.79,
+      "overallConfidence": 0.897
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 5,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 1
+    },
+    "firstCollectedAt": "2026-09-10T16:27:15.845Z",
+    "lastCollectedAt": "2026-09-10T16:27:15.845Z",
+    "contentFingerprint": "b3eb555e3acffdf6667ad6202b35716b733a2e5b392bd39ef3d295dc9caf8ae4",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-09-10T16:27:15.845Z"
   }
 ]
