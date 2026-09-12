@@ -5589,5 +5589,67 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-09-10T16:27:15.845Z"
+  },
+  {
+    "id": "note-n42a5f49bdc26",
+    "source": "note",
+    "sourceArticleId": "n42a5f49bdc26",
+    "sourceUrl": "https://note.com/tatsuta_tsuu/n/n42a5f49bdc26",
+    "canonicalUrl": "https://note.com/tatsuta_tsuu/n/n42a5f49bdc26",
+    "title": "【M-5ダブル】最高レート2214最終順位587位構築:カメックス&イッカネズミ【ポケモンチャンピオンズ】【ダブルバトル】",
+    "authorName": "たつたツウ＠ウマ娘&ポケモン考察",
+    "publishedAt": "2026-09-12T05:16:05.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終順位587位",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "構築記事",
+      "カメックス",
+      "エルフーン",
+      "ダブルバトル",
+      "ポケモン対戦",
+      "ファイアロー",
+      "イダイトウ"
+    ],
+    "summary": "M-4のダブル構築記事です。最終順位587位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/312469578/rectangle_large_type_2_d831f24ab0f46d4e8e41db9442702269.jpeg",
+      "source": "structured-data",
+      "alt": "【M-5ダブル】最高レート2214最終順位587位構築:カメックス&イッカネズミ【ポケモンチャンピオンズ】【ダブルバトル】のサムネイル",
+      "width": 1227,
+      "height": 642
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.625
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-09-12T09:24:45.661Z",
+    "lastCollectedAt": "2026-09-12T09:24:45.661Z",
+    "contentFingerprint": "50f7afad84c428849039d7f685143f87b66511dafa4016ae2d7bf42a04490bce",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-09-12T09:24:45.661Z"
   }
 ]
