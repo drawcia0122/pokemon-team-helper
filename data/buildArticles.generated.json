@@ -5651,5 +5651,65 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-09-12T09:24:45.661Z"
+  },
+  {
+    "id": "note-n1d6bcb647573",
+    "source": "note",
+    "sourceArticleId": "n1d6bcb647573",
+    "sourceUrl": "https://note.com/tarborpoke/n/n1d6bcb647573",
+    "canonicalUrl": "https://note.com/tarborpoke/n/n1d6bcb647573",
+    "title": "【最終349位】Pokémon Champions レギュレーションM-B シーズン3 1メガコータスマフォクシー構築【最終レート2371】",
+    "authorName": "たーぼー",
+    "publishedAt": "2026-09-12T16:45:56.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": "最終349位",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "構築記事",
+      "シングルバトル",
+      "PokemonChampions",
+      "M-3",
+      "single"
+    ],
+    "summary": "M-3のシングル構築記事です。最終349位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/313072486/rectangle_large_type_2_12d1444ebf4eb0f1e08f9c0337f0083e.png",
+      "source": "structured-data",
+      "alt": "【最終349位】Pokémon Champions レギュレーションM-B シーズン3 1メガコータスマフォクシー構築【最終レート2371】のサムネイル",
+      "width": 760,
+      "height": 398
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.55
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 6
+    },
+    "firstCollectedAt": "2026-09-12T18:48:15.233Z",
+    "lastCollectedAt": "2026-09-12T18:48:15.233Z",
+    "contentFingerprint": "51c6800e66691d83610e3d27e2906d8b348da9fc01372db264e374e24c49d750",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-09-12T18:48:15.233Z"
   }
 ]
