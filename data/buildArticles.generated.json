@@ -5711,5 +5711,66 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-09-12T18:48:15.233Z"
+  },
+  {
+    "id": "note-n2009c82b2be6",
+    "source": "note",
+    "sourceArticleId": "n2009c82b2be6",
+    "sourceUrl": "https://note.com/rosy_squid2276/n/n2009c82b2be6",
+    "canonicalUrl": "https://note.com/rosy_squid2276/n/n2009c82b2be6",
+    "title": "[シーズン5 シングル]メガバシャーモ入り対面構築(1メガ構築)(最終2300達成)",
+    "authorName": "天利優",
+    "publishedAt": "2026-09-13T01:01:08.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終576位",
+    "pokemonSlugs": [],
+    "tags": [
+      "シングルバトル",
+      "メガバシャーモ",
+      "ポケモンチャンピオンズ",
+      "PokemonChampions",
+      "ポケモンチャンピオンズ構築記事",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。最終576位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/313144317/rectangle_large_type_2_c6922ef0c704019261619b46187d0c59.jpeg",
+      "source": "structured-data",
+      "alt": "[シーズン5 シングル]メガバシャーモ入り対面構築(1メガ構築)(最終2300達成)のサムネイル",
+      "width": 302,
+      "height": 158
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.8,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.585
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-09-13T01:26:50.668Z",
+    "lastCollectedAt": "2026-09-13T01:26:50.668Z",
+    "contentFingerprint": "ee2b30ce726b4853c3c63054d23af02fe3e33f726c4df0ab2b7cd2c2d7803730",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-09-13T01:26:50.668Z"
   }
 ]
