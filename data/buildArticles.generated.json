@@ -5772,5 +5772,67 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-09-13T01:26:50.668Z"
+  },
+  {
+    "id": "note-nc5b6d03fc981",
+    "source": "note",
+    "sourceArticleId": "nc5b6d03fc981",
+    "sourceUrl": "https://note.com/shigeru_887/n/nc5b6d03fc981",
+    "canonicalUrl": "https://note.com/shigeru_887/n/nc5b6d03fc981",
+    "title": "[Pokémon Champions M-3 Singles | Final Rating 2409] Dragapult–Tinkaton–Charizard: Team Development and Evaluation",
+    "authorName": "シゲル｜Shigeru Lab",
+    "publishedAt": "2026-09-13T17:09:34.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "構築記事",
+      "ポケモンチャンピオンズ",
+      "Garchomp",
+      "Tinkaton",
+      "Archaludon",
+      "Dragapult",
+      "M-3"
+    ],
+    "summary": "M-3のシングル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/313437283/rectangle_large_type_2_48263cb87fe199e4eca0d46b9026d60d.png",
+      "source": "structured-data",
+      "alt": "[Pokémon Champions M-3 Singles | Final Rating 2409] Dragapult–Tinkaton–Charizard: Team Development and Evaluationのサムネイル",
+      "width": 1733,
+      "height": 907
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.65
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-09-13T18:59:21.594Z",
+    "lastCollectedAt": "2026-09-13T18:59:21.594Z",
+    "contentFingerprint": "b1a6816d1136b0c828b1fb1481235fe633d7f0bd1db4066ce8366d6781c71af1",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-09-13T18:59:21.594Z"
   }
 ]
