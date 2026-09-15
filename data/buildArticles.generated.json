@@ -5789,13 +5789,13 @@
     "pokemonSlugs": [],
     "tags": [
       "ポケモン",
+      "ガブリアス",
+      "リザードン",
       "構築記事",
-      "ポケモンチャンピオンズ",
-      "Garchomp",
-      "Tinkaton",
-      "Archaludon",
-      "Dragapult",
-      "M-3"
+      "ゲッコウガ",
+      "ポケモン対戦",
+      "ドラパルト",
+      "シングルバトル"
     ],
     "summary": "M-3のシングル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
     "thumbnail": {
@@ -5816,9 +5816,9 @@
     "qualityScore": {
       "targetGameConfidence": 1,
       "formatConfidence": 1,
-      "seasonConfidence": 0.75,
+      "seasonConfidence": 1,
       "teamConfidence": 0,
-      "overallConfidence": 0.65
+      "overallConfidence": 0.7
     },
     "pokemonNameResolutionStats": {
       "exact": 0,
@@ -5828,11 +5828,11 @@
       "unresolved": 0
     },
     "firstCollectedAt": "2026-09-13T18:59:21.594Z",
-    "lastCollectedAt": "2026-09-13T18:59:21.594Z",
-    "contentFingerprint": "b1a6816d1136b0c828b1fb1481235fe633d7f0bd1db4066ce8366d6781c71af1",
+    "lastCollectedAt": "2026-09-15T00:59:25.268Z",
+    "contentFingerprint": "377bc561569775f9312faa19853db721615b379e09384e5d175f87fd30158a86",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-09-13T18:59:21.594Z"
+    "lastSuccessfulFetchAt": "2026-09-15T00:59:25.268Z"
   }
 ]
