@@ -544,7 +544,7 @@
     "contentFingerprint": "c38953cc505fd8f3d187731991f77f403f4edaead59233b63b05bc3ba35f6b0f",
     "extractorVersion": "2.0.1",
     "status": "removed",
-    "consecutiveFetchFailures": 1,
+    "consecutiveFetchFailures": 2,
     "lastSuccessfulFetchAt": "2026-07-19T16:37:38.653Z"
   },
   {
