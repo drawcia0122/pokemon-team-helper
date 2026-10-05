@@ -2909,11 +2909,11 @@
     "teamExtractionIssue": "team-section-not-found",
     "extractionEvidence": null,
     "qualityScore": {
-      "targetGameConfidence": 1,
-      "formatConfidence": 1,
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.7,
       "seasonConfidence": 0.625,
       "teamConfidence": 0,
-      "overallConfidence": 0.625
+      "overallConfidence": 0.445
     },
     "pokemonNameResolutionStats": {
       "exact": 0,
@@ -2923,12 +2923,12 @@
       "unresolved": 0
     },
     "firstCollectedAt": "2026-07-29T21:13:53.798Z",
-    "lastCollectedAt": "2026-07-29T21:13:53.798Z",
-    "contentFingerprint": "92715e00e76bd751f0f02c8ea49ca59b6d3ffd7fce655ab93f266ccda95f69ce",
+    "lastCollectedAt": "2026-10-05T09:09:30.447Z",
+    "contentFingerprint": "762e2073540f7ae2f4bceb18ec0f359fcdc3d909cba0c5b01794fd9eebe4cab5",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-29T21:13:53.798Z"
+    "lastSuccessfulFetchAt": "2026-10-05T09:09:30.447Z"
   },
   {
     "id": "note-n49f86334877d",
@@ -3936,10 +3936,10 @@
     "extractionEvidence": null,
     "qualityScore": {
       "targetGameConfidence": 1,
-      "formatConfidence": 0.8,
+      "formatConfidence": 1,
       "seasonConfidence": 0.625,
       "teamConfidence": 0,
-      "overallConfidence": 0.585
+      "overallConfidence": 0.625
     },
     "pokemonNameResolutionStats": {
       "exact": 0,
@@ -3949,12 +3949,12 @@
       "unresolved": 0
     },
     "firstCollectedAt": "2026-08-07T03:40:22.842Z",
-    "lastCollectedAt": "2026-08-07T03:40:22.842Z",
-    "contentFingerprint": "cbdd8bc46dbfad0d16efd2eb4d86e65a5bee79bd747cdffae3bc78349d1696f1",
+    "lastCollectedAt": "2026-10-05T09:09:30.447Z",
+    "contentFingerprint": "2cbe5cb03e36f78422d3fd33eb5e61009433d0d95883520de014e8219b89f5a7",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-08-07T03:40:22.842Z"
+    "lastSuccessfulFetchAt": "2026-10-05T09:09:30.447Z"
   },
   {
     "id": "note-nceea57e1f4c7",
@@ -4056,10 +4056,10 @@
     },
     "qualityScore": {
       "targetGameConfidence": 1,
-      "formatConfidence": 0.8,
+      "formatConfidence": 1,
       "seasonConfidence": 0.75,
       "teamConfidence": 1,
-      "overallConfidence": 0.91
+      "overallConfidence": 0.95
     },
     "pokemonNameResolutionStats": {
       "exact": 6,
@@ -4069,12 +4069,12 @@
       "unresolved": 0
     },
     "firstCollectedAt": "2026-08-07T11:33:32.098Z",
-    "lastCollectedAt": "2026-08-07T11:33:32.098Z",
-    "contentFingerprint": "8ffe10529e7ce85161cf79a5baf994f5c9f5a69a218b625b42878303d5f3adac",
+    "lastCollectedAt": "2026-10-05T09:09:30.447Z",
+    "contentFingerprint": "95ae5651fd07b595c52a0b06c4f8f7d3b22ac9d0c96b1996d6967fa4d03a72ac",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-08-07T11:33:32.098Z"
+    "lastSuccessfulFetchAt": "2026-10-05T09:09:30.447Z"
   },
   {
     "id": "note-n0ed6aa35fbaa",
@@ -5834,5 +5834,67 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-09-15T00:59:25.268Z"
+  },
+  {
+    "id": "note-n1129e2e9f35d",
+    "source": "note",
+    "sourceArticleId": "n1129e2e9f35d",
+    "sourceUrl": "https://note.com/tama_unite0825/n/n1129e2e9f35d",
+    "canonicalUrl": "https://note.com/tama_unite0825/n/n1129e2e9f35d",
+    "title": "【M-4シングル勝率9割】バシャギャラ積みサイクル",
+    "authorName": "たまゆな",
+    "publishedAt": "2026-07-20T12:05:18.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "構築記事",
+      "ポケモン対戦",
+      "シングルバトル",
+      "ポケチャン",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/296070454/rectangle_large_type_2_fe509bb2b4d33087072896dfb7bf560e.png",
+      "source": "structured-data",
+      "alt": "【M-4シングル勝率9割】バシャギャラ積みサイクルのサムネイル",
+      "width": 2065,
+      "height": 1080
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.53
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-10-05T09:09:30.447Z",
+    "lastCollectedAt": "2026-10-05T09:09:30.447Z",
+    "contentFingerprint": "97049af7278df076cf1366423ed108a682973e8502b212026d448a9cbaed9c2e",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-05T09:09:30.447Z"
   }
 ]
