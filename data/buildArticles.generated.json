@@ -114,23 +114,23 @@
       "targetGameConfidence": 1,
       "formatConfidence": 1,
       "seasonConfidence": 0.75,
-      "teamConfidence": 0.79,
-      "overallConfidence": 0.887
+      "teamConfidence": 0,
+      "overallConfidence": 0.65
     },
     "pokemonNameResolutionStats": {
       "exact": 0,
       "alias": 0,
-      "decorated": 5,
-      "ambiguous": 1,
-      "unresolved": 0
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 2
     },
     "firstCollectedAt": "2026-07-18T12:41:09.636Z",
-    "lastCollectedAt": "2026-07-19T16:37:38.653Z",
-    "contentFingerprint": "f9595467e956287c7d6a3833d3f41950305369d62ff3ccbe1164bb33f1efc942",
+    "lastCollectedAt": "2026-10-05T18:31:21.299Z",
+    "contentFingerprint": "897ae4e1d01c79fb4db21f9fe89e7d8f0defd14a71ce1ef00890997b870450a4",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-19T16:37:38.653Z"
+    "lastSuccessfulFetchAt": "2026-10-05T18:31:21.299Z"
   },
   {
     "id": "note-n5f7f21454fa6",
