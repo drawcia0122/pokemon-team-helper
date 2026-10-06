@@ -3514,15 +3514,15 @@
       "alias": 0,
       "decorated": 0,
       "ambiguous": 0,
-      "unresolved": 1
+      "unresolved": 2
     },
     "firstCollectedAt": "2026-08-05T12:20:17.253Z",
-    "lastCollectedAt": "2026-08-05T12:20:17.253Z",
-    "contentFingerprint": "c3875447aa3e0658805a596fd19dbe4ed638c2e87241c333b859c15190bfd4ec",
+    "lastCollectedAt": "2026-10-06T00:22:11.111Z",
+    "contentFingerprint": "8d922035186b25b613e9ae1106d4531e353620eede8fd76672dfa26efe9bc059",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-08-05T12:20:17.253Z"
+    "lastSuccessfulFetchAt": "2026-10-06T00:22:11.111Z"
   },
   {
     "id": "note-nd8517179d0d1",
@@ -3617,10 +3617,10 @@
     "extractionEvidence": null,
     "qualityScore": {
       "targetGameConfidence": 1,
-      "formatConfidence": 0.5,
+      "formatConfidence": 0.7,
       "seasonConfidence": 0.75,
       "teamConfidence": 0,
-      "overallConfidence": 0.55
+      "overallConfidence": 0.59
     },
     "pokemonNameResolutionStats": {
       "exact": 0,
@@ -3630,12 +3630,12 @@
       "unresolved": 0
     },
     "firstCollectedAt": "2026-08-05T15:02:04.202Z",
-    "lastCollectedAt": "2026-08-05T15:02:04.202Z",
-    "contentFingerprint": "b61ce4f61a225317e6a4b1b28cfea65eb84cb1d26342888eb5acabbb999a17ce",
+    "lastCollectedAt": "2026-10-06T00:22:11.111Z",
+    "contentFingerprint": "1ee7278cb21bbe67d1e4be0bb36e63904987e24f1ac887c3c3d323bbfc7638f3",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-08-05T15:02:04.202Z"
+    "lastSuccessfulFetchAt": "2026-10-06T00:22:11.111Z"
   },
   {
     "id": "note-n9997d75b86e3",
@@ -5896,5 +5896,67 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-10-05T09:09:30.447Z"
+  },
+  {
+    "id": "note-n8ecce3e93d8d",
+    "source": "note",
+    "sourceArticleId": "n8ecce3e93d8d",
+    "sourceUrl": "https://note.com/sksct39/n/n8ecce3e93d8d",
+    "canonicalUrl": "https://note.com/sksct39/n/n8ecce3e93d8d",
+    "title": "めげずにメガチルタリス軸構築を考える(マスター到達)　ポケモンチャンピオンズ",
+    "authorName": "らむ",
+    "publishedAt": "2026-07-31T08:26:35.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m1",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "サイクル",
+      "構築",
+      "対戦",
+      "アーマーガア",
+      "シングルバトル",
+      "メガチルタリス",
+      "ポケモンチャンピオンズ"
+    ],
+    "summary": "M-1のシングル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/299925598/rectangle_large_type_2_8b60f663a506111eb1ecfbc0daa88a3e.png",
+      "source": "structured-data",
+      "alt": "めげずにメガチルタリス軸構築を考える(マスター到達)　ポケモンチャンピオンズのサムネイル",
+      "width": 1764,
+      "height": 923
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.525
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-10-06T00:22:11.111Z",
+    "lastCollectedAt": "2026-10-06T00:22:11.111Z",
+    "contentFingerprint": "5d1e9107ba8679ac636e2878d0717f7186bcb3bd9a0ef34748008322563bbf98",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-06T00:22:11.111Z"
   }
 ]
