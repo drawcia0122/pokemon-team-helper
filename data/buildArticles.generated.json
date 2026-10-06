@@ -5753,10 +5753,10 @@
     "extractionEvidence": null,
     "qualityScore": {
       "targetGameConfidence": 1,
-      "formatConfidence": 0.8,
+      "formatConfidence": 1,
       "seasonConfidence": 0.625,
       "teamConfidence": 0,
-      "overallConfidence": 0.585
+      "overallConfidence": 0.625
     },
     "pokemonNameResolutionStats": {
       "exact": 0,
@@ -5766,12 +5766,12 @@
       "unresolved": 0
     },
     "firstCollectedAt": "2026-09-13T01:26:50.668Z",
-    "lastCollectedAt": "2026-09-13T01:26:50.668Z",
-    "contentFingerprint": "ee2b30ce726b4853c3c63054d23af02fe3e33f726c4df0ab2b7cd2c2d7803730",
+    "lastCollectedAt": "2026-10-06T06:53:18.552Z",
+    "contentFingerprint": "ca342c0709b2eab78b4da0869122dcaa1e16fc3960a25a2033dabfbc0fe17fab",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-09-13T01:26:50.668Z"
+    "lastSuccessfulFetchAt": "2026-10-06T06:53:18.552Z"
   },
   {
     "id": "note-nc5b6d03fc981",
@@ -5958,5 +5958,67 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-10-06T00:22:11.111Z"
+  },
+  {
+    "id": "note-ne71543c8841d",
+    "source": "note",
+    "sourceArticleId": "ne71543c8841d",
+    "sourceUrl": "https://note.com/griffon503/n/ne71543c8841d",
+    "canonicalUrl": "https://note.com/griffon503/n/ne71543c8841d",
+    "title": "ポケモンチャンピオンズM2(MAルール）　最終戦績　記録",
+    "authorName": "グリフォン",
+    "publishedAt": "2026-09-12T07:03:09.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m2",
+    "result": "最終528位",
+    "pokemonSlugs": [],
+    "tags": [
+      "対戦",
+      "構築記事",
+      "ランクバトル",
+      "シングルバトル",
+      "ポケモンチャンピオンズ",
+      "MAルール",
+      "M-2",
+      "single"
+    ],
+    "summary": "M-2のシングル構築記事です。最終528位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/312131326/rectangle_large_type_2_89a7c71f2aec3d6bca1e88c84ef83b1b.jpeg",
+      "source": "structured-data",
+      "alt": "ポケモンチャンピオンズM2(MAルール）　最終戦績　記録のサムネイル",
+      "width": 1920,
+      "height": 1005
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.6
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-10-06T06:53:18.552Z",
+    "lastCollectedAt": "2026-10-06T06:53:18.552Z",
+    "contentFingerprint": "79225cf853667fba5649575bc0013f383b28897b17d5618e45f4801e69fdc35d",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-06T06:53:18.552Z"
   }
 ]
