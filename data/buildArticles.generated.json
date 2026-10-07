@@ -6198,5 +6198,124 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-10-07T09:21:46.450Z"
+  },
+  {
+    "id": "note-ne5dbaf83972c",
+    "source": "note",
+    "sourceArticleId": "ne5dbaf83972c",
+    "sourceUrl": "https://note.com/ikatarou_0987/n/ne5dbaf83972c",
+    "canonicalUrl": "https://note.com/ikatarou_0987/n/ne5dbaf83972c",
+    "title": "【シーズン6終了】シーズン7初期環境を走り抜けるメンバーを勝手に紹介｜ポケモンチャンピオンズ日記",
+    "authorName": "いかたろう",
+    "publishedAt": "2026-10-07T10:01:55.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "ポケットモンスター",
+      "ポケチャン",
+      "ポケモンチャンピオンズ",
+      "ポケモンチャンピオンズ構築記事",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/321803984/rectangle_large_type_2_bcd9fab2eb7716effb51ca7f5d93b4fe.jpeg",
+      "source": "structured-data",
+      "alt": "【シーズン6終了】シーズン7初期環境を走り抜けるメンバーを勝手に紹介｜ポケモンチャンピオンズ日記のサムネイル",
+      "width": 938,
+      "height": 491
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.6,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.545
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-10-07T22:01:15.964Z",
+    "lastCollectedAt": "2026-10-07T22:01:15.964Z",
+    "contentFingerprint": "b7f344d9758a494c51a49235173d6b84173fe03512c14a542919406b03c9ba9b",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-07T22:01:15.964Z"
+  },
+  {
+    "id": "note-n3513160a5987",
+    "source": "note",
+    "sourceArticleId": "n3513160a5987",
+    "sourceUrl": "https://note.com/takt_210/n/n3513160a5987",
+    "canonicalUrl": "https://note.com/takt_210/n/n3513160a5987",
+    "title": "【チャンピオンズ】ハイパー毒ケーキ【ダブル】",
+    "authorName": "takt_210",
+    "publishedAt": "2026-10-07T13:39:57.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m1",
+    "result": "最終65位",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "ポケモンチャンピオンズ",
+      "M-1",
+      "double"
+    ],
+    "summary": "M-1のダブル構築記事です。最終65位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/321904198/rectangle_large_type_2_ed0522e8a4f8e2607b35c8b2d1022d5d.png",
+      "source": "structured-data",
+      "alt": "【チャンピオンズ】ハイパー毒ケーキ【ダブル】のサムネイル",
+      "width": 1920,
+      "height": 1005
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.625
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-10-07T22:01:15.964Z",
+    "lastCollectedAt": "2026-10-07T22:01:15.964Z",
+    "contentFingerprint": "71cd5da769c7586aa93bdbb6dd8e17697213e29242c2a410064ffc9709cc8bf6",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-07T22:01:15.964Z"
   }
 ]
