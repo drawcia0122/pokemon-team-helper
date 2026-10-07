@@ -6020,5 +6020,183 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-10-06T06:53:18.552Z"
+  },
+  {
+    "id": "note-nc323224962e7",
+    "source": "note",
+    "sourceArticleId": "nc323224962e7",
+    "sourceUrl": "https://note.com/glvntla/n/nc323224962e7",
+    "canonicalUrl": "https://note.com/glvntla/n/nc323224962e7",
+    "title": "【チャンピオンズシングル】ジャマネロホーク <ジャローダ/カラマネロ/メガムクホーク>",
+    "authorName": "glvntla",
+    "publishedAt": "2026-08-11T11:56:48.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m2",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモンチャンピオンズ",
+      "M-2",
+      "single"
+    ],
+    "summary": "M-2のシングル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/302551811/rectangle_large_type_2_78751b44b0164c8c43a5aa66c65740fa.jpeg",
+      "source": "structured-data",
+      "alt": "【チャンピオンズシングル】ジャマネロホーク <ジャローダ/カラマネロ/メガムクホーク>のサムネイル",
+      "width": 1846,
+      "height": 966
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-too-few-3",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.7,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0.5,
+      "overallConfidence": 0.595
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 3,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-10-07T09:21:46.450Z",
+    "lastCollectedAt": "2026-10-07T09:21:46.450Z",
+    "contentFingerprint": "48e4f3baa1ead267235e46505c0ca3f090e481a546f7466d3d8fac4db018d886",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-07T09:21:46.450Z"
+  },
+  {
+    "id": "note-n92df1bd85cef",
+    "source": "note",
+    "sourceArticleId": "n92df1bd85cef",
+    "sourceUrl": "https://note.com/shimeji_pokemon/n/n92df1bd85cef",
+    "canonicalUrl": "https://note.com/shimeji_pokemon/n/n92df1bd85cef",
+    "title": "鍛冶場オフ行ってきました【大会オフレポ】",
+    "authorName": "しめじ",
+    "publishedAt": "2026-08-11T08:19:09.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": "チャンピオン級",
+    "pokemonSlugs": [],
+    "tags": [
+      "オフレポ",
+      "新潟県三条市",
+      "オフ大会",
+      "ポケモンチャンピオンズ",
+      "鍛冶場オフ",
+      "M-3",
+      "single"
+    ],
+    "summary": "M-3のシングル構築記事です。チャンピオン級。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/302242204/rectangle_large_type_2_ed7ada882311e96a05ece2e301ebdd18.jpeg",
+      "source": "structured-data",
+      "alt": "鍛冶場オフ行ってきました【大会オフレポ】のサムネイル",
+      "width": 975,
+      "height": 510
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.6,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.425
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-10-07T09:21:46.450Z",
+    "lastCollectedAt": "2026-10-07T09:21:46.450Z",
+    "contentFingerprint": "c769913453ba57ba6da84ad9ff7c3a85adb7f2b89f15da404dbce9dadf63c51e",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-07T09:21:46.450Z"
+  },
+  {
+    "id": "note-nd91d4f6aea17",
+    "source": "note",
+    "sourceArticleId": "nd91d4f6aea17",
+    "sourceUrl": "https://note.com/iywsrh/n/nd91d4f6aea17",
+    "canonicalUrl": "https://note.com/iywsrh/n/nd91d4f6aea17",
+    "title": "【シーズンM-4 ダブル 最終137位】メガライチュウYはかせ",
+    "authorName": "平沢",
+    "publishedAt": "2026-08-06T12:30:01.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終137位",
+    "pokemonSlugs": [],
+    "tags": [
+      "ライチュウ",
+      "構築記事",
+      "ダブルバトル",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。最終137位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/301018062/rectangle_large_type_2_420cc0fd7374060641fad8d6877e2887.jpg",
+      "source": "structured-data",
+      "alt": "【シーズンM-4 ダブル 最終137位】メガライチュウYはかせのサムネイル",
+      "width": 5760,
+      "height": 3014
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0.6666666666666666,
+      "overallConfidence": 0.73
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 4,
+      "ambiguous": 1,
+      "unresolved": 1
+    },
+    "firstCollectedAt": "2026-10-07T09:21:46.450Z",
+    "lastCollectedAt": "2026-10-07T09:21:46.450Z",
+    "contentFingerprint": "cd726d96cf63a0f39da923d7869388e2a00d405c44df03c212262249cb67e73a",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-07T09:21:46.450Z"
   }
 ]
