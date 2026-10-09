@@ -3882,10 +3882,10 @@
     "extractionEvidence": null,
     "qualityScore": {
       "targetGameConfidence": 1,
-      "formatConfidence": 0.8,
+      "formatConfidence": 1,
       "seasonConfidence": 1,
       "teamConfidence": 0.79,
-      "overallConfidence": 0.897
+      "overallConfidence": 0.937
     },
     "pokemonNameResolutionStats": {
       "exact": 5,
@@ -3895,12 +3895,12 @@
       "unresolved": 1
     },
     "firstCollectedAt": "2026-08-07T03:40:22.842Z",
-    "lastCollectedAt": "2026-08-07T03:40:22.842Z",
-    "contentFingerprint": "f738c14459ee97b1243da74a77873d44f8b677198cccd5a8ea95af1a009a61e2",
+    "lastCollectedAt": "2026-10-09T20:20:24.873Z",
+    "contentFingerprint": "499ce19bf8e2c2e21f66f77a3e2c5bc8174de42eaa6fee004435a0764d949116",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-08-07T03:40:22.842Z"
+    "lastSuccessfulFetchAt": "2026-10-09T20:20:24.873Z"
   },
   {
     "id": "note-n913d773befc0",
@@ -6317,5 +6317,67 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-10-07T22:01:15.964Z"
+  },
+  {
+    "id": "note-necfb1a7c31f2",
+    "source": "note",
+    "sourceArticleId": "necfb1a7c31f2",
+    "sourceUrl": "https://note.com/ruri_doragon/n/necfb1a7c31f2",
+    "canonicalUrl": "https://note.com/ruri_doragon/n/necfb1a7c31f2",
+    "title": "【シーズンM-４最高最終レート2007】",
+    "authorName": "Ruriドラゴン",
+    "publishedAt": "2026-08-05T15:20:50.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終レート2007",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "構築",
+      "構築記事",
+      "メガゲンガー",
+      "シングルバトル",
+      "ムシャーナ",
+      "メガクチート",
+      "ポケモンチャンピオンズ"
+    ],
+    "summary": "M-4のシングル構築記事です。最終レート2007。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/300790283/rectangle_large_type_2_b67b908ed493cdbd5775eab18bed3a4c.png",
+      "source": "structured-data",
+      "alt": "【シーズンM-４最高最終レート2007】のサムネイル",
+      "width": 1634,
+      "height": 855
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.9,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0.79,
+      "overallConfidence": 0.867
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 5,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 1,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-10-09T20:20:24.873Z",
+    "lastCollectedAt": "2026-10-09T20:20:24.873Z",
+    "contentFingerprint": "41f3633a44aa26962a7433a9fc17d7ba207a43fa384582d5d239d3b1cf266fed",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-09T20:20:24.873Z"
   }
 ]
