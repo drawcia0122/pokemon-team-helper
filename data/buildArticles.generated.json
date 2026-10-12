@@ -6608,5 +6608,76 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-10-12T02:27:03.686Z"
+  },
+  {
+    "id": "note-nf152752e0ba4",
+    "source": "note",
+    "sourceArticleId": "nf152752e0ba4",
+    "sourceUrl": "https://note.com/starharukosan/n/nf152752e0ba4",
+    "canonicalUrl": "https://note.com/starharukosan/n/nf152752e0ba4",
+    "title": "【シーズンM-4シングル】奇襲で意表を突くクチート構築【最終レート2266/853位】",
+    "authorName": "れもん@ポケモン",
+    "publishedAt": "2026-08-04T07:10:36.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終レート2266",
+    "pokemonSlugs": [
+      "mawile",
+      "whimsicott",
+      "garchomp",
+      "milotic",
+      "meowscarada",
+      "delphox"
+    ],
+    "tags": [
+      "ポケモン",
+      "奇襲",
+      "構築記事",
+      "クチート",
+      "ポケモンチャンピオンズ構築記事",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングルで使用された、クチート入りの構築記事です。最終レート2266。採用ポケモン6体と構築経緯を確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/300375601/rectangle_large_type_2_3fb75abd37a04018583b890fbb5b74ce.png",
+      "source": "structured-data",
+      "alt": "【シーズンM-4シングル】奇襲で意表を突くクチート構築【最終レート2266/853位】のサムネイル",
+      "width": 552,
+      "height": 289
+    },
+    "collectionCompleteness": "complete",
+    "extractionConfidence": 1,
+    "missingFields": [],
+    "teamExtractionMethod": "numbered-items",
+    "teamExtractionIssue": null,
+    "extractionEvidence": {
+      "extractionMethod": "numbered-items",
+      "sourceHeading": "①個体紹介",
+      "resolvedCount": 6,
+      "confidence": "high"
+    },
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 1,
+      "overallConfidence": 0.73
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 6,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-10-12T09:48:18.837Z",
+    "lastCollectedAt": "2026-10-12T09:48:18.837Z",
+    "contentFingerprint": "00d37ee577a0e18efbf6a18a0d70b6d03a665316056cffc9f82391d15cbd523b",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-12T09:48:18.837Z"
   }
 ]
