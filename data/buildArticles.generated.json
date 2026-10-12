@@ -6679,5 +6679,122 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-10-12T09:48:18.837Z"
+  },
+  {
+    "id": "note-nc895f08ffed9",
+    "source": "note",
+    "sourceArticleId": "nc895f08ffed9",
+    "sourceUrl": "https://note.com/tyoukan/n/nc895f08ffed9",
+    "canonicalUrl": "https://note.com/tyoukan/n/nc895f08ffed9",
+    "title": "シーズンM-4ダブル 最終レート1945",
+    "authorName": "朝刊(やす)",
+    "publishedAt": "2026-08-05T07:18:55.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終レート1945",
+    "pokemonSlugs": [],
+    "tags": [
+      "ダブルバトル",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。最終レート1945。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/300666809/rectangle_large_type_2_5e4cd19a6e6b7883198799e2c4028494.png",
+      "source": "structured-data",
+      "alt": "シーズンM-4ダブル 最終レート1945のサムネイル",
+      "width": 5086,
+      "height": 2663
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.65
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-10-12T19:49:37.426Z",
+    "lastCollectedAt": "2026-10-12T19:49:37.426Z",
+    "contentFingerprint": "2fff72407b2b31524b0341307815ca8202a5927ecd3a6e7f3b5145a8a0dddb82",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-12T19:49:37.426Z"
+  },
+  {
+    "id": "note-n8d8445d8832a",
+    "source": "note",
+    "sourceArticleId": "n8d8445d8832a",
+    "sourceUrl": "https://note.com/suaresuter180/n/n8d8445d8832a",
+    "canonicalUrl": "https://note.com/suaresuter180/n/n8d8445d8832a",
+    "title": "シーズンM4　　　バシャエッテ構築",
+    "authorName": "スアレス",
+    "publishedAt": "2026-08-05T06:57:42.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "チャンピオン級",
+    "pokemonSlugs": [],
+    "tags": [
+      "構築記事",
+      "ダブルバトル",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。チャンピオン級。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/300662693/rectangle_large_type_2_9aa31a7e88ac6185230f9ed9d7dedff2.png",
+      "source": "structured-data",
+      "alt": "シーズンM4　　　バシャエッテ構築のサムネイル",
+      "width": 1570,
+      "height": 822
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.48
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-10-12T19:49:37.426Z",
+    "lastCollectedAt": "2026-10-12T19:49:37.426Z",
+    "contentFingerprint": "6e423403bb556519aa9eff8d9cc06c355d9f55a9fb1c13cb7d9590b2f83dc882",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-12T19:49:37.426Z"
   }
 ]
