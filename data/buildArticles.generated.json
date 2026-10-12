@@ -6379,5 +6379,234 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-10-09T20:20:24.873Z"
+  },
+  {
+    "id": "note-naaf7569e9f59",
+    "source": "note",
+    "sourceArticleId": "naaf7569e9f59",
+    "sourceUrl": "https://note.com/roku385/n/naaf7569e9f59",
+    "canonicalUrl": "https://note.com/roku385/n/naaf7569e9f59",
+    "title": "【ダブル】チャンピオン級にもなれる本格ジュペッタ構築 【M-3:197位, M-4:547位】",
+    "authorName": "ろく@ポケモンダブル",
+    "publishedAt": "2026-08-05T13:24:03.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "チャンピオン級",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "ジュペッタ",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。チャンピオン級。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/300776246/rectangle_large_type_2_857804e95ec533525b397414604810a8.jpeg",
+      "source": "structured-data",
+      "alt": "【ダブル】チャンピオン級にもなれる本格ジュペッタ構築 【M-3:197位, M-4:547位】のサムネイル",
+      "width": 1280,
+      "height": 670
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.7,
+      "seasonConfidence": 1,
+      "teamConfidence": 0.79,
+      "overallConfidence": 0.757
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 6,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 1
+    },
+    "firstCollectedAt": "2026-10-12T02:27:03.686Z",
+    "lastCollectedAt": "2026-10-12T02:27:03.686Z",
+    "contentFingerprint": "ca2f5b7c960f82b3069448d3769723e9af706a1121767275e298a866129e1e1f",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-12T02:27:03.686Z"
+  },
+  {
+    "id": "note-n812274261d67",
+    "source": "note",
+    "sourceArticleId": "n812274261d67",
+    "sourceUrl": "https://note.com/wedding123/n/n812274261d67",
+    "canonicalUrl": "https://note.com/wedding123/n/n812274261d67",
+    "title": "KENT先生の【第9回】三矢オフレポ感想",
+    "authorName": "KENT＠ベトナム日本語教師トレーナー",
+    "publishedAt": "2026-08-05T12:37:44.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": "最終13位",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "ポケモンチャンピオンズ",
+      "三矢オフ",
+      "M-3",
+      "single"
+    ],
+    "summary": "M-3のシングル構築記事です。最終13位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/300751398/rectangle_large_type_2_cfaaeb9789447cd6198c4e1d478b217c.jpg",
+      "source": "structured-data",
+      "alt": "KENT先生の【第9回】三矢オフレポ感想のサムネイル",
+      "width": 3840,
+      "height": 2009
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.6,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.545
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-10-12T02:27:03.686Z",
+    "lastCollectedAt": "2026-10-12T02:27:03.686Z",
+    "contentFingerprint": "e7133427455bf704f5a195856f3f537bdbb68a0b30efcf290499ab1ea1600881",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-12T02:27:03.686Z"
+  },
+  {
+    "id": "note-nbcbb8a47f173",
+    "source": "note",
+    "sourceArticleId": "nbcbb8a47f173",
+    "sourceUrl": "https://note.com/ribe88/n/nbcbb8a47f173",
+    "canonicalUrl": "https://note.com/ribe88/n/nbcbb8a47f173",
+    "title": "【Ｍ-4】ダブルバトル　最高R2048到達　力こそパワー💪💪構築",
+    "authorName": "ribe(リベ)",
+    "publishedAt": "2026-08-05T11:02:24.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最高R2048",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "ポケモンチャンピオンズ",
+      "ポケモンチャンピオンズ構築記事",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。最高R2048。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/300449906/rectangle_large_type_2_19190cf8064480c37b64358535aecb46.jpeg",
+      "source": "structured-data",
+      "alt": "【Ｍ-4】ダブルバトル　最高R2048到達　力こそパワー💪💪構築のサムネイル",
+      "width": 1778,
+      "height": 931
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.43
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 6
+    },
+    "firstCollectedAt": "2026-10-12T02:27:03.686Z",
+    "lastCollectedAt": "2026-10-12T02:27:03.686Z",
+    "contentFingerprint": "d10e40cf1a8aa298d43b4daa82ec17f14c24e8b8737da9e23d6dfb5fa45def16",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-12T02:27:03.686Z"
+  },
+  {
+    "id": "note-n085fc0affd65",
+    "source": "note",
+    "sourceArticleId": "n085fc0affd65",
+    "sourceUrl": "https://note.com/p2tyt/n/n085fc0affd65",
+    "canonicalUrl": "https://note.com/p2tyt/n/n085fc0affd65",
+    "title": "【M-4シングル】適当詰込ガルアシレ【最高2150程】",
+    "authorName": "とよつ",
+    "publishedAt": "2026-08-05T01:03:49.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "構築記事",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": null,
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0.79,
+      "overallConfidence": 0.767
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 5,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 1,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-10-12T02:27:03.686Z",
+    "lastCollectedAt": "2026-10-12T02:27:03.686Z",
+    "contentFingerprint": "dc9586c6a3a8b4f8a0e95cd53a588ec3e7d705f1cdffb8c7b3d3680b336222f1",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-12T02:27:03.686Z"
   }
 ]
