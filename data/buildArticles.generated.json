@@ -6796,5 +6796,65 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-10-12T19:49:37.426Z"
+  },
+  {
+    "id": "note-nce93c58dc749",
+    "source": "note",
+    "sourceArticleId": "nce93c58dc749",
+    "sourceUrl": "https://note.com/yariki_miyo/n/nce93c58dc749",
+    "canonicalUrl": "https://note.com/yariki_miyo/n/nce93c58dc749",
+    "title": "【下層】マンスリーチャレンジ8月結果",
+    "authorName": "ヤリキミヨ（くぐり）",
+    "publishedAt": "2026-08-26T12:21:12.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-A",
+    "builderSeasonId": "season-m1",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "シングル",
+      "マンスリーチャレンジ",
+      "ポケモンチャンピオンズ",
+      "M-1",
+      "single"
+    ],
+    "summary": "M-1のシングル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/307289896/rectangle_large_type_2_fb42c217157692f5eaf951d311fcbafa.jpeg",
+      "source": "structured-data",
+      "alt": "【下層】マンスリーチャレンジ8月結果のサムネイル",
+      "width": 1920,
+      "height": 1005
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.9,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.605
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-10-13T21:52:09.040Z",
+    "lastCollectedAt": "2026-10-13T21:52:09.040Z",
+    "contentFingerprint": "d485232c313c4a05219260a48b8c28878371e0df28a2aaa1f48c9ff08472beb7",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-13T21:52:09.040Z"
   }
 ]
