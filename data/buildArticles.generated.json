@@ -294,10 +294,10 @@
     "extractionEvidence": null,
     "qualityScore": {
       "targetGameConfidence": 1,
-      "formatConfidence": 0.8,
+      "formatConfidence": 1,
       "seasonConfidence": 0.75,
       "teamConfidence": 0,
-      "overallConfidence": 0.61
+      "overallConfidence": 0.65
     },
     "pokemonNameResolutionStats": {
       "exact": 0,
@@ -307,12 +307,12 @@
       "unresolved": 0
     },
     "firstCollectedAt": "2026-07-18T12:42:21.273Z",
-    "lastCollectedAt": "2026-07-19T16:40:30.202Z",
-    "contentFingerprint": "a44d538327e6d82468498950a862225e5d3ed5cffe54bc691a6a03071951c10d",
+    "lastCollectedAt": "2026-10-14T06:13:49.976Z",
+    "contentFingerprint": "f85dd51af1017758961479ee8027273950e506a62aef2aa91064a2f31281535f",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-19T16:40:30.202Z"
+    "lastSuccessfulFetchAt": "2026-10-14T06:13:49.976Z"
   },
   {
     "id": "hatena-blog-4c5eb289ab882e25e041",
@@ -6976,5 +6976,126 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-10-14T01:15:17.148Z"
+  },
+  {
+    "id": "note-n11983cc70c25",
+    "source": "note",
+    "sourceArticleId": "n11983cc70c25",
+    "sourceUrl": "https://note.com/loyal_coyote714/n/n11983cc70c25",
+    "canonicalUrl": "https://note.com/loyal_coyote714/n/n11983cc70c25",
+    "title": "【ポケチャン　シーズンM-3 最終レート2216】　暑い夏には雪を降らせよう☃️",
+    "authorName": "さとる",
+    "publishedAt": "2026-07-07T13:20:31.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": "最終レート2216",
+    "pokemonSlugs": [],
+    "tags": [
+      "シングルバトル",
+      "ポケモンチャンピオンズ",
+      "レギュレーションMB",
+      "M-3",
+      "single"
+    ],
+    "summary": "M-3のシングル構築記事です。最終レート2216。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/292364218/rectangle_large_type_2_dd376dae9bc525fa912636c47d462860.jpeg",
+      "source": "structured-data",
+      "alt": "【ポケチャン　シーズンM-3 最終レート2216】　暑い夏には雪を降らせよう☃️のサムネイル",
+      "width": 1845,
+      "height": 966
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.6
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 2
+    },
+    "firstCollectedAt": "2026-10-14T06:13:49.976Z",
+    "lastCollectedAt": "2026-10-14T06:13:49.976Z",
+    "contentFingerprint": "ded6d8c74d3fa46607ce5ede60f724c5e1c604aa0c7996e4e26705ae73abaf23",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-14T06:13:49.976Z"
+  },
+  {
+    "id": "note-n944523fd7bc4",
+    "source": "note",
+    "sourceArticleId": "n944523fd7bc4",
+    "sourceUrl": "https://note.com/tama_unite0825/n/n944523fd7bc4",
+    "canonicalUrl": "https://note.com/tama_unite0825/n/n944523fd7bc4",
+    "title": "【M-3ダブル瞬間1位】さしす様のカメマフォ構築を考察してみた",
+    "authorName": "たまゆな",
+    "publishedAt": "2026-07-12T11:03:41.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": "瞬間1位",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "構築",
+      "構築記事",
+      "ダブルバトル",
+      "ポケモン対戦",
+      "ポケチャン",
+      "ポケモンチャンピオンズ",
+      "M-3"
+    ],
+    "summary": "M-3のダブル構築記事です。瞬間1位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/293772998/rectangle_large_type_2_b7870cb39d5a5655076350282214afee.png",
+      "source": "structured-data",
+      "alt": "【M-3ダブル瞬間1位】さしす様のカメマフォ構築を考察してみたのサムネイル",
+      "width": 1000,
+      "height": 523
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.53
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 7
+    },
+    "firstCollectedAt": "2026-10-14T06:13:49.976Z",
+    "lastCollectedAt": "2026-10-14T06:13:49.976Z",
+    "contentFingerprint": "ca7404431faecb7fdaf4217493f424ce497340d8abf3fa49ea8715924797daca",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-14T06:13:49.976Z"
   }
 ]
