@@ -6856,5 +6856,125 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-10-13T21:52:09.040Z"
+  },
+  {
+    "id": "note-n238c8e70ec65",
+    "source": "note",
+    "sourceArticleId": "n238c8e70ec65",
+    "sourceUrl": "https://note.com/okhotsk1222/n/n238c8e70ec65",
+    "canonicalUrl": "https://note.com/okhotsk1222/n/n238c8e70ec65",
+    "title": "【M-4ダブル最終303位】かなしばアンコユキメノコスタン",
+    "authorName": "名無し",
+    "publishedAt": "2026-08-06T08:50:11.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終303位",
+    "pokemonSlugs": [],
+    "tags": [
+      "ユキメノコ",
+      "構築記事",
+      "ダブルバトル",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。最終303位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/300973137/rectangle_large_type_2_8474b54929f476bab237468cdd24b065.png",
+      "source": "structured-data",
+      "alt": "【M-4ダブル最終303位】かなしばアンコユキメノコスタンのサムネイル",
+      "width": 5089,
+      "height": 2662
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.53
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 4
+    },
+    "firstCollectedAt": "2026-10-14T01:15:17.148Z",
+    "lastCollectedAt": "2026-10-14T01:15:17.148Z",
+    "contentFingerprint": "b476511687b7ecfc88b5b4e484c08c9773ebe13974a83179dc1291862f78aec9",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-14T01:15:17.148Z"
+  },
+  {
+    "id": "note-n3599bef1efe3",
+    "source": "note",
+    "sourceArticleId": "n3599bef1efe3",
+    "sourceUrl": "https://note.com/yazawakopoke/n/n3599bef1efe3",
+    "canonicalUrl": "https://note.com/yazawakopoke/n/n3599bef1efe3",
+    "title": "【構築記事】M-4 ダブル　最終49位　雪ビビヨン",
+    "authorName": "やざわ",
+    "publishedAt": "2026-08-05T14:27:10.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終49位",
+    "pokemonSlugs": [],
+    "tags": [
+      "構築記事",
+      "ダブルバトル",
+      "ダブルバトル構築記事",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。最終49位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/300774990/rectangle_large_type_2_69ffc714c06725a9126de509ab2cc858.png",
+      "source": "structured-data",
+      "alt": "【構築記事】M-4 ダブル　最終49位　雪ビビヨンのサムネイル",
+      "width": 1334,
+      "height": 698
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 1,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.58
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-10-14T01:15:17.148Z",
+    "lastCollectedAt": "2026-10-14T01:15:17.148Z",
+    "contentFingerprint": "2c9831029532eafddfcae47cf2c79cc1f3bd1c968ea7118237c3dc2d1bb47b9e",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-14T01:15:17.148Z"
   }
 ]
