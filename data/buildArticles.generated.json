@@ -7097,5 +7097,63 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-10-14T06:13:49.976Z"
+  },
+  {
+    "id": "note-nbf3753e679f9",
+    "source": "note",
+    "sourceArticleId": "nbf3753e679f9",
+    "sourceUrl": "https://note.com/calicolore_repo/n/nbf3753e679f9",
+    "canonicalUrl": "https://note.com/calicolore_repo/n/nbf3753e679f9",
+    "title": "【Pokémon Champions】ペンドラーはかせの備忘録",
+    "authorName": "キャリコ",
+    "publishedAt": "2026-08-02T14:31:55.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": null,
+    "pokemonSlugs": [],
+    "tags": [
+      "ペンドラー",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/299900080/rectangle_large_type_2_24028c794e58442fc534ab3fece5649f.png",
+      "source": "structured-data",
+      "alt": "【Pokémon Champions】ペンドラーはかせの備忘録のサムネイル",
+      "width": 1280,
+      "height": 670
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 0.6,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.545
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-10-15T01:52:27.127Z",
+    "lastCollectedAt": "2026-10-15T01:52:27.127Z",
+    "contentFingerprint": "ed35bb4fd948dc2ea7affa9c4acf2c3d4fc5c80be5c4adf11dff6347a76c41cf",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-15T01:52:27.127Z"
   }
 ]
