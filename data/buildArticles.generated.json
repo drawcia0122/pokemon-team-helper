@@ -7155,5 +7155,63 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-10-15T01:52:27.127Z"
+  },
+  {
+    "id": "note-n8c3472ca9d26",
+    "source": "note",
+    "sourceArticleId": "n8c3472ca9d26",
+    "sourceUrl": "https://note.com/surmon/n/n8c3472ca9d26",
+    "canonicalUrl": "https://note.com/surmon/n/n8c3472ca9d26",
+    "title": "信じる者が救われるBIG6【 S5 ダブル最終176位 / レート2318レギュレーション M-B】",
+    "authorName": "surmon",
+    "publishedAt": "2026-09-10T12:59:33.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終176位",
+    "pokemonSlugs": [],
+    "tags": [
+      "ダブルバトル",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。最終176位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/312342830/rectangle_large_type_2_869922af969c3ec73ad941fa987728a5.png",
+      "source": "structured-data",
+      "alt": "信じる者が救われるBIG6【 S5 ダブル最終176位 / レート2318レギュレーション M-B】のサムネイル",
+      "width": 1649,
+      "height": 863
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0,
+      "overallConfidence": 0.505
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-10-16T23:56:41.936Z",
+    "lastCollectedAt": "2026-10-16T23:56:41.936Z",
+    "contentFingerprint": "5262724e346a405504da315674367b7212c5e43e5a46ee973106162e787ca816",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-16T23:56:41.936Z"
   }
 ]
