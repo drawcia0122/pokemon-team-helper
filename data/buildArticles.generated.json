@@ -4546,8 +4546,8 @@
     "lastCollectedAt": "2026-08-12T15:16:21.541Z",
     "contentFingerprint": "97d24e34c2f2221b26441970a195abf7ef9ef3624cc777ff3c5bdf64d2ba3af0",
     "extractorVersion": "2.0.1",
-    "status": "active",
-    "consecutiveFetchFailures": 0,
+    "status": "removed",
+    "consecutiveFetchFailures": 1,
     "lastSuccessfulFetchAt": "2026-08-12T15:16:21.541Z"
   },
   {
@@ -7213,5 +7213,122 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-10-16T23:56:41.936Z"
+  },
+  {
+    "id": "note-n2e44a1dbd3ba",
+    "source": "note",
+    "sourceArticleId": "n2e44a1dbd3ba",
+    "sourceUrl": "https://note.com/light_aster294/n/n2e44a1dbd3ba",
+    "canonicalUrl": "https://note.com/light_aster294/n/n2e44a1dbd3ba",
+    "title": "【ダブル】ランクバトル　シーズンM-4　結果報告・感想　77位",
+    "authorName": "カタハバ",
+    "publishedAt": "2026-08-05T09:34:43.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終77位",
+    "pokemonSlugs": [],
+    "tags": [
+      "ダブルバトル",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。最終77位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/300701750/rectangle_large_type_2_2206e200d4067045434ff485652068eb.png",
+      "source": "structured-data",
+      "alt": "【ダブル】ランクバトル　シーズンM-4　結果報告・感想　77位のサムネイル",
+      "width": 1650,
+      "height": 864
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 1,
+      "teamConfidence": 0,
+      "overallConfidence": 0.7
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-10-17T08:50:53.137Z",
+    "lastCollectedAt": "2026-10-17T08:50:53.137Z",
+    "contentFingerprint": "3f2277d1f6dba687437ad63702ab20dfbb1087f7219a67f9ada9ff2be0730610",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-17T08:50:53.137Z"
+  },
+  {
+    "id": "note-n58680ad9873b",
+    "source": "note",
+    "sourceArticleId": "n58680ad9873b",
+    "sourceUrl": "https://note.com/morikamome/n/n58680ad9873b",
+    "canonicalUrl": "https://note.com/morikamome/n/n58680ad9873b",
+    "title": "【ポケモンチャンピオンズダブルM-B環境(シーズン4)最終175位 】勝率7割バンギラスドリーム",
+    "authorName": "森カモメ",
+    "publishedAt": "2026-08-05T08:15:01.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終175位",
+    "pokemonSlugs": [],
+    "tags": [
+      "バンギラス",
+      "ダブルバトル",
+      "ポケモンチャンピオンズ",
+      "M-4",
+      "double"
+    ],
+    "summary": "M-4のダブル構築記事です。最終175位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/300521809/rectangle_large_type_2_eb7b3f8b71f5f1575b56d916fc5cd1bc.jpg",
+      "source": "structured-data",
+      "alt": "【ポケモンチャンピオンズダブルM-B環境(シーズン4)最終175位 】勝率7割バンギラスドリームのサムネイル",
+      "width": 3807,
+      "height": 1992
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 1,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0.79,
+      "overallConfidence": 0.887
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 5,
+      "ambiguous": 1,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-10-17T08:50:53.137Z",
+    "lastCollectedAt": "2026-10-17T08:50:53.137Z",
+    "contentFingerprint": "21dbb6e97a3cc8412a9633024c18fe6068132685fd470ad5a797c11b3e5ce2b5",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-10-17T08:50:53.137Z"
   }
 ]
