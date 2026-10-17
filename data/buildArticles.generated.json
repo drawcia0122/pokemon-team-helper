@@ -4805,7 +4805,7 @@
     "sourceArticleId": "n3ea782bf41ae",
     "sourceUrl": "https://note.com/eriyama_erk411/n/n3ea782bf41ae",
     "canonicalUrl": "https://note.com/eriyama_erk411/n/n3ea782bf41ae",
-    "title": "【ポケモンチャンピオンズ】M-5 シングルでマスターボール級に到達した構築メモ",
+    "title": "【ポケチャン】M-5 シングルでマスターボール級に到達した構築メモ",
     "authorName": "エリヤマ エリコ",
     "publishedAt": "2026-08-21T11:30:06.000Z",
     "battleFormat": "single",
@@ -4825,7 +4825,7 @@
     "thumbnail": {
       "url": "https://assets.st-note.com/production/uploads/images/305650393/rectangle_large_type_2_c94e51ba881007c303db0dc61e542729.png",
       "source": "structured-data",
-      "alt": "【ポケモンチャンピオンズ】M-5 シングルでマスターボール級に到達した構築メモのサムネイル",
+      "alt": "【ポケチャン】M-5 シングルでマスターボール級に到達した構築メモのサムネイル",
       "width": 630,
       "height": 329
     },
@@ -4852,12 +4852,12 @@
       "unresolved": 0
     },
     "firstCollectedAt": "2026-08-21T11:44:46.001Z",
-    "lastCollectedAt": "2026-08-21T11:44:46.001Z",
-    "contentFingerprint": "df5a0e5b536d6de41b917bc4ff5397d88f6f4e0f8ddf24c5fe95e57704fd4f7e",
+    "lastCollectedAt": "2026-10-17T04:33:08.866Z",
+    "contentFingerprint": "a4c872193fc32cccf205e0092cdb5a9db26381c02951c77f850a25d24bd308bf",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-08-21T11:44:46.001Z"
+    "lastSuccessfulFetchAt": "2026-10-17T04:33:08.866Z"
   },
   {
     "id": "note-nfd0b7e5fcecf",
