@@ -544,7 +544,7 @@
     "contentFingerprint": "c38953cc505fd8f3d187731991f77f403f4edaead59233b63b05bc3ba35f6b0f",
     "extractorVersion": "2.0.1",
     "status": "removed",
-    "consecutiveFetchFailures": 2,
+    "consecutiveFetchFailures": 3,
     "lastSuccessfulFetchAt": "2026-07-19T16:37:38.653Z"
   },
   {
@@ -4547,7 +4547,7 @@
     "contentFingerprint": "97d24e34c2f2221b26441970a195abf7ef9ef3624cc777ff3c5bdf64d2ba3af0",
     "extractorVersion": "2.0.1",
     "status": "removed",
-    "consecutiveFetchFailures": 7,
+    "consecutiveFetchFailures": 8,
     "lastSuccessfulFetchAt": "2026-08-12T15:16:21.541Z"
   },
   {
