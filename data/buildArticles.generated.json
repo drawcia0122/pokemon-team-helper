@@ -4547,7 +4547,7 @@
     "contentFingerprint": "97d24e34c2f2221b26441970a195abf7ef9ef3624cc777ff3c5bdf64d2ba3af0",
     "extractorVersion": "2.0.1",
     "status": "removed",
-    "consecutiveFetchFailures": 37,
+    "consecutiveFetchFailures": 38,
     "lastSuccessfulFetchAt": "2026-08-12T15:16:21.541Z"
   },
   {
@@ -5785,7 +5785,7 @@
     "battleFormat": "single",
     "regulationId": "M-B",
     "builderSeasonId": "season-m3",
-    "result": null,
+    "result": "最終レート2409",
     "pokemonSlugs": [],
     "tags": [
       "ポケモン",
@@ -5797,7 +5797,7 @@
       "ドラパルト",
       "シングルバトル"
     ],
-    "summary": "M-3のシングル構築記事です。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "summary": "M-3のシングル構築記事です。最終レート2409。採用ポケモンと構築の詳細は元記事で確認できます。",
     "thumbnail": {
       "url": "https://assets.st-note.com/production/uploads/images/313437283/rectangle_large_type_2_48263cb87fe199e4eca0d46b9026d60d.png",
       "source": "structured-data",
@@ -5828,12 +5828,12 @@
       "unresolved": 0
     },
     "firstCollectedAt": "2026-09-13T18:59:21.594Z",
-    "lastCollectedAt": "2026-09-15T00:59:25.268Z",
-    "contentFingerprint": "377bc561569775f9312faa19853db721615b379e09384e5d175f87fd30158a86",
+    "lastCollectedAt": "2026-10-23T15:08:07.515Z",
+    "contentFingerprint": "bfb1b6cdf6febf13ebe573bcbe65352e8ba7e02ab575036fcdcf7e1accfce6a5",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-09-15T00:59:25.268Z"
+    "lastSuccessfulFetchAt": "2026-10-23T15:08:07.515Z"
   },
   {
     "id": "note-n1129e2e9f35d",
