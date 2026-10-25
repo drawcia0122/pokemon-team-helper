@@ -2995,7 +2995,7 @@
     "sourceUrl": "https://note.com/pokemon_dawn/n/nfa6753d8dc19",
     "canonicalUrl": "https://note.com/pokemon_dawn/n/nfa6753d8dc19",
     "title": "【シーズンM-4 シングルバトルで初めてマスターボール級行けた】Switch2 ポケモンチャンピオンズ",
-    "authorName": "ヒカリ＆ポッチャマ",
+    "authorName": "ティラミス＆ピカチュウ",
     "publishedAt": "2026-07-30T10:22:01.000Z",
     "battleFormat": "single",
     "regulationId": "M-B",
@@ -3040,12 +3040,12 @@
       "unresolved": 0
     },
     "firstCollectedAt": "2026-07-30T12:05:28.912Z",
-    "lastCollectedAt": "2026-07-30T12:05:28.912Z",
-    "contentFingerprint": "47826381e44b5494c76fff6a7ec8ddd8445af6fd481ddeee698f2c511578e551",
+    "lastCollectedAt": "2026-10-25T20:54:36.908Z",
+    "contentFingerprint": "28d2660b803c73d4272fe540c952aeb6524c62051de658b85a7bb7c84ec581af",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-07-30T12:05:28.912Z"
+    "lastSuccessfulFetchAt": "2026-10-25T20:54:36.908Z"
   },
   {
     "id": "note-nb2e8fa6cba0c",
@@ -4547,7 +4547,7 @@
     "contentFingerprint": "97d24e34c2f2221b26441970a195abf7ef9ef3624cc777ff3c5bdf64d2ba3af0",
     "extractorVersion": "2.0.1",
     "status": "removed",
-    "consecutiveFetchFailures": 52,
+    "consecutiveFetchFailures": 53,
     "lastSuccessfulFetchAt": "2026-08-12T15:16:21.541Z"
   },
   {
