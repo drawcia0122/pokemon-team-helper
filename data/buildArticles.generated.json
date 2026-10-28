@@ -4547,7 +4547,7 @@
     "contentFingerprint": "97d24e34c2f2221b26441970a195abf7ef9ef3624cc777ff3c5bdf64d2ba3af0",
     "extractorVersion": "2.0.1",
     "status": "removed",
-    "consecutiveFetchFailures": 67,
+    "consecutiveFetchFailures": 68,
     "lastSuccessfulFetchAt": "2026-08-12T15:16:21.541Z"
   },
   {
