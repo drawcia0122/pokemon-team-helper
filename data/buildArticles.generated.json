@@ -4547,7 +4547,7 @@
     "contentFingerprint": "97d24e34c2f2221b26441970a195abf7ef9ef3624cc777ff3c5bdf64d2ba3af0",
     "extractorVersion": "2.0.1",
     "status": "removed",
-    "consecutiveFetchFailures": 96,
+    "consecutiveFetchFailures": 97,
     "lastSuccessfulFetchAt": "2026-08-12T15:16:21.541Z"
   },
   {
@@ -7386,5 +7386,59 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-10-21T22:48:07.620Z"
+  },
+  {
+    "id": "note-n05cb10e30b5c",
+    "source": "note",
+    "sourceArticleId": "n05cb10e30b5c",
+    "sourceUrl": "https://note.com/cute_beetle132/n/n05cb10e30b5c",
+    "canonicalUrl": "https://note.com/cute_beetle132/n/n05cb10e30b5c",
+    "title": "シーズンM-7シングル　最終938位　メガライチュウ軸",
+    "authorName": "こば",
+    "publishedAt": "2026-11-04T13:46:45.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "最終938位",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "ポケモンチャンピオンズ",
+      "メガライチュウ",
+      "ポケモンチャンピオンズ構築記事",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。最終938位。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": null,
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0.79,
+      "overallConfidence": 0.742
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 5,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 1
+    },
+    "firstCollectedAt": "2026-11-04T22:14:21.985Z",
+    "lastCollectedAt": "2026-11-04T22:14:21.985Z",
+    "contentFingerprint": "bfbf04f17d7d23316e162cc7917146d2894bdbfcdf350c335ffaf92b24256797",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-11-04T22:14:21.985Z"
   }
 ]
