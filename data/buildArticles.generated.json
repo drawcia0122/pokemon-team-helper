@@ -4547,7 +4547,7 @@
     "contentFingerprint": "97d24e34c2f2221b26441970a195abf7ef9ef3624cc777ff3c5bdf64d2ba3af0",
     "extractorVersion": "2.0.1",
     "status": "removed",
-    "consecutiveFetchFailures": 98,
+    "consecutiveFetchFailures": 99,
     "lastSuccessfulFetchAt": "2026-08-12T15:16:21.541Z"
   },
   {
@@ -7440,5 +7440,67 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-11-04T22:14:21.985Z"
+  },
+  {
+    "id": "note-n4ce77f7cf47c",
+    "source": "note",
+    "sourceArticleId": "n4ce77f7cf47c",
+    "sourceUrl": "https://note.com/rosy_squid2276/n/n4ce77f7cf47c",
+    "canonicalUrl": "https://note.com/rosy_squid2276/n/n4ce77f7cf47c",
+    "title": "[シーズン6 シングル 最終2400達成]メガバシャーモ入り対面構築 ~両刀型メガガブリアスZを添えて~",
+    "authorName": "天利優",
+    "publishedAt": "2026-10-07T17:01:12.000Z",
+    "battleFormat": "single",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m4",
+    "result": "マスター級到達",
+    "pokemonSlugs": [],
+    "tags": [
+      "シングルバトル",
+      "メガバシャーモ",
+      "ポケモンチャンピオンズ",
+      "PokemonChampions",
+      "メガガブリアスZ",
+      "ポケモンチャンピオンズ構築記事",
+      "M-4",
+      "single"
+    ],
+    "summary": "M-4のシングル構築記事です。マスター級到達。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/321948935/rectangle_large_type_2_846ea041ce31cbd57a2a5d1ff013b286.png",
+      "source": "structured-data",
+      "alt": "[シーズン6 シングル 最終2400達成]メガバシャーモ入り対面構築 ~両刀型メガガブリアスZを添えて~のサムネイル",
+      "width": 1334,
+      "height": 698
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-unresolved-pokemon",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.6,
+      "formatConfidence": 1,
+      "seasonConfidence": 0.625,
+      "teamConfidence": 0.79,
+      "overallConfidence": 0.742
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 5,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 1,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-11-05T09:52:20.955Z",
+    "lastCollectedAt": "2026-11-05T09:52:20.955Z",
+    "contentFingerprint": "05009cf7305fac3a32f5c963c0cebd4dcf3fdc6933bbaef1fcbac230a807f20f",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-11-05T09:52:20.955Z"
   }
 ]
