@@ -4547,7 +4547,7 @@
     "contentFingerprint": "97d24e34c2f2221b26441970a195abf7ef9ef3624cc777ff3c5bdf64d2ba3af0",
     "extractorVersion": "2.0.1",
     "status": "removed",
-    "consecutiveFetchFailures": 126,
+    "consecutiveFetchFailures": 127,
     "lastSuccessfulFetchAt": "2026-08-12T15:16:21.541Z"
   },
   {
@@ -5779,7 +5779,7 @@
     "sourceArticleId": "nc5b6d03fc981",
     "sourceUrl": "https://note.com/shigeru_887/n/nc5b6d03fc981",
     "canonicalUrl": "https://note.com/shigeru_887/n/nc5b6d03fc981",
-    "title": "[Pokémon Champions M-3 Singles | Final Rating 2409] Dragapult–Tinkaton–Charizard: Team Development and Evaluation",
+    "title": "[Pokémon Champions M-3 Singles Final Rating 2409] Dragapult–Tinkaton–Charizard: Team Development and Evaluation",
     "authorName": "シゲル｜Shigeru Lab",
     "publishedAt": "2026-09-13T17:09:34.000Z",
     "battleFormat": "single",
@@ -5801,7 +5801,7 @@
     "thumbnail": {
       "url": "https://assets.st-note.com/production/uploads/images/313437283/rectangle_large_type_2_48263cb87fe199e4eca0d46b9026d60d.png",
       "source": "structured-data",
-      "alt": "[Pokémon Champions M-3 Singles | Final Rating 2409] Dragapult–Tinkaton–Charizard: Team Development and Evaluationのサムネイル",
+      "alt": "[Pokémon Champions M-3 Singles Final Rating 2409] Dragapult–Tinkaton–Charizard: Team Development and Evaluationのサムネイル",
       "width": 1733,
       "height": 907
     },
@@ -5828,12 +5828,12 @@
       "unresolved": 0
     },
     "firstCollectedAt": "2026-09-13T18:59:21.594Z",
-    "lastCollectedAt": "2026-10-23T15:08:07.515Z",
-    "contentFingerprint": "bfb1b6cdf6febf13ebe573bcbe65352e8ba7e02ab575036fcdcf7e1accfce6a5",
+    "lastCollectedAt": "2026-11-12T18:36:51.879Z",
+    "contentFingerprint": "de4acb17bdd94be6bbddf4b490686a5dc504c96da16154e4dc1de62fb39d16fa",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-10-23T15:08:07.515Z"
+    "lastSuccessfulFetchAt": "2026-11-12T18:36:51.879Z"
   },
   {
     "id": "note-n1129e2e9f35d",
