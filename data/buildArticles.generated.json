@@ -4547,7 +4547,7 @@
     "contentFingerprint": "97d24e34c2f2221b26441970a195abf7ef9ef3624cc777ff3c5bdf64d2ba3af0",
     "extractorVersion": "2.0.1",
     "status": "removed",
-    "consecutiveFetchFailures": 134,
+    "consecutiveFetchFailures": 135,
     "lastSuccessfulFetchAt": "2026-08-12T15:16:21.541Z"
   },
   {
@@ -5789,13 +5789,13 @@
     "pokemonSlugs": [],
     "tags": [
       "ポケモン",
+      "ポケットモンスター",
       "ガブリアス",
       "リザードン",
       "構築記事",
       "ゲッコウガ",
       "ポケモン対戦",
-      "ドラパルト",
-      "シングルバトル"
+      "ドラパルト"
     ],
     "summary": "M-3のシングル構築記事です。最終レート2409。採用ポケモンと構築の詳細は元記事で確認できます。",
     "thumbnail": {
@@ -5828,12 +5828,12 @@
       "unresolved": 0
     },
     "firstCollectedAt": "2026-09-13T18:59:21.594Z",
-    "lastCollectedAt": "2026-11-12T18:36:51.879Z",
-    "contentFingerprint": "de4acb17bdd94be6bbddf4b490686a5dc504c96da16154e4dc1de62fb39d16fa",
+    "lastCollectedAt": "2026-11-14T20:44:55.312Z",
+    "contentFingerprint": "242f7af499e3ec70dc08675fdc0c89d3e4c58db4483c15a5f57e4477eb3af504",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-11-12T18:36:51.879Z"
+    "lastSuccessfulFetchAt": "2026-11-14T20:44:55.312Z"
   },
   {
     "id": "note-n1129e2e9f35d",
