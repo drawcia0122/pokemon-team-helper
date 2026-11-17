@@ -4154,7 +4154,7 @@
     "sourceUrl": "https://note.com/gingakuwagata/n/nd4d586017316",
     "canonicalUrl": "https://note.com/gingakuwagata/n/nd4d586017316",
     "title": "環境総括：シーズンM-4（シングル）",
-    "authorName": "くわがた",
+    "authorName": "くわがた@育児と好き語り",
     "publishedAt": "2026-08-09T13:13:18.000Z",
     "battleFormat": "single",
     "regulationId": "M-B",
@@ -4199,12 +4199,12 @@
       "unresolved": 0
     },
     "firstCollectedAt": "2026-08-09T13:37:27.967Z",
-    "lastCollectedAt": "2026-08-09T13:37:27.967Z",
-    "contentFingerprint": "9f07297804072825cf940cc9c844ddfb46455a91672cc9a0c77aec34c68f34c8",
+    "lastCollectedAt": "2026-11-17T01:05:53.019Z",
+    "contentFingerprint": "3ee18145a184a68d18e3b03ba58d2aaee71bc859a83bda9c12d8a93f3e2a0ce8",
     "extractorVersion": "2.0.1",
     "status": "active",
     "consecutiveFetchFailures": 0,
-    "lastSuccessfulFetchAt": "2026-08-09T13:37:27.967Z"
+    "lastSuccessfulFetchAt": "2026-11-17T01:05:53.019Z"
   },
   {
     "id": "note-ncbcf39e9bed4",
@@ -4547,7 +4547,7 @@
     "contentFingerprint": "97d24e34c2f2221b26441970a195abf7ef9ef3624cc777ff3c5bdf64d2ba3af0",
     "extractorVersion": "2.0.1",
     "status": "removed",
-    "consecutiveFetchFailures": 142,
+    "consecutiveFetchFailures": 143,
     "lastSuccessfulFetchAt": "2026-08-12T15:16:21.541Z"
   },
   {
