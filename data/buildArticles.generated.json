@@ -4547,7 +4547,7 @@
     "contentFingerprint": "97d24e34c2f2221b26441970a195abf7ef9ef3624cc777ff3c5bdf64d2ba3af0",
     "extractorVersion": "2.0.1",
     "status": "removed",
-    "consecutiveFetchFailures": 145,
+    "consecutiveFetchFailures": 146,
     "lastSuccessfulFetchAt": "2026-08-12T15:16:21.541Z"
   },
   {
@@ -7502,5 +7502,67 @@
     "status": "active",
     "consecutiveFetchFailures": 0,
     "lastSuccessfulFetchAt": "2026-11-05T09:52:20.955Z"
+  },
+  {
+    "id": "note-n3ee2e3321d5e",
+    "source": "note",
+    "sourceArticleId": "n3ee2e3321d5e",
+    "sourceUrl": "https://note.com/r_saltpudding/n/n3ee2e3321d5e",
+    "canonicalUrl": "https://note.com/r_saltpudding/n/n3ee2e3321d5e",
+    "title": "【シーズンM-3】クチート博士獲得まで使ってみた【ポケモンチャンピオンズ】【レギュレーションM-B】",
+    "authorName": "るり",
+    "publishedAt": "2026-07-04T17:58:55.000Z",
+    "battleFormat": "double",
+    "regulationId": "M-B",
+    "builderSeasonId": "season-m3",
+    "result": "最高レート2071",
+    "pokemonSlugs": [],
+    "tags": [
+      "ポケモン",
+      "ランクマッチ",
+      "ダブルバトル",
+      "ランクマ",
+      "ポケモン対戦",
+      "クチート",
+      "2026年",
+      "ポケモン構築記事"
+    ],
+    "summary": "M-3のダブル構築記事です。最高レート2071。採用ポケモンと構築の詳細は元記事で確認できます。",
+    "thumbnail": {
+      "url": "https://assets.st-note.com/production/uploads/images/291504199/rectangle_large_type_2_e2a7cbf335d54569a38b9319385c2f13.png",
+      "source": "structured-data",
+      "alt": "【シーズンM-3】クチート博士獲得まで使ってみた【ポケモンチャンピオンズ】【レギュレーションM-B】のサムネイル",
+      "width": 710,
+      "height": 372
+    },
+    "collectionCompleteness": "metadata-only",
+    "extractionConfidence": 0.9,
+    "missingFields": [
+      "pokemonSlugs"
+    ],
+    "teamExtractionMethod": null,
+    "teamExtractionIssue": "team-section-not-found",
+    "extractionEvidence": null,
+    "qualityScore": {
+      "targetGameConfidence": 0.8,
+      "formatConfidence": 0.5,
+      "seasonConfidence": 0.75,
+      "teamConfidence": 0,
+      "overallConfidence": 0.49
+    },
+    "pokemonNameResolutionStats": {
+      "exact": 0,
+      "alias": 0,
+      "decorated": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    },
+    "firstCollectedAt": "2026-11-18T01:19:43.465Z",
+    "lastCollectedAt": "2026-11-18T01:19:43.465Z",
+    "contentFingerprint": "f93f0924647aa45845ce300286a60fec664eaf3151080b90d5f83f9cfc116851",
+    "extractorVersion": "2.0.1",
+    "status": "active",
+    "consecutiveFetchFailures": 0,
+    "lastSuccessfulFetchAt": "2026-11-18T01:19:43.465Z"
   }
 ]
